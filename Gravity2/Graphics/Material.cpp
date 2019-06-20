@@ -1,0 +1,233 @@
+#include "stdafx.h"
+
+
+Material::Material() : name{}, shader{}, info{}, uniforms{}, textures{} {}
+
+
+Material::Material(const MaterialCreationInfo &Info) { Alloc(Info); }
+
+
+Material::Material(const Material &Other) { *this = Other; }
+
+
+Material::Material(Material &&Other) { *this = std::move(Other); }
+
+
+Material& Material::operator= (const Material &Other) {
+	if (this != &Other) {
+		name		= Other.name;
+		shader		= Other.shader;
+		info		= Other.info;
+		uniforms	= Other.uniforms;
+		textures	= Other.textures;
+	}
+
+	return *this;
+}
+
+
+Material& Material::operator= (Material &&Other) {
+	if (this != &Other) {
+		Free();
+
+		shader		= Other.shader;
+		info		= Other.info;
+		uniforms	= Other.uniforms;
+		textures	= Other.textures;
+
+		Other.Free();
+	}
+
+
+	return *this;
+}
+
+
+Material::~Material() { Free(); }
+
+
+void Material::Alloc(const MaterialCreationInfo &Info) {
+	name = Info.name;
+	
+	if (Info.shader) {
+		ShaderAttr attr;
+
+		shader = Info.shader;
+		shader->RetrieveAttributes(&attr);
+
+		uniforms = attr.uniforms;
+	}
+	
+	if (Info.textures.Length())
+		textures = Info.textures;
+}
+
+
+void Material::Free() {
+	shader	= nullptr;
+	info	= nullptr;
+
+	name.Release();
+	uniforms.clear();
+	textures.Release();
+}
+
+
+bool Material::SetBool(const String &Uniform, bool Value) {
+	auto it = uniforms.find(Uniform);
+
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.type != ATTR_TYPE_BOOL)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetInt(const String &Uniform, int Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.type != ATTR_TYPE_INT)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetFloat(const String &Uniform, float Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.type != ATTR_TYPE_FLOAT)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetVector(const String &Uniform, glm::vec2 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_VEC2)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetVector(const String &Uniform, glm::vec3 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_VEC3)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetVector(const String &Uniform, glm::vec4 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_VEC4)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetMatrix(const String &Uniform, glm::mat2 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_MAT2)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetMatrix(const String &Uniform, glm::mat3 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_MAT3)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetMatrix(const String &Uniform, glm::mat4 Value) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (it->second.subType != ATTR_SUB_MAT4)
+		return false;
+
+	uniforms[Uniform].UpdateValue(Value);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
+
+
+bool Material::SetTexture(const String &Uniform, Texture *Texture) {
+	auto it = uniforms.find(Uniform);
+	
+	if (it == uniforms.end())
+		return false;
+
+	if (!shader->IsUniformAMaterial(it->second))
+		return false;
+
+	uniforms[Uniform].UpdateValue(Texture->type);
+	uniforms[Uniform].inUse = true;
+
+	return true;
+}
