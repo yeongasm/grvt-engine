@@ -13,7 +13,9 @@ int main() {
 	EulerCamera		*camera		= new EulerCamera();
 
 	Scene		*witch		= nullptr;
-	Shader		*shader		= nullptr;
+	Scene		*cube		= nullptr;
+	Shader		*diffuse	= nullptr;
+	Shader		*rawColour	= nullptr;
 	Material	*material	= nullptr;
 	Light		*light		= nullptr;
 
@@ -28,6 +30,13 @@ int main() {
 		info.type		= SCENE_TYPE_CUSTOM; 
 
 		witch = manager->NewScene(info);
+
+		info.name		= "Base Cube";
+		info.directory	= RootDir("Assets/Primitives/Obj/");
+		info.file		= "cube.obj";
+		info.type		= SCENE_TYPE_BASIC_CUBE;
+
+		cube = manager->NewScene(info);
 	}
 
 	{
@@ -37,12 +46,21 @@ int main() {
 		info.vertexShader	= "basic_diffused.vs";
 		info.fragmentShader = "basic_diffused.fs";
 
-		shader = manager->NewShader(info);
+		diffuse = manager->NewShader(info);
+
+		info.name			= "Simple Raw Colour Shader";
+		info.fragmentShader = "RawColour.fs";
+
+		rawColour = manager->NewShader(info);
 	}
 
 	SceneInstanceCreation info;
-	info.shader = shader;
+	
+	info.shader = diffuse;
 	SceneInstance *witchInst = witch->CreateInstance(info);
+	
+	info.shader = rawColour;
+	SceneInstance *cubeInst	= cube->CreateInstance(info);
 
 	{
 		TextureCreationInfo info;
@@ -63,7 +81,7 @@ int main() {
 
 		MaterialCreationInfo mat;
 		mat.name			= "Witch_body_material";
-		mat.shader			= shader;
+		mat.shader			= diffuse;
 		mat.textures.Push(body);
 
 		Material *bodyMat	= manager->NewMaterial(mat);
@@ -82,9 +100,19 @@ int main() {
 		witchInst->GetNode(2)->PushMaterial(objMat);
 		witchInst->GetNode(3)->PushMaterial(objMat);
 		witchInst->GetNode(4)->PushMaterial(objMat);
+
+		mat.name = "Raw Cube Colour";
+		mat.shader = rawColour;
+		mat.textures.Release();
+
+		Material *cubeMat = manager->NewMaterial(mat);
+		cubeMat->SetVector("colour", glm::vec3(1.0f, 1.0f, 1.0f));
+
+		cubeInst->GetNode(0)->PushMaterial(cubeMat);
 	}
 
 	witchInst->renderState.DefaultModelRenderState();
+	cubeInst->renderState.DefaultModelRenderState();
 
 	EulerCameraInitInfo camInfo;
 
@@ -137,10 +165,15 @@ int main() {
 			camera->ProcessMouseScroll(io.mouseWheel);
 		}
 		
+
+		cubeInst->SetPosition(glm::vec3(15.0f, 0.0f, -1.0f));
+		cubeInst->SetScale(glm::vec3(10.0f));
+
 		witchInst->SetPosition(glm::vec3(-5.0f, 2.0f, 0.0f));
 
 		renderer->AttachCamera(camera);
 		renderer->PushSceneForRender(witchInst);
+		renderer->PushSceneForRender(cubeInst);
 
 		renderer->Render();
 
