@@ -8,8 +8,7 @@
 enum LightType : uint {
 	LIGHT_TYPE_NONE			= 0x00,
 	LIGHT_TYPE_DIRECTIONAL	= 0x01,
-	LIGHT_TYPE_SPOTLIGHT	= 0x02,
-	LIGHT_TYPE_POINTLIGHT	= 0x03
+	LIGHT_TYPE_POINTLIGHT	= 0x02
 };
 
 
@@ -45,7 +44,9 @@ struct LightCreationInfo {
 
 /**
 * Light data structure.
-* Default Compute() method passes data into the shader for Directional Lights calculations.
+*
+* This is the BASE class for all light types.
+* NEVER create an object of this base light data structure.
 *
 * TODO(Afiq):
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
@@ -83,23 +84,63 @@ public:
 
 
 /**
+* Directional light data structure.
+* 
+* We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
+* Compute method computes information required for directional light.
+*/
+class DirLight : public Light {
+public:
+
+	DirLight();
+
+	DirLight(const DirLight &Other);
+	DirLight(DirLight &&Other);
+
+	DirLight& operator= (const DirLight &Other);
+	DirLight& operator= (DirLight &&Other);
+
+	~DirLight();
+
+	void		Compute		(Shader *Shader);
+};
+
+
+/**
 * Point Light data structure.
 * Compute() method is overridden in this structure and is used to pass in data for Point Light calculations.
+* Corinna Kopf
 *
 * TODO(Afiq):
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
 class PointLight : public Light {
+private:
+
+	bool simplified;
+
 public:
 	/**
 	* NOTE(Afiq):
 	* For now we manually set in the values for the constants, linear and quadratic.
 	* In the future, we adjust these values base on the assigned radius.
 	*/
-
 	float constant;
 	float linear;
 	float quadratic;
 	float radius;
+
+	PointLight();
+
+	PointLight(const PointLight &Other);
+	PointLight(PointLight &&Other);
+
+	PointLight& operator= (const PointLight &Other);
+	PointLight& operator= (PointLight &&Other);
+
+	~PointLight();
+
+	void		UseRadiusForAttenuation	(bool Enable = true);
+	void		Compute					(Shader *Shader);
 };

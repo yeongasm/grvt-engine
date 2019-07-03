@@ -60,6 +60,7 @@
 
 #include "Camera/Camera.h"
 
+#include "Level/Scenery.h"
 #include "Manager/Manager.h"
 #include "Renderer/Renderer.h"
 #include "Application/InputHandler.h"

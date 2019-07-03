@@ -124,11 +124,131 @@ void Light::Free() {
 }
 
 
-void Light::Compute(Shader *Shader) {
+void Light::Compute(Shader *Shader) {}
+
+
+DirLight::DirLight() : Light() {}
+
+
+DirLight::DirLight(const DirLight &Other) { *this = Other; }
+
+
+DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
+
+
+DirLight& DirLight::operator= (const DirLight &Other) {
+	Light::operator=(Other);
+
+	return *this;
+}
+
+
+DirLight& DirLight::operator= (DirLight &&Other) {
+	Light::operator=(std::move(Other));
+
+	return *this;
+}
+
+
+DirLight::~DirLight() {
+	Free();
+}
+
+
+void DirLight::Compute(Shader *Shader) {
 	// NOTE(Afiq):
 	// Be sure to use this naming scheme inside the shader as well.
 	// In the future, this function would be use to compute the light's view matrix for shadow calculation.
 	Shader->SetFloat("DirLight.brightness", brightness);
 	Shader->SetVector("DirLight.position", position);
 	Shader->SetVector("DirLight.colour", lightColour);
+}
+
+
+PointLight::PointLight() :
+	Light(),
+	simplified(false),
+	constant(1.0f),
+	linear(0.0f),
+	quadratic(0.0f),
+	radius(0.0f) {}
+
+
+PointLight::PointLight(const PointLight &Other) { *this = Other; }
+
+
+PointLight::PointLight(PointLight &&Other) { *this = std::move(Other); }
+
+
+PointLight& PointLight::operator= (const PointLight &Other) {
+	// Ensures that the object is not being assigned to itself. Only in debug.
+	_ASSERTE(this != &Other);
+
+	if (this != &Other) {
+		simplified	= Other.simplified;
+		constant	= Other.constant;
+		linear		= Other.linear;
+		quadratic	= Other.quadratic;
+		radius		= Other.radius;
+
+		Light::operator=(Other);
+	}
+
+	return *this;
+}
+
+
+PointLight& PointLight::operator= (PointLight &&Other) {
+	// Ensures that the object is not being assigned to itself. Only in debug.
+	_ASSERTE(this != &Other);
+
+	if (this != &Other) {
+		simplified	= Other.simplified;
+		constant	= Other.constant;
+		linear		= Other.linear;
+		quadratic	= Other.quadratic;
+		radius		= Other.radius;
+		
+		Light::operator=(std::move(Other));
+
+		new (&Other) PointLight();
+	}
+
+	return *this;
+}
+
+
+PointLight::~PointLight() {
+	simplified	= false;
+	constant	= 0.0f;
+	linear		= 0.0f;
+	quadratic	= 0.0f;
+	radius		= 0.0f;
+
+	Free();
+}
+
+
+void PointLight::UseRadiusForAttenuation(bool Enable) {
+	if (simplified != Enable)
+		simplified = Enable;
+}
+
+
+void PointLight::Compute(Shader *Shader) {
+	float kC = constant;
+	float kL = linear;
+	float kQ = quadratic;
+
+	if (simplified) {
+		kL = 2 / radius;
+		kQ = 1 / (radius * radius);
+	}
+
+	Shader->SetFloat("DirLight.brightness", brightness);
+	Shader->SetFloat("PointLight.constant", kC);
+	Shader->SetFloat("PointLight.linear", kL);
+	Shader->SetFloat("PointLight.quadratic", kQ);
+	Shader->SetVector("PointLight.position", position);
+	Shader->SetVector("PointLight.colour", lightColour);
 }

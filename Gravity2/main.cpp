@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <string>
 
 
 int main() {
@@ -21,6 +22,7 @@ int main() {
 
 	renderer->SCR_WIDTH = app->width;
 	renderer->SCR_HEIGHT = app->height;
+
 
 	{
 		SceneCreationInfo info;

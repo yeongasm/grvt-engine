@@ -168,10 +168,13 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)(SCR_WIDTH / SCR_HEIGHT), 0.1f, 1000.0f);
 	glm::mat4 view = camera->GetViewMatrix();
+	glm::mat4 composite = projection * view * Command->model;
 
-	activeShader->SetMatrix("projection", projection);
-	activeShader->SetMatrix("view", view);
-	activeShader->SetMatrix("model", Command->model);
+	activeShader->SetMatrix("composite", composite);
+
+	//activeShader->SetMatrix("projection", projection);
+	//activeShader->SetMatrix("view", view);
+	//activeShader->SetMatrix("model", Command->model);
 
 	for (RenderCommand::RenderNode &node : Command->nodes) {
 		// Update shader uniforms here and bind texture units to it's respective slots.
