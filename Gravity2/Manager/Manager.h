@@ -98,6 +98,7 @@ private:
 	std::map<String, ShaderData*  >	shaders;
 	std::map<String, SceneData*   >	scenes;
 	std::map<String, MaterialData*> materials;
+	std::map<String, Scenery*>		levels;
 	
 	/**
 	* A step up from the previous version where we use templates instead of a long list of enums.
@@ -125,16 +126,19 @@ public:
 	Shader*		NewShader			(const ShaderCreationInfo &Info);
 	Texture*	NewTexture			(const TextureCreationInfo &Info);
 	Material*	NewMaterial			(const MaterialCreationInfo &Info);
+	Scenery*	NewLevel			(const String &name);
 
 	Scene*		GetScene			(const String &Name);
 	Shader*		GetShader			(const String &Name);
 	Texture*	GetTexture			(const String &Name);
 	Material*	GetMaterial			(const String &Name);
+	Scenery*	GetLevel			(const String &Name);
 
 	bool		DeleteScene			(const String &Name);
 	bool		DeleteShader		(const String &Name);
 	bool		DeleteTexture		(const String &Name);
 	bool		DeleteMaterial		(const String &Name);
+	bool		DeleteLevel			(const String &Name);
 
 	void		CleanResource		();
 

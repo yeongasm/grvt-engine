@@ -47,6 +47,11 @@ struct RenderCommand {
 	~RenderCommand();
 };
 
+
+/**
+* TODO(Afiq): 
+* Allow Renderer to only render contents from a Scenery object.
+*/
 class Renderer {
 private:
 	// This class is mainly for inserting commands like blending, face culling or depth testing.
@@ -83,7 +88,7 @@ private:
 	};
 
 	Array<RenderCommand>	renderCommands;
-	Array<Light>			renderLights;
+	Array<RenderCommand>	instancedCommands;
 	//Array<RenderCommand>	alphaCommands;
 	RenderFuncs				settings;
 	Shader					*activeShader;
@@ -96,7 +101,7 @@ private:
 
 public:
 	// Make the renderer just point to the current Camera. Futureproofing for future cameras.
-
+	// TODO(Afiq): This needs to take in the framebuffer's height and width instead.
 	uint SCR_WIDTH, SCR_HEIGHT;
 
 	Renderer();

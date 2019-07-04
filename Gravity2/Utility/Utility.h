@@ -64,7 +64,8 @@ enum LogComponent : size_t {
 	LOG_MATERIAL	= 5,
 	LOG_SCENEINST	= 6,
 	LOG_APP			= 7,
-	LOG_LIGHT		= 8
+	LOG_LIGHT		= 8,
+	LOG_LEVEL		= 9
 };
 
 /**

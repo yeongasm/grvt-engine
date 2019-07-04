@@ -229,19 +229,32 @@ void Scene::Free() {
 	instanced	= false;
 	info		= nullptr;
 
-	// Delete mesh objects from the heap. Reset them back to nullptr.
+	// Delete mesh objects from the heap. Reset them to nullptr.
 	for (size_t i = 0; i < meshes.Length(); i++) {
 		delete meshes[i];
 		meshes[i] = nullptr;
 	}
 
-	for (size_t i = 0; i < instances.Length(); i++) {
-		delete instances[i];
-		instances[i] = nullptr;
-	}
-
+	instances.Release();
 	meshes.Release();
 	models.Release();
+}
+
+
+bool Scene::RemoveInstance(SceneInstance *Instance, bool Move) {
+	size_t idx = -1;
+
+	for (SceneInstance &instance : instances) {
+		if (Instance != &instance)
+			continue;
+
+		idx = instances.IndexOf(instance);
+		break;
+	}
+
+	instances.PopAt(idx, Move);
+
+	return (idx == -1) ? false : true;
 }
 
 
@@ -249,8 +262,8 @@ SceneInstance* Scene::CreateInstance(const SceneInstanceCreation &Info) {
 	if (!Info.shader)
 		return nullptr;
 
-	size_t idx = instances.Push(new SceneInstance());
-	SceneInstance *instance = instances[idx];
+	size_t idx = instances.Push(SceneInstance());
+	SceneInstance *instance = &instances[idx];
 
 	instance->id = ((info->id * 1000) + (uint)idx);
 	instance->Alloc(Info, this);

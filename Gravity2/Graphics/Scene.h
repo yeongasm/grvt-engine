@@ -99,7 +99,7 @@ class Scene {
 public:
 	using MeshArr	= Array<Mesh*>;
 	using ModelArr	= Array<glm::mat4>;
-	using Instances = Array<SceneInstance*>;
+	using Instances = Array<SceneInstance>;
 
 	bool		instanced;
 	SceneType	type;
@@ -117,5 +117,6 @@ public:
 	~Scene();
 
 	void			Free			();
+	bool			RemoveInstance	(SceneInstance *Instance, bool Move = false);
 	SceneInstance*	CreateInstance	(const SceneInstanceCreation &Info);
 };

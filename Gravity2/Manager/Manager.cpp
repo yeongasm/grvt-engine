@@ -438,6 +438,36 @@ Material* ResourceManager::NewMaterial(const MaterialCreationInfo &Info) {
 }
 
 
+Scenery* ResourceManager::NewLevel(const String &Name) {
+	String msg;
+
+	// 1. Material must contain a name.
+	if (!Name.Length()) {
+		msg.SetString("A name must be specified for the level. Aborting operation!");
+		Logger::Log(LOG_WARN, LOG_LEVEL, msg);
+
+		return nullptr;
+	}
+
+	// 2. Check if material with the existing name exist.
+	for (auto &pair : levels) {
+		if (pair.second->name == Name) {
+			msg.SetString("Level name must be unique. Level with such name already exist in engine.");
+			Logger::Log(LOG_WARN, LOG_LEVEL, msg);
+
+			return nullptr;
+		}
+	}
+
+	auto it = levels.emplace(Name, new Scenery()).first;
+	Scenery *level = it->second;
+
+	level->name = Name;
+
+	return level;
+}
+
+
 Scene* ResourceManager::GetScene(const String &Name) {
 	Scene *pScene = nullptr;
 	
@@ -530,6 +560,29 @@ Material* ResourceManager::GetMaterial(const String &Name) {
 }
 
 
+Scenery* ResourceManager::GetLevel(const String &Name) {
+	Scenery *pLevel = nullptr;
+
+	String msg("Attempting to retrieve [%s] level from engine", ~Name);
+	Logger::Log(LOG_INFO, LOG_MATERIAL, msg);
+
+	auto it = levels.find(Name);
+
+	if (it != levels.end())
+		pLevel = it->second;
+
+	if (!pLevel) {
+		msg.Write("Unable to retrieve [%s] level from engine", ~Name);
+		Logger::Log(LOG_INFO, LOG_LEVEL, msg);
+	} else {
+		msg.SetString("Level retrieved from engine!");
+		Logger::Log(LOG_INFO, LOG_LEVEL, msg);
+	}
+
+	return pLevel;
+}
+
+
 bool ResourceManager::DeleteScene(const String &Name) {
 	String msg("Attempting to delete [%s] scene.", ~Name);
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
@@ -618,6 +671,28 @@ bool ResourceManager::DeleteMaterial(const String &Name) {
 }
 
 
+bool ResourceManager::DeleteLevel(const String &Name) {
+	String msg("Attenmpting to delete [%s] level", ~Name);
+	Logger::Log(LOG_INFO, LOG_LEVEL, msg);
+
+	auto it = levels.find(Name);
+
+	if (it == levels.end()) {
+		msg.SetString("Unable to find level with such name. Does not exist within engine.");
+		Logger::Log(LOG_ERR, LOG_LEVEL, msg);
+		return false;
+	}
+
+	delete it->second;
+	levels.erase(it);
+
+	msg.SetString("Level deleted!");
+	Logger::Log(LOG_INFO, LOG_LEVEL, msg);
+
+	return true;
+}
+
+
 void ResourceManager::CleanResource() {
 	String msg;
 	msg.SetString("Deleting all resources from engine.");
@@ -639,6 +714,11 @@ void ResourceManager::CleanResource() {
 	}
 
 	for (auto &pair : materials) {
+		delete pair.second;
+		pair.second = nullptr;
+	}
+
+	for (auto &pair : levels) {
 		delete pair.second;
 		pair.second = nullptr;
 	}

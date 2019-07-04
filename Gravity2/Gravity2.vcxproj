@@ -178,6 +178,7 @@
     <ClCompile Include="Graphics\Lighting.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
     <ClCompile Include="Graphics\SceneInstace.cpp" />
+    <ClCompile Include="Level\Scenery.cpp" />
     <ClCompile Include="Manager\Manager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
@@ -212,6 +213,7 @@
     <ClInclude Include="Graphics\Lighting.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\SceneInstace.h" />
+    <ClInclude Include="Level\Scenery.h" />
     <ClInclude Include="Manager\Manager.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Graphics\Shader.h" />

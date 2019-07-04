@@ -203,14 +203,12 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
 Renderer::Renderer() : 
 	renderCommands{},
-	renderLights{},
 	settings {}, 
 	activeShader{}, 
 	camera{} {}
 
 
 Renderer::~Renderer() {
-	renderLights.Release();
 	renderCommands.Release();
 }
 

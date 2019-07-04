@@ -116,6 +116,20 @@ int main() {
 	witchInst->renderState.DefaultModelRenderState();
 	cubeInst->renderState.DefaultModelRenderState();
 
+	//Scenery *level = manager->NewLevel("Level 01");
+
+	//LightCreationInfo lightInfo;
+	//lightInfo.name = "Directional light";
+	//lightInfo.type = LIGHT_TYPE_DIRECTIONAL;
+
+	//DirLight *dirlight = level->AddDirectionalLight(lightInfo);
+
+	//lightInfo.name = "Point light";
+	//lightInfo.type = LIGHT_TYPE_POINTLIGHT;
+	//lightInfo.position = glm::vec3(5.0f, 5.0f, 2.0f);
+
+	//PointLight *pointlight = level->AddPointLight(lightInfo);
+
 	EulerCameraInitInfo camInfo;
 
 	camInfo.position		= glm::vec3(0.0f, 20.0f, 60.0f);

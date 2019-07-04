@@ -330,7 +330,7 @@ public:
 	* @param Element - An element to be pushed into the back of the Array.
 	*/
 	template <class _Type>
-	_Type& Insert(_Type &&Element) {
+	decltype(auto) Insert(_Type &&Element) {
 		size_t idx = Push(std::forward<_Type>(Element));
 
 		return pArr[idx];
@@ -448,8 +448,7 @@ public:
 			new (pArr + --curPos) ElementType();
 
 			//curPos--;
-		}
-		else {
+		} else {
 			new (pArr + Idx) ElementType();
 		}
 

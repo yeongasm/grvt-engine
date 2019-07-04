@@ -44,7 +44,7 @@ String *Logger::logType = logErrorTypes;
 
 static String logComponentTypes[] = {"SHADER", "TEXTURE", "SCENE", 
 	"MANAGER", "OPEN FILE", "MATERIAL", "SCENE INSTANCE", "APP",
-	"LIGHT"};
+	"LIGHT", "LEVEL"};
 String *Logger::logComponent = logComponentTypes;
 
 
