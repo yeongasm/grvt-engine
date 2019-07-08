@@ -18,76 +18,94 @@ using uint64	= unsigned __int64;
 
 
 /**
+* Iterator data structure.
+*/
+template <class ElementType>
+class Iterator {
+private:
+	ElementType *pointer;
+
+public:
+	Iterator() : pointer(nullptr) {};
+
+	Iterator(ElementType *Other) : pointer(Other) {}
+	
+	Iterator(const Iterator &Other) { *this = Other; }
+
+	Iterator(Iterator &&Other) { *this = std::move(Other); }
+
+	Iterator& operator= (const Iterator &Other) {
+		_ASSERTE(this != &Other);
+
+		if (this != &Other)
+			pointer = Other.pointer;
+		
+		return *this;
+	}
+
+	Iterator& operator= (Iterator &&Other) {
+		_ASSERTE(this != &Other);
+
+		if (this != &Other) {
+			pointer = Other.pointer;
+
+			new (this) Iterator();
+		}
+
+		return *this;
+	}
+
+	Iterator& operator++ () {
+		++pointer;
+		return *this;
+	}
+
+	Iterator& operator-- () {
+		--pointer;
+		return *this;
+	}
+
+	bool operator!= (const Iterator& Other) const {
+		return pointer != Other.pointer;
+	}
+
+	ElementType& operator* () const {
+		return *pointer;
+	}
+
+	ElementType& operator+ (const size_t &Offset) {
+		return *(pointer + Offset);
+	}
+
+	ElementType& operator- (const size_t &Offset) {
+		return *(pointer - Offset);
+	}
+
+	ElementType& operator[] (const size_t & Offset) {
+		return *(pointer + Offset);
+	}
+};
+
+
+/**
 * Templated hybrid Array. Can be used as a static Array or dynamic Array.
 *
 * This array's size grows exponentially!
 * Internal capacity scales with the powers of two starting with 2 ^ 5 by default.
-*
 */
 template <class ElementType, unsigned int BufferBits = 5>
 class Array {
+public:
+
+	using Iterator = Iterator<ElementType>;
+
 protected:
 
 	size_t	len;
 	size_t	curPos;
 	ElementType	*pArr;
 
-public:
-
-	/**
-	* Custom iterator class used for ranged-based for loops.
-	*/
-	class Iterator {
-	private:
-		ElementType *pointer;
-
-	public:
-		Iterator() {};
-
-		Iterator(ElementType *Other) : pointer(Other) {}
-
-		Iterator& operator++ () {
-			++pointer;
-			return *this;
-		}
-
-		Iterator& operator-- () {
-			--pointer;
-			return *this;
-		}
-
-		bool operator!= (const Iterator& Other) const {
-			return pointer != Other.pointer;
-		}
-
-		ElementType& operator* () const {
-			return *pointer;
-		}
-
-		ElementType& operator+ (const size_t &Offset) {
-			return *(pointer + Offset);
-		}
-
-		ElementType& operator- (const size_t &Offset) {
-			return *(pointer - Offset);
-		}
-
-		ElementType& operator[] (const size_t & Offset) {
-			return *(pointer + Offset);
-		}
-	};
-
 private:
-
-	size_t _CalcNewSize(const size_t &Length) {
-		int tBits = 1;
-		int tSize = 0;
-
-		while (tSize <= (int)Length)
-			tSize = 1 << tBits++;
-
-		return (size_t)tSize;
-	}
 
 	void _Destruct(size_t FromIdx = 0, size_t ToIdx = curPos, const bool Reconstruct = false) {
 
@@ -111,7 +129,7 @@ private:
 			if (Length < len)
 				_Destruct(Length, len);
 
-			len = (Append) ? _CalcNewSize(len + Length) : _CalcNewSize(Length);
+			len = (Append) ? len + Length : Length;
 
 			tempArr = (ElementType*)realloc(pArr, sizeof(ElementType) * len);
 
@@ -122,11 +140,9 @@ private:
 				new (tempArr + i) ElementType();
 
 			//curPos = len;
+		} else if (!curPos || curPos == len) {
 
-		}
-		else if (!curPos || curPos == len) {
-
-			len = (!curPos) ? 1 << BufferBits : _CalcNewSize(curPos);
+			len = (!curPos) ? 1 << BufferBits : len + (1 << BufferBits);
 
 			tempArr = (ElementType*)realloc(pArr, sizeof(ElementType) * len);
 
@@ -391,9 +407,8 @@ public:
 		if (RemLocal)
 			Release();
 
-		for (size_t i = 0; i < Other.Length(); i++) {
+		for (size_t i = 0; i < Other.Length(); i++)
 			Push(Other[i]);
-		}
 
 		if (RemForeign)
 			Other.Release();
@@ -479,14 +494,16 @@ public:
 		ElementType *tempArr = nullptr;
 
 		_Destruct(curPos, len);
-		len = curPos;
+		size_t length = (curPos <= len ) ? curPos : len;
 
-		tempArr = (ElementType*)realloc(pArr, sizeof(ElementType) * len);
+		if (length < len) {
+			tempArr = (ElementType*)realloc(pArr, sizeof(ElementType) * len);
+			
+			if (!tempArr)
+				return false;
 
-		if (!tempArr)
-			return false;
-
-		pArr = tempArr;
+			pArr = tempArr;
+		}
 
 		return true;
 	}
@@ -631,6 +648,7 @@ public:
 * It is also recommended to compare strings with the object itself. The String object generates a hash that does faster string comparison.
 * TODO(Afiq):
 * Implement Boyer Moore Algorithm for string search function.
+* IMPORTANT!!! The string class really needs to be redone. It must no longer be derived from the Array class.
 */
 class String : public Array<char> {
 private:
@@ -645,11 +663,11 @@ private:
 		if (curPos > 0)
 			Release();
 
-		// Increase the Array's buffer size.
-		// NOTE: The Array's growth is extremely exponential; twice from it's existing capacity.
-		Array::Reserve(Len, false);
+		Array::Reserve(Len + 1, false);
 
-		memcpy(pArr, Buffer, sizeof(char) * Len);
+		//memcpy(pArr, Buffer, sizeof(char) * Len);
+		for (size_t i = 0; i < Len + 1; i++)
+			pArr[i] = Buffer[i];
 		// The index of the null terminated character should be at a position that is the length of the string. REMINDER: Arrays start with 0!
 		pArr[Len] = '\0';
 		curPos = Len + 1;
@@ -675,9 +693,8 @@ private:
 
 		char* buff = nullptr;
 		buff = (char*)malloc(sizeof(char) * (len + 1));
-		//buff[len - 1] = '\0';
-
-		len = vsnprintf(buff, len + 1, Format, args2);
+		vsnprintf(buff, len + 1, Format, args2);
+		buff[len] = '\0';
 
 		// Encoding error! This should really be replaced with a log feature in the future.
 		_ASSERTE(len >= 0);

@@ -36,6 +36,11 @@
 #define ArrayLen(Arr) ((int)(sizeof(Arr)/sizeof(*Arr)))
 
 
+#define CopyRawArray(Dst, Src)					\
+	for (size_t i = 0; i < ArrayLen(Dst); i++)	\
+		Dst[i] = Src[i];						
+
+
 /**
 * Opens a file at the specified path and pushes it's contents into a buffer.
 * @param [REQUIRED] (String) Buffer - Buffer to stream in file contents.

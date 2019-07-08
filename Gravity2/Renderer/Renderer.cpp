@@ -253,6 +253,9 @@ void Renderer::PushSceneForRender(SceneInstance *Instance) {
 
 void Renderer::Render() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
+	// Short fix for the jaggies.
+	glEnable(GL_MULTISAMPLE);
 	// Currently we only use the default frambuffer to render our objects into.
 	// In the future, we should probably have a RenderTarget class and iterate all over that instead.
 

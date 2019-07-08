@@ -12,12 +12,12 @@
 */
 class Scenery {
 private:
-	using Instances = Array<SceneInstance*>;
+	using Instances = SceneInstance*;
 
-	bool			hasDirLight;
-	DirLight*		dirLight;
-	Array<Light*>	lights;
-	Instances		renderInstances;
+	bool				hasDirLight;
+	DirLight*			dirLight;
+	Array<Light*>		lights;
+	Array<Instances>	renderInstances;
 
 	size_t			CheckLightName			(const String &Name);
 
@@ -38,8 +38,6 @@ public:
 	void			Free					();
 
 	void			PushSceneInstance		(SceneInstance *Instance);
-	void			GetInstancesOfScene		(Scene *Scene, Array<SceneInstance*> &Buffer);
-	
 	SceneInstance*	CreateSceneInstance		(Scene *Scene, const SceneInstanceCreation &Info);
 	DirLight*		AddDirectionalLight		(const LightCreationInfo &Info);
 	PointLight*		AddPointLight			(const LightCreationInfo &Info);

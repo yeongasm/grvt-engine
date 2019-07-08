@@ -6,6 +6,7 @@ private:
 	ResourceManager		*manager;
 	Renderer			*renderer;
 	GLFWwindow			*window;
+	FrameStatistics		fstats;
 	
 	static void GravtiyScrollCallback			(GLFWwindow *Window, double OffsetX, double OffsetY);
 	static void GravityMouseButtonCallback		(GLFWwindow *Window, int Button, int Action, int Mods);
@@ -13,6 +14,7 @@ private:
 	static void GravityFramebufferCallback		(GLFWwindow *Window, int Width, int Height);
 
 public:
+	int					vsyncEnabled;
 	int					glVersionMajor;
 	int					glVersionMinor;
 	int					width;
@@ -37,7 +39,14 @@ public:
 	void				NewFrame			();
 	void				SwapBuffer			();
 	void				SetInputMode		(int Mode, int Value);
+	
+	bool				VSyncStatus			() const;
+
 	float				Tick				();
+	
+	float				FramesPerSecond		()	const;
+	float				TimePerFrame		()	const;
+
 	Renderer*			GetRenderer			()	const;
 	ResourceManager*	GetResourceHandler	()	const;
 

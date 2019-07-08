@@ -11,6 +11,7 @@ private:
 	Mesh		*mesh;
 	Material	*material;
 
+	// TODO(Afiq): There should be a better solution than this.
 	friend class Renderer;
 public:
 

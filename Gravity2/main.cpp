@@ -1,5 +1,15 @@
 #include "stdafx.h"
-#include <string>
+
+
+void InfoWindow(const GravityApp *App) {
+	bool open = true;
+	ImGui::Begin("Render Info", &open);
+	ImGui::Text("Delta time (seconds): %f", App->deltaTime);
+	ImGui::Text("FPS: %.1f", App->FramesPerSecond());
+	ImGui::Text("Single frame: %.4f ms/frame", App->TimePerFrame());
+	ImGui::Text("VSync: %s", (App->VSyncStatus()) ? "Enabled" : "Disabled");
+	ImGui::End();
+}
 
 
 int main() {
@@ -7,7 +17,7 @@ int main() {
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 0);
 	
 	app->Init();
-	app->EnableVSync(true);
+	app->EnableVSync(0);
 
 	ResourceManager *manager	= app->GetResourceHandler();
 	Renderer		*renderer	= app->GetRenderer();
@@ -143,17 +153,21 @@ int main() {
 
 	camera->Init(camInfo);
 
-	bool	showUI		= false;
+	bool	showUI		= true;
 	float	deltaTime	= 0.0f;
+	bool	enableVSync = app->VSyncStatus();
 
 	AppIO &io = app->io;
+	
+	int nbFrames = 0;
+	double lastTime = glfwGetTime();
 
 	while (!app->CloseAplication()) {
 		app->NewFrame();
 		app->Tick();
 
 		deltaTime = app->deltaTime;
-
+		
 		// NOTE(Afiq): Temporary placeholder for camera system before incorporating UI.
 		{
 
@@ -181,11 +195,10 @@ int main() {
 			camera->ProcessMouseScroll(io.mouseWheel);
 		}
 		
-
-		cubeInst->SetPosition(glm::vec3(15.0f, 0.0f, -1.0f));
+		cubeInst->SetPosition(glm::vec3(15.0f, 0.0f, 0.0f));
 		cubeInst->SetScale(glm::vec3(10.0f));
 
-		witchInst->SetPosition(glm::vec3(-5.0f, 2.0f, 0.0f));
+		witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
 		renderer->AttachCamera(camera);
 		renderer->PushSceneForRender(witchInst);
@@ -197,8 +210,14 @@ int main() {
 			if (io.IsKeyPressed(GLFW_KEY_GRAVE_ACCENT))
 				showUI ^= true;
 
+			if (io.IsKeyPressed(GLFW_KEY_V)) {
+				enableVSync ^= true;
+				app->EnableVSync(enableVSync);
+			}
+
 			if (showUI)
-				ImGui::ShowDemoWindow();
+				InfoWindow(app);
+				//ImGui::ShowDemoWindow();
 		}
 
 		app->SwapBuffer();

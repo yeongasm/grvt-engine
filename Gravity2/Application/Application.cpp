@@ -40,16 +40,19 @@ void GravityApp::GravityFramebufferCallback(GLFWwindow *Window, int Width, int H
 }
 
 
-GravityApp::GravityApp() : 
-	window(nullptr), 
-	manager(nullptr), 
+GravityApp::GravityApp() :
+	window(nullptr),
+	manager(nullptr),
 	renderer(nullptr),
+	vsyncEnabled(0),
 	width(0), 
 	height(0), 
 	name{}, 
 	glVersionMajor{}, 
 	glVersionMinor{},
-	deltaTime{} {}
+	deltaTime{},
+	io{},
+	fstats{} {}
 
 
 GravityApp::~GravityApp() {}
@@ -62,6 +65,7 @@ void GravityApp::Init() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glVersionMajor);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glVersionMinor);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	window = glfwCreateWindow(width, height, ~name, nullptr, nullptr);
 
@@ -111,9 +115,9 @@ void GravityApp::Free() {
 
 
 void GravityApp::EnableVSync(bool Enable) {
-	int interval = (Enable) ? 1 : 0;
+	vsyncEnabled = (Enable) ? 1 : 0;
 
-	glfwSwapInterval(interval);
+	glfwSwapInterval(vsyncEnabled);
 }
 
 
@@ -149,6 +153,11 @@ void GravityApp::SetInputMode(int Mode, int Value) {
 }
 
 
+bool GravityApp::VSyncStatus() const {
+	return vsyncEnabled;
+}
+
+
 float GravityApp::Tick() {
 	static float lastFrame		= 0.0f;
 	static float currentFrame	= 0.0f;
@@ -157,6 +166,9 @@ float GravityApp::Tick() {
 	currentFrame	= (float)glfwGetTime();
 	deltaTime		= min(currentFrame - lastFrame, 0.1f);
 	lastFrame		= currentFrame;
+
+	// 2. Update frame statistics.
+	fstats.Tick(deltaTime);
 
 	// NOTE(Afiq): 
 	// I feel like IO related operations should be placed inside of the NewFrame() function rather than the Tick() function.
@@ -169,6 +181,16 @@ float GravityApp::Tick() {
 		io.mouseButton[i].currState = glfwGetMouseButton(window, i);
 
 	return deltaTime;
+}
+
+
+float GravityApp::FramesPerSecond() const {
+	return fstats.Framerate();
+}
+
+
+float GravityApp::TimePerFrame() const {
+	return fstats.TimePerFrame();
 }
 
 
@@ -203,7 +225,7 @@ GravityApp* NewApplication(const char *AppName, int Width, int Height, int OpenG
 		grApp = new GravityApp();
 
 	grApp->name				= AppName;
-	grApp->width				= Width;
+	grApp->width			= Width;
 	grApp->height			= Height;
 	grApp->glVersionMajor	= OpenGLVMajor;
 	grApp->glVersionMinor	= OpenGLVMinor;

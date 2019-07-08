@@ -65,6 +65,7 @@
 #include "Renderer/Renderer.h"
 #include "Application/InputHandler.h"
 #include "Application/IO.h"
+#include "Application/Statistics.h"
 #include "Application/Application.h"
 
 #endif // !PRECOMPILE_HEADER

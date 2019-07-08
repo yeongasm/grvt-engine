@@ -103,6 +103,9 @@ DirLight* Scenery::AddDirectionalLight(const LightCreationInfo &Info) {
 	Light *light = nullptr;
 
 	if (!hasDirLight) {
+		if (Info.type != LIGHT_TYPE_DIRECTIONAL)
+			return nullptr;
+
 		size_t idx = CheckLightName(Info.name);
 		
 		// A light with such a name already exist.
@@ -117,7 +120,7 @@ DirLight* Scenery::AddDirectionalLight(const LightCreationInfo &Info) {
 		light = dirLight;
 	}
 
-	return (DirLight*)light;
+	return dynamic_cast<DirLight*>(light);
 }
 
 
@@ -126,6 +129,9 @@ PointLight* Scenery::AddPointLight(const LightCreationInfo &Info) {
 
 	size_t idx = CheckLightName(Info.name);
 
+	if (Info.type != LIGHT_TYPE_POINTLIGHT)
+		return nullptr;
+
 	if (idx == -1) {
 		light = lights.Insert(new PointLight());
 		light->Alloc(Info);
@@ -133,7 +139,7 @@ PointLight* Scenery::AddPointLight(const LightCreationInfo &Info) {
 		light = lights[idx];
 	}
 
-	return (PointLight*)light;
+	return dynamic_cast<PointLight*>(light);
 }
 
 
