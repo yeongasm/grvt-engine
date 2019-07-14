@@ -26,10 +26,9 @@ int main() {
 	Scene		*witch		= nullptr;
 	Scene		*cube		= nullptr;
 	Shader		*diffuse	= nullptr;
-	Shader		*rawColour	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
-	PointLight	*pointlight = nullptr;
+	DirLight	*dirLight	= nullptr;
 
 	{
 		SceneCreationInfo info;
@@ -56,20 +55,12 @@ int main() {
 		info.fragmentShader = "basic_diffused.fs";
 
 		diffuse = manager->NewShader(info);
-
-		info.name			= "Simple Raw Colour Shader";
-		info.fragmentShader = "RawColour.fs";
-
-		rawColour = manager->NewShader(info);
 	}
 
 	SceneInstanceCreation info;
 	
 	info.shader = diffuse;
 	SceneInstance *witchInst = witch->CreateInstance(info);
-	
-	info.shader = rawColour;
-	SceneInstance *cubeInst	= cube->CreateInstance(info);
 
 	{
 		TextureCreationInfo info;
@@ -100,9 +91,16 @@ int main() {
 		mat.textures.Push(object);
 
 		Material *objMat	= manager->NewMaterial(mat);
+		
+		bodyMat->SetVector("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+		bodyMat->SetVector("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		bodyMat->SetFloat("material.shininess", 32.0f);
 
-		bodyMat->SetTexture("diffuseTexture", body);
-		objMat->SetTexture("diffuseTexture", object);
+		objMat->SetVector("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+		objMat->SetVector("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		objMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		objMat->SetFloat("material.shininess", 32.0f);
 
 		witchInst->GetNode(0)->PushMaterial(bodyMat);
 		witchInst->GetNode(1)->PushMaterial(objMat);
@@ -110,17 +108,9 @@ int main() {
 		witchInst->GetNode(3)->PushMaterial(objMat);
 		witchInst->GetNode(4)->PushMaterial(objMat);
 
-		mat.name = "Raw Cube Colour";
-		mat.shader = rawColour;
-		mat.textures.Release();
-
-		Material *cubeMat = manager->NewMaterial(mat);
-		cubeMat->SetVector("colour", glm::vec3(1.0f, 1.0f, 1.0f));
-		cubeInst->GetNode(0)->PushMaterial(cubeMat);
 	}
 
 	witchInst->renderState.DefaultModelRenderState();
-	cubeInst->renderState.DefaultModelRenderState();
 
 	{
 		LevelCreationInfo info;
@@ -131,16 +121,12 @@ int main() {
 
 	{	
 		LightCreationInfo info;
-		info.name = "Point light";
-		info.type = LIGHT_TYPE_POINTLIGHT;
-		info.position = glm::vec3(0.0f, 5.0f, 5.0f);
+		info.name = "Directional light";
+		info.type = LIGHT_TYPE_DIRECTIONAL;
+		info.position = glm::vec3(100.0f, 50.0f, 0.0f);
 
-		pointlight = level->AddPointLight(info);
+		dirLight = level->AddDirectionalLight(info);
 	}
-
-	pointlight->constant	= 1.0f;
-	pointlight->linear		= 0.09f;
-	pointlight->quadratic	= 0.032f;
 
 	EulerCameraInitInfo camInfo;
 
@@ -157,26 +143,21 @@ int main() {
 
 	level->AttachCamera(camera);
 	level->PushSceneInstance(witchInst);
-	level->PushSceneInstance(cubeInst);
 
 	bool	showUI		= true;
 	float	deltaTime	= 0.0f;
 	bool	enableVSync = app->VSyncStatus();
 
 	AppIO &io = app->io;
-	
-	int nbFrames = 0;
-	double lastTime = glfwGetTime();
 
 	while (!app->CloseAplication()) {
 		app->NewFrame();
 		app->Tick();
 
 		deltaTime = app->deltaTime;
-		
+
 		// NOTE(Afiq): Temporary placeholder for camera system before incorporating UI.
 		{
-
 			if (io.IsKeyPressed(GLFW_KEY_TAB)) {
 				camera->isActive ^= true;
 
@@ -200,25 +181,20 @@ int main() {
 			camera->ProcessMouseMovement(io.mousePos.x, io.mousePos.y);
 			camera->ProcessMouseScroll(io.mouseWheel);
 		}
-		
-		cubeInst->SetPosition(glm::vec3(15.0f, 0.0f, 0.0f));
-		cubeInst->SetScale(glm::vec3(10.0f));
+
+		renderer->screenWidth = app->width;
+		renderer->screenHeight = app->height;
 
 		witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
-		// Update the projection matrix dimensions for every frame.
-		renderer->screenWidth	= app->width;
-		renderer->screenHeight	= app->height;
+		// Don't render anything if the window is minimised.
+		if (app->width && app->height) {
+			// Before drawing everything onto the screen, we pack the level's data and compute the necessities for the renderer.
+			renderer->PreRenderLevel(level);
 
-		// Before drawing everything onto the screen, we pack the level's data and compute the necessities for the renderer.
-		renderer->PreRenderLevel(level);
-
-		//std::thread thread(&Renderer::Render, renderer);
-		//if (thread.joinable())
-		//	thread.join();
-
-		// Draw onto the screen.
-		renderer->Render();
+			// Draw onto the screen.
+			renderer->Render();
+		}
 
 		{
 			if (io.IsKeyPressed(GLFW_KEY_GRAVE_ACCENT))
@@ -231,7 +207,6 @@ int main() {
 
 			if (showUI)
 				InfoWindow(app);
-				//ImGui::ShowDemoWindow();
 		}
 
 		app->SwapBuffer();
@@ -243,7 +218,7 @@ int main() {
 
 	DumpLogIntoFile
 
-#if GRAVITY_LEAK_DEBUG
+#if 0
 	_CrtDumpMemoryLeaks();
 #endif
 

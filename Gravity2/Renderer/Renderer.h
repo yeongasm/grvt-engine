@@ -1,6 +1,9 @@
 #pragma once
 
 
+#define MAX_RENDERBUFFER_QUEUE 5
+
+
 /**
 * TODO(Afiq): 
 * Allow Renderer to only render contents from a Scenery object.
@@ -54,10 +57,9 @@ private:
 	};
 
 	RenderFuncs				settings;
-	RenderBuffer			*activeBuffer;
 	Shader					*activeShader;
 
-	std::deque<RenderBuffer> buffers;
+	RenderBuffer			renderBuffer;
 
 	void UseShader(Shader *Shader);
 

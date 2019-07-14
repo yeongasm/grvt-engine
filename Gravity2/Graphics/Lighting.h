@@ -61,6 +61,7 @@ struct LightCreationInfo {
 * TODO(Afiq):
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
+* Figure out a way to send lighting information over to the shader without using a uniform.
 */
 class Light {
 public:

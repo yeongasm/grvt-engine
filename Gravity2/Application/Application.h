@@ -4,8 +4,8 @@
 class GravityApp {
 private:
 	ResourceManager		*manager;
-	Renderer			*renderer;
 	GLFWwindow			*window;
+	Renderer			*renderer;
 	FrameStatistics		fstats;
 	
 	static void GravtiyScrollCallback			(GLFWwindow *Window, double OffsetX, double OffsetY);

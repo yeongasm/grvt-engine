@@ -125,7 +125,8 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
-	activeShader->SetMatrix("ProjViewMod", (activeBuffer->compProjView * Command->model));
+	activeShader->SetMatrix("projview", renderBuffer.compProjView);
+	activeShader->SetMatrix("model", Command->model);
 
 	for (RenderNode &node : Command->nodes) {
 		// Update shader uniforms here and bind texture units to it's respective slots.
@@ -156,21 +157,14 @@ Renderer::Renderer() :
 	screenWidth{},
 	screenHeight{},
 	settings{},
-	activeBuffer{},
 	activeShader{},
-	buffers{} {}
+	renderBuffer{} {}
 
 
-Renderer::~Renderer() {
-	activeBuffer = nullptr;
-	buffers.clear();
-}
+Renderer::~Renderer() {}
 
 
 void Renderer::Render() {
-	// take the fontmost RenderBuffer from the Queue.
-	activeBuffer = &buffers.front();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// Short fix for the jaggies.
@@ -190,9 +184,15 @@ void Renderer::Render() {
 	RenderCommand *command = nullptr;
 	RenderState	*state = nullptr;
 
+	/**
+	* TODO(Afiq):
+	* 1. Once shadow mapping is introduced into the engine, we'll need to configure the Renderer to cater for that process.
+	* 2. Lighting information should be passed into the shader for every object that is being rendered.
+	*/
+
 	// 2. Render all pushed data onto the screen.
-	for (size_t i = 0; i < activeBuffer->commands.Length(); i++) {
-		command	= &activeBuffer->commands[i];
+	for (size_t i = 0; i < renderBuffer.commands.Length(); i++) {
+		command	= &renderBuffer.commands[i];
 
 		state = command->renderSetting;
 		
@@ -214,6 +214,9 @@ void Renderer::Render() {
 
 		UseShader(command->shader);
 
+		activeShader->SetMatrix("lights", renderBuffer.lights[0]);
+		activeShader->SetVector("viewPos", renderBuffer.camera->position);
+
 		// Updating shader uniforms and texture units will be done in this function.
 		RenderPushedCommand(command);
 	}
@@ -221,16 +224,15 @@ void Renderer::Render() {
 	settings.SetPolygonMode(GL_FILL);
 
 	// 3. Remove the buffer from the queue.
-	buffers.pop_front();
+	renderBuffer.Free();
 }
 
 
 void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Add a new buffer object into the buffer container.
-	buffers.emplace_back(RenderBuffer());
 
-	RenderBuffer	*buffer = &buffers.back();
+	RenderBuffer	*buffer = &renderBuffer;
 	RenderCommand	command;
 	RenderNode		rnode;
 
@@ -264,7 +266,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 		}
 
 		buffer->commands.Push(command);
-		command.nodes.Release();
+		command.nodes.Empty();
 	}
 
 	glm::mat4 light;
@@ -286,6 +288,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 
 	buffer->camera = Level->camera;
 	
+
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(screenWidth / screenHeight), 0.1f, 1000.0f);
 	glm::mat4 view = buffer->camera->GetViewMatrix();
 

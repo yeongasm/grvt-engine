@@ -6,10 +6,16 @@ layout (location = 3) in vec3 aTangents;
 layout (location = 4) in vec3 aBitangents;
 
 out vec2 TexCoords;
+out vec3 FragPos;
+out vec3 Normal;
 
-uniform mat4 ProjViewMod;
+uniform mat4 projview;
+uniform mat4 model;
 
 void main() {
     TexCoords = aTexCoords;
-    gl_Position = ProjViewMod * vec4(aPos, 1.0f);
+    FragPos = vec3(model * vec4(aPos, 1.0f));
+    Normal = mat3(transpose(inverse(model))) * aNormals;
+
+    gl_Position = projview * model * vec4(aPos, 1.0f);
 }

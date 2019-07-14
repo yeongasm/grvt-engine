@@ -59,7 +59,8 @@ RenderBuffer::~RenderBuffer() {
 
 void RenderBuffer::Free() {
 	camera = nullptr;
-	commands.Release();
+	commands.Empty();
+	lights.Empty();
 	//alphaCommands.Release();
 	//instancingCommands.Release();
 }

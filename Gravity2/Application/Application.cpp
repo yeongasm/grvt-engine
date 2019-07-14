@@ -123,7 +123,6 @@ void GravityApp::EnableVSync(bool Enable) {
 
 void GravityApp::NewFrame() {
 	glfwPollEvents();
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -159,13 +158,11 @@ bool GravityApp::VSyncStatus() const {
 
 
 float GravityApp::Tick() {
-	static float lastFrame		= 0.0f;
-	static float currentFrame	= 0.0f;
-
+	static float lastFrameTime = 0.0f;
 	// 1. Update application's delta time.
-	currentFrame	= (float)glfwGetTime();
-	deltaTime		= min(currentFrame - lastFrame, 0.1f);
-	lastFrame		= currentFrame;
+	float currentFrame	= (float)glfwGetTime();
+	deltaTime			= min(currentFrame - lastFrameTime, 0.1f);
+	lastFrameTime		= currentFrame;
 
 	// 2. Update frame statistics.
 	fstats.Tick(deltaTime);
@@ -205,18 +202,13 @@ ResourceManager* GravityApp::GetResourceHandler() const {
 
 
 bool GravityApp::CloseAplication() {
-	bool close = false;
-
-	if (glfwWindowShouldClose(window))
-		close = true;
-
 	// TODO(Afiq):
 	// We should probaly remove this in the future as we might wanna use the escape key to exit operations instead.
 	if (io.keys[GLFW_KEY_ESCAPE].OnPress() ||
 		(io.keys[GLFW_KEY_LEFT_ALT].OnHold() && io.keys[GLFW_KEY_F4].OnPress()))
-		close = true;
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
-	return close;
+	return glfwWindowShouldClose(window);
 }
 
 
