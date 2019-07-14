@@ -97,7 +97,7 @@ class SceneInstance;
 */
 class Scene {
 public:
-	using MeshArr	= Array<Mesh*>;
+	using MeshArr	= Array<Mesh>;
 	using ModelArr	= Array<glm::mat4>;
 	using Instances = Array<SceneInstance>;
 

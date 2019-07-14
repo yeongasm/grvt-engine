@@ -88,6 +88,27 @@ struct MaterialData {
 };
 
 
+struct SceneryData {
+	uint		id;
+	String		name;
+	String		directory;
+	String		filename;
+	Scenery		*level;
+
+	SceneryData();
+	SceneryData(const SceneryData &Data)				= delete;
+	SceneryData(SceneryData &&Data)						= delete;
+
+	SceneryData& operator= (const SceneryData &Data)	= delete;
+	SceneryData& operator= (SceneryData &&Data)			= delete;
+
+	~SceneryData();
+
+	void Alloc(const LevelCreationInfo &Info);
+	void Free();
+};
+
+
 /**
 * The resource manager class acts as a database for all Gravity objects.
 * Every object has a database of it's own with a unique id assigned to it.
@@ -98,7 +119,7 @@ private:
 	std::map<String, ShaderData*  >	shaders;
 	std::map<String, SceneData*   >	scenes;
 	std::map<String, MaterialData*> materials;
-	std::map<String, Scenery*>		levels;
+	std::map<String, SceneryData* >	levels;
 	
 	/**
 	* A step up from the previous version where we use templates instead of a long list of enums.
@@ -126,7 +147,7 @@ public:
 	Shader*		NewShader			(const ShaderCreationInfo &Info);
 	Texture*	NewTexture			(const TextureCreationInfo &Info);
 	Material*	NewMaterial			(const MaterialCreationInfo &Info);
-	Scenery*	NewLevel			(const String &name);
+	Scenery*	NewLevel			(const LevelCreationInfo &Info);
 
 	Scene*		GetScene			(const String &Name);
 	Shader*		GetShader			(const String &Name);

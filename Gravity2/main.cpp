@@ -15,7 +15,7 @@ void InfoWindow(const GravityApp *App) {
 int main() {
 
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 0);
-	
+
 	app->Init();
 	app->EnableVSync(0);
 
@@ -28,11 +28,8 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Shader		*rawColour	= nullptr;
 	Material	*material	= nullptr;
-	Light		*light		= nullptr;
-
-	renderer->SCR_WIDTH = app->width;
-	renderer->SCR_HEIGHT = app->height;
-
+	Scenery		*level		= nullptr;
+	PointLight	*pointlight = nullptr;
 
 	{
 		SceneCreationInfo info;
@@ -119,26 +116,31 @@ int main() {
 
 		Material *cubeMat = manager->NewMaterial(mat);
 		cubeMat->SetVector("colour", glm::vec3(1.0f, 1.0f, 1.0f));
-
 		cubeInst->GetNode(0)->PushMaterial(cubeMat);
 	}
 
 	witchInst->renderState.DefaultModelRenderState();
 	cubeInst->renderState.DefaultModelRenderState();
 
-	//Scenery *level = manager->NewLevel("Level 01");
+	{
+		LevelCreationInfo info;
+		info.name = "Level 01";
 
-	//LightCreationInfo lightInfo;
-	//lightInfo.name = "Directional light";
-	//lightInfo.type = LIGHT_TYPE_DIRECTIONAL;
+		level = manager->NewLevel(info);
+	}
 
-	//DirLight *dirlight = level->AddDirectionalLight(lightInfo);
+	{	
+		LightCreationInfo info;
+		info.name = "Point light";
+		info.type = LIGHT_TYPE_POINTLIGHT;
+		info.position = glm::vec3(0.0f, 5.0f, 5.0f);
 
-	//lightInfo.name = "Point light";
-	//lightInfo.type = LIGHT_TYPE_POINTLIGHT;
-	//lightInfo.position = glm::vec3(5.0f, 5.0f, 2.0f);
+		pointlight = level->AddPointLight(info);
+	}
 
-	//PointLight *pointlight = level->AddPointLight(lightInfo);
+	pointlight->constant	= 1.0f;
+	pointlight->linear		= 0.09f;
+	pointlight->quadratic	= 0.032f;
 
 	EulerCameraInitInfo camInfo;
 
@@ -152,6 +154,10 @@ int main() {
 	camInfo.frameCenter		= glm::vec2(app->width / 2.0f, app->height / 2.0f);
 
 	camera->Init(camInfo);
+
+	level->AttachCamera(camera);
+	level->PushSceneInstance(witchInst);
+	level->PushSceneInstance(cubeInst);
 
 	bool	showUI		= true;
 	float	deltaTime	= 0.0f;
@@ -200,10 +206,18 @@ int main() {
 
 		witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
-		renderer->AttachCamera(camera);
-		renderer->PushSceneForRender(witchInst);
-		renderer->PushSceneForRender(cubeInst);
+		// Update the projection matrix dimensions for every frame.
+		renderer->screenWidth	= app->width;
+		renderer->screenHeight	= app->height;
 
+		// Before drawing everything onto the screen, we pack the level's data and compute the necessities for the renderer.
+		renderer->PreRenderLevel(level);
+
+		//std::thread thread(&Renderer::Render, renderer);
+		//if (thread.joinable())
+		//	thread.join();
+
+		// Draw onto the screen.
 		renderer->Render();
 
 		{
@@ -232,7 +246,6 @@ int main() {
 #if GRAVITY_LEAK_DEBUG
 	_CrtDumpMemoryLeaks();
 #endif
-
 
 	return 0;
 }

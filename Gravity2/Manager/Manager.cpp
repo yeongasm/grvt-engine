@@ -1,5 +1,11 @@
 #include "stdafx.h"
 
+/**
+* TODO(Afiq):
+* Some of the logging functionalities inside of the functions below need to be properly sentenced.
+*/
+
+
 
 TextureData::TextureData() : id{}, name{}, file{},
 	directory{}, texture{} {}
@@ -112,6 +118,33 @@ void MaterialData::Free() {
 }
 
 
+SceneryData::SceneryData() : id{}, name{}, directory{}, filename{}, level{} {}
+
+
+SceneryData::~SceneryData() { Free(); }
+
+
+void SceneryData::Alloc(const LevelCreationInfo &Info) {
+	name		= Info.name;
+	directory	= Info.directory;
+	filename	= Info.filename;
+
+	level = new Scenery();
+}
+
+
+void SceneryData::Free() {
+	if (level) {
+		delete level;
+		level = nullptr;
+	}
+
+	name.Release();
+	directory.Release();
+	filename.Release();
+}
+
+
 uint ResourceManager::GenerateResourceID() {
 	static uint lastID = 0;
 	return lastID++;
@@ -140,7 +173,7 @@ Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *Ai
 
 	msg.SetString("Creating a new mesh into the scene.");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-	Mesh *mesh = Scene->meshes.Insert(new Mesh());
+	Mesh *mesh = &Scene->meshes.Insert(Mesh());
 	
 	msg.SetString("Parsing mesh data from Assimp into scene.");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
@@ -438,11 +471,11 @@ Material* ResourceManager::NewMaterial(const MaterialCreationInfo &Info) {
 }
 
 
-Scenery* ResourceManager::NewLevel(const String &Name) {
+Scenery* ResourceManager::NewLevel(const LevelCreationInfo &Info) {
 	String msg;
 
 	// 1. Material must contain a name.
-	if (!Name.Length()) {
+	if (!Info.name.Length()) {
 		msg.SetString("A name must be specified for the level. Aborting operation!");
 		Logger::Log(LOG_WARN, LOG_LEVEL, msg);
 
@@ -451,7 +484,7 @@ Scenery* ResourceManager::NewLevel(const String &Name) {
 
 	// 2. Check if material with the existing name exist.
 	for (auto &pair : levels) {
-		if (pair.second->name == Name) {
+		if (pair.second->name == Info.name) {
 			msg.SetString("Level name must be unique. Level with such name already exist in engine.");
 			Logger::Log(LOG_WARN, LOG_LEVEL, msg);
 
@@ -459,12 +492,14 @@ Scenery* ResourceManager::NewLevel(const String &Name) {
 		}
 	}
 
-	auto it = levels.emplace(Name, new Scenery()).first;
-	Scenery *level = it->second;
+	auto it = levels.emplace(Info.name, new SceneryData()).first;
+	SceneryData *data = it->second;
 
-	level->name = Name;
+	data->id = GenerateID<Scenery>();
+	data->Alloc(Info);
+	data->level->info = data;
 
-	return level;
+	return data->level;
 }
 
 
@@ -569,7 +604,7 @@ Scenery* ResourceManager::GetLevel(const String &Name) {
 	auto it = levels.find(Name);
 
 	if (it != levels.end())
-		pLevel = it->second;
+		pLevel = it->second->level;
 
 	if (!pLevel) {
 		msg.Write("Unable to retrieve [%s] level from engine", ~Name);

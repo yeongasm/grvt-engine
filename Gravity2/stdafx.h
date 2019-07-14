@@ -4,8 +4,13 @@
 #ifndef PRECOMPILE_HEADER
 #define PRECOMPILE_HEADER
 
+#if _WIN32
 #include <Windows.h>
+#endif
+
 #include <map>
+#include <deque>
+#include <thread>
 #include <chrono>
 
 //#if defined(_DEBUG)
@@ -24,6 +29,7 @@
 // GLM functions and data structures.
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 // Custom array and string class.
 #include <gravitystl.h>
@@ -62,7 +68,12 @@
 
 #include "Level/Scenery.h"
 #include "Manager/Manager.h"
+
+#include "Renderer/RenderNode.h"
+#include "Renderer/RenderCommand.h"
+#include "Renderer/RenderBuffer.h"
 #include "Renderer/Renderer.h"
+
 #include "Application/InputHandler.h"
 #include "Application/IO.h"
 #include "Application/Statistics.h"

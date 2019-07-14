@@ -122,7 +122,7 @@ void Shader::GetAttributeType(uint Type, AttrType &Main, AttrSubType &Sub) {
 	}
 }
 
-Shader::Shader() : id{}, info{} {}
+Shader::Shader() : id{}, info{}, attributes{} {}
 
 
 Shader::Shader(Shader &&Other) {
@@ -140,8 +140,9 @@ Shader& Shader::operator= (Shader &&Other) {
 
 	Free();
 
-	id		= Other.id;
-	info	= Other.info;
+	id			= Other.id;
+	info		= Other.info;
+	attributes	= Other.attributes;
 
 	Other.Free();
 
@@ -218,6 +219,8 @@ bool Shader::Alloc(const ShaderCreationInfo &Info) {
 
 	DeleteShader({vertexID, fragmentID, geometryID});
 
+	RetrieveAttributes(&attributes);
+
 	return true;
 }
 
@@ -255,10 +258,6 @@ void Shader::RetrieveAttributes(ShaderAttr *Buff) {
 		vertexAttr.size		= size;
 
 		Buff->attributes.emplace(buffer, vertexAttr);
-		
-		//Buff->Attributes[i].name		= buffer;
-		//Buff->Attributes[i].type		= GetAttributeType(glType);
-		//Buff->Attributes[i].location	= glGetAttribLocation(id, buffer);
 	}
 
 	UniformAttr uniformAttr;
@@ -272,14 +271,7 @@ void Shader::RetrieveAttributes(ShaderAttr *Buff) {
 		uniformAttr.size		= size;
 
 		Buff->uniforms.emplace(buffer, uniformAttr);
-
-		//Buff->Uniforms[i].name		= buffer;
-		//Buff->Uniforms[i].type		= GetAttributeType(glType);
-		//Buff->Uniforms[i].location	= glGetUniformLocation(id, buffer);
 	}
-
-	//Buff->Attributes.ShrinkToFit();
-	//Buff->Uniforms.ShrinkToFit();
 }
 
 

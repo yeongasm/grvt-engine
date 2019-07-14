@@ -1,6 +1,55 @@
 #include "stdafx.h"
 
 
+MaterialCreationInfo::MaterialCreationInfo() :
+	name{},
+	shader{},
+	textures{} {}
+
+
+MaterialCreationInfo::MaterialCreationInfo(const MaterialCreationInfo &Other) { *this = Other; }
+
+
+MaterialCreationInfo::MaterialCreationInfo(MaterialCreationInfo &&Other) { *this = std::move(Other); }
+
+
+MaterialCreationInfo& MaterialCreationInfo::operator= (const MaterialCreationInfo &Other) {
+	// Prevent the structure from copying to itself.
+	_ASSERTE(this != &Other);
+
+	if (this != &Other) {
+		name		= Other.name;
+		shader		= Other.shader;
+		textures	= Other.textures;
+	}
+
+	return *this;
+}
+
+
+MaterialCreationInfo& MaterialCreationInfo::operator= (MaterialCreationInfo &&Other) {
+	// Prevent the structure from executing a move semantic on itself.
+	_ASSERTE(this != &Other);
+
+	if (this != &Other) {
+		name		= Other.name;
+		shader		= Other.shader;
+		textures	= Other.textures;
+
+		new (&Other) MaterialCreationInfo();
+	}
+
+	return *this;
+}
+
+
+MaterialCreationInfo::~MaterialCreationInfo() {
+	shader = nullptr;
+	name.Release();
+	textures.Release();
+}
+
+
 Material::Material() : name{}, shader{}, info{}, uniforms{}, textures{} {}
 
 
@@ -50,12 +99,8 @@ void Material::Alloc(const MaterialCreationInfo &Info) {
 	name = Info.name;
 	
 	if (Info.shader) {
-		ShaderAttr attr;
-
 		shader = Info.shader;
-		shader->RetrieveAttributes(&attr);
-
-		uniforms = attr.uniforms;
+		uniforms = shader->attributes.uniforms;
 	}
 	
 	if (Info.textures.Length())

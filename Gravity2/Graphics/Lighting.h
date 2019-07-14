@@ -17,14 +17,24 @@ enum LightType : uint {
 * This struct currently cater towards the Phong/Blinn-Phong lighting model hence this is only temporary.
 * In the future, this would be altered for the PBR lighting model.
 *
+* @param [OPTIONAL] (bool)		Default = true						shadows		- Enable shadow mappign for this light source.
 * @param [OPTIONAL] (float)		Default = 0.5						brightness	- Light's brightness.
+* @param [OPTIONAL] (float)		Default = 1.0						constant	- Light's constant for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						linear		- Light's linear value for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						quadratic	- Light's quadratic value for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						radius		- Light's radius for calculating point light attenuation.
 * @param [REQUIRED] (LightType)										type		- Type of light being created.
 * @param [OPTIONAL] (glm::vec3) Default = glm::vec3(1.0, 1.0, 1.0)	lightColour - Colour of light. Default colour is white if nothing is set.
 * @param [OPTIONAL] (glm::vec3) Default = glm::vec3(0.0, 0.0, 0.0)	position	- Light's initial position.
 * @param [REQUIRED] (String)										name		- Light's identity.
 */
 struct LightCreationInfo {
+	bool		shadows;
 	float		brightness;
+	float		constant;
+	float		linear;
+	float		quadratic;
+	float		radius;
 	LightType	type;
 	glm::vec3	position;
 	glm::vec3	lightColour;
@@ -54,6 +64,8 @@ struct LightCreationInfo {
 */
 class Light {
 public:
+	bool		enable;
+	bool		shadows;
 	float		brightness;
 	LightType	type;
 	glm::vec3	position;
@@ -73,13 +85,7 @@ public:
 	void			Alloc	(const LightCreationInfo &Info);
 	void			Free	();
 
-	/**
-	* The base class for Light object's passes in and computes information for Directional Lights only.
-	* To compute data for other types of light, it is required to make an instance of the derived light classes.
-	*
-	* @param [REQUIRED]		(Shader)	Shader - Shader to passed in inside of the rendering stage.
-	*/
-	virtual void	Compute	(Shader *Shader);
+	virtual void	Compute	(glm::mat4 &Buffer);
 };
 
 
@@ -101,15 +107,12 @@ public:
 	DirLight& operator= (DirLight &&Other);
 
 	~DirLight();
-
-	void		Compute		(Shader *Shader);
 };
 
 
 /**
 * Point Light data structure.
 * Compute() method is overridden in this structure and is used to pass in data for Point Light calculations.
-* Corinna Kopf
 *
 * TODO(Afiq):
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
@@ -141,6 +144,63 @@ public:
 
 	~PointLight();
 
+	void		Alloc					(const LightCreationInfo &Info);
+	void		Free					();
 	void		UseRadiusForAttenuation	(bool Enable = true);
-	void		Compute					(Shader *Shader);
+
+	void		Compute					(glm::mat4 &Buffer);
+};
+
+
+/**
+* TODO(Afiq):
+* In the future when there will be shadow mapping, we'll need to think of a way to store the light space matrix and
+* the depth map inside of these Render(Directional/Point)Light objects.
+*/
+
+
+/**
+* RenderDirectionalLight data structure.
+*
+* Only to be used inside the RenderBuffer object. Under no circumstances shall anyone make an instantiation of this object.
+*/
+struct RenderDirectionalLight {
+	float		brightness;
+	glm::vec3	position;
+	glm::vec3	colour;
+
+	RenderDirectionalLight();
+
+	RenderDirectionalLight(const RenderDirectionalLight &Other)				= delete;
+	RenderDirectionalLight(RenderDirectionalLight &&Other)					= delete;
+
+	RenderDirectionalLight& operator= (const RenderDirectionalLight &Other) = delete;
+	RenderDirectionalLight& operator= (RenderDirectionalLight &&Other)		= delete;
+
+	~RenderDirectionalLight();
+};
+
+
+/**
+* RenderPointLight data structure.
+*
+* Only to be used inside the RenderBuffer object. Under no circumstances shall anyone make an instantiation of this object.
+*/
+struct RenderPointLight {
+	Array<float>		brightness;
+	Array<float>		constant;
+	Array<float>		linear;
+	Array<float>		quadratic;
+	Array<glm::vec3>	position;
+	Array<glm::vec3>	colour;
+
+	RenderPointLight();
+
+	RenderPointLight(const RenderPointLight &Other)				= delete;
+	RenderPointLight(RenderPointLight &&Other)					= delete;
+
+	RenderPointLight& operator= (const RenderPointLight &Other) = delete;
+	RenderPointLight& operator= (RenderPointLight &&Other)		= delete;
+
+	~RenderPointLight();
 };

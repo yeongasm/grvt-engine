@@ -62,19 +62,6 @@ struct VertexAttr {
 };
 
 struct UniformAttr {
-private:
-	//union {
-	//	bool		boolean;
-	//	int			integer;
-	//	float		floating;
-	//	glm::vec2	vec2;
-	//	glm::vec3	vec3;
-	//	glm::vec4	vec4;
-	//	glm::mat2	mat2;
-	//	glm::mat3	mat3;
-	//	glm::mat4	mat4;
-	//};
-
 public:
 	bool		inUse;
 	int			size;
@@ -162,6 +149,7 @@ struct Material;
 */
 class Shader {
 private:
+
 	enum ShaderType {
 		SHADER_TYPE_VERTEX		= 0x8B31,
 		SHADER_TYPE_FRAGMENT	= 0x8B30,
@@ -173,8 +161,10 @@ private:
 	void		GetAttributeType	(uint Type, AttrType &Main, AttrSubType &Sub);
 
 public:
+
 	uint		id;
 	ShaderData	*info;
+	ShaderAttr	attributes;
 
 	Shader();
 	Shader(const ShaderCreationInfo &Info);

@@ -2,7 +2,12 @@
 
 
 LightCreationInfo::LightCreationInfo() :
+	shadows(true),
 	brightness(0.5f),
+	constant(1.0f),
+	linear(0.0f),
+	quadratic(0.0f),
+	radius(0.0f),
 	type(LIGHT_TYPE_NONE),
 	position(0.0f),
 	lightColour(1.0f),
@@ -20,7 +25,11 @@ LightCreationInfo& LightCreationInfo::operator= (const LightCreationInfo &Other)
 	_ASSERTE(this != &Other);
 	
 	if (this != &Other) {
+		shadows		= Other.shadows;
 		brightness	= Other.brightness;
+		constant	= Other.constant;
+		linear		= Other.linear;
+		quadratic	= Other.quadratic;
 		type		= Other.type;
 		position	= Other.position;
 		lightColour = Other.lightColour;
@@ -36,7 +45,11 @@ LightCreationInfo& LightCreationInfo::operator= (LightCreationInfo &&Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
+		shadows		= Other.shadows;
 		brightness	= Other.brightness;
+		constant	= Other.constant;
+		linear		= Other.linear;
+		quadratic	= Other.quadratic;
 		type		= Other.type;
 		position	= Other.position;
 		lightColour = Other.lightColour;
@@ -53,6 +66,8 @@ LightCreationInfo::~LightCreationInfo() {}
 
 
 Light::Light() :
+	enable(true),
+	shadows(true),
 	brightness(0.0f),
 	type(LIGHT_TYPE_NONE),
 	position(0.0f),
@@ -70,6 +85,8 @@ Light& Light::operator= (const Light &Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
+		enable		= Other.enable;
+		shadows		= Other.shadows;
 		brightness	= Other.brightness;
 		type		= Other.type;
 		position	= Other.position;
@@ -86,8 +103,8 @@ Light& Light::operator= (Light &&Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		Free();
-
+		enable		= Other.enable;
+		shadows		= Other.shadows;
 		brightness	= Other.brightness;
 		type		= Other.type;
 		position	= Other.position;
@@ -124,7 +141,16 @@ void Light::Free() {
 }
 
 
-void Light::Compute(Shader *Shader) {}
+void Light::Compute(glm::mat4 &Buffer) {
+	Buffer[0][0] = 0.0f;
+	Buffer[0][1] = brightness;
+	Buffer[1][0] = position.x;
+	Buffer[1][1] = position.y;
+	Buffer[1][2] = position.z;
+	Buffer[2][0] = lightColour.x;
+	Buffer[2][1] = lightColour.y;
+	Buffer[2][2] = lightColour.z;
+}
 
 
 DirLight::DirLight() : Light() {}
@@ -152,16 +178,6 @@ DirLight& DirLight::operator= (DirLight &&Other) {
 
 DirLight::~DirLight() {
 	Free();
-}
-
-
-void DirLight::Compute(Shader *Shader) {
-	// NOTE(Afiq):
-	// Be sure to use this naming scheme inside the shader as well.
-	// In the future, this function would be use to compute the light's view matrix for shadow calculation.
-	Shader->SetFloat("DirLight.brightness", brightness);
-	Shader->SetVector("DirLight.position", position);
-	Shader->SetVector("DirLight.colour", lightColour);
 }
 
 
@@ -219,13 +235,28 @@ PointLight& PointLight::operator= (PointLight &&Other) {
 
 
 PointLight::~PointLight() {
+	Free();
+}
+
+
+void PointLight::Alloc(const LightCreationInfo &Info) {
+	Light::Alloc(Info);
+
+	constant	= Info.constant;
+	linear		= Info.linear;
+	quadratic	= Info.quadratic;
+	radius		= Info.radius;
+}
+
+
+void PointLight::Free() {
 	simplified	= false;
 	constant	= 0.0f;
 	linear		= 0.0f;
 	quadratic	= 0.0f;
 	radius		= 0.0f;
 
-	Free();
+	Light::Free();
 }
 
 
@@ -235,7 +266,9 @@ void PointLight::UseRadiusForAttenuation(bool Enable) {
 }
 
 
-void PointLight::Compute(Shader *Shader) {
+void PointLight::Compute(glm::mat4 &Buffer) {
+	Light::Compute(Buffer);
+
 	float kC = constant;
 	float kL = linear;
 	float kQ = quadratic;
@@ -245,10 +278,36 @@ void PointLight::Compute(Shader *Shader) {
 		kQ = 1 / (radius * radius);
 	}
 
-	Shader->SetFloat("DirLight.brightness", brightness);
-	Shader->SetFloat("PointLight.constant", kC);
-	Shader->SetFloat("PointLight.linear", kL);
-	Shader->SetFloat("PointLight.quadratic", kQ);
-	Shader->SetVector("PointLight.position", position);
-	Shader->SetVector("PointLight.colour", lightColour);
+	Buffer[0][0] = 1.0f;
+	Buffer[3][0] = kC;
+	Buffer[3][1] = kL;
+	Buffer[3][2] = kQ;
+}
+
+
+RenderDirectionalLight::RenderDirectionalLight() :
+	brightness(0.0f),
+	position(0.0f),
+	colour(0.0f) {}
+
+
+RenderDirectionalLight::~RenderDirectionalLight() {}
+
+
+RenderPointLight::RenderPointLight() :
+	brightness{},
+	constant{},
+	linear{},
+	quadratic{},
+	position{},
+	colour{} {}
+
+
+RenderPointLight::~RenderPointLight() {
+	brightness.Release();
+	constant.Release();
+	linear.Release();
+	quadratic.Release();
+	position.Release();
+	colour.Release();
 }

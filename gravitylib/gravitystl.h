@@ -646,6 +646,7 @@ public:
   a const char* and a const char* with variadic arguments. Hence assigning a new string object to a constant literal will call WriteFV() that allocates a temporary buffer on the heap.
 * It is recommended to assign a constant literal to the string objet by assigning it inside of SetString();
 * It is also recommended to compare strings with the object itself. The String object generates a hash that does faster string comparison.
+*
 * TODO(Afiq):
 * Implement Boyer Moore Algorithm for string search function.
 * IMPORTANT!!! The string class really needs to be redone. It must no longer be derived from the Array class.

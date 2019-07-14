@@ -76,6 +76,12 @@ enum LogComponent : size_t {
 /**
 * Static Logger class.
 * Prints into the console while also dumping log contents into a file.
+*
+* TODO(Afiq):
+* There needs to be a better way to handle logging.
+* Latest idea is to put the logger inside of the Application class.
+* Have the ResourceHandler (Manager class) have a variable to point to the Application class.
+* Reason because the logger can only exist inside of the application and hence why we ought to put it inside of the Application class.
 */
 struct Logger {
 private:

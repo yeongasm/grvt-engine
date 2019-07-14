@@ -7,9 +7,9 @@ layout (location = 4) in vec3 aBitangents;
 
 out vec2 TexCoords;
 
-uniform mat4 composite;
+uniform mat4 ProjViewMod;
 
 void main() {
     TexCoords = aTexCoords;
-    gl_Position = composite * vec4(aPos, 1.0f);
+    gl_Position = ProjViewMod * vec4(aPos, 1.0f);
 }

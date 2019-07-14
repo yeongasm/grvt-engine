@@ -1,74 +1,20 @@
 #include "stdafx.h"
 
-RenderCommand::RenderNode::RenderNode() : instanced(false), amount(0),
-	size(0), mesh(nullptr) {}
 
-
-RenderCommand::RenderNode::~RenderNode() {
-	instanced	= false;
-	amount		= 0;
-	size		= 0; 
-	mesh		= nullptr;
+Renderer::RenderFuncs::RenderFuncs() : state{} {
+	state.frontFace = GL_CCW;
+	state.polygonMode = GL_FILL;
 }
-
-
-RenderCommand::RenderCommand() : scene{}, shader{}, renderSetting{}, 
-	nodes{}, model(1.0f) {}
-
-
-RenderCommand::RenderCommand(const RenderCommand &Other) { *this = Other; }
-
-
-RenderCommand::RenderCommand(RenderCommand &&Other) { *this = std::move(Other); }
-
-
-RenderCommand& RenderCommand::operator= (const RenderCommand &Other) {
-	if (this != &Other) {
-		scene			= Other.scene;
-		shader			= Other.shader;
-		renderSetting	= Other.renderSetting;
-		nodes			= Other.nodes;
-		model			= Other.model;
-	}
-
-	return *this;
-}
-
-
-RenderCommand& RenderCommand::operator= (RenderCommand &&Other) {
-	if (this != &Other) {
-		scene			= Other.scene;
-		shader			= Other.shader;
-		renderSetting	= Other.renderSetting;
-		nodes			= Other.nodes;
-		model			= Other.model;	
-
-		Other.~RenderCommand();
-	}
-
-
-	return *this;
-}
-
-
-RenderCommand::~RenderCommand() {
-	scene = nullptr;
-	nodes.Release();
-}
-
-
-Renderer::RenderFuncs::RenderFuncs() : depthTest(false), blend(false), cullFace(true), depthFunc{},
-	blendSrc{}, blendDst{}, frontFace(GL_CCW), polygonMode(GL_FILL) {}
 
 
 Renderer::RenderFuncs::~RenderFuncs() {}
 
 
 void Renderer::RenderFuncs::SetDepthTest(bool Enable) {
-	if (depthTest != Enable) {
-		depthTest = Enable;
+	if (state.depthTesting != Enable) {
+		state.depthTesting = Enable;
 
-		if (depthTest)
+		if (state.depthTesting)
 			glEnable(GL_DEPTH_TEST);
 		else
 			glDisable(GL_DEPTH_TEST);
@@ -77,19 +23,19 @@ void Renderer::RenderFuncs::SetDepthTest(bool Enable) {
 
 
 void Renderer::RenderFuncs::SetDepthFunc(GLenum Func) {
-	if (depthFunc != Func) {
-		depthFunc = Func;
+	if (state.depthFunc != Func) {
+		state.depthFunc = Func;
 
-		glDepthFunc(depthFunc);
+		glDepthFunc(state.depthFunc);
 	}
 }
 
 
 void Renderer::RenderFuncs::SetBlend(bool Enable) {
-	if (blend != Enable) {
-		blend = Enable;
+	if (state.blending != Enable) {
+		state.blending = Enable;
 
-		if (blend)
+		if (state.blending)
 			glEnable(GL_BLEND);
 		else
 			glDisable(GL_BLEND);
@@ -98,20 +44,20 @@ void Renderer::RenderFuncs::SetBlend(bool Enable) {
 
 
 void Renderer::RenderFuncs::SetBlendFunc(GLenum Src, GLenum Dst) {
-	if (blendSrc != Src || blendDst != Dst) {
-		blendSrc = Src;
-		blendDst = Dst;
+	if (state.blendSrc != Src || state.blendDst != Dst) {
+		state.blendSrc = Src;
+		state.blendDst = Dst;
 
-		glBlendFunc(blendSrc, blendDst);
+		glBlendFunc(state.blendSrc, state.blendDst);
 	}
 }
 
 
 void Renderer::RenderFuncs::SetCull(bool Enable) {
-	if (cullFace != Enable) {
-		cullFace = Enable;
+	if (state.cullFace != Enable) {
+		state.cullFace = Enable;
 
-		if (cullFace)
+		if (state.cullFace)
 			glEnable(GL_CULL_FACE);
 		else
 			glDisable(GL_CULL_FACE);
@@ -120,20 +66,35 @@ void Renderer::RenderFuncs::SetCull(bool Enable) {
 
 
 void Renderer::RenderFuncs::SetCullFace(GLenum Face) {
-	if (frontFace != Face) {
-		frontFace = Face;
+	if (state.frontFace != Face) {
+		state.frontFace = Face;
 
-		glCullFace(frontFace);
+		glCullFace(state.frontFace);
 	}
 }
 
 
 void Renderer::RenderFuncs::SetPolygonMode(GLenum Mode) {
-	if (polygonMode != Mode) {
-		polygonMode = Mode;
+	if (state.polygonMode != Mode) {
+		state.polygonMode = Mode;
 
-		glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
+		glPolygonMode(GL_FRONT_AND_BACK, state.polygonMode);
 	}
+}
+
+
+bool Renderer::RenderFuncs::Blend() const {
+	return state.blending;
+}
+
+
+bool Renderer::RenderFuncs::CullFace() const {
+	return state.cullFace;
+}
+
+
+bool Renderer::RenderFuncs::DepthTest() const {
+	return state.depthTesting;
 }
 
 
@@ -145,14 +106,15 @@ void Renderer::UseShader(Shader *Shader) {
 }
 
 
-void Renderer::RenderMesh(RenderCommand::RenderNode *Node) {
+void Renderer::RenderMesh(RenderNode *Node) {
 	Mesh *mesh = Node->mesh;
 
 	glBindVertexArray(mesh->vao);
 
-	if (Node->instanced)
+/*	if (Node->instanced)
 		glDrawElementsInstanced(GL_TRIANGLES, Node->size, GL_UNSIGNED_INT, 0, (uint)Node->amount);
-	else if (mesh->ebo)
+	else */
+	if (mesh->ebo)
 		glDrawElements(GL_TRIANGLES, mesh->size, GL_UNSIGNED_INT, 0);
 	else
 		glDrawArrays(GL_TRIANGLES, 0, mesh->size);
@@ -162,21 +124,10 @@ void Renderer::RenderMesh(RenderCommand::RenderNode *Node) {
 
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
-	// TODO(Afiq):
-	// There has got to be a more elegant way to doing this.
-	// Find other options.
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)(SCR_WIDTH / SCR_HEIGHT), 0.1f, 1000.0f);
-	glm::mat4 view = camera->GetViewMatrix();
-	glm::mat4 composite = projection * view * Command->model;
+	activeShader->SetMatrix("ProjViewMod", (activeBuffer->compProjView * Command->model));
 
-	activeShader->SetMatrix("composite", composite);
-
-	//activeShader->SetMatrix("projection", projection);
-	//activeShader->SetMatrix("view", view);
-	//activeShader->SetMatrix("model", Command->model);
-
-	for (RenderCommand::RenderNode &node : Command->nodes) {
+	for (RenderNode &node : Command->nodes) {
 		// Update shader uniforms here and bind texture units to it's respective slots.
 		UniformAttr *pUniform = nullptr;
 
@@ -201,63 +152,33 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 }
 
 
-Renderer::Renderer() : 
-	renderCommands{},
-	settings {}, 
-	activeShader{}, 
-	camera{} {}
+Renderer::Renderer() :
+	screenWidth{},
+	screenHeight{},
+	settings{},
+	activeBuffer{},
+	activeShader{},
+	buffers{} {}
 
 
 Renderer::~Renderer() {
-	renderCommands.Release();
-}
-
-
-void Renderer::PushSceneForRender(SceneInstance *Instance) {
-	RenderCommand::RenderNode rnode;
-	RenderCommand command;
-
-	command.scene			= Instance->scene;
-	command.shader			= Instance->shader;
-	command.renderSetting	= &Instance->renderState;
-	
-	glm::mat4 &model = command.model;
-
-	model = glm::translate(model, Instance->GetPosition());
-	model = glm::scale(model, Instance->GetScale());
-
-	if (Instance->GetRotation().x)
-		model = glm::rotate(model, glm::radians(Instance->GetRotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	if (Instance->GetRotation().y)
-		model = glm::rotate(model, glm::radians(Instance->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	if (Instance->GetRotation().z)
-		model = glm::rotate(model, glm::radians(Instance->GetRotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
-
-	for (MeshNode &node : Instance->nodes) {
-		rnode.material = node.material;
-		rnode.mesh = node.mesh;
-		rnode.size = node.mesh->size;
-
-		command.nodes.Push(rnode);
-	}
-
-	// Pre-allocate render command buffer on first push.
-	if (!renderCommands.Size())
-		renderCommands.Reserve(512, false);
-
-	renderCommands.Push(command);
+	activeBuffer = nullptr;
+	buffers.clear();
 }
 
 
 void Renderer::Render() {
+	// take the fontmost RenderBuffer from the Queue.
+	activeBuffer = &buffers.front();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	// Short fix for the jaggies.
-	glEnable(GL_MULTISAMPLE);
+	// TODO(Afiq):
+	// Implement a proper anti anliasing algorithm.
 	// Currently we only use the default frambuffer to render our objects into.
 	// In the future, we should probably have a RenderTarget class and iterate all over that instead.
+	glEnable(GL_MULTISAMPLE);
 
 	// 1. Set the default values for the rendering states.
 	settings.SetBlend(false);
@@ -270,8 +191,8 @@ void Renderer::Render() {
 	RenderState	*state = nullptr;
 
 	// 2. Render all pushed data onto the screen.
-	for (size_t i = 0; i < renderCommands.Length(); i++) {
-		command	= &renderCommands[i];
+	for (size_t i = 0; i < activeBuffer->commands.Length(); i++) {
+		command	= &activeBuffer->commands[i];
 
 		state = command->renderSetting;
 		
@@ -280,13 +201,13 @@ void Renderer::Render() {
 		settings.SetCull(state->cullFace);
 		settings.SetDepthTest(state->cullFace);
 
-		if (settings.blend)
+		if (settings.Blend())
 			settings.SetBlendFunc(state->blendSrc, state->blendDst);
 
-		if (settings.cullFace)
+		if (settings.CullFace())
 			settings.SetCullFace(state->frontFace);
 
-		if (settings.depthTest)
+		if (settings.DepthTest())
 			settings.SetDepthFunc(state->depthFunc);
 
 		settings.SetPolygonMode(state->polygonMode);
@@ -299,12 +220,74 @@ void Renderer::Render() {
 
 	settings.SetPolygonMode(GL_FILL);
 
-	// 3. Clear command buffer when finished.
-	renderCommands.Empty();
+	// 3. Remove the buffer from the queue.
+	buffers.pop_front();
 }
 
 
-void Renderer::AttachCamera(EulerCamera *Camera) {
-	if (camera != Camera)
-		camera = Camera;
+void Renderer::PreRenderLevel(Scenery *Level) {
+
+	// Add a new buffer object into the buffer container.
+	buffers.emplace_back(RenderBuffer());
+
+	RenderBuffer	*buffer = &buffers.back();
+	RenderCommand	command;
+	RenderNode		rnode;
+
+	// Right now we only cater for scene instances that are not pushed for instanced rendering.
+	for (SceneInstance *instance : Level->renderInstances) {
+		command.scene			= instance->scene;
+		command.shader			= instance->shader;
+		command.renderSetting	= &instance->renderState;
+
+		glm::mat4 &model = command.model;
+
+		model = glm::translate(model, instance->GetPosition());
+		model = glm::scale(model, instance->GetScale());
+
+		if (instance->GetRotation().x)
+			model = glm::rotate(model, glm::radians(instance->GetRotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
+
+		if (instance->GetRotation().y)
+			model = glm::rotate(model, glm::radians(instance->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		if (instance->GetRotation().z)
+			model = glm::rotate(model, glm::radians(instance->GetRotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
+
+		for (MeshNode &node : instance->nodes) {
+			rnode.material	= node.material;
+			rnode.mesh		= node.mesh;
+			rnode.size		= node.mesh->size;
+
+			//rnode.amount = instance->scene->meshes.Length();
+			command.nodes.Push(rnode);
+		}
+
+		buffer->commands.Push(command);
+		command.nodes.Release();
+	}
+
+	glm::mat4 light;
+
+	// Pack lighting data.
+	// We send lighting data into the shader by using a 4x4 matrice and let the shader translate the data into what it needs by using this scheme.
+	// mat[0][0]				= Type.
+	// mat[0][1]				= Brightness;
+	// mat[0][2]				= Cutoff (For Spotlight).
+	// mat[1][0] - mat[1][2]	= Position.
+	// mat[2][0] - mat[2][2]	= Colour.
+	// mat[3][0]				= Constant (For Pointlight).
+	// mat[3][1]				= Linear (For Spotlight).
+	// mat[3][2]				= Quadratic (For  Spotlight).
+	for (Light *plight : Level->lights) {
+		plight->Compute(light);
+		buffer->lights.Push(light);
+	}
+
+	buffer->camera = Level->camera;
+	
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(screenWidth / screenHeight), 0.1f, 1000.0f);
+	glm::mat4 view = buffer->camera->GetViewMatrix();
+
+	buffer->compProjView = projection * view;
 }

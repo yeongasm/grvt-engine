@@ -2,7 +2,7 @@
 
 
 /**
-* Material creaion data structure.
+* Material creation data structure.
 * All materials created required a name for identification. Failing to provide a name would cause Gravity to abort it's material generation process.
 * If no shader is specified into the struct, Gravity simply does not retrieve uniforms associated with the shader. This however can be done manually later.
 * 
@@ -11,13 +11,19 @@
 * @param [OPTIONAL] (TextureArr)	textures	- List of textures for this material. However, mapping textures to it's unit to the mesh needs to be done manually. 
 */
 struct MaterialCreationInfo {
-private:
-	using TextureArr = Array<Texture*>;
-	
 public:
-	String		name;
-	Shader		*shader;
-	TextureArr	textures;
+	String			name;
+	Shader			*shader;
+	Array<Texture*>	textures;
+
+	MaterialCreationInfo();
+	MaterialCreationInfo(const MaterialCreationInfo &Other);
+	MaterialCreationInfo(MaterialCreationInfo &&Other);
+
+	MaterialCreationInfo& operator= (const MaterialCreationInfo &Other);
+	MaterialCreationInfo& operator= (MaterialCreationInfo &&Other);
+
+	~MaterialCreationInfo();
 };
 
 
@@ -25,6 +31,12 @@ public:
 struct MaterialData;
 
 
+/**
+* Material data structure.
+* 
+* TODO(Afiq):
+* Filter out the uniforms to only contain uniforms that are relevant to materials.
+*/
 struct Material {
 private:
 	using UniformArr = ShaderAttr::UniformArr;

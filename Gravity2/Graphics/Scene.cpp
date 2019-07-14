@@ -229,12 +229,6 @@ void Scene::Free() {
 	instanced	= false;
 	info		= nullptr;
 
-	// Delete mesh objects from the heap. Reset them to nullptr.
-	for (size_t i = 0; i < meshes.Length(); i++) {
-		delete meshes[i];
-		meshes[i] = nullptr;
-	}
-
 	instances.Release();
 	meshes.Release();
 	models.Release();

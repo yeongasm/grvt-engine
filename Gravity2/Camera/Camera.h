@@ -65,7 +65,6 @@ public:
 	glm::vec3	right;
 	glm::vec3	worldUp;
 
-
 	EulerCamera();
 	EulerCamera(const EulerCamera &Other)				= delete;
 	EulerCamera(EulerCamera &&Other)					= delete;

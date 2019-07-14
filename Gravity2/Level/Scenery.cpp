@@ -1,6 +1,57 @@
 #include "stdafx.h"
 
 
+LevelCreationInfo::LevelCreationInfo() :
+	name{},
+	directory{},
+	filename{} {}
+
+
+LevelCreationInfo::LevelCreationInfo(const LevelCreationInfo &Other) { *this = Other; }
+
+
+LevelCreationInfo::LevelCreationInfo(LevelCreationInfo &&Other) { *this = std::move(Other); }
+
+
+LevelCreationInfo& LevelCreationInfo::operator= (const LevelCreationInfo &Other) {
+	// Check if it's copying to itself in debug.
+	_ASSERTE(this != &Other);
+
+	// Disable copying to itself in runtime.
+	if (this != &Other) {
+		name		= Other.name;
+		directory	= Other.directory;
+		filename	= Other.filename;
+	}
+
+	return *this;
+}
+
+
+LevelCreationInfo& LevelCreationInfo::operator= (LevelCreationInfo &&Other) {
+	// Check if it's copying to itself in debug.
+	_ASSERTE(this != &Other);
+
+	// Disable copying to itself in runtime.
+	if (this != &Other) {
+		name		= Other.name;
+		directory	= Other.directory;
+		filename	= Other.filename;
+
+		new (&Other) LevelCreationInfo();
+	}
+
+	return *this;
+}
+
+
+LevelCreationInfo::~LevelCreationInfo() {
+	name.Release();
+	directory.Release();
+	filename.Release();
+}
+
+
 size_t Scenery::CheckLightName(const String &Name) {
 	size_t idx = -1;
 
@@ -19,9 +70,10 @@ size_t Scenery::CheckLightName(const String &Name) {
 Scenery::Scenery() :
 	hasDirLight(false),
 	dirLight{},
+	camera{},
 	lights{},
 	renderInstances{},
-	name{} {}
+	info{} {}
 
 
 Scenery::Scenery(const Scenery &Other) { *this = Other; }
@@ -37,9 +89,10 @@ Scenery& Scenery::operator= (const Scenery &Other) {
 	if (this != &Other) {
 		hasDirLight		= Other.hasDirLight;
 		dirLight		= Other.dirLight;
+		camera			= Other.camera;
 		lights			= Other.lights;
 		renderInstances = Other.renderInstances;
-		name			= Other.name;
+		info			= Other.info;
 	}
 
 	return *this;
@@ -53,9 +106,10 @@ Scenery& Scenery::operator= (Scenery &&Other) {
 	if (this != &Other) {
 		hasDirLight		= Other.hasDirLight;
 		dirLight		= Other.dirLight;
+		camera			= Other.camera;
 		lights			= Other.lights;
 		renderInstances = Other.renderInstances;
-		name			= Other.name;
+		info			= Other.info;
 
 		new (&Other) Scenery();
 	}
@@ -78,12 +132,23 @@ void Scenery::Free() {
 	for (SceneInstance *instance : renderInstances)
 		instance = nullptr;
 
-	name.Release();
+	info = nullptr;
 }
 
 
 void Scenery::PushSceneInstance(SceneInstance *Instance) {
 	renderInstances.Push(Instance);
+}
+
+
+void Scenery::AttachCamera(EulerCamera *Camera) {
+	if (camera != Camera)
+		camera = Camera;
+}
+
+
+void Scenery::DetachCamera() {
+	camera = nullptr;
 }
 
 
@@ -115,7 +180,7 @@ DirLight* Scenery::AddDirectionalLight(const LightCreationInfo &Info) {
 		light = lights.Insert(new DirLight());
 		light->Alloc(Info);
 		hasDirLight = true;
-		dirLight = (DirLight*)light;
+		dirLight = dynamic_cast<DirLight*>(light);
 	} else {
 		light = dirLight;
 	}
@@ -140,6 +205,29 @@ PointLight* Scenery::AddPointLight(const LightCreationInfo &Info) {
 	}
 
 	return dynamic_cast<PointLight*>(light);
+}
+
+
+DirLight* Scenery::GetDirectionalLight() {
+	return dirLight;
+}
+
+
+PointLight* Scenery::GetPointLight(const String &Name) {
+	PointLight *pLight = nullptr;
+
+	for (Light *light : lights) {
+		if (light->type == LIGHT_TYPE_DIRECTIONAL)
+			continue;
+
+		if (light->name != Name)
+			continue;
+
+		pLight = dynamic_cast<PointLight*>(light);
+		break;
+	}
+
+	return pLight;
 }
 
 
@@ -192,8 +280,10 @@ bool Scenery::PopLight(const String &Name) {
 		break;
 	}
 
-	if (idx != -1)
+	if (idx != -1) {
+		hasDirLight = lights[idx]->type == LIGHT_TYPE_DIRECTIONAL ? false : true;
 		lights.PopAt(idx);
+	}
 
 	return (idx == -1) ? false : true;
 }

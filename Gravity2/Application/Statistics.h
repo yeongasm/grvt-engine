@@ -48,3 +48,12 @@ public:
 	*/
 	float TimePerFrame() const;
 };
+
+
+/**
+* To include a profiler class in the future.
+* Things to profile:
+* 1. Time taken to load a resource into the engine.
+* 2. Time taken to execute an operation.
+* 3. Time taken to render objects.
+*/

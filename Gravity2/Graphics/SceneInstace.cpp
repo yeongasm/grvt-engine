@@ -218,9 +218,9 @@ bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 
 	MeshNode *node = nullptr;
 
-	for (Mesh *mesh : scene->meshes) {
+	for (Mesh &mesh : scene->meshes) {
 		node = &nodes.Insert(MeshNode());
-		node->PushMesh(mesh);
+		node->PushMesh(&mesh);
 	}
 
 	nodes.ShrinkToFit();
