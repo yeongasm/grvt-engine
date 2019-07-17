@@ -15,11 +15,13 @@ private:
 
 public:
 
-	Scene			*scene;
-	Shader			*shader;
-	RenderState		*renderSetting;
-	Array<Node>		nodes;
-	glm::mat4		model;
+	Scene				*scene;
+	Shader				*shader;
+	RenderState			renderSetting;
+	Array<Node>			nodes;
+	Array<glm::mat4>	instances;
+	glm::mat4			model;
+	
 
 	RenderCommand();
 	RenderCommand(const RenderCommand &Other);

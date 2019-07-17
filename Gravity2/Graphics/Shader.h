@@ -160,6 +160,16 @@ private:
 	bool		CompileShader		(uint &ID, const char *Source, ShaderType Type);
 	void		GetAttributeType	(uint Type, AttrType &Main, AttrSubType &Sub);
 
+	using UniformArr = Array<UniformAttr>;
+	using VertAttArr = Array<VertexAttr>;
+
+	// TODO(Afiq):
+	// Generate functions to return: 
+	// 1. All of the shader's uniforms.
+	// 2. All of the shader's vertex attributes.
+	// 3. A single uniform.
+	// 4. A single vertex attribute.
+
 public:
 
 	uint		id;

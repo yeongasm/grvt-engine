@@ -58,6 +58,7 @@ public:
 	uint	vao;
 	uint	vbo;
 	uint	ebo;
+	uint	ibo;
 	uint	size;
 
 	Array<glm::vec3>	positions;
@@ -78,6 +79,8 @@ public:
 	void	Free();
 	void	CalculateTangentAndBitangent();
 	void	CalculateNormals();
+	void	CreateInstanceBuffer();
+	void	UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray);
 };
 
 
@@ -93,7 +96,8 @@ class SceneInstance;
 * Gravity scene data structure.
 * A Scene contains all required data for rendering.
 * 
-* NOTE(Afiq): There is more to this. This will be expanded upon later.
+* NOTE(Afiq): 
+* There is more to this. This will be expanded upon later.
 */
 class Scene {
 public:
@@ -104,7 +108,7 @@ public:
 	bool		instanced;
 	SceneType	type;
 	MeshArr		meshes;
-	ModelArr	models;
+	//ModelArr	models;		// As of 18th July 2019, we remove this and let the render command handle storing data for total instances.
 	Instances	instances;
 	SceneData	*info;
 

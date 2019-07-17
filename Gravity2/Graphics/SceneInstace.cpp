@@ -326,3 +326,11 @@ MeshNode* SceneInstance::GetNode(size_t Index) {
 
 	return &nodes[Index];
 }
+
+
+size_t SceneInstance::TotalNodes() {
+	// TODO(Afiq):
+	// A function for a single line of code ... Really? 
+	// Need to think of an alternative.
+	return nodes.Length();
+}

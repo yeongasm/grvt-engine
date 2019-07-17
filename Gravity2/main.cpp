@@ -11,7 +11,13 @@ void InfoWindow(const GravityApp *App) {
 	ImGui::End();
 }
 
-
+/**
+* TODO(Afiq):
+* Loggged on 18.07.2019
+*
+* Before the week ends, we'll need to find a suitable method to render multiple lights into the scene.
+* Start figuring on a method for point lights. (Find a way to implement using Uniform Buffer Object).
+*/
 int main() {
 
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 0);
@@ -92,6 +98,9 @@ int main() {
 
 		Material *objMat	= manager->NewMaterial(mat);
 		
+		//bodyMat->SetTexture("diffuseTexture", body);
+		//objMat->SetTexture("diffuseTexture", object);
+
 		bodyMat->SetVector("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
 		bodyMat->SetVector("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
 		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));

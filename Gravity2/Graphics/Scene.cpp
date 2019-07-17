@@ -44,7 +44,7 @@ SceneCreationInfo::~SceneCreationInfo() {
 }
 
 
-Mesh::Mesh() : vao{}, vbo{}, ebo{}, size{} {}
+Mesh::Mesh() : vao{}, vbo{}, ebo{}, ibo{}, size{} {}
 
 
 Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
@@ -58,6 +58,7 @@ Mesh& Mesh::operator= (Mesh &&Other) {
 	vao = Other.vao;
 	vbo = Other.vbo;
 	ebo = Other.ebo;
+	ibo = Other.ibo;
 
 	positions	= Other.positions;
 	uv			= Other.uv;
@@ -171,9 +172,13 @@ void Mesh::Alloc() {
 void Mesh::Free() {
 	glDeleteBuffers(1, &vbo);
 	glDeleteBuffers(1, &ebo);
+
+	if (ibo) 
+		glDeleteBuffers(1, &ibo);
+
 	glDeleteVertexArrays(1, &vao);
 
-	vao = vbo = ebo = 0;
+	vao = vbo = ebo = ibo = 0;
 
 	positions.Release();
 	uv.Release();
@@ -196,8 +201,43 @@ void Mesh::CalculateNormals() {
 }
 
 
+void Mesh::CreateInstanceBuffer() {
+	// Just to make sure no one tries to remake an existing ibo;
+	if (ibo)
+		return;
+
+	glGenBuffers(1, &ibo);
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, ibo);
+
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)0);
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(sizeof(glm::vec4)));
+	glEnableVertexAttribArray(7);
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
+
+	glBindVertexArray(0);
+}
+
+
+void Mesh::UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray) {
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ARRAY_BUFFER, Amount * sizeof(glm::mat4), MatrixArray, GL_STATIC_DRAW);
+	glBindVertexArray(0);
+}
+
+
 Scene::Scene() : instanced(false), type(SCENE_TYPE_NONE), meshes{}, 
-	models{}, instances{}, info{} {}
+	/*models{},*/ instances{}, info{} {}
 
 
 Scene::Scene(Scene &&Other) { *this = std::move(Other); }
@@ -210,7 +250,7 @@ Scene& Scene::operator= (Scene &&Other) {
 
 	instanced	= Other.instanced;
 	meshes		= std::move(Other.meshes);
-	models		= Other.models;
+	//models		= Other.models;
 	instances	= Other.instances;
 	info		= Other.info;
 
@@ -231,7 +271,7 @@ void Scene::Free() {
 
 	instances.Release();
 	meshes.Release();
-	models.Release();
+	//models.Release();
 }
 
 

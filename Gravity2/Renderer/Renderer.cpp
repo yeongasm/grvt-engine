@@ -181,8 +181,8 @@ void Renderer::Render() {
 	settings.SetDepthTest(true);
 	settings.SetDepthFunc(GL_LESS);
 
-	RenderCommand *command = nullptr;
-	RenderState	*state = nullptr;
+	RenderState		state;
+	RenderCommand	*command = nullptr;
 
 	/**
 	* TODO(Afiq):
@@ -197,20 +197,20 @@ void Renderer::Render() {
 		state = command->renderSetting;
 		
 		// 2.1 Update rendering states per command. Currently being tested to see if it works.
-		settings.SetBlend(state->blending);
-		settings.SetCull(state->cullFace);
-		settings.SetDepthTest(state->cullFace);
+		settings.SetBlend(state.blending);
+		settings.SetCull(state.cullFace);
+		settings.SetDepthTest(state.cullFace);
 
 		if (settings.Blend())
-			settings.SetBlendFunc(state->blendSrc, state->blendDst);
+			settings.SetBlendFunc(state.blendSrc, state.blendDst);
 
 		if (settings.CullFace())
-			settings.SetCullFace(state->frontFace);
+			settings.SetCullFace(state.frontFace);
 
 		if (settings.DepthTest())
-			settings.SetDepthFunc(state->depthFunc);
+			settings.SetDepthFunc(state.depthFunc);
 
-		settings.SetPolygonMode(state->polygonMode);
+		settings.SetPolygonMode(state.polygonMode);
 
 		UseShader(command->shader);
 
@@ -240,7 +240,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 	for (SceneInstance *instance : Level->renderInstances) {
 		command.scene			= instance->scene;
 		command.shader			= instance->shader;
-		command.renderSetting	= &instance->renderState;
+		command.renderSetting	= instance->renderState;
 
 		glm::mat4 &model = command.model;
 
@@ -269,6 +269,10 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 		command.nodes.Empty();
 	}
 
+	// TODO(Afiq):
+	// Update RenderBuffer to store instanced rendering scenes.
+	
+
 	glm::mat4 light;
 
 	// Pack lighting data.
@@ -285,6 +289,11 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 		plight->Compute(light);
 		buffer->lights.Push(light);
 	}
+
+	// TODO(Afiq):
+	// Implement state sorting of the commands here. 
+	// Sort by FBO (When implemented) -> impleShader -> RenderStates (Mainly depth and then face culling) -> Models.
+	// This is to reduce OpenGL's internal state switching in order to enhance performance.
 
 	buffer->camera = Level->camera;
 	
