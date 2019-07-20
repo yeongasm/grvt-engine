@@ -29,12 +29,15 @@ void main() {
     vec3 normal     = normalize(Normal);
     vec3 viewDir    = normalize(viewPos - FragPos);
     vec3 result     = vec3(0.0f);
+    mat4 pLight     = mat4(0.0f);
 
-    for (int i = 0; i < 1000; i++) {
-        if (light[i][0][0] == 0.0f)
-            result = CalcDirLight(light[i], normal, viewDir);
+    for (int i = 0; i < total; i++) {
+        pLight = light[i];
+
+        if (pLight[0][0] == 0.0f)
+            result = CalcDirLight(pLight, normal, viewDir);
         else
-            result = CalcPointLight(light[i], normal, FragPos, viewDir);
+            result = CalcPointLight(pLight, normal, FragPos, viewDir);
     }
 
     FragColour = vec4(result, 1.0f);
