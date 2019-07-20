@@ -12,10 +12,15 @@ out vec3 Normal;
 uniform mat4 projview;
 uniform mat4 model;
 
+/**
+* TODO(Afiq):
+* There is a better way to calculate the Normal matrix.
+* Check out Eric's Blog website.
+*/
 void main() {
-    TexCoords = aTexCoords;
-    FragPos = vec3(model * vec4(aPos, 1.0f));
-    Normal = mat3(transpose(inverse(model))) * aNormals;
+    TexCoords   = aTexCoords;
+    FragPos     = vec3(model * vec4(aPos, 1.0f));
+    Normal      = mat3(transpose(inverse(model))) * aNormals;
 
     gl_Position = projview * model * vec4(aPos, 1.0f);
 }
