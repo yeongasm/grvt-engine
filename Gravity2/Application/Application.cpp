@@ -98,6 +98,8 @@ void GravityApp::Init() {
 
 	manager = new ResourceManager();
 	renderer = new Renderer();
+
+	renderer->Init();
 }
 
 
@@ -166,6 +168,10 @@ float GravityApp::Tick() {
 
 	// 2. Update frame statistics.
 	fstats.Tick(deltaTime);
+
+	// 3. Update the renderer's width and height.
+	renderer->renderWidth	= width;
+	renderer->renderHeight	= height;
 
 	// NOTE(Afiq): 
 	// I feel like IO related operations should be placed inside of the NewFrame() function rather than the Tick() function.

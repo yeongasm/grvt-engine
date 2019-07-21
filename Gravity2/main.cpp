@@ -11,6 +11,20 @@ void InfoWindow(const GravityApp *App) {
 	ImGui::End();
 }
 
+
+PointLight	*pointLight = nullptr;
+
+void LightWindowTest(const GravityApp *App) {
+	bool open = true;
+	ImGui::Begin("Manipulate light", &open);
+	ImGui::SliderFloat("X", &pointLight->position.x, -500.0f, 500.0f);
+	ImGui::SliderFloat("Y", &pointLight->position.y, -500.0f, 500.0f);
+	ImGui::SliderFloat("Z", &pointLight->position.z, -500.0f, 500.0f);
+	ImGui::SliderFloat("Brightness", &pointLight->brightness, 0.0f, 1.0f);
+	ImGui::SliderFloat("Radius", &pointLight->radius, 0.0f, 100.0f);
+	ImGui::End();
+}
+
 /**
 * TODO(Afiq):
 * Loggged on 18.07.2019
@@ -20,7 +34,7 @@ void InfoWindow(const GravityApp *App) {
 */
 int main() {
 
-	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 0);
+	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 5);
 
 	app->Init();
 	app->EnableVSync(0);
@@ -34,7 +48,6 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
-	DirLight	*dirLight	= nullptr;
 
 	{
 		SceneCreationInfo info;
@@ -101,15 +114,15 @@ int main() {
 		//bodyMat->SetTexture("diffuseTexture", body);
 		//objMat->SetTexture("diffuseTexture", object);
 
-		bodyMat->SetVector("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-		bodyMat->SetVector("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+		bodyMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
+		bodyMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
+		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f ));
 		bodyMat->SetFloat("material.shininess", 32.0f);
 
-		objMat->SetVector("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-		objMat->SetFloat("material.shininess", 32.0f);
+		objMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
+		objMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
+		objMat->SetVector("material.specular",	glm::vec3(0.5f, 0.5f, 0.5f ));
+		objMat->SetFloat("material.shininess",	32.0f);
 
 		witchInst->GetNode(0)->PushMaterial(bodyMat);
 		witchInst->GetNode(1)->PushMaterial(objMat);
@@ -130,11 +143,22 @@ int main() {
 
 	{	
 		LightCreationInfo info;
-		info.name = "Directional light";
-		info.type = LIGHT_TYPE_DIRECTIONAL;
-		info.position = glm::vec3(100.0f, 50.0f, 0.0f);
+		info.name		= "Point light 1";
+		info.type		= LIGHT_TYPE_POINTLIGHT;
+		info.position	= glm::vec3(1.2f, 1.0f, 2.0f);
+		info.radius		= 10.0f;
+		//info.constant	= 1.0f;
+		//info.linear		= 0.0014f;
+		//info.quadratic	= 0.000007f;
 
-		dirLight = level->AddDirectionalLight(info);
+		pointLight = level->AddPointLight(info);
+
+		//info.name = "Point light 2";
+		//info.position = glm::vec3(-6.0f, 5.0f, -5.0f);
+		//
+		//level->AddPointLight(info);
+
+		//dirLight = level->AddDirectionalLight(info);
 	}
 
 	EulerCameraInitInfo camInfo;
@@ -158,6 +182,8 @@ int main() {
 	bool	enableVSync = app->VSyncStatus();
 
 	AppIO &io = app->io;
+
+	//witchInst->renderState.polygonMode = GL_LINE;
 
 	while (!app->CloseAplication()) {
 		app->NewFrame();
@@ -191,9 +217,6 @@ int main() {
 			camera->ProcessMouseScroll(io.mouseWheel);
 		}
 
-		renderer->screenWidth = app->width;
-		renderer->screenHeight = app->height;
-
 		witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
 		// Don't render anything if the window is minimised.
@@ -214,8 +237,10 @@ int main() {
 				app->EnableVSync(enableVSync);
 			}
 
-			if (showUI)
+			if (showUI) {
 				InfoWindow(app);
+				LightWindowTest(app);
+			}
 		}
 
 		app->SwapBuffer();

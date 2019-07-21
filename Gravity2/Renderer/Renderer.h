@@ -4,20 +4,21 @@
 #define MAX_RENDERBUFFER_QUEUE 5
 
 
+// Forward declare the application object.
+class GravityApp;
+
+
 /**
 * TODO(Afiq): 
 * Allow Renderer to only render contents from a Scenery object.
-* Renderer has it's own "framebuffer" if you will. 
+* Renderer has it's own "framebuffer" if you will.
 * When multi-threading is implemented in the future, the main thread would constantly be pushing into the Renderer's buffer deque.
 * The Renderer which will be on it's own thread will always render contents from the earliest pushed in RenderBuffer.
 */
 class Renderer {
-public:
-
-	uint screenWidth;
-	uint screenHeight;
-
 private:
+
+	friend class GravityApp;
 
 	/**
 	* Updates the internal rendering state of the renderer. 
@@ -56,13 +57,15 @@ private:
 		bool DepthTest() const;
 	};
 
-	RenderFuncs				settings;
-	Shader					*activeShader;
-
-	RenderBuffer			renderBuffer;
+	int				renderWidth;
+	int				renderHeight;
+	uint			lightBufferObj;
+	uint			pvBufferObject;
+	Shader			*activeShader;
+	RenderFuncs		settings;
+	RenderBuffer	renderBuffer;
 
 	void UseShader(Shader *Shader);
-
 	void RenderMesh(RenderNode *Node);
 	void RenderPushedCommand(RenderCommand *Command);
 
@@ -77,7 +80,8 @@ public:
 	Renderer& operator= (Renderer &&Other)		= delete;
 
 	~Renderer();
-
+	 
+	void Init();
 	void Render();
 	void PreRenderLevel(Scenery *Level);
 };

@@ -125,7 +125,6 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
-	activeShader->SetMatrix("projview", renderBuffer.compProjView);
 	activeShader->SetMatrix("model", Command->model);
 
 	for (RenderNode &node : Command->nodes) {
@@ -154,14 +153,43 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
 
 Renderer::Renderer() :
-	screenWidth{},
-	screenHeight{},
-	settings{},
-	activeShader{},
-	renderBuffer{} {}
+	renderWidth(0),
+	renderHeight(0),
+	lightBufferObj(0),
+	pvBufferObject(0),
+	activeShader(nullptr),
+	settings(),
+	renderBuffer() {}
 
 
 Renderer::~Renderer() {}
+
+
+void Renderer::Init() {
+	// Init function should initialize the light's UBO and projection * view UBO.
+	// UBO for projection and view matrices.
+	glGenBuffers(1, &pvBufferObject);
+	glBindBuffer(GL_UNIFORM_BUFFER, pvBufferObject);
+
+	// The shader UBO woud hold 2 mat4's for this buffer.
+	size_t size = sizeof(glm::mat4);
+	glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, pvBufferObject);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// UBO for lighting information.
+	glGenBuffers(1, &lightBufferObj);
+	glBindBuffer(GL_UNIFORM_BUFFER, lightBufferObj);
+
+	// The size needs to fit the size of the object inside of the UBO object which is an int + 1000 mat4's.
+	size = sizeof(int) + (1000 * sizeof(glm::mat4));
+	glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, lightBufferObj);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// NOTE(Afiq):
+	// Perhaps we need to do something with the render buffer once multi-threading is implemented.
+}
 
 
 void Renderer::Render() {
@@ -190,6 +218,18 @@ void Renderer::Render() {
 	* 2. Lighting information should be passed into the shader for every object that is being rendered.
 	*/
 
+	// Update the projection and view composite matrix inside of the UBO.
+	glBindBuffer(GL_UNIFORM_BUFFER, pvBufferObject);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(renderBuffer.compProjView));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	// Update the light data inside of the UBO.
+	size_t totalLights = renderBuffer.lights.Length();
+	glBindBuffer(GL_UNIFORM_BUFFER, lightBufferObj);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &totalLights);
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, totalLights * sizeof(glm::mat4), renderBuffer.lights.First());
+
+
 	// 2. Render all pushed data onto the screen.
 	for (size_t i = 0; i < renderBuffer.commands.Length(); i++) {
 		command	= &renderBuffer.commands[i];
@@ -213,9 +253,6 @@ void Renderer::Render() {
 		settings.SetPolygonMode(state.polygonMode);
 
 		UseShader(command->shader);
-
-		activeShader->SetMatrix("lights", renderBuffer.lights[0]);
-		activeShader->SetVector("viewPos", renderBuffer.camera->position);
 
 		// Updating shader uniforms and texture units will be done in this function.
 		RenderPushedCommand(command);
@@ -298,7 +335,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 	buffer->camera = Level->camera;
 	
 
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), static_cast<float>(screenWidth / screenHeight), 0.1f, 1000.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (*(float*)&renderWidth / *(float*)&renderHeight), 0.1f, 1000.0f);
 	glm::mat4 view = buffer->camera->GetViewMatrix();
 
 	buffer->compProjView = projection * view;

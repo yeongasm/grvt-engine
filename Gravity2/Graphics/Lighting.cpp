@@ -242,6 +242,9 @@ PointLight::~PointLight() {
 void PointLight::Alloc(const LightCreationInfo &Info) {
 	Light::Alloc(Info);
 
+	if (Info.radius)
+		simplified = true;
+
 	constant	= Info.constant;
 	linear		= Info.linear;
 	quadratic	= Info.quadratic;

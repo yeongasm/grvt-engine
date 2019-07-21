@@ -83,7 +83,7 @@ public:
 
 	virtual ~Light();
 
-	void			Alloc	(const LightCreationInfo &Info);
+	virtual void	Alloc	(const LightCreationInfo &Info);
 	void			Free	();
 
 	virtual void	Compute	(glm::mat4 &Buffer);
