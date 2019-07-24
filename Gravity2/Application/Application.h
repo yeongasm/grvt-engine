@@ -4,7 +4,12 @@
 class GravityApp {
 private:
 	ResourceManager		*manager;
+
+public:
+
 	GLFWwindow			*window;
+
+private:
 	Renderer			*renderer;
 	FrameStatistics		fstats;
 	
@@ -64,4 +69,4 @@ public:
 
 GravityApp* NewApplication(const char *AppName, int Width, int Height, int OpenGLVMajor, int OpenGLVMinor);
 GravityApp* GetApplication();
-void		TerminateApplication(GravityApp *App);
+void		TerminateApplication(GravityApp *&App);

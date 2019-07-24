@@ -26,6 +26,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define __GLAD__
+
 // GLM functions and data structures.
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -55,6 +57,7 @@
 //#endif
 
 // Utility header file.
+#include "OpenWrapper/OpenWrapper.h"
 #include "Utility/Utility.h"
 
 #include "Graphics/Shader.h"

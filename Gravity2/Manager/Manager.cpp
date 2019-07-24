@@ -246,6 +246,10 @@ Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *Ai
 	msg.SetString("Building mesh into Gravity.");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
 
+	/**
+	* TODO(Afiq): 
+	* This needs to be removed from here and put into manager's NewScene function.
+	*/
 	mesh->Alloc();
 
 	msg.SetString("Build complete!");

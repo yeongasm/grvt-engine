@@ -112,6 +112,10 @@ struct SceneryData {
 /**
 * The resource manager class acts as a database for all Gravity objects.
 * Every object has a database of it's own with a unique id assigned to it.
+*
+* TODO(Afiq):
+* Separate resource loading from OpenGL calls.
+* Doing this would enable us to parse data into the engine in a separate thread.
 */
 class ResourceManager {
 private:

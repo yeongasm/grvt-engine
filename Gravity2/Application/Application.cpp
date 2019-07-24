@@ -240,8 +240,9 @@ GravityApp* GetApplication() {
 }
 
 
-void TerminateApplication(GravityApp* App) {
+void TerminateApplication(GravityApp *&App) {
 	App->Free();
 
 	delete App;
+	App = nullptr;
 }
