@@ -51,6 +51,7 @@ struct SceneCreationInfo {
 * For the purpose of future proofing, we store every VBO sub data.
 *
 * TODO(Afiq): Implement CalculateNormals and CalculateTangentAndBiTangent function.
+* NOTE(Afiq): Thinking about removing the VBO and EBO and just have the VAO in a mesh. Should it be done?
 */
 class Mesh {
 public:

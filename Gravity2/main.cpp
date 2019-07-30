@@ -52,6 +52,7 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
+	GravityWindow *mainMenu = new WindowMenuBarTemplate(app);
 
 	{
 		SceneCreationInfo info;
@@ -234,6 +235,7 @@ int main() {
 			if (showUI) {
 				InfoWindow(app);
 				LightWindowTest(app);
+				mainMenu->Draw();
 			}
 		}
 
@@ -243,6 +245,7 @@ int main() {
 	TerminateApplication(app);
 
 	delete camera;
+	delete mainMenu;
 
 	DumpLogIntoFile
 

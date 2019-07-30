@@ -4,6 +4,10 @@
 /**
 * TODO(Afiq):
 * Forward declare all of the high level API data structures.
+* 
+* Future tasks:
+* 1. Make a low level API for texture and shaders.
+* 2. Generate the shader in engine and modularize it.
 */
 class Mesh;
 class Scene;

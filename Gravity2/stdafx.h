@@ -28,6 +28,8 @@
 // Required OpenGL header files.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 
 #define __GLAD__
 
@@ -41,6 +43,7 @@
 
 // Include ImGui headers.
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
@@ -82,6 +85,7 @@
 #include "Renderer/RenderBuffer.h"
 #include "Renderer/Renderer.h"
 
+#include "Application/UI.h"
 #include "Application/InputHandler.h"
 #include "Application/IO.h"
 #include "Application/Statistics.h"

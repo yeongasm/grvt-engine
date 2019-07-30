@@ -40,6 +40,14 @@ struct EulerCameraInitInfo {
 
 
 
+/**
+* NOTE(Afiq):
+* Camera class is not final!.
+*
+* TODO(Afiq):
+* We need to make a camera class that is derived from a Quaternion class.
+* Main camera class would still need to behave using Euler angles for ease of use.
+*/
 class EulerCamera {
 private:
 	bool		inverseX;
