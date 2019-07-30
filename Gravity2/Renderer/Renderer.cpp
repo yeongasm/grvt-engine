@@ -111,9 +111,6 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 	glBindVertexArray(mesh->vao);
 
-/*	if (Node->instanced)
-		glDrawElementsInstanced(GL_TRIANGLES, Node->size, GL_UNSIGNED_INT, 0, (uint)Node->amount);
-	else */
 	if (mesh->ebo)
 		glDrawElements(GL_TRIANGLES, mesh->size, GL_UNSIGNED_INT, 0);
 	else

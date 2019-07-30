@@ -44,7 +44,7 @@ SceneCreationInfo::~SceneCreationInfo() {
 }
 
 
-Mesh::Mesh() : vao{}, vbo{}, ebo{}, ibo{}, size{} {}
+Mesh::Mesh() : vao(), vbo(), ebo(), size() {}
 
 
 Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
@@ -53,20 +53,20 @@ Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
 Mesh& Mesh::operator= (Mesh &&Other) {
 	_ASSERTE(this != &Other);
 
-	Free();
+	if (this != &Other) {
+		vao = std::move(Other.vao);
+		vbo = std::move(Other.vbo);
+		ebo = std::move(Other.ebo);
 
-	vao = Other.vao;
-	vbo = Other.vbo;
-	ebo = Other.ebo;
-	ibo = Other.ibo;
+		positions	= Other.positions;
+		uv			= Other.uv;
+		normals		= Other.normals;
+		tangents	= Other.tangents;
+		bitangents	= Other.bitangents;
+		indices		= Other.indices;
 
-	positions	= Other.positions;
-	uv			= Other.uv;
-	normals		= Other.normals;
-	tangents	= Other.tangents;
-	bitangents	= Other.bitangents;
-
-	Other.Free();
+		Other.Free();
+	}
 
 	return *this;
 }
@@ -77,108 +77,10 @@ Mesh::~Mesh() {
 }
 
 
-void Mesh::Alloc() {
-	if (!vao) {
-		glGenVertexArrays(1, &vao);
-		glGenBuffers(1, &vbo);
-
-		if (indices.Length())
-			glGenBuffers(1, &ebo);
-	}
-
-	// NOTE(Afiq): Gravity handles mesh data by always interleaving data between one another.
-	Array<float> data;
-
-	data.Reserve(positions.Length() + normals.Length() + uv.Length() + tangents.Length() + bitangents.Length());
-
-	for (uint i = 0; i < positions.Length(); i++) {
-		data.Push(positions[i].x);
-		data.Push(positions[i].y);
-		data.Push(positions[i].z);
-
-		if (normals.Length()) {
-			data.Push(normals[i].x);
-			data.Push(normals[i].y);
-			data.Push(normals[i].z);
-		}
-
-		if (uv.Length()) {
-			data.Push(uv[i].x);
-			data.Push(uv[i].y);
-		}
-
-		// Bitangents can only exist when tangents exist. Hence it only made sense to group them up together.
-		if (tangents.Length()) {
-			data.Push(tangents[i].x);
-			data.Push(tangents[i].y);
-			data.Push(tangents[i].z);
-
-			data.Push(bitangents[i].x);
-			data.Push(bitangents[i].y);
-			data.Push(bitangents[i].z);
-		}
-	}
-
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, data.Length() * sizeof(float), &data[0], GL_STATIC_DRAW);
-
-	if (indices.Length()) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.Length() * sizeof(uint), &indices[0], GL_STATIC_DRAW);
-	}
-
-	int stride							= 3 * sizeof(float);
-	if (normals.Length())		stride += 3 * sizeof(float);
-	if (uv.Length())			stride += 2 * sizeof(float);
-	if (tangents.Length())		stride += 3 * sizeof(float);
-	if (bitangents.Length())	stride += 3 * sizeof(float);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(0));
-	
-	if (normals.Length()) {
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(3 * sizeof(float)));
-	}
-
-	if (uv.Length()) {
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(6 * sizeof(float)));
-	}
-
-	if (tangents.Length()) {
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(8 * sizeof(float)));
-	}
-
-	if (bitangents.Length()) {
-		glEnableVertexAttribArray(4);
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)(11 * sizeof(float)));
-	}
-
-	// NOTE(Afiq):
-	// VAO's store the glBindBuffer calls when the target is GL_ELEMENT_ARRAY_BUFFER.
-	// This also means VAO's store it's unbind call so make sure we don't unbind the element array buffer
-	// before unbinding  the VAO. Otherwise it doesn't have an EBO configured.
-	glBindVertexArray(0);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	size = (indices.Length()) ? (uint)indices.Length() : (uint)data.Length();
-}
-
-
 void Mesh::Free() {
-	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ebo);
-
-	if (ibo) 
-		glDeleteBuffers(1, &ibo);
-
-	glDeleteVertexArrays(1, &vao);
-
-	vao = vbo = ebo = ibo = 0;
+	vao.Reset();
+	vbo.Reset();
+	ebo.Reset();
 
 	positions.Release();
 	uv.Release();
@@ -189,75 +91,54 @@ void Mesh::Free() {
 }
 
 
-void Mesh::CalculateTangentAndBitangent() {
-	// TODO(Afiq):
-	// Once we have a basic renderer set up, research on methods to make solve calculating tangent and bitangents for mirrored uv coordinates.
-}
+//void Mesh::CalculateTangentAndBitangent() {
+//	// TODO(Afiq):
+//	// Once we have a basic renderer set up, research on methods to make solve calculating tangent and bitangents for mirrored uv coordinates.
+//}
 
 
-void Mesh::CalculateNormals() {
-	// TODO(Afiq):
-	// Find the optimal way to calculate vertex normals of a mesh.
-}
+//void Mesh::CalculateNormals() {
+//	// TODO(Afiq):
+//	// Find the optimal way to calculate vertex normals of a mesh.
+//}
 
 
-void Mesh::CreateInstanceBuffer() {
-	// Just to make sure no one tries to remake an existing ibo;
-	if (ibo)
-		return;
-
-	glGenBuffers(1, &ibo);
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, ibo);
-
-	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)0);
-	glEnableVertexAttribArray(6);
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(sizeof(glm::vec4)));
-	glEnableVertexAttribArray(7);
-	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
-	glEnableVertexAttribArray(8);
-	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
-
-	glVertexAttribDivisor(5, 1);
-	glVertexAttribDivisor(6, 1);
-	glVertexAttribDivisor(7, 1);
-	glVertexAttribDivisor(8, 1);
-
-	glBindVertexArray(0);
-}
-
-
-void Mesh::UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray) {
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ARRAY_BUFFER, Amount * sizeof(glm::mat4), MatrixArray, GL_STATIC_DRAW);
-	glBindVertexArray(0);
-}
-
-
-Scene::Scene() : instanced(false), type(SCENE_TYPE_NONE), meshes{}, 
-	/*models{},*/ instances{}, info{} {}
+//void Mesh::CreateInstanceBuffer() {
+//	// Just to make sure no one tries to remake an existing ibo;
+//	if (ibo)
+//		return;
+//
+//	glGenBuffers(1, &ibo);
+//	glBindVertexArray(vao);
+//	glBindBuffer(GL_ARRAY_BUFFER, ibo);
+//
+//	glEnableVertexAttribArray(5);
+//	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)0);
+//	glEnableVertexAttribArray(6);
+//	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(sizeof(glm::vec4)));
+//	glEnableVertexAttribArray(7);
+//	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(2 * sizeof(glm::vec4)));
+//	glEnableVertexAttribArray(8);
+//	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(glm::vec4), (void*)(3 * sizeof(glm::vec4)));
+//
+//	glVertexAttribDivisor(5, 1);
+//	glVertexAttribDivisor(6, 1);
+//	glVertexAttribDivisor(7, 1);
+//	glVertexAttribDivisor(8, 1);
+//
+//	glBindVertexArray(0);
+//}
+//
+//
+//void Mesh::UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray) {
+//	glBindVertexArray(vao);
+//	glBindBuffer(GL_ARRAY_BUFFER, ibo);
+//	glBufferData(GL_ARRAY_BUFFER, Amount * sizeof(glm::mat4), MatrixArray, GL_STATIC_DRAW);
+//	glBindVertexArray(0);
+//}
 
 
-Scene::Scene(Scene &&Other) { *this = std::move(Other); }
-
-
-Scene& Scene::operator= (Scene &&Other) {
-	_ASSERTE(this != &Other);
-	
-	Free();
-
-	instanced	= Other.instanced;
-	meshes		= std::move(Other.meshes);
-	//models		= Other.models;
-	instances	= Other.instances;
-	info		= Other.info;
-
-	Other.Free();
-
-	return *this;
-}
+Scene::Scene() : instanced(false), type(SCENE_TYPE_NONE), meshes(), instances(), info(nullptr) {}
 
 
 Scene::~Scene() {
@@ -271,7 +152,6 @@ void Scene::Free() {
 
 	instances.Release();
 	meshes.Release();
-	//models.Release();
 }
 
 

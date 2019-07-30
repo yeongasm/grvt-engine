@@ -25,6 +25,10 @@ void LightWindowTest(const GravityApp *App) {
 	ImGui::End();
 }
 
+
+void PrintNum() { printf("Hello World!\n"); }
+
+
 /**
 * TODO(Afiq):
 * Loggged on 18.07.2019
@@ -58,12 +62,12 @@ int main() {
 
 		witch = manager->NewScene(info);
 
-		info.name		= "Base Cube";
-		info.directory	= RootDir("Assets/Primitives/Obj/");
-		info.file		= "cube.obj";
-		info.type		= SCENE_TYPE_BASIC_CUBE;
+		//info.name		= "Base Cube";
+		//info.directory	= RootDir("Assets/Primitives/Obj/");
+		//info.file		= "cube.obj";
+		//info.type		= SCENE_TYPE_BASIC_CUBE;
 
-		cube = manager->NewScene(info);
+		//cube = manager->NewScene(info);
 	}
 
 	{
@@ -121,7 +125,7 @@ int main() {
 
 		objMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
 		objMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.specular",	glm::vec3(0.5f, 0.5f, 0.5f ));
+		objMat->SetVector("material.specular",	glm::vec3(1.0f, 1.0f, 1.00f ));
 		objMat->SetFloat("material.shininess",	32.0f);
 
 		witchInst->GetNode(0)->PushMaterial(bodyMat);
@@ -147,18 +151,8 @@ int main() {
 		info.type		= LIGHT_TYPE_POINTLIGHT;
 		info.position	= glm::vec3(1.2f, 1.0f, 2.0f);
 		info.radius		= 10.0f;
-		//info.constant	= 1.0f;
-		//info.linear		= 0.0014f;
-		//info.quadratic	= 0.000007f;
 
 		pointLight = level->AddPointLight(info);
-
-		//info.name = "Point light 2";
-		//info.position = glm::vec3(-6.0f, 5.0f, -5.0f);
-		//
-		//level->AddPointLight(info);
-
-		//dirLight = level->AddDirectionalLight(info);
 	}
 
 	EulerCameraInitInfo camInfo;

@@ -4,12 +4,7 @@
 class GravityApp {
 private:
 	ResourceManager		*manager;
-
-public:
-
 	GLFWwindow			*window;
-
-private:
 	Renderer			*renderer;
 	FrameStatistics		fstats;
 	

@@ -96,8 +96,10 @@ void GravityApp::Init() {
 	PrintIntoLog(LOG_INFO, LOG_APP, "Graphics Card: %s",	glGetString(GL_RENDERER))
 	PrintIntoLog(LOG_INFO, LOG_APP, "Version: %s",			glGetString(GL_VERSION))
 
-	manager = new ResourceManager();
-	renderer = new Renderer();
+	manager		= new ResourceManager();
+	renderer	= new Renderer();
+
+	Middleware::SetBuildQueue(new ResourceBuildQueue());
 
 	renderer->Init();
 }
@@ -113,6 +115,9 @@ void GravityApp::Free() {
 
 	delete manager;
 	delete renderer;
+
+	ResourceBuildQueue *buildQueue = Middleware::GetBuildQueue();
+	delete buildQueue;
 }
 
 
@@ -129,7 +134,7 @@ void GravityApp::NewFrame() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -182,6 +187,8 @@ float GravityApp::Tick() {
 
 	for (int i = 0; i < ArrayLen(this->io.mouseButton); i++)
 		io.mouseButton[i].currState = glfwGetMouseButton(window, i);
+
+	Middleware::GetBuildQueue()->Listen();
 
 	return deltaTime;
 }

@@ -55,11 +55,10 @@ struct SceneCreationInfo {
 class Mesh {
 public:
 
-	uint	vao;
-	uint	vbo;
-	uint	ebo;
-	uint	ibo;
-	uint	size;
+	VertArrayObj	vao;
+	BufferObject	vbo;
+	BufferObject	ebo;
+	uint			size;
 
 	Array<glm::vec3>	positions;
 	Array<glm::vec2>	uv;
@@ -69,18 +68,18 @@ public:
 	Array<uint>			indices;
 
 	Mesh();
+
 	Mesh(const Mesh &Other)				= delete;
 	Mesh& operator= (const Mesh &Other) = delete;
+
 	Mesh(Mesh &&Other);
 	Mesh& operator= (Mesh &&Other);
+
 	~Mesh();
 
-	void	Alloc();
 	void	Free();
 	void	CalculateTangentAndBitangent();
 	void	CalculateNormals();
-	void	CreateInstanceBuffer();
-	void	UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray);
 };
 
 
@@ -100,15 +99,17 @@ class SceneInstance;
 * There is more to this. This will be expanded upon later.
 */
 class Scene {
-public:
+private:
+
 	using MeshArr	= Array<Mesh>;
 	using ModelArr	= Array<glm::mat4>;
 	using Instances = Array<SceneInstance>;
 
+public:
+
 	bool		instanced;
 	SceneType	type;
 	MeshArr		meshes;
-	//ModelArr	models;		// As of 18th July 2019, we remove this and let the render command handle storing data for total instances.
 	Instances	instances;
 	SceneData	*info;
 
@@ -116,8 +117,8 @@ public:
 	Scene(const Scene &Other)				= delete;
 	Scene& operator= (const Scene &Other)	= delete;
 
-	Scene(Scene &&Other);
-	Scene& operator= (Scene &&Other);
+	Scene(Scene &&Other)					= delete;
+	Scene& operator= (Scene &&Other)		= delete;
 	~Scene();
 
 	void			Free			();

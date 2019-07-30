@@ -152,19 +152,17 @@ uint ResourceManager::GenerateResourceID() {
 
 
 void ResourceManager::ProcessNode(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info) {
-	aiMesh		*assimpMesh = nullptr;
-	aiMaterial	*assimpMat	= nullptr;
+	aiMesh	*assimpMesh = nullptr;
 	
-	for (uint i = 0; i < AiNode->mNumMeshes; i++) {
-		 assimpMesh = AiScene->mMeshes[AiNode->mMeshes[i]];
-		 assimpMat	= AiScene->mMaterials[assimpMesh->mMaterialIndex];
+
+	for (uint i = 0; i < AiScene->mNumMeshes; i++) {
+		 assimpMesh = AiScene->mMeshes[i];
 
 		 BuildMesh(Scene, assimpMesh, AiScene);
-		 //ParseMaterials(mesh, assimpMat, AiScene, Info);
 	}
 
-	for (uint i = 0; i < AiNode->mNumChildren; i++)
-		ProcessNode(Scene, AiNode->mChildren[i], AiScene, Info);
+	//for (uint i = 0; i < AiNode->mNumChildren; i++)
+	//	ProcessNode(Scene, AiNode->mChildren[i], AiScene, Info);
 }
 
 
@@ -236,21 +234,8 @@ Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *Ai
 			mesh->indices.Push(assimpFace.mIndices[j]);
 	}
 
-	mesh->positions.ShrinkToFit();
-	mesh->normals.ShrinkToFit();
-	mesh->uv.ShrinkToFit();
-	mesh->tangents.ShrinkToFit();
-	mesh->bitangents.ShrinkToFit();
-	mesh->indices.ShrinkToFit();
-
 	msg.SetString("Building mesh into Gravity.");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	/**
-	* TODO(Afiq): 
-	* This needs to be removed from here and put into manager's NewScene function.
-	*/
-	mesh->Alloc();
 
 	msg.SetString("Build complete!");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
@@ -260,7 +245,6 @@ Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *Ai
 
 
 Scene* ResourceManager::NewScene(const SceneCreationInfo &Info) {
-	Assimp::Importer importFile;
 	String path("%s/%s", ~Info.directory, ~Info.file);
 	String msg;
 
@@ -270,47 +254,50 @@ Scene* ResourceManager::NewScene(const SceneCreationInfo &Info) {
 		if (pair.second->file != Info.file)
 			continue;
 
-		msg.Write("Scene with file named [%s] already exist!. Returning existing scene instead.");
+		msg.Write("Scene with file named [%s] already exist!. Returning existing scene instead.", ~Info.name);
 		Logger::Log(LOG_WARN, LOG_SCENE, msg);
 
 		return pair.second->scene;
 	}
 
 	if (GetScene(Info.name)) {
-		msg.Write("Scene with name [%s] already exist! Name must be unique. Returning NULL");
+		msg.Write("Scene with name [%s] already exist! Name must be unique. Returning NULL.", ~Info.name);
 		Logger::Log(LOG_ERR, LOG_SCENE, msg);
 
 		return nullptr;
 	}
 
-	msg.Write("Attempting to load mesh at: %s.", ~path);
+	msg.Write("Attempting to load mesh at path: [%s].", ~path);
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
 
-	unsigned int flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
-
-	if (Info.flipUVs)
-		flags |= aiProcess_FlipUVs;
-
-	const aiScene *assimpScene = importFile.ReadFile(~path, flags);
-
-	if (!assimpScene || assimpScene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !assimpScene->mRootNode) {
-		msg.Write("Assimp failed to load mesh at path: %s.", ~path);
+	if (!DoesFileExist(path)) {
+		msg.Write("Path [%s] is invalid. Returning NULL.", ~path);
 		Logger::Log(LOG_ERR, LOG_SCENE, msg);
+
 		return nullptr;
 	}
 
-	// Pushing a new scene into the database.
 	auto it = scenes.emplace(Info.name, new SceneData()).first;
 
 	SceneData *data = it->second;
 	data->id = GenerateID<Scene>();
 	data->Alloc(Info);
 	data->scene->info = data;
+	data->scene->type = Info.type;
 
-	ProcessNode(data->scene, assimpScene->mRootNode, assimpScene, Info);
-
-	msg.SetString("Scene build complete!");
+	msg.Write("Building [%s] ... ", ~Info.name);
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
+
+	/**
+	* TODO(Afiq):
+	* Replace std::thread with Window's API thread wrapper class.
+	* There needs to be a tracker to track the state of a thread.
+	* Hence, we should create a global thread handler to track the lifetime of the threads.
+	*/
+	// Now we make pass the process of parsing in the mesh data by a mid layer API. 
+	//std::thread thread(Middleware::ParseMeshFromAssimp, path, Info.flipUVs, data->scene);
+	//thread.detach();
+	Middleware::ParseMeshFromAssimp(path, Info.flipUVs, data->scene);
 
 	return data->scene;
 }

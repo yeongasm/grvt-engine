@@ -8,7 +8,10 @@
 #include <Windows.h>
 #endif
 
+#include <sys/stat.h>
+
 #include <map>
+#include <queue>
 #include <deque>
 #include <thread>
 #include <chrono>
@@ -57,8 +60,9 @@
 //#endif
 
 // Utility header file.
-#include "OpenWrapper/OpenWrapper.h"
 #include "Utility/Utility.h"
+#include "GravityOpenAPI/LowLevelAPI.h"
+#include "GravityOpenAPI/Middleware.h"
 
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
@@ -66,6 +70,7 @@
 #include "Graphics/Material.h"
 #include "Graphics/SceneInstace.h"
 #include "Graphics/Lighting.h"
+
 
 #include "Camera/Camera.h"
 

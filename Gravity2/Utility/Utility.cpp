@@ -37,6 +37,11 @@ String RootDir(const String &Path) {
 	return path;
 }
 
+bool DoesFileExist(const String &Path) {
+	struct stat buffer;
+	return (stat(Path.c_str(), &buffer) == 0);
+}
+
 
 static String logErrorTypes[] = {"WARNING", "ERROR", "INFO"};
 String *Logger::logType = logErrorTypes;

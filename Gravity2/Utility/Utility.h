@@ -49,8 +49,14 @@
 bool OpenFile(String &Buffer, const String &Path);
 
 /**
+* Checks if a file at the specified path exist or not.
+* @param [REQUIRED] (String) Path - Path to file.
+*/
+bool DoesFileExist(const String &Path);
+
+/**
 * Root directory is the path to the solution's directory.
-* @param [REQUIRED] Path - Path to file.
+* @param [REQUIRED] Path - A buffer to place the path.
 */
 String RootDir(const String &Path);
 
@@ -120,5 +126,22 @@ template <class _Type>
 constexpr _Type&& Forward(_Type &&Arg) {
 	return static_cast<_Type&&>(Arg);
 }
+
+
+/**
+* NOTE(Afiq):
+* Should we introduct a form of function data structure for abstraction?
+* I can see the use of it when building our own thread wrapper but would it work? Not so sure ...
+*/
+//template <typename Type>
+//struct Function {
+//	using Callback = Type(*)(void*);
+//
+//	Callback Func;
+//
+//	Function(Callback Source) : Func(Source) {}
+//
+//	Type operator() () { return Func(); }
+//};
 
 #endif // !GRAVITY_UTILITY

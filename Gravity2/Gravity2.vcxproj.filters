@@ -81,7 +81,10 @@
     <ClCompile Include="Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OpenWrapper\OpenWrapper.cpp">
+    <ClCompile Include="GravityOpenAPI\LowLevelAPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GravityOpenAPI\Middleware.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,7 +149,10 @@
     <ClInclude Include="Renderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpenWrapper\OpenWrapper.h">
+    <ClInclude Include="GravityOpenAPI\LowLevelAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityOpenAPI\Middleware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
