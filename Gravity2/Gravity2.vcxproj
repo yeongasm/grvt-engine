@@ -176,6 +176,7 @@
     <ClCompile Include="Application\IO.cpp" />
     <ClCompile Include="Application\Statistics.cpp" />
     <ClCompile Include="Application\UI.cpp" />
+    <ClCompile Include="Application\UIHandler.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Graphics\Lighting.cpp" />
     <ClCompile Include="Graphics\Material.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="Application\IO.h" />
     <ClInclude Include="Application\Statistics.h" />
     <ClInclude Include="Application\UI.h" />
+    <ClInclude Include="Application\UIHandler.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Graphics\Lighting.h" />
     <ClInclude Include="Graphics\Material.h" />

@@ -455,12 +455,12 @@ public:
 		pArr[Idx].~ElementType();
 
 		if (Move) {
-			//memmove(pArr + Idx, pArr + Idx + 1, sizeof(Type) * --curPos - Idx);
-			for (size_t i = Idx; i < Length() - 1; i++) {
-				pArr[i] = pArr[i + 1];
-			}
+			memmove(pArr + Idx, pArr + Idx + 1, sizeof(ElementType) * (--curPos - Idx));
+			//for (size_t i = Idx; i < Length() - 1; i++) {
+			//	pArr[i] = pArr[i + 1];
+			//}
 
-			new (pArr + --curPos) ElementType();
+			new (pArr + curPos) ElementType();
 
 			//curPos--;
 		} else {

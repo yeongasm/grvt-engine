@@ -86,6 +86,7 @@
 #include "Renderer/Renderer.h"
 
 #include "Application/UI.h"
+#include "Application/UIHandler.h"
 #include "Application/InputHandler.h"
 #include "Application/IO.h"
 #include "Application/Statistics.h"

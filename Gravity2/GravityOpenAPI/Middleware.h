@@ -104,6 +104,7 @@ namespace Middleware {
 	/**
 	* [MIDDLEWARE]
 	* Packages the mesh to and sends it to the ResourceBuildQueue.
+	* If mesh set up requires more manual intervention, e.g: manually setting up the vertex attribute pointers, call AddMeshForBuild from ResourceBuildQueue.
 	*/
 	void				PackageMeshForBuild	(Mesh *MeshSrc);
 }
