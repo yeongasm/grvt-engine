@@ -1,6 +1,11 @@
 #pragma once
 
 
+/**
+* TODO(Afiq):
+* The main application class should be cleaned up.
+* Right now it is a mess.
+*/
 class GravityApp {
 private:
 	ResourceManager		*manager;
@@ -21,6 +26,7 @@ public:
 	int					height;
 	float				deltaTime;
 	AppIO				io;
+	WindowsHandler		ui;
 	String				name;
 
 	GravityApp();

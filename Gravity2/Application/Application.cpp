@@ -84,7 +84,9 @@ void GravityApp::Init() {
 	String glslVersion("#version %d%d0 core", glVersionMajor, glVersionMinor);
 
 	ImGui_ImplGlfw_InitForOpenGL(window, false);
-	ImGui_ImplOpenGL3_Init(~glslVersion);
+	ImGui_ImplOpenGL3_Init(glslVersion.c_str());
+
+	ui.Init(this);
 
 	glfwSetScrollCallback(window, GravityApp::GravtiyScrollCallback);
 	glfwSetKeyCallback(window, GravityApp::GravityKeyCallback);
@@ -134,7 +136,7 @@ void GravityApp::NewFrame() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -217,8 +219,7 @@ ResourceManager* GravityApp::GetResourceHandler() const {
 bool GravityApp::CloseAplication() {
 	// TODO(Afiq):
 	// We should probaly remove this in the future as we might wanna use the escape key to exit operations instead.
-	if (io.keys[GLFW_KEY_ESCAPE].OnPress() ||
-		(io.keys[GLFW_KEY_LEFT_ALT].OnHold() && io.keys[GLFW_KEY_F4].OnPress()))
+	if (io.keys[GLFW_KEY_LEFT_ALT].OnHold() && io.keys[GLFW_KEY_F4].OnPress())
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 
 	return glfwWindowShouldClose(window);

@@ -17,19 +17,14 @@ class GravityApp;
 * Should create a data structure for it.
 */
 class GravityWindow {
-private:
+protected:
 	bool					isActive;
 	ImGuiWindow				*imguiWindow;
 	GravityApp				*application;
-	GravityWindow			*parentWindow;
-	Array<GravityWindow*>	childWindows;
 	String					name;
 
 	void Release();
 
-	void AddChildWindow(GravityWindow *ChildWindow);
-
-	friend class WindowsHandler;
 public:
 
 	/**
@@ -37,10 +32,10 @@ public:
 	*/
 	GravityWindow(const String &Name, GravityApp *Application);
 
-	GravityWindow(const GravityWindow &Other)				= delete;
-	GravityWindow(GravityWindow &&Other)					= delete;
+	GravityWindow(const GravityWindow &Other);
+	GravityWindow& operator= (const GravityWindow &Other);
 
-	GravityWindow& operator= (const GravityWindow &Other)	= delete;
+	GravityWindow(GravityWindow &&Other)					= delete;
 	GravityWindow& operator= (GravityWindow &&Other)		= delete;
 
 	~GravityWindow();
@@ -52,19 +47,34 @@ public:
 
 	/**
 	* Listen to IO Events that are tied to this window.
+	* The idea of this function was to enable keyboard shortcuts that are tied to this window.
+	* Hence we'll need to make a set of keyboard shortcuts on the WindowsHandler for opening certain windows.
 	*/
 	virtual void Events();
 };
 
 
-#define DeclNewWindow(Name)									\
-	class Window##Name##Template : public GravityWindow {	\
-	public:													\
-		using GravityWindow::GravityWindow;					\
-		void Draw();					\
-	};														\
+/**
+* Declare this only in UI.h and nowhere else.
+*/
+#define DeclNewWindow(Name)												\
+	class Window##Name##Template : public GravityWindow {				\
+	public:																\
+		using GravityWindow::GravityWindow;								\
+		void Draw();													\
+		void Events();													\
+	};																	\
 	static GravityWindow *Window##Name = nullptr;
-	
+
+
+/**
+* Declare this only in WindowsHandler Init function inside of UIHandler.cpp and nowhere else.
+* Used for registering windows into the WindowsHandler.
+*/
+#define InitNewWindow(Identifier, Name, Application)					\
+	Window##Name = new Window##Name##Template(Identifier, Application);	\
+	windows.Push(Window##Name);
 
 
 DeclNewWindow(MenuBar)
+DeclNewWindow(AppStats)

@@ -1,17 +1,6 @@
 #include "stdafx.h"
 
 
-void InfoWindow(const GravityApp *App) {
-	bool open = true;
-	ImGui::Begin("Render Info", &open);
-	ImGui::Text("Delta time (seconds): %f", App->deltaTime);
-	ImGui::Text("FPS: %.1f", App->FramesPerSecond());
-	ImGui::Text("Single frame: %.4f ms/frame", App->TimePerFrame());
-	ImGui::Text("VSync: %s", (App->VSyncStatus()) ? "Enabled" : "Disabled");
-	ImGui::End();
-}
-
-
 PointLight	*pointLight = nullptr;
 
 void LightWindowTest(const GravityApp *App) {
@@ -26,9 +15,6 @@ void LightWindowTest(const GravityApp *App) {
 }
 
 
-void PrintNum() { printf("Hello World!\n"); }
-
-
 /**
 * TODO(Afiq):
 * Loggged on 18.07.2019
@@ -38,13 +24,17 @@ void PrintNum() { printf("Hello World!\n"); }
 */
 int main() {
 
-	GravityApp *app = NewApplication("Gravity Engine v2.0", 800, 600, 4, 5);
+	GravityApp *app = NewApplication("Gravity Engine v2.0", 1366, 768, 4, 5);
 
 	app->Init();
 	app->EnableVSync(0);
 
 	ResourceManager *manager	= app->GetResourceHandler();
 	Renderer		*renderer	= app->GetRenderer();
+
+	// NOTE(Afiq):
+	// The camera class should really be inside of the Scenery class.
+	// It only makes sense to 
 	EulerCamera		*camera		= new EulerCamera();
 
 	Scene		*witch		= nullptr;
@@ -52,7 +42,6 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
-	GravityWindow *mainMenu = new WindowMenuBarTemplate(app);
 
 	{
 		SceneCreationInfo info;
@@ -224,20 +213,17 @@ int main() {
 		}
 
 		{
-			if (io.IsKeyPressed(GLFW_KEY_GRAVE_ACCENT))
-				showUI ^= true;
-
 			if (io.IsKeyPressed(GLFW_KEY_V)) {
 				enableVSync ^= true;
 				app->EnableVSync(enableVSync);
 			}
 
 			if (showUI) {
-				InfoWindow(app);
 				LightWindowTest(app);
-				mainMenu->Draw();
 			}
 		}
+
+		app->ui.Tick();
 
 		app->SwapBuffer();
 	}
@@ -245,7 +231,6 @@ int main() {
 	TerminateApplication(app);
 
 	delete camera;
-	delete mainMenu;
 
 	DumpLogIntoFile
 

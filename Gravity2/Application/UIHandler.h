@@ -29,6 +29,7 @@ public:
 
 	/**
 	* Initialises ImGui and sets the default font and theme for the windows.
+	* Only call this function once an ImGui context has been created.
 	*/
 	void Init(GravityApp *Application);
 
