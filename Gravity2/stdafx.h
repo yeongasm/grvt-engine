@@ -1,8 +1,10 @@
 #pragma once
-#define _CRT_SECURE_NO_WARNINGS 1 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
+
 #ifndef PRECOMPILE_HEADER
 #define PRECOMPILE_HEADER
+
+#define _CRT_SECURE_NO_WARNINGS 1 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
 
 #if _WIN32
 #include <Windows.h>
@@ -28,10 +30,9 @@
 // Required OpenGL header files.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h>
-
-#define __GLAD__
 
 // GLM functions and data structures.
 #include <glm/glm.hpp>
@@ -85,11 +86,14 @@
 #include "Renderer/RenderBuffer.h"
 #include "Renderer/Renderer.h"
 
+#define IMGUI_WINDOW_DEBUGGER 0
+
 #include "Application/UI.h"
 #include "Application/UIHandler.h"
 #include "Application/InputHandler.h"
 #include "Application/IO.h"
 #include "Application/Statistics.h"
+#include "Application/Project.h"
 #include "Application/Application.h"
 
 #endif // !PRECOMPILE_HEADER

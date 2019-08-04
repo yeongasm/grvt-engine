@@ -4,6 +4,12 @@
 GravityApp *grApp = nullptr;
 
 
+GLAPIVersion::GLAPIVersion() : major{}, minor{} {}
+
+
+GLAPIVersion::GLAPIVersion(int VersionMajor, int VersionMinor) : major(VersionMajor), minor(VersionMinor) {}
+
+
 void GravityApp::GravtiyScrollCallback(GLFWwindow *Window, double OffsetX, double OffsetY) {
 	ImGui_ImplGlfw_ScrollCallback(Window, OffsetX, OffsetY);
 
@@ -42,16 +48,16 @@ void GravityApp::GravityFramebufferCallback(GLFWwindow *Window, int Width, int H
 
 GravityApp::GravityApp() :
 	window(nullptr),
-	manager(nullptr),
+	project(nullptr),
 	renderer(nullptr),
 	vsyncEnabled(0),
 	width(0), 
 	height(0), 
 	name{}, 
-	glVersionMajor{}, 
-	glVersionMinor{},
 	deltaTime{},
+	glVersion{},
 	io{},
+	ui{},
 	fstats{} {}
 
 
@@ -62,8 +68,8 @@ void GravityApp::Init() {
 	ConstructLogString
 
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glVersionMajor);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glVersionMinor);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, glVersion.major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glVersion.minor);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -81,12 +87,10 @@ void GravityApp::Init() {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	String glslVersion("#version %d%d0 core", glVersionMajor, glVersionMinor);
+	String glslVersion("#version %d%d0 core", glVersion.major, glVersion.minor);
 
 	ImGui_ImplGlfw_InitForOpenGL(window, false);
 	ImGui_ImplOpenGL3_Init(glslVersion.c_str());
-
-	ui.Init(this);
 
 	glfwSetScrollCallback(window, GravityApp::GravtiyScrollCallback);
 	glfwSetKeyCallback(window, GravityApp::GravityKeyCallback);
@@ -94,12 +98,13 @@ void GravityApp::Init() {
 	glfwSetCharCallback(window, ImGui_ImplGlfw_CharCallback);
 	glfwSetFramebufferSizeCallback(window, GravityApp::GravityFramebufferCallback);
 
+	ui.Init(this);
+
 	PrintIntoLog(LOG_INFO, LOG_APP, "Vendor: %s",			glGetString(GL_VENDOR))
 	PrintIntoLog(LOG_INFO, LOG_APP, "Graphics Card: %s",	glGetString(GL_RENDERER))
 	PrintIntoLog(LOG_INFO, LOG_APP, "Version: %s",			glGetString(GL_VERSION))
 
-	manager		= new ResourceManager();
-	renderer	= new Renderer();
+	renderer = new Renderer();
 
 	Middleware::SetBuildQueue(new ResourceBuildQueue());
 
@@ -115,7 +120,9 @@ void GravityApp::Free() {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 
-	delete manager;
+	if (project)
+		delete project;
+
 	delete renderer;
 
 	ResourceBuildQueue *buildQueue = Middleware::GetBuildQueue();
@@ -212,7 +219,31 @@ Renderer* GravityApp::GetRenderer() const {
 
 
 ResourceManager* GravityApp::GetResourceHandler() const {
-	return manager;
+	// Did you initialize a project?
+	_ASSERTE(project);
+
+	if (project)
+		return project->resourceHandler;
+
+	return nullptr;
+}
+
+
+GravityProject* GravityApp::NewProject(const ProjectCreationInfo &Info) {
+	// Did you close the previous project.
+	_ASSERTE(!project);
+
+	if (!project) {
+		project = new GravityProject();
+		project->Alloc(Info);
+	}
+
+	return project;
+}
+
+
+GravityProject* GravityApp::GetCurrentProject() {
+	return project;
 }
 
 
@@ -233,8 +264,7 @@ GravityApp* NewApplication(const char *AppName, int Width, int Height, int OpenG
 	grApp->name				= AppName;
 	grApp->width			= Width;
 	grApp->height			= Height;
-	grApp->glVersionMajor	= OpenGLVMajor;
-	grApp->glVersionMinor	= OpenGLVMinor;
+	grApp->glVersion		= GLAPIVersion(OpenGLVMajor, OpenGLVMinor);
 
 	return grApp;
 }

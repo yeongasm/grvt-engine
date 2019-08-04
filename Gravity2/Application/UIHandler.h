@@ -15,6 +15,13 @@ private:
 	Array<GravityWindow*>	windows;
 	Array<GravityWindow*>	activeWindows;
 
+	template <typename T>
+	void InitNewWindow(T *&Window, const String &Name, GravityApp *Application) {
+		Window = new T();
+		Window->Init(Name, Application);
+		windows.Push(Window);
+	}
+
 public:
 
 	WindowsHandler();

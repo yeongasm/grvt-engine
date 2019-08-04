@@ -1,6 +1,14 @@
 #pragma once
 
 
+struct GLAPIVersion {
+	int major;
+	int minor;
+
+	GLAPIVersion();
+	GLAPIVersion(int VersionMajor, int VersionMinor);
+};
+
 /**
 * TODO(Afiq):
 * The main application class should be cleaned up.
@@ -8,7 +16,7 @@
 */
 class GravityApp {
 private:
-	ResourceManager		*manager;
+	GravityProject		*project;
 	GLFWwindow			*window;
 	Renderer			*renderer;
 	FrameStatistics		fstats;
@@ -19,12 +27,12 @@ private:
 	static void GravityFramebufferCallback		(GLFWwindow *Window, int Width, int Height);
 
 public:
-	int					vsyncEnabled;
-	int					glVersionMajor;
+	bool				vsyncEnabled;
 	int					glVersionMinor;
 	int					width;
 	int					height;
 	float				deltaTime;
+	GLAPIVersion		glVersion;
 	AppIO				io;
 	WindowsHandler		ui;
 	String				name;
@@ -55,6 +63,9 @@ public:
 
 	Renderer*			GetRenderer			()	const;
 	ResourceManager*	GetResourceHandler	()	const;
+	
+	GravityProject*		NewProject(const ProjectCreationInfo &Info);
+	GravityProject*		GetCurrentProject();
 
 	/**
 	* TODO(Afiq): 

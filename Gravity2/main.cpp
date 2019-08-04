@@ -29,6 +29,15 @@ int main() {
 	app->Init();
 	app->EnableVSync(0);
 
+	{
+		ProjectCreationInfo info;
+		info.name = "PBR Demo";
+		info.filename = "PBR Demo";
+		info.directory = RootDir("bin/");
+
+		app->NewProject(info);
+	}
+
 	ResourceManager *manager	= app->GetResourceHandler();
 	Renderer		*renderer	= app->GetRenderer();
 
@@ -224,6 +233,10 @@ int main() {
 		}
 
 		app->ui.Tick();
+		
+#if IMGUI_WINDOW_DEBUGGER
+		WindowDebugger::RenderDebugger();
+#endif
 
 		app->SwapBuffer();
 	}

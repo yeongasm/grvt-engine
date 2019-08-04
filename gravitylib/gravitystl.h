@@ -662,7 +662,7 @@ private:
 	void _PushStringIntoBuffer(const char *Buffer, const size_t &Len) {
 		// Release the existing buffer from the Array.
 		if (curPos > 0)
-			Release();
+			Empty();
 
 		Array::Reserve(Len + 1, false);
 
@@ -676,7 +676,7 @@ private:
 		UpdateHash();
 
 		// Shrink the buffer to perfectly fit it's contents.
-		ShrinkToFit();
+		//ShrinkToFit();
 	}
 
 	/**
@@ -733,7 +733,7 @@ public:
 		// Ensures the other string is properly null terminated.
 		//_ASSERTE(Other.pArr[Other.Length()] == '\0');
 		if (Other.pArr)
-			_PushStringIntoBuffer(Other.pArr, Other.Length());
+			_PushStringIntoBuffer(Other.pArr, Other.Length() + 1);
 
 		return *this;
 	}

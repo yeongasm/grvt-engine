@@ -1,6 +1,16 @@
-#include "stdafx.h""
+#include "stdafx.h"
 
 
+/**
+* Declare all windows here.
+*/
+WindowMenuBarTemplate		*WindowMenuBar		= nullptr;
+WindowNewProjectTemplate	*WindowNewProject	= nullptr;
+
+
+/**
+* WindowsHandler functions start here.
+*/
 WindowsHandler::WindowsHandler() : windows(), activeWindows() {}
 
 
@@ -58,7 +68,8 @@ void WindowsHandler::Init(GravityApp *Application) {
 	colours[ImGuiCol_Text]					= ImVec4(0.95f, 0.96f, 0.98f, 1.00f);
 	colours[ImGuiCol_TextDisabled]			= ImVec4(0.36f, 0.42f, 0.47f, 1.00f);
 	colours[ImGuiCol_WindowBg]				= ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
-	colours[ImGuiCol_ChildBg]				= ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
+//	colours[ImGuiCol_ChildBg]				= ImVec4(0.11f, 0.15f, 0.17f, 1.00f);
+//	colours[ImGuiCol_ChildBg]				= ImVec4(0.15f, 0.18f, 0.22f, 1.00f);
 	colours[ImGuiCol_PopupBg]				= ImVec4(0.08f, 0.08f, 0.08f, 0.94f);
 	colours[ImGuiCol_Border]				= ImVec4(0.08f, 0.10f, 0.12f, 1.00f);
 	colours[ImGuiCol_BorderShadow]			= ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
@@ -107,9 +118,8 @@ void WindowsHandler::Init(GravityApp *Application) {
 	/**
 	* Initialize all windows in this function.
 	*/
-	InitNewWindow("Menu Bar", MenuBar, Application);
-	InitNewWindow("Application Status", AppStats, Application);
-	Show(WindowAppStats);
+	InitNewWindow(WindowMenuBar, "Menu Bar", Application);
+	InitNewWindow(WindowNewProject, "New Project", Application);
 }
 
 
@@ -130,7 +140,7 @@ void WindowsHandler::Hide(GravityWindow *Window) {
 		} else {
 			i++;
 		}
-	}
+	}	
 }
 
 
@@ -160,4 +170,136 @@ void WindowsHandler::Release() {
 	}
 
 	windows.Release();
+}
+
+
+/**
+* GravityWindows definition here.
+*/
+void WindowNewProjectTemplate::Events() { return; }
+
+
+void WindowNewProjectTemplate::Draw() {
+	WindowsHandler &ui = application->ui;
+	bool open = true;
+
+	ImGui::OpenPopup(name.c_str());
+
+	ImVec2 buttonSize(60.0f, 0.0f);
+	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+
+	if (ImGui::BeginPopupModal(name.c_str(), &open, windowFlags)) {
+		ImGui::SetWindowSize(ImVec2(470.0f, 190.0f), ImGuiCond_Always);
+		isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+		if (!imguiWindow)
+			imguiWindow = ImGui::FindWindowByName(name.c_str());
+
+#if IMGUI_WINDOW_DEBUGGER
+		if (isActive)
+			WindowDebugger::window = imguiWindow;
+#endif
+
+		static bool		sameName = true;
+		static String	nameString;
+		static String	fileString;
+		static String	dirString;
+
+		if (!nameString.Size())
+			nameString.Reserve(512);
+
+		if (!fileString.Size())
+			fileString.Reserve(512);
+
+		if (!dirString.Size())
+			dirString.Reserve(512);
+
+		ImGui::Text("New project details");
+		if (ImGui::Checkbox("File and project share same name?", &sameName))
+			fileString = nameString;
+
+		ImGui::Separator();
+		ImGui::Spacing();
+		if (ImGui::BeginChild("Details", ImVec2(70.0f, 75.0f))) {
+			ImGui::Text("Project name");
+			ImGui::Spacing();
+			ImGui::Text("File name");
+			ImGui::Spacing();
+			ImGui::Text("Directory");
+		}
+		ImGui::EndChild();
+
+		ImGui::SameLine();
+
+		if (ImGui::BeginChild("Input", ImVec2(-1.0f, 75.0f))) {
+			ImGui::PushItemWidth(-1.0f);
+			ImGui::InputText("Project name", nameString.First(), 512);
+
+			if (sameName)
+				fileString = nameString;
+
+			if (ImGui::InputText("File name", fileString.First(), 512))
+				sameName = false;
+
+			ImGui::InputText("Directory", dirString.First(), 512);
+			ImGui::PopItemWidth();
+		}
+		ImGui::EndChild();
+
+		ImGui::Separator();
+		ImGui::Indent(imguiWindow->Size.x - 145.0f);
+		if (ImGui::Button("Cancel", buttonSize))
+			open = false;
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Create", buttonSize))
+			printf("Creating new project ...\n");
+
+		ImGui::Unindent();
+		ImGui::EndPopup();
+	}
+
+	if (!open) {
+#if IMGUI_WINDOW_DEBUGGER
+		WindowDebugger::window = nullptr;
+#endif
+		ui.Hide(this);
+		ImGui::CloseCurrentPopup();
+	}
+}
+
+void WindowMenuBarTemplate::Events() { return; }
+
+
+void WindowMenuBarTemplate::Draw() {
+	WindowsHandler *ui = &application->ui;
+
+	ImGui::BeginMainMenuBar();
+	if (ImGui::BeginMenu("File")) {
+		if (ImGui::BeginMenu("New")) {
+			bool enableNewLevel = false;
+
+			if (application->GetCurrentProject())
+				enableNewLevel = true;
+
+			if (ImGui::MenuItem("Project", "CTRL+Shift+N", false))
+				ui->Show(WindowNewProject);
+
+
+			if (ImGui::MenuItem("Scenery", "CTRL+N", false, enableNewLevel))
+				printf("Adding new level ...\n");
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::MenuItem("Open", "CTRL+O"))
+			printf("Opening an existing project ...\n");
+
+		if (ImGui::MenuItem("Save", "CTRL+S"))
+			printf("Saving current project ...\n");
+
+		ImGui::EndMenu();
+	}
+	ImGui::EndMainMenuBar();
 }

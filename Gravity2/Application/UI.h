@@ -16,21 +16,23 @@ class GravityApp;
 * Some windows would contain child windows that can only exist inside the scope of a window.
 * Should create a data structure for it.
 */
-class GravityWindow {
+class GravityWindow {                                                                                                                                                                     
 protected:
 	bool					isActive;
 	ImGuiWindow				*imguiWindow;
 	GravityApp				*application;
 	String					name;
 
+	void Init(const String &Name, GravityApp *&Application);
 	void Release();
 
+	friend class WindowsHandler;
 public:
 
 	/**
 	* The default constructor should always take a pointer to the main application in order to have access to the API.
 	*/
-	GravityWindow(const String &Name, GravityApp *Application);
+	GravityWindow();
 
 	GravityWindow(const GravityWindow &Other);
 	GravityWindow& operator= (const GravityWindow &Other);
@@ -63,18 +65,16 @@ public:
 		using GravityWindow::GravityWindow;								\
 		void Draw();													\
 		void Events();													\
-	};																	\
-	static GravityWindow *Window##Name = nullptr;
-
-
-/**
-* Declare this only in WindowsHandler Init function inside of UIHandler.cpp and nowhere else.
-* Used for registering windows into the WindowsHandler.
-*/
-#define InitNewWindow(Identifier, Name, Application)					\
-	Window##Name = new Window##Name##Template(Identifier, Application);	\
-	windows.Push(Window##Name);
+	};
 
 
 DeclNewWindow(MenuBar)
-DeclNewWindow(AppStats)
+DeclNewWindow(NewProject)
+//DeclNewWindow(AppStats)
+
+
+struct WindowDebugger {
+	static ImGuiWindow *window;
+
+	static void RenderDebugger();
+};

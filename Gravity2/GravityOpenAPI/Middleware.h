@@ -8,6 +8,7 @@
 * Future tasks:
 * 1. Make a low level API for texture and shaders.
 * 2. Generate the shader in engine and modularize it.
+* 3. When framebuffers are implemented, do the same for it.
 */
 class Mesh;
 class Scene;

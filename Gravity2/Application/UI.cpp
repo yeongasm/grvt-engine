@@ -6,8 +6,8 @@
 	ResourceManager *resource	= application->GetResourceHandler();
 
 
-GravityWindow::GravityWindow(const String &Name, GravityApp *Application) :
-	isActive(false), imguiWindow(nullptr), application(Application), name(Name) {}
+GravityWindow::GravityWindow() :
+	isActive(false), imguiWindow(nullptr), application(nullptr), name() {}
 
 
 GravityWindow::GravityWindow(const GravityWindow &Other) { *this = Other; }
@@ -50,6 +50,12 @@ GravityWindow& GravityWindow::operator= (const GravityWindow &Other) {
 GravityWindow::~GravityWindow() { Release(); }
 
 
+void GravityWindow::Init(const String &Name, GravityApp *&Application) {
+	name = Name;
+	application = Application;
+}
+
+
 void GravityWindow::Release() {
 	isActive		= false;
 	imguiWindow		= nullptr;
@@ -63,49 +69,16 @@ void GravityWindow::Draw() {}
 void GravityWindow::Events() {}
 
 
-void WindowMenuBarTemplate::Draw() {
-	ImGui::BeginMainMenuBar();
-	if (ImGui::BeginMenu("File")) {
-		if (ImGui::MenuItem("New Project", "CTRL+N", false))
-			printf("Adding new project ...\n");
+ImGuiWindow *WindowDebugger::window = nullptr;
 
-		if (ImGui::MenuItem("Open File", "CTRL+O", false))
-			printf("Opening file ...\n");
 
-		if (ImGui::MenuItem("Save", "CTRL+S", false))
-			printf("Saving file ...\n");
-		
-		ImGui::EndMenu();
+void WindowDebugger::RenderDebugger() {
+	ImGui::Begin("ImGui Debugger");
+	if (window) {
+		ImGui::Text("Name: %s", window->Name);
+		ImGui::Text("ID: %d", window->ID);
+		ImGui::Text("Size X: %.2f", window->Size.x);
+		ImGui::Text("Size Y: %.2f", window->Size.y);
 	}
-	ImGui::EndMainMenuBar();
-}
-
-
-void WindowMenuBarTemplate::Events() {}
-
-
-void WindowAppStatsTemplate::Draw() {
-	WindowsHandler &ui = application->ui;
-	bool open = true;
-	ImGui::Begin("Render Info", &open);
-	if (!open)
-		ui.Hide(this);
-
-	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-	ImGui::Text("Delta time (seconds): %f", application->deltaTime);
-	ImGui::Text("FPS: %.1f", application->FramesPerSecond());
-	ImGui::Text("Single frame: %.4f ms/frame", application->TimePerFrame());
-	ImGui::Text("VSync: %s", (application->VSyncStatus()) ? "Enabled" : "Disabled");
 	ImGui::End();
-}
-
-
-void WindowAppStatsTemplate::Events() {
-	AppIO &io = application->io;
-
-	if (io.IsKeyPressed(GLFW_KEY_GRAVE_ACCENT))
-		application->ui.Show(this);
-
-	if (isActive && io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		application->ui.Hide(this);
 }
