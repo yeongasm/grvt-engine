@@ -6,8 +6,19 @@
 	ResourceManager *resource	= application->GetResourceHandler();
 
 
+WindowIOEvent::WindowIOEvent() : enabled(true), onEvent(false) {}
+
+
+WindowIOEvent::operator bool() {
+	if (!enabled)
+		return false;
+
+	return onEvent;
+}
+
+
 GravityWindow::GravityWindow() :
-	isActive(false), imguiWindow(nullptr), application(nullptr), name() {}
+	isActive(false), imguiWindow(nullptr), application(nullptr), keyEvent{}, name() {}
 
 
 GravityWindow::GravityWindow(const GravityWindow &Other) { *this = Other; }
@@ -73,6 +84,7 @@ ImGuiWindow *WindowDebugger::window = nullptr;
 
 
 void WindowDebugger::RenderDebugger() {
+	static float colour[4];
 	ImGui::Begin("ImGui Debugger");
 	if (window) {
 		ImGui::Text("Name: %s", window->Name);
@@ -80,5 +92,6 @@ void WindowDebugger::RenderDebugger() {
 		ImGui::Text("Size X: %.2f", window->Size.x);
 		ImGui::Text("Size Y: %.2f", window->Size.y);
 	}
+	ImGui::ColorPicker4("##", colour, ImGuiColorEditFlags_Float, colour);
 	ImGui::End();
 }

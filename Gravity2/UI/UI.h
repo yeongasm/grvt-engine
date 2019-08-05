@@ -9,6 +9,33 @@ class GravityApp;
 
 
 /**
+* WindowIOFlags enum.
+*/
+enum WindowIOFlags : uint {
+	WINDOW_ON_SUBMIT = 0x00,
+	WINDOW_ON_CANCEL = 0x01,
+	WINDOW_EVENT_MAX = 0x02
+};
+
+
+/**
+* WindowIOEvent data structure.
+*
+* A wrapper around on submit and on cancel events. Any new events can be added into WindowIOFlags enum.
+* NOTE(Afiq):
+* Not really happy with this implementation. Need to figure out a different way.
+*/
+struct WindowIOEvent {
+	bool enabled;
+	bool onEvent;
+
+	WindowIOEvent();
+
+	operator bool();
+};
+
+
+/**
 * Gravity Engine's Window data structure.
 *
 * The base class for all other windows.
@@ -16,11 +43,12 @@ class GravityApp;
 * Some windows would contain child windows that can only exist inside the scope of a window.
 * Should create a data structure for it.
 */
-class GravityWindow {                                                                                                                                                                     
+class GravityWindow {                                                                                                                                                     
 protected:
 	bool					isActive;
 	ImGuiWindow				*imguiWindow;
 	GravityApp				*application;
+	WindowIOEvent			keyEvent[WINDOW_EVENT_MAX];
 	String					name;
 
 	void Init(const String &Name, GravityApp *&Application);
@@ -70,6 +98,7 @@ public:
 
 DeclNewWindow(MenuBar)
 DeclNewWindow(NewProject)
+DeclNewWindow(ProjectExplorer)
 //DeclNewWindow(AppStats)
 
 

@@ -17,6 +17,7 @@
 #include <deque>
 #include <thread>
 #include <chrono>
+#include <functional>
 
 //#if defined(_DEBUG)
 //#define _CRTDBG_MAP_ALLOC		// Enable heap memory leak detection
@@ -86,12 +87,15 @@
 #include "Renderer/RenderBuffer.h"
 #include "Renderer/Renderer.h"
 
-#define IMGUI_WINDOW_DEBUGGER 0
+#define IMGUI_WINDOW_DEBUGGER 1
 
-#include "Application/UI.h"
-#include "Application/UIHandler.h"
-#include "Application/InputHandler.h"
-#include "Application/IO.h"
+#include "IO/InputHandler.h"
+#include "IO/IO.h"
+
+#include "UI/UI.h"
+#include "UI/WndFuncs/WndFuncs.h"
+#include "UI/UIHandler.h"
+
 #include "Application/Statistics.h"
 #include "Application/Project.h"
 #include "Application/Application.h"

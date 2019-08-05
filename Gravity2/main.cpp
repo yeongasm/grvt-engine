@@ -30,15 +30,15 @@ int main() {
 	app->EnableVSync(0);
 
 	{
-		ProjectCreationInfo info;
-		info.name = "PBR Demo";
-		info.filename = "PBR Demo";
-		info.directory = RootDir("bin/");
+		//ProjectCreationInfo info;
+		//info.name = "PBR Demo";
+		//info.filename = "PBR Demo";
+		//info.directory = RootDir("bin/");
 
-		app->NewProject(info);
+		//app->NewProject(info);
 	}
 
-	ResourceManager *manager	= app->GetResourceHandler();
+	//ResourceManager *manager	= app->GetResourceHandler();
 	Renderer		*renderer	= app->GetRenderer();
 
 	// NOTE(Afiq):
@@ -53,13 +53,13 @@ int main() {
 	Scenery		*level		= nullptr;
 
 	{
-		SceneCreationInfo info;
-		info.name		= "Chibi witch";
-		info.directory	= RootDir("Assets/Models/witch/source/");
-		info.file		= "03.obj";
-		info.type		= SCENE_TYPE_CUSTOM; 
+		//SceneCreationInfo info;
+		//info.name		= "Chibi witch";
+		//info.directory	= RootDir("Assets/Models/witch/source/");
+		//info.file		= "03.obj";
+		//info.type		= SCENE_TYPE_CUSTOM; 
 
-		witch = manager->NewScene(info);
+		//witch = manager->NewScene(info);
 
 		//info.name		= "Base Cube";
 		//info.directory	= RootDir("Assets/Primitives/Obj/");
@@ -69,90 +69,90 @@ int main() {
 		//cube = manager->NewScene(info);
 	}
 
-	{
-		ShaderCreationInfo info;
-		info.name			= "Simple shader";
-		info.directory		= RootDir("Shaders/");
-		info.vertexShader	= "basic_diffused.vs";
-		info.fragmentShader = "basic_diffused.fs";
+	//{
+	//	ShaderCreationInfo info;
+	//	info.name			= "Simple shader";
+	//	info.directory		= RootDir("Shaders/");
+	//	info.vertexShader	= "basic_diffused.vs";
+	//	info.fragmentShader = "basic_diffused.fs";
 
-		diffuse = manager->NewShader(info);
-	}
+	//	diffuse = manager->NewShader(info);
+	//}
 
-	SceneInstanceCreation info;
-	
-	info.shader = diffuse;
-	SceneInstance *witchInst = witch->CreateInstance(info);
+	//SceneInstanceCreation info;
+	//
+	//info.shader = diffuse;
+	//SceneInstance *witchInst = witch->CreateInstance(info);
 
-	{
-		TextureCreationInfo info;
-		GenerateGenericTextureInfo(info);
-		info.name			= "Witch_body_albedo";
-		info.directory		= RootDir("Assets/Models/witch/source/");
-		info.files.Push("body.jpg");
-		info.format			= 0;
-		info.textureType	= TEXTURE_TYPE_ALBEDO;
+	//{
+	//	TextureCreationInfo info;
+	//	GenerateGenericTextureInfo(info);
+	//	info.name			= "Witch_body_albedo";
+	//	info.directory		= RootDir("Assets/Models/witch/source/");
+	//	info.files.Push("body.jpg");
+	//	info.format			= 0;
+	//	info.textureType	= TEXTURE_TYPE_ALBEDO;
 
-		Texture *body = manager->NewTexture(info);
+	//	Texture *body = manager->NewTexture(info);
 
-		info.name			= "Witch_obj_albedo";
-		info.files.Release();
-		info.files.Push("ob.jpg");
+	//	info.name			= "Witch_obj_albedo";
+	//	info.files.Release();
+	//	info.files.Push("ob.jpg");
 
-		Texture *object		= manager->NewTexture(info);
+	//	Texture *object		= manager->NewTexture(info);
 
-		MaterialCreationInfo mat;
-		mat.name			= "Witch_body_material";
-		mat.shader			= diffuse;
-		mat.textures.Push(body);
+	//	MaterialCreationInfo mat;
+	//	mat.name			= "Witch_body_material";
+	//	mat.shader			= diffuse;
+	//	mat.textures.Push(body);
 
-		Material *bodyMat	= manager->NewMaterial(mat);
+	//	Material *bodyMat	= manager->NewMaterial(mat);
 
-		mat.name			= "Witch_obj_material";
-		mat.textures.Release();
-		mat.textures.Push(object);
+	//	mat.name			= "Witch_obj_material";
+	//	mat.textures.Release();
+	//	mat.textures.Push(object);
 
-		Material *objMat	= manager->NewMaterial(mat);
-		
-		//bodyMat->SetTexture("diffuseTexture", body);
-		//objMat->SetTexture("diffuseTexture", object);
+	//	Material *objMat	= manager->NewMaterial(mat);
+	//	
+	//	//bodyMat->SetTexture("diffuseTexture", body);
+	//	//objMat->SetTexture("diffuseTexture", object);
 
-		bodyMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
-		bodyMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
-		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f ));
-		bodyMat->SetFloat("material.shininess", 32.0f);
+	//	bodyMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
+	//	bodyMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
+	//	bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f ));
+	//	bodyMat->SetFloat("material.shininess", 32.0f);
 
-		objMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.specular",	glm::vec3(1.0f, 1.0f, 1.00f ));
-		objMat->SetFloat("material.shininess",	32.0f);
+	//	objMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
+	//	objMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
+	//	objMat->SetVector("material.specular",	glm::vec3(1.0f, 1.0f, 1.00f ));
+	//	objMat->SetFloat("material.shininess",	32.0f);
 
-		witchInst->GetNode(0)->PushMaterial(bodyMat);
-		witchInst->GetNode(1)->PushMaterial(objMat);
-		witchInst->GetNode(2)->PushMaterial(objMat);
-		witchInst->GetNode(3)->PushMaterial(objMat);
-		witchInst->GetNode(4)->PushMaterial(objMat);
+	//	witchInst->GetNode(0)->PushMaterial(bodyMat);
+	//	witchInst->GetNode(1)->PushMaterial(objMat);
+	//	witchInst->GetNode(2)->PushMaterial(objMat);
+	//	witchInst->GetNode(3)->PushMaterial(objMat);
+	//	witchInst->GetNode(4)->PushMaterial(objMat);
 
-	}
+	//}
 
-	witchInst->renderState.DefaultModelRenderState();
+	//witchInst->renderState.DefaultModelRenderState();
 
-	{
-		LevelCreationInfo info;
-		info.name = "Level 01";
+	//{
+	//	LevelCreationInfo info;
+	//	info.name = "Level 01";
 
-		level = manager->NewLevel(info);
-	}
+	//	level = manager->NewLevel(info);
+	//}
 
-	{	
-		LightCreationInfo info;
-		info.name		= "Point light 1";
-		info.type		= LIGHT_TYPE_POINTLIGHT;
-		info.position	= glm::vec3(1.2f, 1.0f, 2.0f);
-		info.radius		= 10.0f;
+	//{	
+	//	LightCreationInfo info;
+	//	info.name		= "Point light 1";
+	//	info.type		= LIGHT_TYPE_POINTLIGHT;
+	//	info.position	= glm::vec3(1.2f, 1.0f, 2.0f);
+	//	info.radius		= 10.0f;
 
-		pointLight = level->AddPointLight(info);
-	}
+	//	pointLight = level->AddPointLight(info);
+	//}
 
 	EulerCameraInitInfo camInfo;
 
@@ -167,8 +167,8 @@ int main() {
 
 	camera->Init(camInfo);
 
-	level->AttachCamera(camera);
-	level->PushSceneInstance(witchInst);
+	//level->AttachCamera(camera);
+	//level->PushSceneInstance(witchInst);
 
 	bool	showUI		= true;
 	float	deltaTime	= 0.0f;
@@ -185,37 +185,37 @@ int main() {
 		deltaTime = app->deltaTime;
 
 		// NOTE(Afiq): Temporary placeholder for camera system before incorporating UI.
-		{
-			if (io.IsKeyPressed(GLFW_KEY_TAB)) {
-				camera->isActive ^= true;
+		//{
+		//	if (io.IsKeyPressed(GLFW_KEY_TAB)) {
+		//		camera->isActive ^= true;
 
-				int inputMode = (camera->isActive) ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
-				app->SetInputMode(GLFW_CURSOR, inputMode);
-			}
+		//		int inputMode = (camera->isActive) ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;
+		//		app->SetInputMode(GLFW_CURSOR, inputMode);
+		//	}
 
-			if (io.IsKeyHeld(GLFW_KEY_W))
-				camera->ProcessKeyboard(CAMERA_MOVE_FORWARD, deltaTime);
-			if (io.IsKeyHeld(GLFW_KEY_S))
-				camera->ProcessKeyboard(CAMERA_MOVE_BACKWARD, deltaTime);
-			if (io.IsKeyHeld(GLFW_KEY_A))
-				camera->ProcessKeyboard(CAMERA_MOVE_LEFT, deltaTime);
-			if (io.IsKeyHeld(GLFW_KEY_D))
-				camera->ProcessKeyboard(CAMERA_MOVE_RIGHT, deltaTime);
-			if (io.IsKeyHeld(GLFW_KEY_Q))
-				camera->ProcessKeyboard(CAMERA_MOVE_DOWN, deltaTime);
-			if (io.IsKeyHeld(GLFW_KEY_E))
-				camera->ProcessKeyboard(CAMERA_MOVE_UP, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_W))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_FORWARD, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_S))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_BACKWARD, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_A))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_LEFT, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_D))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_RIGHT, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_Q))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_DOWN, deltaTime);
+		//	if (io.IsKeyHeld(GLFW_KEY_E))
+		//		camera->ProcessKeyboard(CAMERA_MOVE_UP, deltaTime);
 
-			camera->ProcessMouseMovement(io.mousePos.x, io.mousePos.y);
-			camera->ProcessMouseScroll(io.mouseWheel);
-		}
+		//	camera->ProcessMouseMovement(io.mousePos.x, io.mousePos.y);
+		//	camera->ProcessMouseScroll(io.mouseWheel);
+		//}
 
-		witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
+		//witchInst->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
 		// Don't render anything if the window is minimised.
 		if (app->width && app->height) {
 			// Before drawing everything onto the screen, we pack the level's data and compute the necessities for the renderer.
-			renderer->PreRenderLevel(level);
+			//renderer->PreRenderLevel(level);
 
 			// Draw onto the screen.
 			renderer->Render();
@@ -228,7 +228,7 @@ int main() {
 			}
 
 			if (showUI) {
-				LightWindowTest(app);
+				//LightWindowTest(app);
 			}
 		}
 
@@ -245,7 +245,8 @@ int main() {
 
 	delete camera;
 
-	DumpLogIntoFile
+//	DumpLogIntoFile
+	Logger::Free();
 
 #if 0
 	_CrtDumpMemoryLeaks();

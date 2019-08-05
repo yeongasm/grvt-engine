@@ -4,8 +4,9 @@
 /**
 * Declare all windows here.
 */
-WindowMenuBarTemplate		*WindowMenuBar		= nullptr;
-WindowNewProjectTemplate	*WindowNewProject	= nullptr;
+WindowMenuBarTemplate			*WindowMenuBar			= nullptr;
+WindowNewProjectTemplate		*WindowNewProject		= nullptr;
+WindowProjectExplorerTemplate	*WindowProjectExplorer	= nullptr;
 
 
 /**
@@ -38,7 +39,7 @@ void WindowsHandler::Init(GravityApp *Application) {
 	ImFont *pFont		= nullptr;
 	ImGuiIO &io			= ImGui::GetIO();
 
-	String fontPath		= RootDir("Assets/Editor/Fonts/OpenSans/OpenSans-Regular.ttf");
+	String fontPath		= "Data/Editor/Fonts/OpenSans/OpenSans-Regular.ttf";
 	
 	application = Application;
 
@@ -120,6 +121,7 @@ void WindowsHandler::Init(GravityApp *Application) {
 	*/
 	InitNewWindow(WindowMenuBar, "Menu Bar", Application);
 	InitNewWindow(WindowNewProject, "New Project", Application);
+	InitNewWindow(WindowProjectExplorer, "Project Explorer", Application);
 }
 
 
@@ -148,12 +150,11 @@ void WindowsHandler::Tick() {
 
 	WindowMenuBar->Events();
 	WindowMenuBar->Draw();
-
-	for (GravityWindow *window : windows)
-		window->Events();
 	
-	for (GravityWindow *window : activeWindows)
+	for (GravityWindow *window : activeWindows) {
+		window->Events();
 		window->Draw();
+	}
 }
 
 
@@ -174,101 +175,12 @@ void WindowsHandler::Release() {
 
 
 /**
-* GravityWindows definition here.
+* ---------------------------------------------- GravityWindows definitions here ----------------------------------------------
 */
-void WindowNewProjectTemplate::Events() { return; }
 
-
-void WindowNewProjectTemplate::Draw() {
-	WindowsHandler &ui = application->ui;
-	bool open = true;
-
-	ImGui::OpenPopup(name.c_str());
-
-	ImVec2 buttonSize(60.0f, 0.0f);
-	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
-
-	if (ImGui::BeginPopupModal(name.c_str(), &open, windowFlags)) {
-		ImGui::SetWindowSize(ImVec2(470.0f, 190.0f), ImGuiCond_Always);
-		isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-
-		if (!imguiWindow)
-			imguiWindow = ImGui::FindWindowByName(name.c_str());
-
-#if IMGUI_WINDOW_DEBUGGER
-		if (isActive)
-			WindowDebugger::window = imguiWindow;
-#endif
-
-		static bool		sameName = true;
-		static String	nameString;
-		static String	fileString;
-		static String	dirString;
-
-		if (!nameString.Size())
-			nameString.Reserve(512);
-
-		if (!fileString.Size())
-			fileString.Reserve(512);
-
-		if (!dirString.Size())
-			dirString.Reserve(512);
-
-		ImGui::Text("New project details");
-		if (ImGui::Checkbox("File and project share same name?", &sameName))
-			fileString = nameString;
-
-		ImGui::Separator();
-		ImGui::Spacing();
-		if (ImGui::BeginChild("Details", ImVec2(70.0f, 75.0f))) {
-			ImGui::Text("Project name");
-			ImGui::Spacing();
-			ImGui::Text("File name");
-			ImGui::Spacing();
-			ImGui::Text("Directory");
-		}
-		ImGui::EndChild();
-
-		ImGui::SameLine();
-
-		if (ImGui::BeginChild("Input", ImVec2(-1.0f, 75.0f))) {
-			ImGui::PushItemWidth(-1.0f);
-			ImGui::InputText("Project name", nameString.First(), 512);
-
-			if (sameName)
-				fileString = nameString;
-
-			if (ImGui::InputText("File name", fileString.First(), 512))
-				sameName = false;
-
-			ImGui::InputText("Directory", dirString.First(), 512);
-			ImGui::PopItemWidth();
-		}
-		ImGui::EndChild();
-
-		ImGui::Separator();
-		ImGui::Indent(imguiWindow->Size.x - 145.0f);
-		if (ImGui::Button("Cancel", buttonSize))
-			open = false;
-
-		ImGui::SameLine();
-
-		if (ImGui::Button("Create", buttonSize))
-			printf("Creating new project ...\n");
-
-		ImGui::Unindent();
-		ImGui::EndPopup();
-	}
-
-	if (!open) {
-#if IMGUI_WINDOW_DEBUGGER
-		WindowDebugger::window = nullptr;
-#endif
-		ui.Hide(this);
-		ImGui::CloseCurrentPopup();
-	}
-}
-
+/**
+* Menu Bar definition.
+*/
 void WindowMenuBarTemplate::Events() { return; }
 
 
@@ -302,4 +214,159 @@ void WindowMenuBarTemplate::Draw() {
 		ImGui::EndMenu();
 	}
 	ImGui::EndMainMenuBar();
+}
+
+
+/**
+* New Project window definition.
+*/
+void WindowNewProjectTemplate::Events() { 
+	if (!isActive)
+		return;
+
+	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
+		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
+	else
+		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+
+	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
+	else 
+		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+}
+
+
+void WindowNewProjectTemplate::Draw() {
+	WindowsHandler &ui = application->ui;
+	bool open = true;
+
+	ImGui::OpenPopup(name.c_str());
+
+	ImVec2 buttonSize(60.0f, 0.0f);
+	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+
+	if (ImGui::BeginPopupModal(name.c_str(), &open, windowFlags)) {
+		ImGui::SetWindowSize(ImVec2(470.0f, 190.0f), ImGuiCond_Always);
+		isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+		if (!imguiWindow)
+			imguiWindow = ImGui::FindWindowByName(name.c_str());
+
+#if IMGUI_WINDOW_DEBUGGER
+		if (isActive)
+			WindowDebugger::window = imguiWindow;
+#endif
+
+		static bool		sameName = true;
+		static String	nameString = "New Project";
+		static String	fileString;
+		static String	dirString = __ROOT__;
+
+		if (!nameString.Size())
+			nameString.Reserve(512);
+
+		if (!fileString.Size())
+			fileString.Reserve(512);
+
+		if (!dirString.Size())
+			dirString.Reserve(512);
+
+		ImGui::Text("New project details");
+		if (ImGui::Checkbox("Project and file share same name?", &sameName))
+			fileString = nameString;
+
+		ImGui::Separator();
+		ImGui::Spacing();
+		if (ImGui::BeginChild("Details", ImVec2(70.0f, 75.0f))) {
+			ImGui::Text("Project name");
+			ImGui::Spacing();
+			ImGui::Text("File name");
+			ImGui::Spacing();
+			ImGui::Text("Directory");
+		}
+		ImGui::EndChild();
+		ImGui::SameLine();
+		if (ImGui::BeginChild("Input", ImVec2(-1.0f, 75.0f))) {
+			ImGui::PushItemWidth(-1.0f);
+			ImGui::InputText("Project name", nameString.First(), 512);
+
+			if (sameName)
+				fileString = nameString;
+
+			if (ImGui::InputText("File name", fileString.First(), 512))
+				sameName = false;
+
+			ImGui::InputText("Directory", dirString.First(), 512);
+			ImGui::PopItemWidth();
+		}
+		ImGui::EndChild();
+		ImGui::Separator();
+
+		ImGuiButtonFlags submitFlag = 0;
+		keyEvent[WINDOW_ON_SUBMIT].enabled = true;
+
+		if (!nameString.Length() || !fileString.Length()) {
+			submitFlag = ImGuiButtonFlags_Disabled;
+			keyEvent[WINDOW_ON_SUBMIT].enabled = false;
+		}
+
+		if (submitFlag) {
+			ImGui::TextColored(ImVec4(0.8039f, 0.2039f, 0.2313f, 1.0f), "Project and file name can not be empty!");
+			ImGui::SameLine();
+		}
+
+		ImGui::Indent(imguiWindow->Size.x - 145.0f);
+		if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+			open = false;
+
+		ImGui::SameLine();
+		if (submitFlag)
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.47f, 0.47f, 0.47f, 1.0f));
+
+		if (ImGui::ButtonEx("Create", buttonSize, submitFlag) || keyEvent[WINDOW_ON_SUBMIT]) {
+			ProjectCreationInfo info;
+			info.name		= nameString;
+			info.filename	= fileString;
+			info.directory	= dirString;
+
+			application->NewProject(info);
+			open = false;
+			ui.Show(WindowProjectExplorer);
+		}
+
+		if (submitFlag)
+			ImGui::PopStyleColor();
+
+		ImGui::Unindent();
+		ImGui::EndPopup();
+	}
+
+	if (!open) {
+#if IMGUI_WINDOW_DEBUGGER
+		//WindowDebugger::window = nullptr;
+#endif
+		ui.Hide(this);
+		ImGui::CloseCurrentPopup();
+	}
+}
+
+
+/**
+* Project explorer window definition.
+*/
+void WindowProjectExplorerTemplate::Events() { return; }
+
+
+void WindowProjectExplorerTemplate::Draw() {
+	WindowsHandler &ui = application->ui;
+
+	bool open = true;
+
+	ImGui::Begin(name.c_str(), &open);
+	if (!open)
+		ui.Hide(this);
+
+	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+	ImGui::End();
+		
 }

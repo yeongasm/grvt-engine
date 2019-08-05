@@ -733,7 +733,7 @@ public:
 		// Ensures the other string is properly null terminated.
 		//_ASSERTE(Other.pArr[Other.Length()] == '\0');
 		if (Other.pArr)
-			_PushStringIntoBuffer(Other.pArr, Other.Length() + 1);
+			_PushStringIntoBuffer(Other.pArr, Other.Length());
 
 		return *this;
 	}

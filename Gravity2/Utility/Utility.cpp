@@ -32,7 +32,7 @@ bool OpenFile(String &Buffer, const String &Path) {
 
 String RootDir(const String &Path) {
 	String path;
-	path.Write("%s/%s", SolutionDir, ~Path);
+	path.Write("%s/%s", __ROOT__, ~Path);
 
 	return path;
 }
@@ -69,7 +69,15 @@ void Logger::Log(LogType Type, LogComponent Component, const String &Message) {
 void Logger::DumpLogData() {
 	FILE *stream = nullptr;
 
-	stream = fopen(~logFileInstance, "w");
+	stream = fopen(logFileInstance.c_str(), "a");
+
+	if (!stream) 
+		stream = fopen(logFileInstance.c_str(), "w+");
+
+	if (!stream) { 
+		printf("Unable to open log file for writing"); 
+		return; 
+	}
 
 	for (String &data : logData)
 		fprintf(stream, ~data);
