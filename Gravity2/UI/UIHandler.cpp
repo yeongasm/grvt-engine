@@ -4,9 +4,9 @@
 /**
 * Declare all windows here.
 */
-WindowMenuBarTemplate			*WindowMenuBar			= nullptr;
-WindowNewProjectTemplate		*WindowNewProject		= nullptr;
-WindowProjectExplorerTemplate	*WindowProjectExplorer	= nullptr;
+WindowMenuBarTemplate		*WindowMenuBar			= nullptr;
+WindowNewProjectTemplate	*WindowNewProject		= nullptr;
+WindowObjectCreatorTemplate	*WindowObjectCreator	= nullptr;
 
 
 /**
@@ -40,8 +40,18 @@ void WindowsHandler::Init(GravityApp *Application) {
 	ImGuiIO &io			= ImGui::GetIO();
 
 	String fontPath		= "Data/Editor/Fonts/OpenSans/OpenSans-Regular.ttf";
-	
+	String iconPath("Data/Editor/Fonts/FontAwesome/%s", FONT_ICON_FILE_NAME_FAS);
+
+	const ImWchar iconRange[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+	ImFontConfig iconConf;
+	iconConf.MergeMode	= true;
+	iconConf.PixelSnapH = true;
+
 	application = Application;
+
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	// Viewports causes an error for now. Something to do with handlers.
+	//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
 	io.Fonts->Clear();
 	pFont = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 15.0f);
@@ -52,6 +62,8 @@ void WindowsHandler::Init(GravityApp *Application) {
 	} else {
 		io.Fonts->AddFontDefault();
 	}
+
+	io.Fonts->AddFontFromFileTTF(iconPath.c_str(), 15.0f, &iconConf, iconRange);
 
 	io.Fonts->Build();
 	ImGui::SetCurrentFont(io.Fonts->Fonts.front());
@@ -121,7 +133,7 @@ void WindowsHandler::Init(GravityApp *Application) {
 	*/
 	InitNewWindow(WindowMenuBar, "Menu Bar", Application);
 	InitNewWindow(WindowNewProject, "New Project", Application);
-	InitNewWindow(WindowProjectExplorer, "Project Explorer", Application);
+	InitNewWindow(WindowObjectCreator, "Create Object", Application);
 }
 
 
@@ -181,7 +193,13 @@ void WindowsHandler::Release() {
 /**
 * Menu Bar definition.
 */
-void WindowMenuBarTemplate::Events() { return; }
+void WindowMenuBarTemplate::Events() {
+	WindowsHandler *ui = &application->ui;
+	AppIO &io = application->io;
+	
+	if (io.Ctrl() && io.IsKeyPressed(GLFW_KEY_N))
+		ui->Show(WindowNewProject);
+}
 
 
 void WindowMenuBarTemplate::Draw() {
@@ -190,17 +208,28 @@ void WindowMenuBarTemplate::Draw() {
 	ImGui::BeginMainMenuBar();
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::BeginMenu("New")) {
-			bool enableNewLevel = false;
+			bool enableResourceLoading = false;
 
 			if (application->GetCurrentProject())
-				enableNewLevel = true;
+				enableResourceLoading = true;
 
-			if (ImGui::MenuItem("Project", "CTRL+Shift+N", false))
+			if (ImGui::MenuItem("Project", "CTRL+N", false))
 				ui->Show(WindowNewProject);
 
-
-			if (ImGui::MenuItem("Scenery", "CTRL+N", false, enableNewLevel))
+			if (ImGui::MenuItem("Scenery",	nullptr, false, enableResourceLoading))
 				printf("Adding new level ...\n");
+
+			if (ImGui::MenuItem("Scene",	nullptr, false, enableResourceLoading))
+				printf("Adding new scene ...\n");
+
+			if (ImGui::MenuItem("Shader",	nullptr, false, enableResourceLoading))
+				printf("Adding new shader ...\n");
+
+			if (ImGui::MenuItem("Texture",	nullptr, false, enableResourceLoading))
+				printf("Adding new texture ...\n");
+
+			if (ImGui::MenuItem("Material", nullptr, false, enableResourceLoading))
+				printf("Adding new material ...\n");
 
 			ImGui::EndMenu();
 		}
@@ -211,8 +240,21 @@ void WindowMenuBarTemplate::Draw() {
 		if (ImGui::MenuItem("Save", "CTRL+S"))
 			printf("Saving current project ...\n");
 
+		if (ImGui::MenuItem("Close", "ALT+F4"))
+			printf("Closing application ...\n");
+
 		ImGui::EndMenu();
 	}
+
+	if (ImGui::BeginMenu("View")) {
+		bool enableProjectExp = (application->GetCurrentProject()) ? true : false;
+
+		if (ImGui::MenuItem("Create Object", nullptr, false, enableProjectExp))
+			ui->Show(WindowObjectCreator);
+
+		ImGui::EndMenu();
+	}
+
 	ImGui::EndMainMenuBar();
 }
 
@@ -331,7 +373,7 @@ void WindowNewProjectTemplate::Draw() {
 
 			application->NewProject(info);
 			open = false;
-			ui.Show(WindowProjectExplorer);
+			ui.Show(WindowObjectCreator);
 		}
 
 		if (submitFlag)
@@ -354,19 +396,81 @@ void WindowNewProjectTemplate::Draw() {
 /**
 * Project explorer window definition.
 */
-void WindowProjectExplorerTemplate::Events() { return; }
+void WindowObjectCreatorTemplate::Events() {
+	if (!isActive)
+		return;
+
+	AppIO			&io = application->io;
+	WindowsHandler	&ui = application->ui;
+
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+}
 
 
-void WindowProjectExplorerTemplate::Draw() {
-	WindowsHandler &ui = application->ui;
+void WindowObjectCreatorTemplate::Draw() {
+	const ResourceManager *manager	= application->GetResourceHandler();
+	WindowsHandler	&ui	= application->ui;
 
 	bool open = true;
-
 	ImGui::Begin(name.c_str(), &open);
 	if (!open)
 		ui.Hide(this);
 
 	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+	if (!imguiWindow)
+		imguiWindow = ImGui::FindWindowByName(name.c_str());
+
+#if IMGUI_WINDOW_DEBUGGER
+	if (isActive)
+		WindowDebugger::window = imguiWindow;
+#endif
+
+	float childWidth = (imguiWindow->Size.x * 0.5f);
+	
+	ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.0f, 0.0f));
+	if (ImGui::BeginChild("Left Icons", ImVec2(childWidth - 15.0f, 0.0f), false, ImGuiWindowFlags_NoScrollbar)) {
+		if (ImGui::Button(ICON_FA_RUNNING"\t\tScene", ImVec2(-1.0f, 0.0f)))
+			printf("Creating new Scene ...\n");
+
+		ImGuiCustomToolTip("A Scene is simply a model that can be placed into a level by converting it into a SceneInstance.");
+
+		if (ImGui::Button(ICON_FA_IMAGES"\t  Texture", ImVec2(-1.0f, 0.0f)))
+			printf("Creating new Texture ...\n");
+
+		ImGuiCustomToolTip("Textures are required to make Material objects that will be attached onto SceneInstances.");
+
+		if (ImGui::Button(ICON_FA_TREE"\t\tScenery", ImVec2(-1.0f, 0.0f)))
+			printf("Creating new Scenery ...\n");
+
+		ImGuiCustomToolTip("A Scenery object is simply a level where all Light and SceneInstance objects can be placed.");
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+	if (ImGui::BeginChild("Right Icons", ImVec2(childWidth - 7.0f, 0.0f), false, ImGuiWindowFlags_NoScrollbar)) {
+		if (ImGui::Button(ICON_FA_CODE"\t   Shader", ImVec2(-1.0f, 0.0f)))
+			printf("Creating new Shader ...\n");
+
+		ImGuiCustomToolTip("Shaders are required to be attached onto a SceneInstance in order for it to be rendered.");
+
+		if (ImGui::Button(ICON_FA_FILE_CODE"\t\t Materials", ImVec2(-1.0f, 0.0f)))
+			printf("Creating new Material ...\n");
+
+		ImGuiCustomToolTip("Materials are a dynamic way to attach 'images' onto SceneInstance objects.");
+
+		if (ImGui::Button(ICON_FA_CROP_ALT"\t\tFramebuffer", ImVec2(-1.0f, 0.0f)))
+			printf("Coming soon ...\n");
+
+		ImGuiCustomToolTip("Framebuffers are coming soon!");
+	}
+	ImGui::EndChild();
+	ImGui::PopStyleVar();
 	ImGui::End();
-		
+	
+	if (!open) {
+#if IMGUI_WINDOW_DEBUGGER
+		//WindowDebugger::window = nullptr;
+#endif
+		ui.Hide(this);
+	}
 }

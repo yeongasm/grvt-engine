@@ -1,11 +1,6 @@
 #include "stdafx.h"
 
 
-#define GetIOAndResourceHandle											\
-	AppIO			*io			= &application->io;						\
-	ResourceManager *resource	= application->GetResourceHandler();
-
-
 WindowIOEvent::WindowIOEvent() : enabled(true), onEvent(false) {}
 
 
@@ -78,6 +73,19 @@ void GravityWindow::Draw() {}
 
 
 void GravityWindow::Events() {}
+
+
+void ImGuiCustomToolTip(const char *Description) {
+	ImGui::SameLine();
+	if (ImGui::IsItemHovered()) {
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 20.0f);
+		ImGui::TextWrapped(Description);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+	ImGui::NewLine();
+}
 
 
 ImGuiWindow *WindowDebugger::window = nullptr;

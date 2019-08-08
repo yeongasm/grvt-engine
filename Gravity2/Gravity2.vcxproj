@@ -242,6 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="IO\InputHandler.h" />
     <ClInclude Include="IO\IO.h" />
     <ClInclude Include="Application\Project.h" />

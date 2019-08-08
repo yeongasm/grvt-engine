@@ -98,8 +98,18 @@ public:
 
 DeclNewWindow(MenuBar)
 DeclNewWindow(NewProject)
-DeclNewWindow(ProjectExplorer)
+DeclNewWindow(ObjectCreator)
 //DeclNewWindow(AppStats)
+
+/**
+* ImGui support functions.
+*/
+
+/**
+* Generic tooltip for different ImGui components.
+* To use it, simply place the function right after the desired component to be used with.
+*/
+void ImGuiCustomToolTip(const char *Description);
 
 
 struct WindowDebugger {

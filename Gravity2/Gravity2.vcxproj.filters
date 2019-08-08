@@ -179,6 +179,9 @@
     <ClInclude Include="IO\IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Orion.natvis" />

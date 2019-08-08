@@ -55,6 +55,7 @@
 #include <assimp/postprocess.h>
 
 #include "stb/stb_image.h"
+#include "IconsFontAwesome5.h"
 
 //#define _CRTDBG_MAP_ALLOC
 //#include <stdlib.h>
