@@ -4,9 +4,9 @@
 /**
 * Declare all windows here.
 */
-WindowMenuBarTemplate		*WindowMenuBar			= nullptr;
-WindowNewProjectTemplate	*WindowNewProject		= nullptr;
-WindowObjectCreatorTemplate	*WindowObjectCreator	= nullptr;
+WindowMenuBarTemplate			*WindowMenuBar			= nullptr;
+WindowNewProjectTemplate		*WindowNewProject		= nullptr;
+WindowProjectExplorerTemplate	*WindowProjectExplorer	= nullptr;
 
 
 /**
@@ -133,7 +133,7 @@ void WindowsHandler::Init(GravityApp *Application) {
 	*/
 	InitNewWindow(WindowMenuBar, "Menu Bar", Application);
 	InitNewWindow(WindowNewProject, "New Project", Application);
-	InitNewWindow(WindowObjectCreator, "Create Object", Application);
+	InitNewWindow(WindowProjectExplorer, "Project Explorer", Application);
 }
 
 
@@ -249,8 +249,8 @@ void WindowMenuBarTemplate::Draw() {
 	if (ImGui::BeginMenu("View")) {
 		bool enableProjectExp = (application->GetCurrentProject()) ? true : false;
 
-		if (ImGui::MenuItem("Create Object", nullptr, false, enableProjectExp))
-			ui->Show(WindowObjectCreator);
+		if (ImGui::MenuItem("ProjectExplorer", nullptr, false, enableProjectExp))
+			ui->Show(WindowProjectExplorer);
 
 		ImGui::EndMenu();
 	}
@@ -373,7 +373,7 @@ void WindowNewProjectTemplate::Draw() {
 
 			application->NewProject(info);
 			open = false;
-			ui.Show(WindowObjectCreator);
+			ui.Show(WindowProjectExplorer);
 		}
 
 		if (submitFlag)
@@ -396,7 +396,7 @@ void WindowNewProjectTemplate::Draw() {
 /**
 * Project explorer window definition.
 */
-void WindowObjectCreatorTemplate::Events() {
+void WindowProjectExplorerTemplate::Events() {
 	if (!isActive)
 		return;
 
@@ -408,18 +408,19 @@ void WindowObjectCreatorTemplate::Events() {
 }
 
 
-void WindowObjectCreatorTemplate::Draw() {
+void WindowProjectExplorerTemplate::Draw() {
 	const ResourceManager *manager	= application->GetResourceHandler();
 	WindowsHandler	&ui	= application->ui;
 
 	bool open = true;
-	ImGui::Begin(name.c_str(), &open);
+	String windowName("%s- %s", name.c_str(), application->GetCurrentProject()->name.c_str());
+	ImGui::Begin(windowName.c_str(), &open);
 	if (!open)
 		ui.Hide(this);
 
 	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 	if (!imguiWindow)
-		imguiWindow = ImGui::FindWindowByName(name.c_str());
+		imguiWindow = ImGui::FindWindowByName(windowName.c_str());
 
 #if IMGUI_WINDOW_DEBUGGER
 	if (isActive)

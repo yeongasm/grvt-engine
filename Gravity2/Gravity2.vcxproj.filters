@@ -96,9 +96,6 @@
     <ClCompile Include="IO\IO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI\WndFuncs\WindowMenuBar.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -162,9 +159,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\Project.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\WndFuncs\WndFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UI\UI.h">

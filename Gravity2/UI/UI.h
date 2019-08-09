@@ -98,7 +98,7 @@ public:
 
 DeclNewWindow(MenuBar)
 DeclNewWindow(NewProject)
-DeclNewWindow(ObjectCreator)
+DeclNewWindow(ProjectExplorer)
 //DeclNewWindow(AppStats)
 
 /**
