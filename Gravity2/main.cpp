@@ -27,7 +27,7 @@ int main() {
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 1366, 768, 4, 5);
 
 	app->Init();
-	app->EnableVSync(0);
+	app->EnableVSync(1);
 
 	{
 		ProjectCreationInfo info;
@@ -43,7 +43,6 @@ int main() {
 
 	// NOTE(Afiq):
 	// The camera class should really be inside of the Scenery class.
-	// It only makes sense to 
 	EulerCamera		*camera		= new EulerCamera();
 
 	Scene		*witch		= nullptr;
@@ -51,6 +50,12 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
+	
+	String path = RootDir("Data/Models/witch/source/03.obj");
+	String testing;
+	String dirTest;
+
+	GetFileNameFromPath(path, testing, dirTest);
 
 	{
 		SceneCreationInfo info;
@@ -186,7 +191,7 @@ int main() {
 
 		// NOTE(Afiq): Temporary placeholder for camera system before incorporating UI.
 		{
-			if (io.IsKeyPressed(GLFW_KEY_C)) {
+			if (io.IsKeyPressed(GLFW_KEY_F1)) {
 				camera->isActive ^= true;
 
 				int inputMode = (camera->isActive) ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL;

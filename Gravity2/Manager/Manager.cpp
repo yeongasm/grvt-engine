@@ -279,8 +279,8 @@ Scene* ResourceManager::NewScene(const SceneCreationInfo &Info) {
 
 	SceneData *data = scenes.Insert(new SceneData());
 
-	data->id = GenerateID<Scene>();
 	data->Alloc(Info);
+	data->id = GenerateID<Scene>();
 	data->scene->info = data;
 	data->scene->type = Info.type;
 
@@ -407,8 +407,8 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 	size_t idx = textures.Push(new TextureData());
 	TextureData *data = textures[idx];
 
-	data->id = GenerateID<Texture>();
 	data->Alloc(Info);
+	data->id = GenerateID<Texture>();
 	data->texture->info = data;
 
 	//db->texture = new Texture();

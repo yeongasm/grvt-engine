@@ -160,8 +160,8 @@ private:
 	*/
 	template <typename Resource>
 	uint GenerateID() {
-		static uint id = GenerateResourceID();
-		return id;
+		static uint id = 0;
+		return id++;
 	}
 
 	void		ProcessNode			(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info);
