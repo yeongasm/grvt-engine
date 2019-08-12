@@ -9,7 +9,6 @@
 
 <h2>Specification</h2>
 
----
 
 <table style="width:100%">
   <tr>
@@ -25,7 +24,6 @@
 
 <h2>How to build?</h2>
 
----
 
 No external build process tools were used for this project. Hence simply follow the following steps:
 
@@ -40,7 +38,6 @@ No external build process tools were used for this project. Hence simply follow 
 <br/>
 <h2>Roadmap</h2>
 
----
 
 <p>The following are features that are planned to be released into the engine:</p>
 <p>Phase 1:</p>
@@ -59,7 +56,6 @@ No external build process tools were used for this project. Hence simply follow 
 <br/>
 <h2>Screenshot(s)</h2>
 
----
 
 <br/>
 <img src="Devlog/Pictures/Annotation 2019-08-13 000820.png" alt="img"/>
@@ -67,7 +63,6 @@ No external build process tools were used for this project. Hence simply follow 
 <br/>
 <h2>External Dependencies</h2>
 
----
 
 <ul>
 <li><a href="https://github.com/ocornut/imgui">dear imgui</a></li>
