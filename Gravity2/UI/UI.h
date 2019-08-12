@@ -86,6 +86,7 @@ public:
 
 /**
 * Declare this only in UI.h and nowhere else.
+* Useful for generic windows that do not require to be unique.
 */
 #define DeclNewWindow(Name)												\
 	class Window##Name##Template : public GravityWindow {				\
@@ -98,12 +99,35 @@ public:
 
 DeclNewWindow(MenuBar)
 DeclNewWindow(NewProject)
+DeclNewWindow(CreateObject)
 DeclNewWindow(ProjectExplorer)
+DeclNewWindow(NewScene)
+DeclNewWindow(NewTexture)
+DeclNewWindow(NewShader)
+//DeclNewWindow(NewMaterial)
+DeclNewWindow(NewScenery)
 //DeclNewWindow(AppStats)
 
+/**
+* ImGui support functions.
+*/
+
+
+/**
+* Generic tooltip for different ImGui components.
+* To use it, simply place the function right after the desired component to be used with.
+*/
+void ImGuiCustomToolTip(const char *Description, float WrapMultiplier = 20.0f);
+
+/**
+* Two column tooltip.
+* The first column would always be the key and the second column would always be the value.
+* Params pair can be declared as an array on the stack and passed in as a pointer.
+*/
+void ImGuiCustomColumnPairToolTip(Pair<const char*, const char*> *Params, size_t Length, float WrapMultiplier = 15.0f);
 
 struct WindowDebugger {
 	static ImGuiWindow *window;
-
+	static ImVec4 colour;
 	static void RenderDebugger();
 };

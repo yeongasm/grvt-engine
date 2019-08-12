@@ -96,7 +96,13 @@
     <ClCompile Include="IO\IO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UI\WndFuncs\WindowMenuBar.cpp">
+    <ClCompile Include="UI\WndFuncs\ProjectExplorerFuncs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nfd_common.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nfd_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -164,9 +170,6 @@
     <ClInclude Include="Application\Project.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI\WndFuncs\WndFuncs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UI\UI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -177,6 +180,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IO\IO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IconsFontAwesome5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\WndFuncs\ProjectExplorerFuncs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

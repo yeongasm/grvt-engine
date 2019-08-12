@@ -251,13 +251,13 @@ Scene* ResourceManager::NewScene(const SceneCreationInfo &Info) {
 	// Check for Scene with existing filename. We do not check the directory where the file is placed at.
 	// NOTE(Afiq): This should really start becoming a function. Maybe in the future.
 	for (auto &pair : scenes) {
-		if (pair.second->file != Info.file)
+		if (pair->file != Info.file)
 			continue;
 
 		msg.Write("Scene with file named [%s] already exist!. Returning existing scene instead.", ~Info.name);
 		Logger::Log(LOG_WARN, LOG_SCENE, msg);
 
-		return pair.second->scene;
+		return pair->scene;
 	}
 
 	if (GetScene(Info.name)) {
@@ -277,11 +277,10 @@ Scene* ResourceManager::NewScene(const SceneCreationInfo &Info) {
 		return nullptr;
 	}
 
-	auto it = scenes.emplace(Info.name, new SceneData()).first;
+	SceneData *data = scenes.Insert(new SceneData());
 
-	SceneData *data = it->second;
-	data->id = GenerateID<Scene>();
 	data->Alloc(Info);
+	data->id = GenerateID<Scene>();
 	data->scene->info = data;
 	data->scene->type = Info.type;
 
@@ -315,15 +314,15 @@ Shader* ResourceManager::NewShader(const ShaderCreationInfo &Info) {
 
 	// 2. Check if the combination of files specified inside of the shader are already present inside Gravity.
 	uint count = 0;
-	for (auto &pair : shaders) {
-		if (pair.second->vertexFile == Info.vertexShader)
+	for (ShaderData *data : shaders) {
+		if (data->vertexFile == Info.vertexShader)
 			count++;
 
-		if (pair.second->fragmentFile == Info.fragmentShader)
+		if (data->fragmentFile == Info.fragmentShader)
 			count++;
 
 		if (Info.geometryShader.Length()) {
-			if (pair.second->geometryFile == Info.geometryShader)
+			if (data->geometryFile == Info.geometryShader)
 				count++;
 
 			if (count == 3) {
@@ -341,16 +340,16 @@ Shader* ResourceManager::NewShader(const ShaderCreationInfo &Info) {
 	}
 
 	// 3. Check if specified name already exist.
-	for (auto &pair : shaders) {
-		if (pair.second->name == Info.name) {
+	for (ShaderData *data : shaders) {
+		if (data->name == Info.name) {
 			Logger::Log(LOG_WARN, LOG_SHADER, "Shader with the specified name already exist. Shader name must be unique.");
 			return nullptr;
 		}
 	}
 
 	// 4. Create the shader.
-	auto it = shaders.emplace(Info.name, new ShaderData()).first;
-	ShaderData *data = it->second;
+	size_t idx = shaders.Push(new ShaderData());
+	ShaderData *data = shaders[idx];
 	
 	data->Alloc(Info);
 	data->id = GenerateID<Shader>();
@@ -360,8 +359,8 @@ Shader* ResourceManager::NewShader(const ShaderCreationInfo &Info) {
 		Logger::Log(LOG_ERR, LOG_SHADER, "Unable to create shader.");
 		
 		delete data;
-		shaders[Info.name] = nullptr;
-		shaders.erase(it);
+		shaders[idx] = nullptr;
+		shaders.PopAt(idx);
 
 		return nullptr;
 	}
@@ -374,8 +373,8 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 	String msg;
 	// 1. Check if specified files already exist inside Gravity as a texture.
 	// NOTE: We are generating a texture and not a cubemap. Best to seggregate different features.
-	for (auto &pair : textures) {
-		if (pair.second->file == Info.files[0]) {
+	for (TextureData *data : textures) {
+		if (data->file == Info.files[0]) {
 			msg.Write("Texture with file [%s] already exist!", ~Info.files[0]);
 			Logger::Log(LOG_WARN, LOG_TEXTURE, ~msg);
 			return nullptr;
@@ -390,11 +389,11 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 	}
 
 	// 3. Check for textures with similar name.
-	for (auto &pair : textures) {
-		if (pair.second->name == Info.name) {
+	for (TextureData *data : textures) {
+		if (data->name == Info.name) {
 			msg.Write("Texture with name [%s] already exist! Texture name must be unique", ~Info.name);
 			Logger::Log(LOG_WARN, LOG_TEXTURE, msg);
-			return pair.second->texture;
+			return data->texture;
 		}
 	}
 
@@ -405,11 +404,11 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 		return nullptr;
 	}
 
-	auto it = textures.emplace(Info.name, new TextureData()).first;
-	TextureData *data = it->second;
+	size_t idx = textures.Push(new TextureData());
+	TextureData *data = textures[idx];
 
-	data->id = GenerateID<Texture>();
 	data->Alloc(Info);
+	data->id = GenerateID<Texture>();
 	data->texture->info = data;
 
 	//db->texture = new Texture();
@@ -418,9 +417,9 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 		Logger::Log(LOG_ERR, LOG_TEXTURE, msg);
 		//delete db->texture;
 		delete data;
-		textures[Info.name] = nullptr;
+		textures[idx] = nullptr;
 
-		textures.erase(it);
+		textures.PopAt(idx);
 
 		return nullptr;
 	}
@@ -441,8 +440,8 @@ Material* ResourceManager::NewMaterial(const MaterialCreationInfo &Info) {
 	}
 
 	// 2. Check if material with the existing name exist.
-	for (auto &pair : materials) {
-		if (pair.second->name == Info.name) {
+	for (MaterialData *data : materials) {
+		if (data->name == Info.name) {
 			msg.SetString("Material name must be unique. Material with such name already exist in engine.");
 			Logger::Log(LOG_WARN, LOG_MATERIAL, msg);
 
@@ -450,8 +449,8 @@ Material* ResourceManager::NewMaterial(const MaterialCreationInfo &Info) {
 		}
 	}
 
-	auto it = materials.emplace(Info.name, new MaterialData()).first;
-	MaterialData *data = it->second;
+	size_t idx = materials.Push(new MaterialData());
+	MaterialData *data = materials[idx];
 
 	data->id = GenerateID<Material>();
 	data->Alloc(Info);
@@ -474,8 +473,8 @@ Scenery* ResourceManager::NewLevel(const LevelCreationInfo &Info) {
 	}
 
 	// 2. Check if material with the existing name exist.
-	for (auto &pair : levels) {
-		if (pair.second->name == Info.name) {
+	for (SceneryData *data : levels) {
+		if (data->name == Info.name) {
 			msg.SetString("Level name must be unique. Level with such name already exist in engine.");
 			Logger::Log(LOG_WARN, LOG_LEVEL, msg);
 
@@ -483,8 +482,8 @@ Scenery* ResourceManager::NewLevel(const LevelCreationInfo &Info) {
 		}
 	}
 
-	auto it = levels.emplace(Info.name, new SceneryData()).first;
-	SceneryData *data = it->second;
+	size_t idx = levels.Push(new SceneryData());
+	SceneryData *data = levels[idx];
 
 	data->id = GenerateID<Scenery>();
 	data->Alloc(Info);
@@ -500,10 +499,13 @@ Scene* ResourceManager::GetScene(const String &Name) {
 	String msg("Attempting to retrieve [%s] scene from engine.", ~Name);
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
 
-	auto it = scenes.find(Name);
+	for (size_t i = 0; i < scenes.Length(); i++) {
+		if (scenes[i]->name != Name)
+			continue;
 
-	if (it != scenes.end())
-		pScene = it->second->scene;
+		pScene = scenes[i]->scene;
+		break;
+	}
 
 	if (!pScene) {
 		msg.Write("Unable to retrieve [%s] scene from engine.", ~Name);
@@ -523,10 +525,13 @@ Shader* ResourceManager::GetShader(const String &Name) {
 	String msg("Attempting to retrieve [%s] shader from engine.", ~Name);
 	Logger::Log(LOG_INFO, LOG_SHADER, msg);
 
-	auto it = shaders.find(Name);
+	for (size_t i = 0; i < shaders.Length(); i++) {
+		if (shaders[i]->name != Name)
+			continue;
 
-	if (it != shaders.end())
-		pShader = it->second->shader;
+		pShader = shaders[i]->shader;
+		break;
+	}
 
 	if (!pShader) {
 		msg.Write("Unable to retrieve [%s] shader from engine", ~Name);
@@ -546,10 +551,13 @@ Texture* ResourceManager::GetTexture(const String &Name) {
 	String msg("Attempting to retrieve [%s] texture from engine.", ~Name);
 	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
 
-	auto it = textures.find(Name);
+	for (size_t i = 0; i < textures.Length(); i++) {
+		if (textures[i]->name != Name)
+			continue;
 
-	if (it != textures.end())
-		pTexture = it->second->texture;
+		pTexture = textures[i]->texture;
+		break;
+	}
 
 	if (!pTexture) {
 		msg.Write("Unable to retrieve [%s] texture from engine", ~Name);
@@ -569,10 +577,13 @@ Material* ResourceManager::GetMaterial(const String &Name) {
 	String msg("Attempting to retrieve [%s] material from engine.", ~Name);
 	Logger::Log(LOG_INFO, LOG_MATERIAL, msg);
 
-	auto it = materials.find(Name);
+	for (size_t i = 0; i < materials.Length(); i++) {
+		if (materials[i]->name != Name)
+			continue;
 
-	if (it != materials.end())
-		pMaterial = it->second->material;
+		pMaterial = materials[i]->material;
+		break;
+	}
 
 	if (!pMaterial) {
 		msg.Write("Unable to retrieve [%s] material from engine", ~Name);
@@ -592,10 +603,13 @@ Scenery* ResourceManager::GetLevel(const String &Name) {
 	String msg("Attempting to retrieve [%s] level from engine", ~Name);
 	Logger::Log(LOG_INFO, LOG_MATERIAL, msg);
 
-	auto it = levels.find(Name);
+	for (size_t i = 0; i < levels.Length(); i++) {
+		if (levels[i]->name != Name)
+			continue;
 
-	if (it != levels.end())
-		pLevel = it->second->level;
+		pLevel = levels[i]->level;
+		break;
+	}
 
 	if (!pLevel) {
 		msg.Write("Unable to retrieve [%s] level from engine", ~Name);
@@ -613,16 +627,24 @@ bool ResourceManager::DeleteScene(const String &Name) {
 	String msg("Attempting to delete [%s] scene.", ~Name);
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
 
-	auto it = scenes.find(Name);
+	size_t idx = -1;
 
-	if (it == scenes.end()) {
+	for (size_t i = 0; i < scenes.Length(); i++) {
+		if (scenes[i]->name != Name)
+			continue;
+
+		idx = i;
+		break;
+	}
+
+	if (idx == -1) {
 		msg.SetString("Unable to find scene with such name. Probably does not exist in engine's DB.");
 		Logger::Log(LOG_ERR, LOG_SCENE, msg);
 		return false;
 	}
 
-	delete it->second;
-	scenes.erase(it);
+	delete scenes[idx];
+	scenes.PopAt(idx);
 
 	msg.SetString("Scene deleted!");
 	Logger::Log(LOG_INFO, LOG_SCENE, msg);
@@ -635,16 +657,25 @@ bool ResourceManager::DeleteShader(const String &Name) {
 	String msg("Attempting to delete [%s] shader.", ~Name);
 	Logger::Log(LOG_INFO, LOG_SHADER, msg);
 
-	auto it = shaders.find(Name);
+	size_t idx = -1;
 
-	if (it == shaders.end()) {
+	for (size_t i = 0; i < shaders.Length(); i++) {
+		if (shaders[i]->name != Name)
+			continue;
+
+		idx = i;
+		break;
+	}
+
+
+	if (idx == -1) {
 		msg.SetString("Unable to find shader with such name. Does not exist within engine.");
 		Logger::Log(LOG_ERR, LOG_SHADER, msg);
 		return false;
 	}
 
-	delete it->second;
-	shaders.erase(it);
+	delete shaders[idx];
+	shaders.PopAt(idx);
 
 	msg.SetString("Shader deleted!");
 	Logger::Log(LOG_INFO, LOG_SHADER, msg);
@@ -657,16 +688,25 @@ bool ResourceManager::DeleteTexture(const String &Name) {
 	String msg("Attempting to delete [%s] texture.", ~Name);
 	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
 
-	auto it = textures.find(Name);
+	size_t idx = -1;
 
-	if (it == textures.end()) {
+	for (size_t i = 0; i < textures.Length(); i++) {
+		if (textures[i]->name != Name)
+			continue;
+
+		idx = i;
+		break;
+	}
+
+
+	if (idx == -1) {
 		msg.SetString("Unable to find texture with such name. Does not exist within engine.");
 		Logger::Log(LOG_ERR, LOG_SHADER, msg);
 		return false;
 	}
 	
-	delete it->second;
-	textures.erase(it);
+	delete textures[idx];
+	textures.PopAt(idx);
 
 	msg.SetString("Texture deleted!");
 	Logger::Log(LOG_INFO, LOG_SHADER, msg);
@@ -679,16 +719,25 @@ bool ResourceManager::DeleteMaterial(const String &Name) {
 	String msg("Attempting to delete [%s] material", ~Name);
 	Logger::Log(LOG_INFO, LOG_MATERIAL, msg);
 
-	auto it = materials.find(Name);
+	size_t idx = -1;
 
-	if (it == materials.end()) {
+	for (size_t i = 0; i < materials.Length(); i++) {
+		if (materials[i]->name != Name)
+			continue;
+
+		idx = i;
+		break;
+	}
+
+
+	if (idx == -1) {
 		msg.SetString("Unable to find material with such name. Does not exist within engine.");
 		Logger::Log(LOG_ERR, LOG_MATERIAL, msg);
 		return false;
 	}
 
-	delete it->second;
-	materials.erase(it);
+	delete materials[idx];
+	materials.PopAt(idx);
 
 	msg.SetString("Material deleted!");
 	Logger::Log(LOG_INFO, LOG_MATERIAL, msg);
@@ -701,16 +750,25 @@ bool ResourceManager::DeleteLevel(const String &Name) {
 	String msg("Attenmpting to delete [%s] level", ~Name);
 	Logger::Log(LOG_INFO, LOG_LEVEL, msg);
 
-	auto it = levels.find(Name);
+	size_t idx = -1;
 
-	if (it == levels.end()) {
+	for (size_t i = 0; i < levels.Length(); i++) {
+		if (levels[i]->name != Name)
+			continue;
+
+		idx = i;
+		break;
+	}
+
+
+	if (idx == -1) {
 		msg.SetString("Unable to find level with such name. Does not exist within engine.");
 		Logger::Log(LOG_ERR, LOG_LEVEL, msg);
 		return false;
 	}
 
-	delete it->second;
-	levels.erase(it);
+	delete levels[idx];
+	levels.PopAt(idx);
 
 	msg.SetString("Level deleted!");
 	Logger::Log(LOG_INFO, LOG_LEVEL, msg);
@@ -724,30 +782,32 @@ void ResourceManager::CleanResource() {
 	msg.SetString("Deleting all resources from engine.");
 	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
 
-	for (auto &pair : textures) {
-		delete pair.second;
-		pair.second = nullptr;
+	for (size_t i = 0; i < textures.Length(); i++) {
+		delete textures[i];
+		textures[i] = nullptr;
 	}
 
-	for (auto &pair : shaders) {
-		delete pair.second;
-		pair.second = nullptr;
+	for (size_t i = 0; i < shaders.Length(); i++) {
+		delete shaders[i];
+		shaders[i] = nullptr;
 	}
 
-	for (auto &pair : scenes) {
-		delete pair.second;
-		pair.second = nullptr;
+	for (size_t i = 0; i < scenes.Length(); i++) {
+		delete scenes[i];
+		scenes[i] = nullptr;
 	}
 
-	for (auto &pair : materials) {
-		delete pair.second;
-		pair.second = nullptr;
+	for (size_t i = 0; i < materials.Length(); i++) {
+		delete materials[i];
+		materials[i] = nullptr;
 	}
 
-	for (auto &pair : levels) {
-		delete pair.second;
-		pair.second = nullptr;
+	for (size_t i = 0; i < levels.Length(); i++) {
+		delete levels[i];
+		levels[i] = nullptr;
 	}
+
+	textures.Empty(); shaders.Empty(); scenes.Empty(); materials.Empty(); levels.Empty();
 
 	msg.SetString("Successfully removed all resources from engine.");
 	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
@@ -757,6 +817,12 @@ ResourceManager::ResourceManager() {
 	String msg;
 	msg.Write("Initialising Gravity's resource manager.");
 	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
+
+	textures.Reserve(256);
+	shaders.Reserve(256);
+	scenes.Reserve(256);
+	materials.Reserve(256);
+	levels.Reserve(256);
 }
 
 ResourceManager::~ResourceManager() {

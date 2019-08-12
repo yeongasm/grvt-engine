@@ -3,7 +3,7 @@
 #ifndef PRECOMPILE_HEADER
 #define PRECOMPILE_HEADER
 
-#define _CRT_SECURE_NO_WARNINGS 1 
+//#define _CRT_SECURE_NO_WARNINGS 1 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
 
 #if _WIN32
@@ -40,6 +40,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <nativefiledialog/nfd.h>
+
 // Custom array and string class.
 #include <gravitystl.h>
 
@@ -55,6 +57,7 @@
 #include <assimp/postprocess.h>
 
 #include "stb/stb_image.h"
+#include "IconsFontAwesome5.h"
 
 //#define _CRTDBG_MAP_ALLOC
 //#include <stdlib.h>
@@ -93,7 +96,7 @@
 #include "IO/IO.h"
 
 #include "UI/UI.h"
-#include "UI/WndFuncs/WndFuncs.h"
+#include "UI/WndFuncs/ProjectExplorerFuncs.h"
 #include "UI/UIHandler.h"
 
 #include "Application/Statistics.h"

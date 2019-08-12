@@ -105,7 +105,7 @@
       <Optimization>
       </Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -126,7 +126,7 @@
       <Optimization>
       </Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -149,7 +149,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -174,7 +174,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -196,6 +196,18 @@
     <ClCompile Include="IO\IO.cpp" />
     <ClCompile Include="Application\Project.cpp" />
     <ClCompile Include="Application\Statistics.cpp" />
+    <ClCompile Include="nfd_common.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="nfd_win.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="UI\UI.cpp" />
     <ClCompile Include="UI\UIHandler.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
@@ -224,7 +236,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UI\WndFuncs\WindowMenuBar.cpp" />
+    <ClCompile Include="UI\WndFuncs\ProjectExplorerFuncs.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -242,13 +254,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="IO\InputHandler.h" />
     <ClInclude Include="IO\IO.h" />
     <ClInclude Include="Application\Project.h" />
     <ClInclude Include="Application\Statistics.h" />
     <ClInclude Include="UI\UI.h" />
     <ClInclude Include="UI\UIHandler.h" />
-    <ClInclude Include="UI\WndFuncs\WndFuncs.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Graphics\Lighting.h" />
     <ClInclude Include="Graphics\Material.h" />
@@ -265,6 +277,7 @@
     <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderNode.h" />
     <ClInclude Include="stb\stb_image.h" />
+    <ClInclude Include="UI\WndFuncs\ProjectExplorerFuncs.h" />
     <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

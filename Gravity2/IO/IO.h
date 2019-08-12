@@ -88,4 +88,19 @@ struct AppIO {
 	* @param [OPTIONAL] (uint)	Default = 0		Button - Mouse button index.
 	*/
 	bool		IsMouseDragging		(uint Button = 0);
+
+	/**
+	* Returns true when either Ctrl keys are held.
+	*/
+	bool		Ctrl				();
+
+	/**
+	* Returns true when either Alt keys are held.
+	*/
+	bool		Alt					();
+
+	/**
+	* Returns true when either Shift keys are held.
+	*/
+	bool		Shift				();
 };

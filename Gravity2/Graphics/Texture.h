@@ -55,7 +55,6 @@ enum TextureFace {
 *
 * @param [REQUIRED] (bool)			Default = 1;	mipmap	- Generate mipmaps for OpenGL texture.
 * @param [OPTIONAL] (bool)			Default = 0;	cubemap - Setting this to true would make the texture into a cubemap texture.
-* @param [OPTIONAL] (bool)			Default = 0;	pbr		- Specify if the texture loaded is a PBR texture. This helps with scene loading as textureType would be dependent on the library's output.
 * @param [OPTIONAL] (bool)			Default = 1;	flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
 * @param [OPTIONAL] (int)			Default = 0;	width	- Texture's width. Use only when creating an empty texture.
 * @param [OPTIONAL] (int)			Default = 0;	height	- Texture's height. Use only when creating an empty texture.
@@ -74,7 +73,6 @@ struct TextureCreationInfo {
 
 	bool		mipmap;
 	bool		cubemap;
-	bool		pbr;
 	bool		flip;
 	int			width;
 	int			height;
@@ -87,7 +85,7 @@ struct TextureCreationInfo {
 	String		directory;
 	String		name;
 
-	TextureCreationInfo() : mipmap(1), cubemap(0), pbr(0), flip(1), width(0), height(0), 
+	TextureCreationInfo() : mipmap(1), cubemap(0), flip(1), width(0), height(0), 
 		target(0), type(0), format(0), textureType(TEXTURE_TYPE_NONE) {}
 };
 

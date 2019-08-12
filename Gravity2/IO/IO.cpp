@@ -95,3 +95,18 @@ bool AppIO::IsMouseDragging(uint Button) {
 
 	return false;
 }
+
+
+bool AppIO::Ctrl() {
+	return IsKeyHeld(GLFW_KEY_RIGHT_CONTROL) || IsKeyHeld(GLFW_KEY_LEFT_CONTROL);
+}
+
+
+bool AppIO::Alt() {
+	return IsKeyHeld(GLFW_KEY_RIGHT_ALT) || IsKeyHeld(GLFW_KEY_LEFT_ALT);
+}
+
+
+bool AppIO::Shift() {
+	return IsKeyHeld(GLFW_KEY_RIGHT_SHIFT) || IsKeyHeld(GLFW_KEY_LEFT_SHIFT);
+}

@@ -35,10 +35,7 @@ public:
 	Iterator(Iterator &&Other) { *this = std::move(Other); }
 
 	Iterator& operator= (const Iterator &Other) {
-		_ASSERTE(this != &Other);
-
-		if (this != &Other)
-			pointer = Other.pointer;
+		pointer = Other.pointer;
 		
 		return *this;
 	}
@@ -73,15 +70,17 @@ public:
 		return *pointer;
 	}
 
-	ElementType& operator+ (const size_t &Offset) {
-		return *(pointer + Offset);
+	Iterator& operator+ (size_t Offset) {
+		pointer += Offset;
+		return *this;
 	}
 
-	ElementType& operator- (const size_t &Offset) {
-		return *(pointer - Offset);
+	Iterator& operator- (size_t Offset) {
+		pointer -= Offset;
+		return *this;
 	}
 
-	ElementType& operator[] (const size_t & Offset) {
+	ElementType& operator[] (size_t Offset) {
 		return *(pointer + Offset);
 	}
 };
@@ -390,7 +389,7 @@ public:
 	*/
 	size_t Append(Iterator Begin, const size_t &Length) {
 		for (size_t i = 0; i < Length; i++)
-			Push(Begin + i);
+			Push(Begin[i]);
 
 		return curPos - 1;
 	}

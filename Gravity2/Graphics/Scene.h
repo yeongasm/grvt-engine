@@ -25,7 +25,6 @@ enum SceneType {
 * @param [REQUIRED] (String)								file - Specific model's filename. Supports .obj and .fbx extensions.
 * @param [REQUIRED] (String)								directory - Directory to the file.
 * @param [REQUIRED] (String)								name - Name of current scene. Required for identification.
-* @param [OPTIONAL] (Shader*)				Default = NULL	shader - Specify shader that this scene will be using. 
 */
 struct SceneCreationInfo {
 	bool		flipUVs;
