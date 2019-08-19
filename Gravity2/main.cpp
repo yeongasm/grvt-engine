@@ -15,13 +15,6 @@ void LightWindowTest(const GravityApp *App) {
 }
 
 
-/**
-* TODO(Afiq):
-* Loggged on 18.07.2019
-*
-* Before the week ends, we'll need to find a suitable method to render multiple lights into the scene.
-* Start figuring on a method for point lights. (Find a way to implement using Uniform Buffer Object).
-*/
 int main() {
 
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 1366, 768, 4, 5);
@@ -50,12 +43,6 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
-	
-	String path = RootDir("Data/Models/witch/source/03.obj");
-	String testing;
-	String dirTest;
-
-	GetFileNameFromPath(path, testing, dirTest);
 
 	{
 		SceneCreationInfo info;
@@ -65,13 +52,6 @@ int main() {
 		info.type		= SCENE_TYPE_CUSTOM; 
 
 		witch = manager->NewScene(info);
-
-		//info.name		= "Base Cube";
-		//info.directory	= RootDir("Assets/Primitives/Obj/");
-		//info.file		= "cube.obj";
-		//info.type		= SCENE_TYPE_BASIC_CUBE;
-
-		//cube = manager->NewScene(info);
 	}
 
 	{

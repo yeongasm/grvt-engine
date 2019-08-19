@@ -101,10 +101,16 @@ void Material::Alloc(const MaterialCreationInfo &Info) {
 	if (Info.shader) {
 		shader = Info.shader;
 		uniforms = shader->attributes.uniforms;
+		Info.shader->info->references.Push(&shader);
 	}
 	
-	if (Info.textures.Length())
-		textures = Info.textures;
+	if (Info.textures.Length()) {
+		// The downside of creating references to a texture is we can not just copy the array.
+		for (size_t i = 0; i < Info.textures.Length(); i++) {
+			textures.Push(Info.textures[i]);
+			Info.textures[i]->info->references.Push(&textures[i]);
+		}
+	}
 }
 
 

@@ -8,11 +8,11 @@
 
 
 TextureData::TextureData() : id{}, name{}, file{},
-	directory{}, texture{} {}
+	directory{}, texture{}, references{} {}
 
 
-TextureData::TextureData(const TextureCreationInfo &Info) : id(0), name(Info.name),
-	file(Info.files[0]), directory(Info.directory), texture(new Texture()) {}
+TextureData::TextureData(const TextureCreationInfo &Info) : id(0), name(Info.name), file(Info.files[0]), 
+	directory(Info.directory), texture(new Texture()), references{} {}
 
 
 void TextureData::Alloc(const TextureCreationInfo &Info) {
@@ -25,13 +25,19 @@ void TextureData::Alloc(const TextureCreationInfo &Info) {
 
 
 void TextureData::Free() {
-	if (texture)
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
+	if (texture) {
 		delete texture;
+		texture = nullptr;
+	}
 
 	id = 0;
 	name.Release();
 	file.Release();
 	directory.Release();
+	references.Length();
 }
 
 
@@ -39,11 +45,11 @@ TextureData::~TextureData() { Free(); }
 
 
 ShaderData::ShaderData() : id{}, name{}, vertexFile{}, fragmentFile{}, 
-	geometryFile{}, directory{}, shader{} {}
+	geometryFile{}, directory{}, shader{}, references{} {}
 
 
-ShaderData::ShaderData(const ShaderCreationInfo &Info) : id(0), name(Info.name), vertexFile(Info.vertexShader),
-	fragmentFile(Info.fragmentShader), geometryFile(Info.geometryShader), directory(Info.directory), shader(new Shader()) {}
+ShaderData::ShaderData(const ShaderCreationInfo &Info) : id(0), name(Info.name), vertexFile(Info.vertexShader), fragmentFile(Info.fragmentShader),
+	geometryFile(Info.geometryShader), directory(Info.directory), shader(new Shader()), references{} {}
 
 
 ShaderData::~ShaderData() { Free(); }
@@ -63,10 +69,21 @@ void ShaderData::Alloc(const ShaderCreationInfo &Info) {
 
 
 void ShaderData::Free() {
-	if (shader)
-		delete shader;
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
 
-	// new (this) ShaderData();
+	if (shader) {
+		delete shader;
+		shader = nullptr;
+	}
+
+	id = 0;
+	name.Release();
+	vertexFile.Release();
+	fragmentFile.Release();
+	geometryFile.Release();
+	directory.Release();
+	references.Release();
 }
 
 
@@ -99,7 +116,7 @@ void SceneData::Free() {
 }
 
 
-MaterialData::MaterialData() : id{}, name{}, material{} {}
+MaterialData::MaterialData() : id{}, name{}, material{}, references{} {}
 
 
 MaterialData::~MaterialData() { Free(); }
@@ -112,9 +129,16 @@ void MaterialData::Alloc(const MaterialCreationInfo &Info) {
 
 
 void MaterialData::Free() {
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
 	id = 0;
 	name.Release();
-	delete material;
+
+	if (material) {
+		delete material;
+		material = nullptr;
+	}
 }
 
 
@@ -643,6 +667,10 @@ bool ResourceManager::DeleteScene(const String &Name) {
 		return false;
 	}
 
+	// Remove all SceneInstance that refers to this Scene from all Levels.
+	for (SceneryData *data : levels)
+		data->level->PopAllInstanceWithScene(scenes[idx]->scene);
+
 	delete scenes[idx];
 	scenes.PopAt(idx);
 
@@ -674,6 +702,22 @@ bool ResourceManager::DeleteShader(const String &Name) {
 		return false;
 	}
 
+	//// Remove all reference to this Shader from SceneInstances.
+	//for (SceneData *data : scenes) {
+	//	for (SceneInstance &instance : data->scene->instances) {
+	//		if (instance.shader != shaders[idx]->shader)
+	//			continue;
+
+	//		instance.shader = nullptr;
+	//	}
+	//}
+
+	//// Remove all reference to this Shader from Materials.
+	//for (MaterialData *data : materials) {
+	//	data->material->shader = nullptr;
+	//	data->material->uniforms.clear();
+	//}
+
 	delete shaders[idx];
 	shaders.PopAt(idx);
 
@@ -704,6 +748,16 @@ bool ResourceManager::DeleteTexture(const String &Name) {
 		Logger::Log(LOG_ERR, LOG_SHADER, msg);
 		return false;
 	}
+
+	//// Remove all reference to this Texture from Materials.
+	//for (MaterialData *data : materials) {
+	//	for (size_t i = 0; i < data->material->textures.Length(); i++) {
+	//		if (textures[idx]->texture != data->material->textures[i])
+	//			continue;
+
+	//		data->material->textures[i] = nullptr;
+	//	}
+	//}
 	
 	delete textures[idx];
 	textures.PopAt(idx);

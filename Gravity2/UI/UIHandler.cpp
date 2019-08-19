@@ -11,8 +11,9 @@ WindowProjectExplorerTemplate	*windowProjectExplorer	= nullptr;
 WindowNewSceneTemplate			*WindowNewScene			= nullptr;
 WindowNewTextureTemplate		*WindowNewTexture		= nullptr;
 WindowNewShaderTemplate			*WindowNewShader		= nullptr;
-//WindowNewMaterialTemplate		*WindowNewMaterial		= nullptr;
+WindowNewMaterialTemplate		*WindowNewMaterial		= nullptr;
 WindowNewSceneryTemplate		*WindowNewScenery		= nullptr;
+WindowNewSceneInstanceTemplate	*WindowNewSceneInstance = nullptr;
 
 
 /**
@@ -144,8 +145,9 @@ void WindowsHandler::Init(GravityApp *Application) {
 	InitNewWindow(WindowNewScene,			"New Scene",			Application);
 	InitNewWindow(WindowNewTexture,			"New Texture",			Application);
 	InitNewWindow(WindowNewShader,			"New Shader",			Application);
-	//InitNewWindow(WindowNewMaterial,		"New Material",			Application);
+	InitNewWindow(WindowNewMaterial,		"New Material",			Application);
 	InitNewWindow(WindowNewScenery,			"New Scenery",			Application);
+	InitNewWindow(WindowNewSceneInstance,	"New Scene Instance",	Application);
 }
 
 
@@ -191,11 +193,13 @@ void WindowsHandler::Tick() {
 	}
 
 	for (size_t i = 0; i < activeWindows.Length(); i++) {
-		if (!activeWindows[i])
-			continue;
-
 		activeWindows[i]->Events();
-		activeWindows[i]->Draw();
+
+		// NOTE(Afiq):
+		// This needs to be done because closing the window by triggering the close event in the Events() function will cause pointer invalidation.
+		// This is ugly! We'll need to find another way to handle this.
+		if (activeWindows[i])
+			activeWindows[i]->Draw();
 	}
 }
 
@@ -252,20 +256,20 @@ void WindowMenuBarTemplate::Draw() {
 			if (ImGui::MenuItem("Project", "CTRL+N", false))
 				ui->Show(WindowNewProject);
 
-			if (ImGui::MenuItem("Scene",	nullptr, false, enableResourceLoading))
-				ui->Show(WindowNewScene);
+			//if (ImGui::MenuItem("Scene",	nullptr, false, enableResourceLoading))
+			//	ui->Show(WindowNewScene);
 
-			if (ImGui::MenuItem("Shader",	nullptr, false, enableResourceLoading))
-				ui->Show(WindowNewShader);
+			//if (ImGui::MenuItem("Shader",	nullptr, false, enableResourceLoading))
+			//	ui->Show(WindowNewShader);
 
-			if (ImGui::MenuItem("Texture",	nullptr, false, enableResourceLoading))
-				ui->Show(WindowNewTexture);
+			//if (ImGui::MenuItem("Texture",	nullptr, false, enableResourceLoading))
+			//	ui->Show(WindowNewTexture);
 
-			if (ImGui::MenuItem("Material", nullptr, false, enableResourceLoading))
-				printf("Adding new material ...\n");
+			//if (ImGui::MenuItem("Material", nullptr, false, enableResourceLoading))
+			//	ui->Show(WindowNewMaterial);
 
-			if (ImGui::MenuItem("Scenery",	nullptr, false, enableResourceLoading))
-				ui->Show(WindowNewScenery);
+			//if (ImGui::MenuItem("Scenery",	nullptr, false, enableResourceLoading))
+			//	ui->Show(WindowNewScenery);
 
 			ImGui::EndMenu();
 		}
@@ -311,15 +315,13 @@ void WindowNewProjectTemplate::Events() {
 	if (!isActive)
 		return;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
-	else 
-		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
 }
 
 
@@ -409,7 +411,7 @@ void WindowNewProjectTemplate::Draw() {
 		}
 
 		ImGui::Indent(imguiWindow->Size.x - 145.0f);
-		if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+		if (ImGui::Button("Cancel", buttonSize))
 			open = false;
 
 		ImGui::SameLine();
@@ -450,12 +452,6 @@ void WindowNewProjectTemplate::Draw() {
 void WindowCreateObjectTemplate::Events() {
 	if (!isActive)
 		return;
-
-	AppIO			&io = application->io;
-	WindowsHandler	&ui = application->ui;
-
-	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		ui.Hide(this);
 }
 
 
@@ -502,7 +498,7 @@ void WindowCreateObjectTemplate::Draw() {
 		ImGuiCustomToolTip("Shaders are required to be attached onto a SceneInstance in order for it to be rendered.");
 
 		if (ImGui::Button(ICON_FA_FILE_CODE"\t\t Material", ImVec2(-1.0f, 0.0f)))
-			printf("Creating new Material ...\n");
+			ui.Show(WindowNewMaterial);
 
 		ImGuiCustomToolTip("Materials are a dynamic way to attach 'images' onto SceneInstance objects.");
 
@@ -528,7 +524,14 @@ void WindowCreateObjectTemplate::Draw() {
 * Project explorer window definition.
 */
 void WindowProjectExplorerTemplate::Events() {
-	return;
+	if (!isActive)
+		return;
+
+	keyEvent[WINDOW_ON_RGTCLK].onEvent = application->io.IsMouseClicked(MOUSE_BUTTON_RIGHT);
+	keyEvent[WINDOW_ON_LFTCLK].onEvent = application->io.IsMouseClicked(MOUSE_BUTTON_LEFT);
+
+	if (keyEvent[WINDOW_ON_RGTCLK] || keyEvent[WINDOW_ON_LFTCLK])
+		action = EXPLORER_ACTION_NONE;
 }
 
 
@@ -555,17 +558,17 @@ void WindowProjectExplorerTemplate::Draw() {
 			//ImGui::PushItemWidth(-1.0f);
 			//ImGui::InputText("##FindScene", buf, 1024, ImGuiInputTextFlags_None);
 			//ImGui::PopItemWidth();
-			UIProjectExplorer::ShowSceneList(application);
+			ShowSceneList();
 			ImGui::EndTabItem();
 		}
-		
+
 		if (ImGui::BeginTabItem("Texture")) {
 			// Temporary placeholder for search feature.
 			//char buf[1024] = {'\0'};
 			//ImGui::PushItemWidth(-1.0f);
 			//ImGui::InputText("##FindTexture", buf, 1024, ImGuiInputTextFlags_None);
 			//ImGui::PopItemWidth();
-			UIProjectExplorer::ShowTextureList(application);
+			ShowTextureList();
 			ImGui::EndTabItem();
 		}
 
@@ -575,7 +578,7 @@ void WindowProjectExplorerTemplate::Draw() {
 			//ImGui::PushItemWidth(-1.0f);
 			//ImGui::InputText("##FindShader", buf, 1024, ImGuiInputTextFlags_None);
 			//ImGui::PopItemWidth();
-			UIProjectExplorer::ShowShaderList(application);
+			ShowShaderList();
 			ImGui::EndTabItem();
 		}
 
@@ -585,7 +588,7 @@ void WindowProjectExplorerTemplate::Draw() {
 			//ImGui::PushItemWidth(-1.0f);
 			//ImGui::InputText("##FindMaterial", buf, 1024, ImGuiInputTextFlags_None);
 			//ImGui::PopItemWidth();
-			UIProjectExplorer::ShowMaterialList(application);
+			ShowMaterialList();
 			ImGui::EndTabItem();
 		}
 
@@ -595,7 +598,7 @@ void WindowProjectExplorerTemplate::Draw() {
 			//ImGui::PushItemWidth(-1.0f);
 			//ImGui::InputText("##FindScenery", buf, 1024, ImGuiInputTextFlags_None);
 			//ImGui::PopItemWidth();
-			UIProjectExplorer::ShowSceneryList(application);
+			ShowSceneryList();
 			ImGui::EndTabItem();
 		}
 
@@ -606,6 +609,9 @@ void WindowProjectExplorerTemplate::Draw() {
 
 		ImGui::EndTabBar();
 	}
+
+	SceneListContextMenu();
+	MaterialListContextMenu();
 
 	ImGui::End();
 
@@ -625,15 +631,13 @@ void WindowNewSceneTemplate::Events() {
 	if (!isActive)
 		return;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
 }
 
 
@@ -723,7 +727,7 @@ void WindowNewSceneTemplate::Draw() {
 	}
 
 	ImGui::Indent(imguiWindow->Size.x - 145.0f);
-	if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+	if (ImGui::Button("Cancel", buttonSize))
 		open = false;
 
 	ImGui::SameLine();
@@ -764,15 +768,13 @@ void WindowNewTextureTemplate::Events() {
 	if (!isActive)
 		return;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
 }
 
 
@@ -869,7 +871,7 @@ void WindowNewTextureTemplate::Draw() {
 	}
 
 	ImGui::Indent(imguiWindow->Size.x - 145.0f);
-	if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+	if (ImGui::Button("Cancel", buttonSize))
 		open = false;
 
 	ImGui::SameLine();
@@ -910,15 +912,13 @@ void WindowNewShaderTemplate::Events() {
 	if (!isActive)
 		return;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
 }
 
 
@@ -1023,7 +1023,7 @@ void WindowNewShaderTemplate::Draw() {
 	}
 
 	ImGui::Indent(imguiWindow->Size.x - 145.0f);
-	if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+	if (ImGui::Button("Cancel", buttonSize))
 		open = false;
 
 	ImGui::SameLine();
@@ -1059,21 +1059,158 @@ void WindowNewShaderTemplate::Draw() {
 
 
 /**
+* New Material window definition.
+*/
+void WindowNewMaterialTemplate::Events() {
+	if (!isActive)
+		return;
+
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
+
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
+}
+
+
+void WindowNewMaterialTemplate::Draw() {
+	WindowsHandler	&ui = application->ui;
+	ResourceManager *manager = application->GetResourceHandler();
+
+	bool open = true;
+	ImVec2 buttonSize(60.0f, 0.0f);
+	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin(name.c_str(), &open, windowFlags);
+	ImGui::SetWindowSize(ImVec2(550.0f, 450.0f), ImGuiCond_Always);
+	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	if (!imguiWindow)
+		imguiWindow = ImGui::FindWindowByName(name.c_str());
+
+#if IMGUI_WINDOW_DEBUGGER
+	if (isActive)
+		WindowDebugger::window = imguiWindow;
+#endif
+
+	static uint				textureCount = 0;
+	static String			nameString;
+	static String			errMsg;
+	static Shader			*selectedShader;
+	static Array<Texture*>	selectedTextures;
+
+	ImVec4 maroon = ImVec4(0.8039f, 0.2039f, 0.2313f, 1.0f);
+
+	if (!nameString.Size()) {
+		nameString.Reserve(512);
+		nameString = "New Material";
+	}
+
+	if (!selectedTextures.Size())
+		selectedTextures.Reserve(16);
+
+	ImGui::Text("New Material details");
+	ImGui::Separator();
+	ImGui::Spacing();
+	if (ImGui::BeginChild("Details", ImVec2(110.0f, 350.0f))) {
+		ImGui::Text("Material name");
+		ImGui::SameLine(); ImGui::TextColored(maroon, "*");
+		ImGui::Spacing();
+		ImGui::Text("Shader");
+		ImGui::Spacing();
+		ImGui::Text("Textures");
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+	if (ImGui::BeginChild("Input", ImVec2(-1.0f, 350.0f))) {
+		ImGui::PushItemWidth(-1.0f);
+		ImGui::InputText("##MaterialName", nameString.First(), 512);
+
+		if (ImGui::BeginCombo("##ShaderList", (selectedShader) ? selectedShader->info->name.c_str() : nullptr)) {
+			for (ShaderData *data : manager->shaders) {
+				if (ImGui::Selectable(data->name.c_str(), (selectedShader) ? selectedShader == data->shader : false))
+					selectedShader = data->shader;
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::PopItemWidth();
+
+		ImGuiButtonFlags flag = (textureCount == 11) ? ImGuiButtonFlags_Disabled : ImGuiBackendFlags_None;
+
+		if (ImGui::ButtonEx("Add", buttonSize, flag))
+			textureCount++;
+
+		UINewMaterial::ShowTextureSelectionList(textureCount, selectedTextures, *manager);
+	}
+	ImGui::EndChild();
+	ImGui::Separator();
+	ImGui::Spacing();
+
+	ImGuiButtonFlags submitFlag = 0;
+	keyEvent[WINDOW_ON_SUBMIT].enabled = true;
+
+	if (!nameString.Length()) {
+		submitFlag = ImGuiButtonFlags_Disabled;
+		keyEvent[WINDOW_ON_SUBMIT].enabled = false;
+		errMsg.SetString("Name can not be empty!");
+	}
+
+	if (submitFlag) {
+		ImGui::TextColored(maroon, errMsg.c_str());
+		ImGui::SameLine();
+	}
+
+	ImGui::Indent(imguiWindow->Size.x - 145.0f);
+	if (ImGui::Button("Cancel", buttonSize))
+		open = false;
+
+	ImGui::SameLine();
+	if (submitFlag)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.47f, 0.47f, 0.47f, 1.0f));
+
+	if (ImGui::ButtonEx("Create", buttonSize, submitFlag) || keyEvent[WINDOW_ON_SUBMIT]) {
+		MaterialCreationInfo info;
+		info.name	= nameString;
+		info.shader = selectedShader;
+		
+		if (selectedTextures.Length())
+			info.textures = selectedTextures;
+
+		if (manager->NewMaterial(info))
+			open = false;
+	}
+
+	if (submitFlag)
+		ImGui::PopStyleColor();
+
+	ImGui::Unindent();
+	ImGui::End();
+
+	if (!open) {
+#if IMGUI_WINDOW_DEBUGGER
+		WindowDebugger::window = nullptr;
+#endif
+		ui.Hide(this);
+	}
+}
+
+
+/**
 * New Scenery window definition.
 */
 void WindowNewSceneryTemplate::Events() {
 	if (!isActive)
 		return;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ENTER))
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_SUBMIT].onEvent = false;
+	AppIO &io = application->io;
+	WindowsHandler &ui = application->ui;
 
-	if (application->io.IsKeyPressed(GLFW_KEY_ESCAPE))
-		keyEvent[WINDOW_ON_CANCEL].onEvent = true;
-	else
-		keyEvent[WINDOW_ON_CANCEL].onEvent = false;
+	if (io.IsKeyPressed(GLFW_KEY_ESCAPE))
+		ui.Hide(this);
+
+	keyEvent[WINDOW_ON_SUBMIT].onEvent = application->io.IsKeyPressed(GLFW_KEY_ENTER);
 }
 
 
@@ -1133,10 +1270,8 @@ void WindowNewSceneryTemplate::Draw() {
 		ImGui::SameLine(); ImGui::TextColored(maroon, "*");
 		ImGui::Spacing();
 		ImGui::Text("File");
-		ImGui::SameLine(); ImGui::TextColored(maroon, "*");
 		ImGui::Spacing();
 		ImGui::Text("Directory");
-		ImGui::SameLine(); ImGui::TextColored(maroon, "*");
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
@@ -1166,10 +1301,10 @@ void WindowNewSceneryTemplate::Draw() {
 	ImGuiButtonFlags submitFlag = 0;
 	keyEvent[WINDOW_ON_SUBMIT].enabled = true;
 
-	if (!nameString.Length() || !fileString.Length() || !dirString.Length()) {
+	if (!nameString.Length()) {
 		submitFlag = ImGuiButtonFlags_Disabled;
 		keyEvent[WINDOW_ON_SUBMIT].enabled = false;
-		errMsg.SetString("Name, file and directory can not be empty!");
+		errMsg.SetString("Name can not be empty!");
 	}
 
 	if (submitFlag) {
@@ -1178,7 +1313,7 @@ void WindowNewSceneryTemplate::Draw() {
 	}
 
 	ImGui::Indent(imguiWindow->Size.x - 145.0f);
-	if (ImGui::Button("Cancel", buttonSize) || keyEvent[WINDOW_ON_CANCEL])
+	if (ImGui::Button("Cancel", buttonSize))
 		open = false;
 
 	ImGui::SameLine();
@@ -1207,4 +1342,56 @@ void WindowNewSceneryTemplate::Draw() {
 #endif
 		ui.Hide(this);
 	}
+}
+
+
+void WindowNewSceneInstanceTemplate::Events() {
+	if (!isActive)
+		return;
+}
+
+
+void WindowNewSceneInstanceTemplate::Draw() {
+	WindowsHandler &ui = application->ui;
+	ResourceManager *manager = application->GetResourceHandler();
+
+	bool open = true;
+	ImVec2 buttonSize(60.0f, 0.0f);
+	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
+
+	ImGui::Begin(name.c_str());
+	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	if (!imguiWindow)
+		imguiWindow = ImGui::FindWindowByName(name.c_str());
+
+#if IMGUI_WINDOW_DEBUGGER
+	if (isActive)
+		WindowDebugger::window = imguiWindow;
+#endif
+
+	ImVec4 maroon = ImVec4(0.8039f, 0.2039f, 0.2313f, 1.0f);
+
+	ImGui::Text("New SceneInstance details");
+	ImGui::Separator();
+	ImGui::Spacing();
+	if (ImGui::BeginChild("Details", ImVec2(110.0f, 350.0f))) {
+		ImGui::Text("Position");
+		ImGui::Spacing();
+		ImGui::Text("Scale");
+		ImGui::Spacing();
+		ImGui::Text("Rotation");
+		ImGui::Spacing();
+		ImGui::Text("Shader");
+		ImGui::SameLine(); ImGui::TextColored(maroon, "*");
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+
+	static glm::vec3 position(0.0f);
+	static glm::vec3 scale(1.0f);
+	static glm::vec3 rotation(0.0f);
+	static Shader *shader = nullptr;
+
+	ImGui::End();
 }

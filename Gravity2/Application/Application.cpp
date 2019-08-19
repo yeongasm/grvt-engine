@@ -194,7 +194,7 @@ float GravityApp::Tick() {
 	ImGuiIO &guiIO = ImGui::GetIO();
 	io.mousePos = glm::vec2(guiIO.MousePos.x, guiIO.MousePos.y);
 
-	for (int i = 0; i < ArrayLen(this->io.mouseButton); i++)
+	for (int i = 0; i < MOUSE_BUTTON_MAX; i++)
 		io.mouseButton[i].currState = glfwGetMouseButton(window, i);
 
 	Middleware::GetBuildQueue()->Listen();

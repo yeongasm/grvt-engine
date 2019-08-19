@@ -53,6 +53,7 @@ enum TextureFace {
 * NOTE: Texture generation does not check if you have specified the texture's type. Failing to provide one will mess up the texture's sampling unit for shader use.
 * ALERT: When specifying files for a cube map, STRICTLY specify in this order: Right -> Left -> Top -> Bottom -> Front -> Back.
 *
+* @param [OPTIONAL] (void*)			Default = 0;	data	- Advance data parameter. Only for those who want their textures not being loaded from a file.
 * @param [REQUIRED] (bool)			Default = 1;	mipmap	- Generate mipmaps for OpenGL texture.
 * @param [OPTIONAL] (bool)			Default = 0;	cubemap - Setting this to true would make the texture into a cubemap texture.
 * @param [OPTIONAL] (bool)			Default = 1;	flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
@@ -71,6 +72,7 @@ struct TextureCreationInfo {
 	typedef Array<Pair<uint, uint>>		Params;
 	typedef Array<String>				Files;
 
+	void		*data;
 	bool		mipmap;
 	bool		cubemap;
 	bool		flip;
@@ -85,7 +87,7 @@ struct TextureCreationInfo {
 	String		directory;
 	String		name;
 
-	TextureCreationInfo() : mipmap(1), cubemap(0), flip(1), width(0), height(0), 
+	TextureCreationInfo() : data(nullptr), mipmap(1), cubemap(0), flip(1), width(0), height(0), 
 		target(0), type(0), format(0), textureType(TEXTURE_TYPE_NONE) {}
 };
 
