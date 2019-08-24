@@ -72,7 +72,6 @@ struct TextureCreationInfo {
 	typedef Array<Pair<uint, uint>>		Params;
 	typedef Array<String>				Files;
 
-	void		*data;
 	bool		mipmap;
 	bool		cubemap;
 	bool		flip;
@@ -87,7 +86,7 @@ struct TextureCreationInfo {
 	String		directory;
 	String		name;
 
-	TextureCreationInfo() : data(nullptr), mipmap(1), cubemap(0), flip(1), width(0), height(0), 
+	TextureCreationInfo() : mipmap(1), cubemap(0), flip(1), width(0), height(0), 
 		target(0), type(0), format(0), textureType(TEXTURE_TYPE_NONE) {}
 };
 
@@ -97,7 +96,7 @@ struct TextureCreationInfo {
 *
 * TextureCreationInfo.target		= GL_TEXTURE_2D;
 * TextureCreationInfo.type			= GL_UNSIGNED_BYTE;
-* TextureCreationInfo.target		= GL_RGB;
+* TextureCreationInfo.format		= GL_RGB;
 * TextureCreationInfo.parameters[0] = {GL_TEXTURE_WRAP_S, GL_REPEAT}
 * TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_T, GL_REPEAT}
 * TextureCreationInfo.parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
@@ -112,7 +111,7 @@ void GenerateGenericTextureInfo(TextureCreationInfo &Info);
 *
 * TextureCreationInfo.target		= GL_TEXTURE_CUBE_MAP;
 * TextureCreationInfo.type			= GL_UNSIGNED_BYTE;
-* TextureCreationInfo.target		= GL_RGB;
+* TextureCreationInfo.format		= GL_RGB;
 * TextureCreationInfo.parameters[0] = {GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
 * TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
 * TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE}

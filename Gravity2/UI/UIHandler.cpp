@@ -2,6 +2,13 @@
 
 
 /**
+* Window interaction variables are declared here.
+*/
+SceneData		*gHoveredScene = nullptr;
+MaterialData	*gHoveredMat = nullptr;
+
+
+/**
 * Declare all windows here.
 */
 WindowMenuBarTemplate			*WindowMenuBar			= nullptr;
@@ -610,10 +617,20 @@ void WindowProjectExplorerTemplate::Draw() {
 		ImGui::EndTabBar();
 	}
 
+
+	gHoveredScene	= hoveredScene;
+	gHoveredMat		= hoveredMat;
+
 	SceneListContextMenu();
 	MaterialListContextMenu();
 
+	if (action == EXPLORER_NEW_SCENEISNT_WINDOW)
+		ui.Show(WindowNewSceneInstance);
+
 	ImGui::End();
+	
+	// Reset the action at the end of the function.
+	action = EXPLORER_ACTION_NONE;
 
 	if (!open) {
 #if IMGUI_WINDOW_DEBUGGER
@@ -1359,7 +1376,8 @@ void WindowNewSceneInstanceTemplate::Draw() {
 	ImVec2 buttonSize(60.0f, 0.0f);
 	int32 windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse;
 
-	ImGui::Begin(name.c_str());
+	ImGui::Begin(name.c_str(), &open, windowFlags);
+	ImGui::SetWindowSize(ImVec2(500.0f, 205.0f), ImGuiCond_Always);
 	isActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 	if (!imguiWindow)
@@ -1370,12 +1388,18 @@ void WindowNewSceneInstanceTemplate::Draw() {
 		WindowDebugger::window = imguiWindow;
 #endif
 
+	static float	position[3]		= {0.0f};
+	static float	scale[3]		= {1.0f};
+	static float	rotation[3]		= {0.0f};
+	static Shader	*selectedShader = nullptr;
+	static String	errMsg;
+
 	ImVec4 maroon = ImVec4(0.8039f, 0.2039f, 0.2313f, 1.0f);
 
-	ImGui::Text("New SceneInstance details");
+	ImGui::Text("New Scene Instance details");
 	ImGui::Separator();
 	ImGui::Spacing();
-	if (ImGui::BeginChild("Details", ImVec2(110.0f, 350.0f))) {
+	if (ImGui::BeginChild("Details", ImVec2(110.0f, 100.0f))) {
 		ImGui::Text("Position");
 		ImGui::Spacing();
 		ImGui::Text("Scale");
@@ -1387,11 +1411,75 @@ void WindowNewSceneInstanceTemplate::Draw() {
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
+	if (ImGui::BeginChild("Input", ImVec2(-1.0f, 100.0f))) {
+		float childWidth = ImGui::GetWindowWidth();
+		ImGui::PushItemWidth(-1.0f);
+		ImGui::InputFloat3("##Position", position, 3);
+		ImGui::InputFloat3("##Scale", scale, 3);
+		ImGui::InputFloat3("##Rotation", rotation, 3);
+		if (ImGui::BeginCombo("##ShaderList", (selectedShader) ? selectedShader->info->name.c_str() : nullptr)) {
+			for (ShaderData *data : manager->shaders) {
+				if (ImGui::Selectable(data->name.c_str(), (selectedShader) ? selectedShader == data->shader : false))
+					selectedShader = data->shader;
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::PopItemWidth();
+	}
+	ImGui::EndChild();
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
 
-	static glm::vec3 position(0.0f);
-	static glm::vec3 scale(1.0f);
-	static glm::vec3 rotation(0.0f);
-	static Shader *shader = nullptr;
+	ImGuiButtonFlags submitFlag = 0;
+	keyEvent[WINDOW_ON_SUBMIT].enabled = true;
 
+	if (!selectedShader) {
+		submitFlag = ImGuiButtonFlags_Disabled;
+		keyEvent[WINDOW_ON_SUBMIT].enabled = false;
+		errMsg.SetString("Shader can not be empty!");
+	}
+
+	if (submitFlag) {
+		ImGui::TextColored(maroon, errMsg.c_str());
+		ImGui::SameLine();
+	}
+
+	ImGui::Indent(imguiWindow->Size.x - 145.0f);
+	if (ImGui::Button("Cancel", buttonSize))
+		open = false;
+
+	ImGui::SameLine();
+	if (submitFlag)
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.47f, 0.47f, 0.47f, 1.0f));
+
+	if (ImGui::ButtonEx("Create", buttonSize, submitFlag) || keyEvent[WINDOW_ON_SUBMIT]) {
+		SceneInstanceCreation info;
+		info.position.x = position[0];
+		info.position.y = position[1];
+		info.position.z = position[2];
+		info.scale.x	= scale[0];
+		info.scale.y	= scale[1];
+		info.scale.z	= scale[2];
+		info.rotation.x = rotation[0];
+		info.rotation.y = rotation[1];
+		info.rotation.z = rotation[2];
+		info.shader		= selectedShader;
+
+		if (gHoveredScene->scene->CreateInstance(info))
+			open = false;
+	}
+
+	if (submitFlag)
+		ImGui::PopStyleColor();
+
+	ImGui::Unindent();
 	ImGui::End();
+
+	if (!open) {
+#if IMGUI_WINDOW_DEBUGGER
+		WindowDebugger::window = nullptr;
+#endif
+		ui.Hide(this);
+	}
 }

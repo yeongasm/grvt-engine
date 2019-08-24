@@ -238,6 +238,84 @@ MeshBuildData& MeshBuildData::operator= (MeshBuildData &&Rhs) {
 MeshBuildData::~MeshBuildData() { Data = nullptr, Indices = nullptr; Size = 0; Length = 0; VertexAttribPointers.Release(); }
 
 
+TextureID::TextureID() : Id(0), Target(0) {}
+
+
+TextureID::~TextureID() { Delete(); }
+
+
+TextureID::TextureID(TextureID &&Rhs) { *this = std::move(Rhs); }
+
+
+TextureID& TextureID::operator= (TextureID &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		Reset();
+
+		Id		= Rhs.Id;
+		Target	= Rhs.Target;
+
+		Rhs.Reset();
+	}
+
+	return *this;
+}
+
+
+TextureID::operator uint32() { return Id; }
+
+
+bool TextureID::Alloc(uint32 Target) {
+	if (Id || !Target)
+		return false;
+
+	this->Target = Target;
+	glGenTextures(1, &Id);
+
+	return true;
+}
+
+
+bool TextureID::Delete() {
+	if (!Id)
+		return false;
+
+	glDeleteTextures(1, &Id);
+	new (this) TextureID();
+
+	return true;
+}
+
+
+bool TextureID::Bind() {
+	if (!Target)
+		return false;
+
+	glBindTexture(Target, Id);
+
+	return true;
+}
+
+
+bool TextureID::UnBind() {
+	if (!Target)
+		return false;
+
+	glBindTexture(Target, 0);
+
+	return true;
+}
+
+
+void TextureID::Reset() {
+	Id = Target = 0;
+}
+
+
+//TextureBuildData::TextureBuildData() : DataPtr(nullptr), TextureInfo() {}
+
+
 void OpenWrapBuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data) {
 	VAO.Alloc();
 	VBO.Alloc(GL_ARRAY_BUFFER);

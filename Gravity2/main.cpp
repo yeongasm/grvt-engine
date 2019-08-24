@@ -6,9 +6,9 @@ PointLight	*pointLight = nullptr;
 void LightWindowTest(const GravityApp *App) {
 	bool open = true;
 	ImGui::Begin("Manipulate light", &open);
-	ImGui::SliderFloat("X", &pointLight->position.x, -500.0f, 500.0f);
-	ImGui::SliderFloat("Y", &pointLight->position.y, -500.0f, 500.0f);
-	ImGui::SliderFloat("Z", &pointLight->position.z, -500.0f, 500.0f);
+	ImGui::SliderFloat("X", &pointLight->position.x, -50.0f, 50.0f);
+	ImGui::SliderFloat("Y", &pointLight->position.y, -50.0f, 50.0f);
+	ImGui::SliderFloat("Z", &pointLight->position.z, -50.0f, 50.0f);
 	ImGui::SliderFloat("Brightness", &pointLight->brightness, 0.0f, 1.0f);
 	ImGui::SliderFloat("Radius", &pointLight->radius, 0.0f, 100.0f);
 	ImGui::End();

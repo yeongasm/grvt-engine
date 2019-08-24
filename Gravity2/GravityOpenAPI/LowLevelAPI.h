@@ -120,7 +120,7 @@ struct VertArrayObj {
 	void UnBind();
 
 	/**
-	* Resets the value if this vertex array object.
+	* Resets the value of this vertex array object.
 	* Note, this does not delete the vertex array object from OpenGL. Be sure to keep track of the Id.
 	*/
 	void Reset();
@@ -188,11 +188,100 @@ public:
 
 
 /**
+* TextureID data structure.
+*
+* Low level API functionality.
+* Texture id for OpenGL.
+*/
+struct TextureID {
+
+	uint32 Id;
+	uint32 Target;
+
+	TextureID();
+	~TextureID();
+
+	TextureID(const TextureID &Rhs)				= delete;
+	TextureID& operator= (const TextureID &Rhs) = delete;
+
+	TextureID(TextureID &&Rhs);
+	TextureID& operator= (TextureID &&Rhs);
+
+	operator uint32();
+
+	/**
+	* Creates a new Texture.
+	*/
+	bool	Alloc(uint32 Target);
+
+	/**
+	* Deletes this Texture and removes it from OpenGL.
+	*/
+	bool	Delete();
+
+	/**
+	* Binds this Texture and updates OpenGL's state.
+	*/
+	bool	Bind();
+
+	/**
+	* Unbinds the Texture from OpenGL.
+	*/
+	bool	UnBind();
+
+	/**
+	* Resets the value of this Texture.
+	* Note, this does not delete the Texture from OpenGL. Be sure to keep track of the Id.
+	*/
+	void	Reset();
+};
+
+
+//struct TextureCreationInfo;
+
+
+/**
+* TextureBuildData data structure.
+*
+* @param [REQUIRED] (void*)	DataPtr - Texture's data. The type of pointer assigned needs to be the same as the type specified in TextureCreationInfo's type parameter.
+* @param [REQUIRED] (TextureCreationInfo) TextureInfo - Texture's build information.
+*/
+//struct TextureBuildData {
+//
+//	void				*DataPtr;
+//	TextureCreationInfo TextureInfo;
+//
+//	TextureBuildData();
+//
+//	TextureBuildData(const TextureBuildData &Rhs);
+//	TextureBuildData(TextureBuildData &&Rhs);
+//
+//	TextureBuildData& operator= (const TextureBuildData &Rhs);
+//	TextureBuildData& operator= (TextureBuildData &&Rhs);
+//
+//	~TextureBuildData();
+//};
+
+
+/**
 * An OpenGL wrapper to create a mesh.
 */
 void OpenWrapBuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data);
+
 
 /**
 * An OpenGL wrapper to delete a mesh.
 */
 void OpenWrapDeleteMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO);
+
+
+/**
+* An OpenGL wrapper to create a texture.
+*/
+//void OpenWrapBuildTexture(TextureID &Texture, void *Data, TextureCreationInfo &Info);
+
+
+/**
+* An OpenGL wrapper to delete a texture.
+*/
+//void OpenWrapDeleteTexture(TextureID &Texture);

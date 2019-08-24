@@ -115,7 +115,8 @@ private:
 	enum ExplorerActions : uint {
 		EXPLORER_ACTION_NONE			= 0x00,
 		EXPLORER_SCENE_CONTEXT_MENU		= 0x01,
-		EXPLORER_MATERIAL_CONTEXT_MENU	= 0x02
+		EXPLORER_MATERIAL_CONTEXT_MENU	= 0x02,
+		EXPLORER_NEW_SCENEISNT_WINDOW	= 0x03
 	};
 
 	SceneData		*hoveredScene	= nullptr;

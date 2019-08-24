@@ -48,6 +48,52 @@ MeshPacket& MeshPacket::operator= (MeshPacket &&Rhs) {
 MeshPacket::~MeshPacket() { MeshPtr = nullptr; }
 
 
+//TexturePacket::TexturePacket() : TexturePtr(nullptr), DataPtr(nullptr), Info() {}
+//
+//
+//TexturePacket::TexturePacket(Texture *Resource, void *Data, TextureCreationInfo Info) :
+//	TexturePtr(Resource), DataPtr(Data), Info(Info) {}
+//
+//
+//TexturePacket::TexturePacket(const TexturePacket &Rhs) { *this = Rhs; }
+//
+//
+//TexturePacket::TexturePacket(TexturePacket &&Rhs) { *this = std::move(Rhs); }
+//
+//
+//TexturePacket& TexturePacket::operator= (const TexturePacket &Rhs) {
+//	_ASSERTE(this != &Rhs);
+//
+//	if (this != &Rhs) {
+//		TexturePtr	= Rhs.TexturePtr;
+//		DataPtr		= Rhs.DataPtr;
+//		Info		= Rhs.Info;
+//	}
+//
+//	return *this;
+//}
+//
+//
+//TexturePacket& TexturePacket::operator= (TexturePacket &&Rhs) {
+//	_ASSERTE(this != &Rhs);
+//
+//	if (this != &Rhs) {
+//		new (this) TexturePacket();
+//
+//		TexturePtr	= Rhs.TexturePtr;
+//		DataPtr		= Rhs.DataPtr;
+//		Info		= Rhs.Info;
+//
+//		new (&Rhs) TexturePacket();
+//	}
+//
+//	return *this;
+//}
+//
+//
+//TexturePacket::~TexturePacket() { TexturePtr = nullptr; DataPtr = nullptr; }
+
+
 ResourceBuildQueue::ResourceBuildQueue() : MeshQueue() {}
 
 

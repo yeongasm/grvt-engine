@@ -78,9 +78,9 @@ Mesh::~Mesh() {
 
 
 void Mesh::Free() {
-	vao.Reset();
-	vbo.Reset();
-	ebo.Reset();
+	ebo.Delete();
+	vbo.Delete();
+	vao.Delete();
 
 	positions.Release();
 	uv.Release();

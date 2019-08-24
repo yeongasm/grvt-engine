@@ -47,6 +47,30 @@ struct MeshPacket {
 	~MeshPacket();
 };
 
+struct TextureCreationInfo;
+
+/**
+* [MIDDLEWARE]
+* TexturePacket data structure.
+*
+* A TexturePacket is required to bridge the gap between the high-level abstraction API with the low-level API.
+* Low-level API can only process texture data that is contained inside of this data structure.
+*/
+/*struct TexturePacket {
+	Texture				*TexturePtr;
+
+	TexturePacket();
+	TexturePacket(Texture *Resource, void *Data, TextureCreationInfo Info);
+
+	TexturePacket(const TexturePacket &Rhs);
+	TexturePacket(TexturePacket &&Rhs);
+
+	TexturePacket& operator= (const TexturePacket &Rhs);
+	TexturePacket& operator= (TexturePacket &&Rhs);
+
+	~TexturePacket();
+}*/;
+
 
 /**
 * ResourceBuildQueue data structure.
@@ -58,7 +82,8 @@ struct MeshPacket {
 class ResourceBuildQueue {
 private:
 
-	std::deque<MeshPacket> MeshQueue;
+	std::deque<MeshPacket>		MeshQueue;
+	//std::deque<TexturePacket>	TextureQueue;
 
 public:
 
@@ -67,10 +92,17 @@ public:
 
 	/**
 	* [MIDDLEWARE]
-	* Adds a mesh to be built by OpenGL.
-	* 
+	* Adds a mesh to be built by OpenGL. 
 	*/
 	void AddMeshForBuild(Mesh *Mesh, MeshBuildData Data);
+
+
+	/**
+	* [MIDDLEWARE]
+	* Adds a texture to be built by OpenGL.
+	*/
+	//void AddTextureForBuild(Texture *Texture, );
+
 
 	/**
 	* [MIDDLEWARE]
