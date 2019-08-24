@@ -1,0 +1,26 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Name              |   Description                                                                                                                                     |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| "Scene"           | An object that is able to be rendered.                                                                                                            |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| "Scenery"         | Proposed name for a level.                                                                                                                        |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| "SceneInstance"   | An instance of a "Scene" (Or simply a Render Object). This gets pushed into the renderer instead of the default "Scene" that is stored in engine. |
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Monday, 1st July 2019:
+------------------------------------------------------------------
+1. Completed data structures for the base light object, directional light and point light. Spot light would be added on later as it is less significant in the current scope of the project.
+2. I'm contemplating on the idea to create a "Scenery" object; which is just a fancy name for the level. I could call it "Level" and that just might work as well. 
+3. However, what am I going to use the "Level" for? I already push my "Scene"(s) into the renderer and for any object that is supposed to be rendered.
+4. I could make a the manager store the light objects instead but would it make sense? Does it make sense to make a "database entry" for every new light created? I doubt it.
+5. I think I'll proceed with the "Scenery / Level" idea. I figured out a workaround for pushing scenes into the renderer.
+
+
+Wednesday, 3rd July 2019:
+------------------------------------------------------------------
+1. If the "SceneInstance" is set for instanced rendering, exclude the "SceneInstance" from the normal "RenderCommand" buffer.
+2. The renderer will now only accept a scenery instead of render instances. It makes more sense because you'll ever only need to render something that is in a level.
+3. If that's the case, then how would I prep the contents that will be rendered by the renderer. Because not everything is rendered for every frame.
+    3.1 Current idea is to update the renderer's buffer with the contents of the level for every frame (This needs a better solution).

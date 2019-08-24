@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="String">
+    <DisplayString>{pArr, s8}</DisplayString>
+    <StringView>pArr, s8</StringView>
+    <Expand>
+      <Item Name="Hash">Hash</Item>
+      <Item Name="String length">curPos</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="Array&lt;*&gt;">
+    <DisplayString>{{Array with {curPos} elements}}</DisplayString>
+    <Expand>
+      <Item Name="Array length">curPos</Item>
+      <ArrayItems>
+        <Size>curPos</Size>
+        <ValuePointer>pArr</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
