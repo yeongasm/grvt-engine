@@ -189,9 +189,6 @@ private:
 		return id++;
 	}
 
-	void		ProcessNode			(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info);
-	Mesh*		BuildMesh			(Scene *Scene, aiMesh *AiMesh, const aiScene *AiScene);
-
 public:
 
 	Scene*		NewScene			(const SceneCreationInfo &Info);
@@ -205,8 +202,6 @@ public:
 	Texture*	GetTexture			(const String &Name);
 	Material*	GetMaterial			(const String &Name);
 	Scenery*	GetLevel			(const String &Name);
-
-
 
 	bool		DeleteScene			(const String &Name);
 	bool		DeleteShader		(const String &Name);

@@ -48,50 +48,46 @@ MeshPacket& MeshPacket::operator= (MeshPacket &&Rhs) {
 MeshPacket::~MeshPacket() { MeshPtr = nullptr; }
 
 
-//TexturePacket::TexturePacket() : TexturePtr(nullptr), DataPtr(nullptr), Info() {}
-//
-//
-//TexturePacket::TexturePacket(Texture *Resource, void *Data, TextureCreationInfo Info) :
-//	TexturePtr(Resource), DataPtr(Data), Info(Info) {}
-//
-//
-//TexturePacket::TexturePacket(const TexturePacket &Rhs) { *this = Rhs; }
-//
-//
-//TexturePacket::TexturePacket(TexturePacket &&Rhs) { *this = std::move(Rhs); }
-//
-//
-//TexturePacket& TexturePacket::operator= (const TexturePacket &Rhs) {
-//	_ASSERTE(this != &Rhs);
-//
-//	if (this != &Rhs) {
-//		TexturePtr	= Rhs.TexturePtr;
-//		DataPtr		= Rhs.DataPtr;
-//		Info		= Rhs.Info;
-//	}
-//
-//	return *this;
-//}
-//
-//
-//TexturePacket& TexturePacket::operator= (TexturePacket &&Rhs) {
-//	_ASSERTE(this != &Rhs);
-//
-//	if (this != &Rhs) {
-//		new (this) TexturePacket();
-//
-//		TexturePtr	= Rhs.TexturePtr;
-//		DataPtr		= Rhs.DataPtr;
-//		Info		= Rhs.Info;
-//
-//		new (&Rhs) TexturePacket();
-//	}
-//
-//	return *this;
-//}
-//
-//
-//TexturePacket::~TexturePacket() { TexturePtr = nullptr; DataPtr = nullptr; }
+TexturePacket::TexturePacket() : TexturePtr(nullptr) {}
+
+
+TexturePacket::TexturePacket(Texture *Resource, TextureBuildData Data) :
+	TexturePtr(Resource), BuildData(Data) {}
+
+
+TexturePacket::TexturePacket(const TexturePacket &Rhs) { *this = Rhs; }
+
+
+TexturePacket::TexturePacket(TexturePacket &&Rhs) { *this = std::move(Rhs); }
+
+
+TexturePacket& TexturePacket::operator= (const TexturePacket &Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		TexturePtr	= Rhs.TexturePtr;
+	}
+
+	return *this;
+}
+
+
+TexturePacket& TexturePacket::operator= (TexturePacket &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		new (this) TexturePacket();
+
+		TexturePtr	= Rhs.TexturePtr;
+
+		new (&Rhs) TexturePacket();
+	}
+
+	return *this;
+}
+
+
+TexturePacket::~TexturePacket() { TexturePtr = nullptr; }
 
 
 ResourceBuildQueue::ResourceBuildQueue() : MeshQueue() {}
@@ -105,13 +101,25 @@ void ResourceBuildQueue::AddMeshForBuild(Mesh *Mesh, MeshBuildData Data) {
 }
 
 
+void ResourceBuildQueue::AddTextureForBuild(Texture *Texture, TextureBuildData Data) {
+	TextureQueue.push_back(TexturePacket(Texture, Data));
+}
+
+
 void ResourceBuildQueue::Listen() {
 	// Build meshes that are in the queue.
 	for (MeshPacket &Packet : MeshQueue) {
-		OpenWrapBuildMesh(Packet.MeshPtr->vao, Packet.MeshPtr->vbo, Packet.MeshPtr->ebo, Packet.BuildData);
+		BaseAPI::BuildMesh(Packet.MeshPtr->vao, Packet.MeshPtr->vbo, Packet.MeshPtr->ebo, Packet.BuildData);
 		Packet.MeshPtr->size = (Packet.MeshPtr->ebo) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
 		free(Packet.BuildData.Data);
 		MeshQueue.pop_front();
+	}
+
+	// Build textures that are in the queue.
+	for (TexturePacket &Packet : TextureQueue) {
+		BaseAPI::BuildTexture(Packet.TexturePtr->id, Packet.BuildData);
+		free(Packet.BuildData.DataPtr);
+		TextureQueue.pop_front();
 	}
 }
 
@@ -207,6 +215,27 @@ namespace Middleware {
 		for (Mesh &mesh : Scene->meshes) {
 			PackageMeshForBuild(&mesh);
 		}
+	}
+
+
+	void Middleware::ParseTextureFromFile(const String Path, Texture *Texture) {
+		int32 channels = 0;
+		TextureBuildData buildData;
+
+		BaseAPI::GenerateGenericTextureData(buildData);
+
+		stbi_set_flip_vertically_on_load(buildData.Flip);
+
+		buildData.DataPtr = (uint8*)stbi_load(Path.c_str(), (int32*)&buildData.Width, (int32*)&buildData.Height, &channels, 0);
+
+		if (channels == 1)
+			buildData.Format = GL_RED;
+		else if (channels == 3)
+			buildData.Format = GL_RGB;
+		else if (channels == 4)
+			buildData.Format = GL_RGBA;
+
+		GetBuildQueue()->AddTextureForBuild(Texture, buildData);
 	}
 
 

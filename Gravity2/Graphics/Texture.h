@@ -53,56 +53,25 @@ enum TextureFace {
 * NOTE: Texture generation does not check if you have specified the texture's type. Failing to provide one will mess up the texture's sampling unit for shader use.
 * ALERT: When specifying files for a cube map, STRICTLY specify in this order: Right -> Left -> Top -> Bottom -> Front -> Back.
 *
-* @param [OPTIONAL] (void*)			Default = 0;	data	- Advance data parameter. Only for those who want their textures not being loaded from a file.
-* @param [REQUIRED] (bool)			Default = 1;	mipmap	- Generate mipmaps for OpenGL texture.
-* @param [OPTIONAL] (bool)			Default = 0;	cubemap - Setting this to true would make the texture into a cubemap texture.
-* @param [OPTIONAL] (bool)			Default = 1;	flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
-* @param [OPTIONAL] (int)			Default = 0;	width	- Texture's width. Use only when creating an empty texture.
-* @param [OPTIONAL] (int)			Default = 0;	height	- Texture's height. Use only when creating an empty texture.
-* @param [REQUIRED] (uint)			Default = 0;	target	- Texture's target. E.g: GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP.
-* @param [REQUIRED] (uint)			Default = 0;	type	- Data type of the pixel. E.g: GL_UNSIGNED_BYTE, GL_UNSIGNED_INT.
-* @param [OPTIONAL] (uint)			Default = 0;	format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
-* @param [REQUIRED] (TextureType)	Default = 0;	textureType - Texture's to be used for type. E.g: TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_SPECULAR.
-* @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
-* @param [OPTIONAL] (Files)							files		- Texture files. Only specify 1 or 6 along with it's face. Any more or any less and Gravity would not generate an OpenGL texture.
-* @param [REQUIRED] (String)						directory	- Directory to the files.
-* @param [REQUIRED] (String)						name		- Identification of the specified texture.
+* @param [REQUIRED] (TextureType)	Default = 0;	Type		- Texture's to be used for type. E.g: TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_SPECULAR.
+* @param [REQUIRED] (String)						Name		- Identification of the specified texture.
+* @param [REQUIRED] (String)						Directory	- Directory to the files.
+* @param [OPTIONAL] (Files)							Files		- Texture files. Only specify 1 or 6 along with it's face. Any more or any less and Gravity would not generate an OpenGL texture.
 */
 struct TextureCreationInfo {
-	typedef Array<Pair<uint, uint>>		Params;
-	typedef Array<String>				Files;
+private:
 
-	bool		mipmap;
-	bool		cubemap;
-	bool		flip;
-	int			width;
-	int			height;
-	uint		target;
-	uint		type;
-	uint		format;
-	TextureType textureType;
-	Params		parameters;
-	Files		files;
-	String		directory;
-	String		name;
+	using TextureFiles = Array<String>;
 
-	TextureCreationInfo() : mipmap(1), cubemap(0), flip(1), width(0), height(0), 
-		target(0), type(0), format(0), textureType(TEXTURE_TYPE_NONE) {}
+public:
+
+	TextureType		type;
+	String			name;
+	String			directory;
+	TextureFiles	files;
+
+	TextureCreationInfo();
 };
-
-/**
-* Generates generic texture creation info:
-* Alloc functions would override some formats specified by this function.
-*
-* TextureCreationInfo.target		= GL_TEXTURE_2D;
-* TextureCreationInfo.type			= GL_UNSIGNED_BYTE;
-* TextureCreationInfo.format		= GL_RGB;
-* TextureCreationInfo.parameters[0] = {GL_TEXTURE_WRAP_S, GL_REPEAT}
-* TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_T, GL_REPEAT}
-* TextureCreationInfo.parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
-* TextureCreationInfo.parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
-*/
-void GenerateGenericTextureInfo(TextureCreationInfo &Info);
 
 
 /**
@@ -133,20 +102,19 @@ struct TextureData;
 */
 class Texture {
 public:
-	uint		id;
-	uint		target;
+	TextureID	id;
 	TextureType type;
 	TextureData	*info;
 
 	Texture();
-	Texture(const TextureCreationInfo &Info);
+
 	Texture(const Texture &Other)				= delete;
 	Texture& operator= (const Texture &Other)	= delete;
+	
 	Texture(Texture &&Other);
 	Texture& operator= (Texture &&Other);
+	
 	~Texture();
 
-
-	bool Alloc(const TextureCreationInfo &Info);
 	void Free();
 };

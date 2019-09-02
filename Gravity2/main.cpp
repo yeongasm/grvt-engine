@@ -71,17 +71,15 @@ int main() {
 
 	{
 		TextureCreationInfo info;
-		GenerateGenericTextureInfo(info);
 		info.name			= "Witch_body_albedo";
 		info.directory		= RootDir("Data/Models/witch/source/");
 		info.files.Push("body.jpg");
-		info.format			= 0;
-		info.textureType	= TEXTURE_TYPE_ALBEDO;
+		info.type			= TEXTURE_TYPE_ALBEDO;
 
 		Texture *body = manager->NewTexture(info);
 
-		info.name			= "Witch_obj_albedo";
 		info.files.Release();
+		info.name			= "Witch_obj_albedo";
 		info.files.Push("ob.jpg");
 
 		Texture *object		= manager->NewTexture(info);

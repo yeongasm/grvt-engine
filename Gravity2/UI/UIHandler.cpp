@@ -897,10 +897,9 @@ void WindowNewTextureTemplate::Draw() {
 
 	if (ImGui::ButtonEx("Create", buttonSize, submitFlag) || keyEvent[WINDOW_ON_SUBMIT]) {
 		TextureCreationInfo info;
-		GenerateGenericTextureInfo(info);
 		info.name = nameString;
 		info.files.Push(String());
-		info.textureType = static_cast<TextureType>(type);
+		info.type = static_cast<TextureType>(type);
 		GetFileNameFromPath(path, info.files.Last(), info.directory);
 
 		if (manager->NewTexture(info))

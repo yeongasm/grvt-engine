@@ -20,6 +20,7 @@ using uint64	= unsigned __int64;
 
 
 /**
+* [BASEAPI]
 * BufferObject data structure.
 *
 * Low level API functionality.
@@ -42,6 +43,7 @@ struct BufferObject {
 	operator uint32();
 
 	/**
+	* [BASEAPI]
 	* Creates a new buffer object of the specified target's type.
 	*
 	* @param [REQUIRED] (BufferTarget) Target - The buffer's target type.
@@ -49,11 +51,13 @@ struct BufferObject {
 	bool Alloc(uint32 Target);
 
 	/**
+	* [BASEAPI]
 	* Deletes this buffer object from OpenGL and sets it's value to 0 and it's target to EMPTY_BUFFER_OBJECT.
 	*/
 	bool Delete();
 
 	/**
+	* [BASEAPI]
 	* Binds the Buffer Object and update it's state in OpenGL.
 	*
 	* Return false if no Target is specified (EMPTY_BUFFER_OBJECT).
@@ -61,6 +65,7 @@ struct BufferObject {
 	bool Bind();
 
 	/**
+	* [BASEAPI]
 	* Unbinds the Buffer object and reset OpenGL's state for the specified target.
 	*
 	* Return false if no Target is specified (EMPTY_BUFFER_OBJECT).
@@ -68,6 +73,7 @@ struct BufferObject {
 	bool UnBind();
 
 	/**
+	* [BASEAPI]
 	* Resets the values of this buffer object.
 	* Note, this does not delete the buffer object from OpenGL. Be sure to keep track of the Id.
 	*/
@@ -76,6 +82,7 @@ struct BufferObject {
 
 
 /**
+* [BASEAPI]
 * VtxArrObject data structure.
 *
 * Low level API functionality.
@@ -100,26 +107,31 @@ struct VertArrayObj {
 	operator uint32();
 
 	/**
+	* [BASEAPI]
 	* Creates a new Vertex Array Object (VAO).
 	*/
 	bool Alloc();
 
 	/**
+	* [BASEAPI]
 	* Deletes this Vertex Array Object (VAO) and remove it from OpenGL.
 	*/
 	bool Delete();
 
 	/**
+	* [BASEAPI]
 	* Bind's this Vertex Array Object (VAO) and update OpenGL's state.
 	*/
 	bool Bind();
 
 	/**
+	* [BASEAPI]
 	* Unbinds the Vertex Array Object from OpenGL.
 	*/
 	void UnBind();
 
 	/**
+	* [BASEAPI]
 	* Resets the value of this vertex array object.
 	* Note, this does not delete the vertex array object from OpenGL. Be sure to keep track of the Id.
 	*/
@@ -128,6 +140,7 @@ struct VertArrayObj {
 
 
 /**
+* [BASEAPI]
 * Mesh Vertex Attribute Pointers.
 *
 * Freedom is given to assign the index to any data in the mesh.
@@ -188,10 +201,11 @@ public:
 
 
 /**
+* [BASEAPI]
 * TextureID data structure.
 *
 * Low level API functionality.
-* Texture id for OpenGL.
+* Texture ID for OpenGL.
 */
 struct TextureID {
 
@@ -210,26 +224,31 @@ struct TextureID {
 	operator uint32();
 
 	/**
+	* [BASEAPI]
 	* Creates a new Texture.
 	*/
 	bool	Alloc(uint32 Target);
 
 	/**
+	* [BASEAPI]
 	* Deletes this Texture and removes it from OpenGL.
 	*/
 	bool	Delete();
 
 	/**
+	* [BASEAPI]
 	* Binds this Texture and updates OpenGL's state.
 	*/
 	bool	Bind();
 
 	/**
+	* [BASEAPI]
 	* Unbinds the Texture from OpenGL.
 	*/
 	bool	UnBind();
 
 	/**
+	* [BASEAPI]
 	* Resets the value of this Texture.
 	* Note, this does not delete the Texture from OpenGL. Be sure to keep track of the Id.
 	*/
@@ -237,51 +256,106 @@ struct TextureID {
 };
 
 
-//struct TextureCreationInfo;
-
-
 /**
+* [BASEAPI]
 * TextureBuildData data structure.
+* NOTE: It is important to know that the type of DataPtr will be dependent on it's Type (GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT & GL_UNSIGNED_INT).
 *
-* @param [REQUIRED] (void*)	DataPtr - Texture's data. The type of pointer assigned needs to be the same as the type specified in TextureCreationInfo's type parameter.
-* @param [REQUIRED] (TextureCreationInfo) TextureInfo - Texture's build information.
+* IMPORTANT: When copying from another TextureBuildData object, always ensure that DataPtr is freed IF it is allocated dynamically.
+* TextureBuildData does not perform a deep copy as it was never intended to be assigned from another instance of this object.
+*
+* @param [REQUIRED] (void*)							DataPtr - Texture's data. The type of pointer assigned needs to be the same as the type specified in TextureCreationInfo's type parameter.
+* @param [REQUIRED] (bool)			Default = 1;	Mipmap	- Generate mipmaps for OpenGL texture.
+* @param [OPTIONAL] (bool)			Default = 0;	Cubemap - Setting this to true would make the texture into a cubemap texture.
+* @param [OPTIONAL] (bool)			Default = 1;	Flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
+* @param [OPTIONAL] (int)			Default = 0;	Width	- Texture's width. Use only when creating an empty texture.
+* @param [OPTIONAL] (int)			Default = 0;	Height	- Texture's height. Use only when creating an empty texture.
+* @param [REQUIRED] (uint)			Default = 0;	Target	- Texture's target. E.g: GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP.
+* @param [REQUIRED] (uint)			Default = 0;	Type	- Data type of the pixel. E.g: GL_UNSIGNED_BYTE, GL_UNSIGNED_INT.
+* @param [OPTIONAL] (uint)			Default = 0;	Format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
+* @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
 */
-//struct TextureBuildData {
-//
-//	void				*DataPtr;
-//	TextureCreationInfo TextureInfo;
-//
-//	TextureBuildData();
-//
-//	TextureBuildData(const TextureBuildData &Rhs);
-//	TextureBuildData(TextureBuildData &&Rhs);
-//
-//	TextureBuildData& operator= (const TextureBuildData &Rhs);
-//	TextureBuildData& operator= (TextureBuildData &&Rhs);
-//
-//	~TextureBuildData();
-//};
+struct TextureBuildData {
+private:
+
+	using Params= Pair<uint32, uint32>;
+
+public:
+
+	void			*DataPtr;
+	bool			Mipmap;
+	bool			Cubemap;
+	bool			Flip;
+	int32			Width;
+	int32			Height;
+	uint32			Target;
+	uint32			Type;
+	uint32			Format;
+	Array<Params>	Parameters;
+
+	TextureBuildData();
+
+	TextureBuildData(const TextureBuildData &Rhs);
+	TextureBuildData(TextureBuildData &&Rhs);
+
+	TextureBuildData& operator= (const TextureBuildData &Rhs);
+	TextureBuildData& operator= (TextureBuildData &&Rhs);
+
+	~TextureBuildData();
+};
 
 
-/**
-* An OpenGL wrapper to create a mesh.
-*/
-void OpenWrapBuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data);
+namespace BaseAPI {
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to create a mesh.
+	*/
+	void BuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data);
 
 
-/**
-* An OpenGL wrapper to delete a mesh.
-*/
-void OpenWrapDeleteMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO);
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to delete a mesh.
+	*/
+	void DeleteMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO);
 
 
-/**
-* An OpenGL wrapper to create a texture.
-*/
-//void OpenWrapBuildTexture(TextureID &Texture, void *Data, TextureCreationInfo &Info);
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to create a texture.
+	*/
+	void BuildTexture(TextureID &ID, TextureBuildData &Data);
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to set generic texture building data.
+	*
+	* TextureBuildData.Target		= GL_TEXTURE_2D;
+	* TextureBuildData.Type			= GL_UNSIGNED_BYTE;
+	* TextureBuildData.Format		= GL_RGB;
+	* TextureBuildData.Parameters[0] = {GL_TEXTURE_WRAP_S, GL_REPEAT}
+	* TextureBuildData.Parameters[1] = {GL_TEXTURE_WRAP_T, GL_REPEAT}
+	* TextureBuildData.Parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
+	* TextureBuildData.Parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+	*/
+	void GenerateGenericTextureData(TextureBuildData &Data);
 
 
-/**
-* An OpenGL wrapper to delete a texture.
-*/
-//void OpenWrapDeleteTexture(TextureID &Texture);
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to delete a texture.
+	*/
+	void DeleteTexture(TextureID &ID);
+
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to create a cubemap.
+	*/
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to delete a cubemap.
+	*/
+}

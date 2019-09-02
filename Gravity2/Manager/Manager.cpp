@@ -21,6 +21,8 @@ void TextureData::Alloc(const TextureCreationInfo &Info) {
 	file		= Info.files[0];
 	directory	= Info.directory;
 	texture		= new Texture();
+	
+	texture->type = Info.type;
 }
 
 
@@ -172,99 +174,6 @@ void SceneryData::Free() {
 uint ResourceManager::GenerateResourceID() {
 	static uint lastID = 0;
 	return lastID++;
-}
-
-
-void ResourceManager::ProcessNode(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info) {
-	aiMesh	*assimpMesh = nullptr;
-	
-
-	for (uint i = 0; i < AiScene->mNumMeshes; i++) {
-		 assimpMesh = AiScene->mMeshes[i];
-
-		 BuildMesh(Scene, assimpMesh, AiScene);
-	}
-
-	//for (uint i = 0; i < AiNode->mNumChildren; i++)
-	//	ProcessNode(Scene, AiNode->mChildren[i], AiScene, Info);
-}
-
-
-Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *AiScene) {
-	String msg;
-
-	msg.SetString("Creating a new mesh into the scene.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-	Mesh *mesh = &Scene->meshes.Insert(Mesh());
-	
-	msg.SetString("Parsing mesh data from Assimp into scene.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	mesh->positions.Reserve(AiMesh->mNumVertices, false);
-	mesh->normals.Reserve(AiMesh->mNumVertices, false);
-
-	if (AiMesh->mNumUVComponents) {
-		mesh->uv.Reserve(AiMesh->mNumVertices, false);
-		mesh->tangents.Reserve(AiMesh->mNumVertices, false);
-		mesh->bitangents.Reserve(AiMesh->mNumVertices, false);
-	}
-
-	mesh->indices.Reserve((size_t)(AiMesh->mNumFaces * 3));
-
-	glm::vec3 vector;
-	glm::vec2 uv;
-
-	for (uint i = 0; i < AiMesh->mNumVertices; i++) {
-		vector.x = AiMesh->mVertices[i].x;
-		vector.y = AiMesh->mVertices[i].y;
-		vector.z = AiMesh->mVertices[i].z;
-
-		mesh->positions.Push(vector);
-
-		if (AiMesh->mNormals) {
-			vector.x = AiMesh->mNormals[i].x;
-			vector.y = AiMesh->mNormals[i].y;
-			vector.z = AiMesh->mNormals[i].z;
-
-			mesh->normals.Push(vector);
-		}
-
-		if (AiMesh->mTextureCoords[0]) {
-			uv.x = AiMesh->mTextureCoords[0][i].x;
-			uv.y = AiMesh->mTextureCoords[0][i].y;
-
-			mesh->uv.Push(uv);
-		}
-
-		if (AiMesh->mTangents) {
-			vector.x = AiMesh->mTangents[i].x;
-			vector.y = AiMesh->mTangents[i].y;
-			vector.z = AiMesh->mTangents[i].z;
-
-			mesh->tangents.Push(vector);
-
-			vector.x = AiMesh->mBitangents[i].x;
-			vector.y = AiMesh->mBitangents[i].y;
-			vector.z = AiMesh->mBitangents[i].z;
-
-			mesh->bitangents.Push(vector);
-		}
-	}
-	
-	for (uint i = 0; i < AiMesh->mNumFaces; i++) {
-		aiFace assimpFace = AiMesh->mFaces[i];
-
-		for (uint j = 0; j < assimpFace.mNumIndices; j++)
-			mesh->indices.Push(assimpFace.mIndices[j]);
-	}
-
-	msg.SetString("Building mesh into Gravity.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	msg.SetString("Build complete!");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	return mesh;
 }
 
 
@@ -435,18 +344,13 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 	data->id = GenerateID<Texture>();
 	data->texture->info = data;
 
-	//db->texture = new Texture();
-	if (!data->texture->Alloc(Info)) {
-		msg.SetString("Unable to allocate new texture. Exiting operation");
-		Logger::Log(LOG_ERR, LOG_TEXTURE, msg);
-		//delete db->texture;
-		delete data;
-		textures[idx] = nullptr;
+	msg.Write("Building [%s] ... ", ~Info.name);
+	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
 
-		textures.PopAt(idx);
+	String path;
+	path.Write("%s/%s", Info.directory.c_str(), Info.files[0].c_str());
 
-		return nullptr;
-	}
+	Middleware::ParseTextureFromFile(path, data->texture);
 
 	return data->texture;
 }

@@ -56,11 +56,12 @@ struct TextureCreationInfo;
 * A TexturePacket is required to bridge the gap between the high-level abstraction API with the low-level API.
 * Low-level API can only process texture data that is contained inside of this data structure.
 */
-/*struct TexturePacket {
+struct TexturePacket {
 	Texture				*TexturePtr;
+	TextureBuildData	BuildData;
 
 	TexturePacket();
-	TexturePacket(Texture *Resource, void *Data, TextureCreationInfo Info);
+	TexturePacket(Texture *Resource, TextureBuildData Data);
 
 	TexturePacket(const TexturePacket &Rhs);
 	TexturePacket(TexturePacket &&Rhs);
@@ -69,7 +70,7 @@ struct TextureCreationInfo;
 	TexturePacket& operator= (TexturePacket &&Rhs);
 
 	~TexturePacket();
-}*/;
+};
 
 
 /**
@@ -83,7 +84,7 @@ class ResourceBuildQueue {
 private:
 
 	std::deque<MeshPacket>		MeshQueue;
-	//std::deque<TexturePacket>	TextureQueue;
+	std::deque<TexturePacket>	TextureQueue;
 
 public:
 
@@ -101,7 +102,7 @@ public:
 	* [MIDDLEWARE]
 	* Adds a texture to be built by OpenGL.
 	*/
-	//void AddTextureForBuild(Texture *Texture, );
+	void AddTextureForBuild(Texture *Texture, TextureBuildData Data);
 
 
 	/**
@@ -120,24 +121,31 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* This sets the global ResourceBuildQueue variable to an instance of it.
 	*/
-	void				SetBuildQueue		(ResourceBuildQueue *BuildQueue);
+	void				SetBuildQueue			(ResourceBuildQueue *BuildQueue);
 
 	/**
 	* [MIDDLEWARE]
 	* Simply returns the global ResourceBuildQueue variable.
 	*/
-	ResourceBuildQueue* GetBuildQueue		();
+	ResourceBuildQueue* GetBuildQueue			();
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API for processing data loading by Assimp and being passed into the engine.
 	*/
-	void				ParseMeshFromAssimp	(const String Path, bool FlipUV, Scene *Scene);
+	void				ParseMeshFromAssimp		(const String Path, bool FlipUV, Scene *Scene);
 
 	/**
 	* [MIDDLEWARE]
 	* Packages the mesh to and sends it to the ResourceBuildQueue.
 	* If mesh set up requires more manual intervention, e.g: manually setting up the vertex attribute pointers, call AddMeshForBuild from ResourceBuildQueue.
 	*/
-	void				PackageMeshForBuild	(Mesh *MeshSrc);
+	void				PackageMeshForBuild		(Mesh *MeshSrc);
+
+
+	/**
+	* [MIDDLEWARE]
+	* A mid level API to load textures from file into engine.
+	*/
+	void				ParseTextureFromFile	(const String Path, Texture *Texture);
 }

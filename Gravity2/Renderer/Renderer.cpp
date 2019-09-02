@@ -138,7 +138,7 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 			// 2. Update texture sample units.
 			for (Texture *texture : node.material->textures) {
 				glActiveTexture(GL_TEXTURE0 + texture->type);
-				glBindTexture(texture->target, texture->id);
+				glBindTexture(texture->id.Target, texture->id);
 			}
 			glActiveTexture(GL_TEXTURE0);
 		}
