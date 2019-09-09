@@ -272,7 +272,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
 	for (SceneInstance *instance : Level->renderInstances) {
-		command.scene			= instance->scene;
+		//command.scene			= instance->scene;
 		command.shader			= instance->shader;
 		command.renderSetting	= instance->renderState;
 
