@@ -78,8 +78,8 @@ public:
 	~Mesh();
 
 	void	Free();
-	void	CalculateTangentAndBitangent();
-	void	CalculateNormals();
+	//void	CalculateTangentAndBitangent();
+	//void	CalculateNormals();
 };
 
 
@@ -94,15 +94,11 @@ class SceneInstance;
 /**
 * Gravity scene data structure.
 * A Scene contains all required data for rendering.
-* 
-* NOTE(Afiq): 
-* There is more to this. This will be expanded upon later.
 */
 class Scene {
 private:
 
 	using MeshArr	= Array<Mesh>;
-	using ModelArr	= Array<glm::mat4>;
 	using Instances = Array<SceneInstance>;
 
 public:

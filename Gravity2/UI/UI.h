@@ -12,9 +12,10 @@ class GravityApp;
 * WindowIOFlags enum.
 */
 enum WindowIOFlags : uint {
-	WINDOW_ON_SUBMIT = 0x00,
-	WINDOW_ON_CANCEL = 0x01,
-	WINDOW_EVENT_MAX = 0x02
+	WINDOW_ON_SUBMIT	= 0x00,
+	WINDOW_ON_RGTCLK	= 0x01,
+	WINDOW_ON_LFTCLK	= 0x02,
+	WINDOW_EVENT_MAX
 };
 
 
@@ -100,13 +101,45 @@ public:
 DeclNewWindow(MenuBar)
 DeclNewWindow(NewProject)
 DeclNewWindow(CreateObject)
-DeclNewWindow(ProjectExplorer)
 DeclNewWindow(NewScene)
 DeclNewWindow(NewTexture)
 DeclNewWindow(NewShader)
-//DeclNewWindow(NewMaterial)
+DeclNewWindow(NewMaterial)
 DeclNewWindow(NewScenery)
-//DeclNewWindow(AppStats)
+DeclNewWindow(NewSceneInstance)
+
+
+class WindowProjectExplorerTemplate : public GravityWindow {
+private:
+
+	enum ExplorerActions : uint {
+		EXPLORER_ACTION_NONE			= 0x00,
+		EXPLORER_SCENE_CONTEXT_MENU		= 0x01,
+		EXPLORER_MATERIAL_CONTEXT_MENU	= 0x02,
+		EXPLORER_NEW_SCENEISNT_WINDOW	= 0x03
+	};
+
+	SceneData		*hoveredScene	= nullptr;
+	MaterialData	*hoveredMat		= nullptr;
+	ExplorerActions action			= EXPLORER_ACTION_NONE;
+
+	void	ShowSceneList			();
+	void	SceneListContextMenu	();
+	void	MaterialListContextMenu	();
+	void	ShowTextureList			();
+	void	ShowShaderList			();
+	void	ShowMaterialList		();
+	void	ShowSceneryList			();
+
+public:
+	using GravityWindow::GravityWindow;
+	void Draw();
+	void Events();
+};
+
+
+
+
 
 /**
 * ImGui support functions.

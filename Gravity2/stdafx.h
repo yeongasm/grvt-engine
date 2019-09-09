@@ -96,7 +96,7 @@
 #include "IO/IO.h"
 
 #include "UI/UI.h"
-#include "UI/WndFuncs/ProjectExplorerFuncs.h"
+#include "UI/WindowFunctions.h"
 #include "UI/UIHandler.h"
 
 #include "Application/Statistics.h"

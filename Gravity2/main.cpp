@@ -6,22 +6,15 @@ PointLight	*pointLight = nullptr;
 void LightWindowTest(const GravityApp *App) {
 	bool open = true;
 	ImGui::Begin("Manipulate light", &open);
-	ImGui::SliderFloat("X", &pointLight->position.x, -500.0f, 500.0f);
-	ImGui::SliderFloat("Y", &pointLight->position.y, -500.0f, 500.0f);
-	ImGui::SliderFloat("Z", &pointLight->position.z, -500.0f, 500.0f);
+	ImGui::SliderFloat("X", &pointLight->position.x, -50.0f, 50.0f);
+	ImGui::SliderFloat("Y", &pointLight->position.y, -50.0f, 50.0f);
+	ImGui::SliderFloat("Z", &pointLight->position.z, -50.0f, 50.0f);
 	ImGui::SliderFloat("Brightness", &pointLight->brightness, 0.0f, 1.0f);
 	ImGui::SliderFloat("Radius", &pointLight->radius, 0.0f, 100.0f);
 	ImGui::End();
 }
 
 
-/**
-* TODO(Afiq):
-* Loggged on 18.07.2019
-*
-* Before the week ends, we'll need to find a suitable method to render multiple lights into the scene.
-* Start figuring on a method for point lights. (Find a way to implement using Uniform Buffer Object).
-*/
 int main() {
 
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 1366, 768, 4, 5);
@@ -50,12 +43,6 @@ int main() {
 	Shader		*diffuse	= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
-	
-	String path = RootDir("Data/Models/witch/source/03.obj");
-	String testing;
-	String dirTest;
-
-	GetFileNameFromPath(path, testing, dirTest);
 
 	{
 		SceneCreationInfo info;
@@ -65,13 +52,6 @@ int main() {
 		info.type		= SCENE_TYPE_CUSTOM; 
 
 		witch = manager->NewScene(info);
-
-		//info.name		= "Base Cube";
-		//info.directory	= RootDir("Assets/Primitives/Obj/");
-		//info.file		= "cube.obj";
-		//info.type		= SCENE_TYPE_BASIC_CUBE;
-
-		//cube = manager->NewScene(info);
 	}
 
 	{
@@ -91,17 +71,15 @@ int main() {
 
 	{
 		TextureCreationInfo info;
-		GenerateGenericTextureInfo(info);
 		info.name			= "Witch_body_albedo";
 		info.directory		= RootDir("Data/Models/witch/source/");
 		info.files.Push("body.jpg");
-		info.format			= 0;
-		info.textureType	= TEXTURE_TYPE_ALBEDO;
+		info.type			= TEXTURE_TYPE_ALBEDO;
 
 		Texture *body = manager->NewTexture(info);
 
-		info.name			= "Witch_obj_albedo";
 		info.files.Release();
+		info.name			= "Witch_obj_albedo";
 		info.files.Push("ob.jpg");
 
 		Texture *object		= manager->NewTexture(info);

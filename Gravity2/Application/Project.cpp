@@ -80,7 +80,7 @@ GravityProject& GravityProject::operator= (GravityProject &&Other) {
 
 	return *this;
 }
-
+  
 
 GravityProject::~GravityProject() { Release(); }
 

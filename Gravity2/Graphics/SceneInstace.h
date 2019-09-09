@@ -123,13 +123,13 @@ private:
 	glm::vec3		scale;
 	glm::vec3		rotation;
 	Scene			*scene;
-	Shader			*shader;
 	Array<MeshNode> nodes;
 
 	friend class Renderer;
 public:
 	bool			instanced;
 	uint			id;
+	Shader			*shader;
 	RenderState		renderState;
 
 	SceneInstance();
@@ -157,7 +157,6 @@ public:
 	glm::vec3&	GetScale	();
 	glm::vec3&	GetRotation	();
 
-	Shader*		GetShader	();
 	Scene*		GetScene	();
 
 	MeshNode*	GetNode		(size_t Index);

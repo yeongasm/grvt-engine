@@ -40,6 +40,7 @@ MeshNode::~MeshNode() { Free(); }
 
 void MeshNode::PushMaterial(Material *Material) {
 	material = Material;
+	Material->info->references.Push(&material);
 }
 
 
@@ -214,6 +215,7 @@ bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 	position	= Info.position;
 	scale		= Info.scale;
 	
+	Info.shader->info->references.Push(&shader);
 	nodes.Reserve(Scene->meshes.Length());
 
 	MeshNode *node = nullptr;
@@ -223,7 +225,7 @@ bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 		node->PushMesh(&mesh);
 	}
 
-	nodes.ShrinkToFit();
+	//nodes.ShrinkToFit();
 
 	return true;
 }
@@ -307,11 +309,6 @@ glm::vec3& SceneInstance::GetScale() {
 
 glm::vec3& SceneInstance::GetRotation() {
 	return rotation;
-}
-
-
-Shader* SceneInstance::GetShader() {
-	return shader;
 }
 
 

@@ -138,7 +138,7 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 			// 2. Update texture sample units.
 			for (Texture *texture : node.material->textures) {
 				glActiveTexture(GL_TEXTURE0 + texture->type);
-				glBindTexture(texture->target, texture->id);
+				glBindTexture(texture->id.Target, texture->id);
 			}
 			glActiveTexture(GL_TEXTURE0);
 		}
@@ -272,7 +272,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
 	for (SceneInstance *instance : Level->renderInstances) {
-		command.scene			= instance->scene;
+		//command.scene			= instance->scene;
 		command.shader			= instance->shader;
 		command.renderSetting	= instance->renderState;
 

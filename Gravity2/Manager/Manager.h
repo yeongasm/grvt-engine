@@ -2,11 +2,18 @@
 
 
 struct TextureData {
+private:
+
+	using References = Array<Texture**>;
+
+public:
+
 	uint		id;
 	String		name;
 	String		file;
 	String		directory;
 	Texture		*texture;
+	References	references;
 
 	TextureData();
 	TextureData(const TextureCreationInfo &Info);
@@ -24,13 +31,20 @@ struct TextureData {
 
 
 struct ShaderData {
-	uint	id;
-	String	name;
-	String	vertexFile;
-	String	fragmentFile;
-	String	geometryFile;
-	String	directory;
-	Shader	*shader;
+private:
+
+	using References = Array<Shader**>;
+
+public:
+
+	uint		id;
+	String		name;
+	String		vertexFile;
+	String		fragmentFile;
+	String		geometryFile;
+	String		directory;
+	Shader		*shader;
+	References	references;
 
 	ShaderData();
 	ShaderData(const ShaderCreationInfo &Info);
@@ -70,9 +84,16 @@ struct SceneData {
 
 
 struct MaterialData {
+private:
+
+	using References = Array<Material**>;
+
+public:
+
 	uint		id;
 	String		name;
 	Material	*material;
+	References	references;
 
 	MaterialData();
 	MaterialData(const MaterialData &Data)				= delete;
@@ -116,6 +137,10 @@ struct SceneryData {
 * TODO(Afiq):
 * Separate resource loading from OpenGL calls.
 * Doing this would enable us to parse data into the engine in a separate thread.
+*
+* One thing we did not take into account when making the delete functions was to make it suitable for real time.
+* We have to find all levels that refer to that object and remove it from that level.
+* Needs to be restructured so that each material store a reference count to who ever is using it.
 */
 class ResourceManager {
 public:
@@ -164,9 +189,6 @@ private:
 		return id++;
 	}
 
-	void		ProcessNode			(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info);
-	Mesh*		BuildMesh			(Scene *Scene, aiMesh *AiMesh, const aiScene *AiScene);
-
 public:
 
 	Scene*		NewScene			(const SceneCreationInfo &Info);
@@ -180,8 +202,6 @@ public:
 	Texture*	GetTexture			(const String &Name);
 	Material*	GetMaterial			(const String &Name);
 	Scenery*	GetLevel			(const String &Name);
-
-
 
 	bool		DeleteScene			(const String &Name);
 	bool		DeleteShader		(const String &Name);

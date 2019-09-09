@@ -131,7 +131,7 @@ void ImGuiCustomColumnPairToolTip(Pair<const char*, const char*> *Params, size_t
 		ImGui::EndTooltip();
 		ImGui::PopStyleColor();
 	}
-	ImGui::NewLine();
+	//ImGui::NewLine();
 }
 
 

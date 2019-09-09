@@ -5,8 +5,7 @@
 * RenderCommand data structure.
 *
 * RenderCommands are objects that are pushed into the renderer for every frame.
-* Scenes that are pushed into the renderer are stored as a RenderCommand object.
-* Contains all necessary details for rendering.
+* Only contain low level information required for rendering.
 */
 struct RenderCommand {
 private:
@@ -15,7 +14,6 @@ private:
 
 public:
 
-	Scene				*scene;
 	Shader				*shader;
 	RenderState			renderSetting;
 	Array<Node>			nodes;

@@ -8,11 +8,11 @@
 
 
 TextureData::TextureData() : id{}, name{}, file{},
-	directory{}, texture{} {}
+	directory{}, texture{}, references{} {}
 
 
-TextureData::TextureData(const TextureCreationInfo &Info) : id(0), name(Info.name),
-	file(Info.files[0]), directory(Info.directory), texture(new Texture()) {}
+TextureData::TextureData(const TextureCreationInfo &Info) : id(0), name(Info.name), file(Info.files[0]), 
+	directory(Info.directory), texture(new Texture()), references{} {}
 
 
 void TextureData::Alloc(const TextureCreationInfo &Info) {
@@ -21,17 +21,25 @@ void TextureData::Alloc(const TextureCreationInfo &Info) {
 	file		= Info.files[0];
 	directory	= Info.directory;
 	texture		= new Texture();
+	
+	texture->type = Info.type;
 }
 
 
 void TextureData::Free() {
-	if (texture)
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
+	if (texture) {
 		delete texture;
+		texture = nullptr;
+	}
 
 	id = 0;
 	name.Release();
 	file.Release();
 	directory.Release();
+	references.Length();
 }
 
 
@@ -39,11 +47,11 @@ TextureData::~TextureData() { Free(); }
 
 
 ShaderData::ShaderData() : id{}, name{}, vertexFile{}, fragmentFile{}, 
-	geometryFile{}, directory{}, shader{} {}
+	geometryFile{}, directory{}, shader{}, references{} {}
 
 
-ShaderData::ShaderData(const ShaderCreationInfo &Info) : id(0), name(Info.name), vertexFile(Info.vertexShader),
-	fragmentFile(Info.fragmentShader), geometryFile(Info.geometryShader), directory(Info.directory), shader(new Shader()) {}
+ShaderData::ShaderData(const ShaderCreationInfo &Info) : id(0), name(Info.name), vertexFile(Info.vertexShader), fragmentFile(Info.fragmentShader),
+	geometryFile(Info.geometryShader), directory(Info.directory), shader(new Shader()), references{} {}
 
 
 ShaderData::~ShaderData() { Free(); }
@@ -63,10 +71,21 @@ void ShaderData::Alloc(const ShaderCreationInfo &Info) {
 
 
 void ShaderData::Free() {
-	if (shader)
-		delete shader;
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
 
-	// new (this) ShaderData();
+	if (shader) {
+		delete shader;
+		shader = nullptr;
+	}
+
+	id = 0;
+	name.Release();
+	vertexFile.Release();
+	fragmentFile.Release();
+	geometryFile.Release();
+	directory.Release();
+	references.Release();
 }
 
 
@@ -99,7 +118,7 @@ void SceneData::Free() {
 }
 
 
-MaterialData::MaterialData() : id{}, name{}, material{} {}
+MaterialData::MaterialData() : id{}, name{}, material{}, references{} {}
 
 
 MaterialData::~MaterialData() { Free(); }
@@ -112,9 +131,16 @@ void MaterialData::Alloc(const MaterialCreationInfo &Info) {
 
 
 void MaterialData::Free() {
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
 	id = 0;
 	name.Release();
-	delete material;
+
+	if (material) {
+		delete material;
+		material = nullptr;
+	}
 }
 
 
@@ -148,99 +174,6 @@ void SceneryData::Free() {
 uint ResourceManager::GenerateResourceID() {
 	static uint lastID = 0;
 	return lastID++;
-}
-
-
-void ResourceManager::ProcessNode(Scene *Scene, aiNode *AiNode, const aiScene *AiScene, const SceneCreationInfo &Info) {
-	aiMesh	*assimpMesh = nullptr;
-	
-
-	for (uint i = 0; i < AiScene->mNumMeshes; i++) {
-		 assimpMesh = AiScene->mMeshes[i];
-
-		 BuildMesh(Scene, assimpMesh, AiScene);
-	}
-
-	//for (uint i = 0; i < AiNode->mNumChildren; i++)
-	//	ProcessNode(Scene, AiNode->mChildren[i], AiScene, Info);
-}
-
-
-Mesh* ResourceManager::BuildMesh(Scene *Scene, aiMesh *AiMesh, const aiScene *AiScene) {
-	String msg;
-
-	msg.SetString("Creating a new mesh into the scene.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-	Mesh *mesh = &Scene->meshes.Insert(Mesh());
-	
-	msg.SetString("Parsing mesh data from Assimp into scene.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	mesh->positions.Reserve(AiMesh->mNumVertices, false);
-	mesh->normals.Reserve(AiMesh->mNumVertices, false);
-
-	if (AiMesh->mNumUVComponents) {
-		mesh->uv.Reserve(AiMesh->mNumVertices, false);
-		mesh->tangents.Reserve(AiMesh->mNumVertices, false);
-		mesh->bitangents.Reserve(AiMesh->mNumVertices, false);
-	}
-
-	mesh->indices.Reserve((size_t)(AiMesh->mNumFaces * 3));
-
-	glm::vec3 vector;
-	glm::vec2 uv;
-
-	for (uint i = 0; i < AiMesh->mNumVertices; i++) {
-		vector.x = AiMesh->mVertices[i].x;
-		vector.y = AiMesh->mVertices[i].y;
-		vector.z = AiMesh->mVertices[i].z;
-
-		mesh->positions.Push(vector);
-
-		if (AiMesh->mNormals) {
-			vector.x = AiMesh->mNormals[i].x;
-			vector.y = AiMesh->mNormals[i].y;
-			vector.z = AiMesh->mNormals[i].z;
-
-			mesh->normals.Push(vector);
-		}
-
-		if (AiMesh->mTextureCoords[0]) {
-			uv.x = AiMesh->mTextureCoords[0][i].x;
-			uv.y = AiMesh->mTextureCoords[0][i].y;
-
-			mesh->uv.Push(uv);
-		}
-
-		if (AiMesh->mTangents) {
-			vector.x = AiMesh->mTangents[i].x;
-			vector.y = AiMesh->mTangents[i].y;
-			vector.z = AiMesh->mTangents[i].z;
-
-			mesh->tangents.Push(vector);
-
-			vector.x = AiMesh->mBitangents[i].x;
-			vector.y = AiMesh->mBitangents[i].y;
-			vector.z = AiMesh->mBitangents[i].z;
-
-			mesh->bitangents.Push(vector);
-		}
-	}
-	
-	for (uint i = 0; i < AiMesh->mNumFaces; i++) {
-		aiFace assimpFace = AiMesh->mFaces[i];
-
-		for (uint j = 0; j < assimpFace.mNumIndices; j++)
-			mesh->indices.Push(assimpFace.mIndices[j]);
-	}
-
-	msg.SetString("Building mesh into Gravity.");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	msg.SetString("Build complete!");
-	Logger::Log(LOG_INFO, LOG_SCENE, msg);
-
-	return mesh;
 }
 
 
@@ -411,18 +344,13 @@ Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
 	data->id = GenerateID<Texture>();
 	data->texture->info = data;
 
-	//db->texture = new Texture();
-	if (!data->texture->Alloc(Info)) {
-		msg.SetString("Unable to allocate new texture. Exiting operation");
-		Logger::Log(LOG_ERR, LOG_TEXTURE, msg);
-		//delete db->texture;
-		delete data;
-		textures[idx] = nullptr;
+	msg.Write("Building [%s] ... ", ~Info.name);
+	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
 
-		textures.PopAt(idx);
+	String path;
+	path.Write("%s/%s", Info.directory.c_str(), Info.files[0].c_str());
 
-		return nullptr;
-	}
+	Middleware::ParseTextureFromFile(path, data->texture);
 
 	return data->texture;
 }
@@ -643,6 +571,10 @@ bool ResourceManager::DeleteScene(const String &Name) {
 		return false;
 	}
 
+	// Remove all SceneInstance that refers to this Scene from all Levels.
+	for (SceneryData *data : levels)
+		data->level->PopAllInstanceWithScene(scenes[idx]->scene);
+
 	delete scenes[idx];
 	scenes.PopAt(idx);
 
@@ -674,6 +606,22 @@ bool ResourceManager::DeleteShader(const String &Name) {
 		return false;
 	}
 
+	//// Remove all reference to this Shader from SceneInstances.
+	//for (SceneData *data : scenes) {
+	//	for (SceneInstance &instance : data->scene->instances) {
+	//		if (instance.shader != shaders[idx]->shader)
+	//			continue;
+
+	//		instance.shader = nullptr;
+	//	}
+	//}
+
+	//// Remove all reference to this Shader from Materials.
+	//for (MaterialData *data : materials) {
+	//	data->material->shader = nullptr;
+	//	data->material->uniforms.clear();
+	//}
+
 	delete shaders[idx];
 	shaders.PopAt(idx);
 
@@ -704,6 +652,16 @@ bool ResourceManager::DeleteTexture(const String &Name) {
 		Logger::Log(LOG_ERR, LOG_SHADER, msg);
 		return false;
 	}
+
+	//// Remove all reference to this Texture from Materials.
+	//for (MaterialData *data : materials) {
+	//	for (size_t i = 0; i < data->material->textures.Length(); i++) {
+	//		if (textures[idx]->texture != data->material->textures[i])
+	//			continue;
+
+	//		data->material->textures[i] = nullptr;
+	//	}
+	//}
 	
 	delete textures[idx];
 	textures.PopAt(idx);
