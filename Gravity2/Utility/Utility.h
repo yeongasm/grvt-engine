@@ -31,6 +31,7 @@
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
+#define clamp(v, vmin, vmax)	(max(min(v, vmax), vmin))
 
 
 #define ArrayLen(Arr) ((int)(sizeof(Arr)/sizeof(*Arr)))

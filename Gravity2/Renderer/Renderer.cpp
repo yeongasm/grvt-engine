@@ -69,7 +69,9 @@ void Renderer::RenderFuncs::SetCullFace(GLenum Face) {
 	if (state.frontFace != Face) {
 		state.frontFace = Face;
 
-		glCullFace(state.frontFace);
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);
+		glCullFace(GL_BACK);
 	}
 }
 
@@ -111,20 +113,32 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 	glBindVertexArray(mesh->vao);
 
+	if (mesh->mode == GL_POINTS)
+		glPointSize(4);
+
 	if (mesh->ebo)
-		glDrawElements(GL_TRIANGLES, mesh->size, GL_UNSIGNED_INT, 0);
+		glDrawElements(mesh->mode, mesh->size, GL_UNSIGNED_INT, 0);
 	else
-		glDrawArrays(GL_TRIANGLES, 0, mesh->size);
-	
+		glDrawArrays(mesh->mode, 0, mesh->size);
+
+	if (mesh->mode == GL_POINTS) {
+		if (mesh->ebo)
+			glDrawElements(GL_LINES, mesh->size, GL_UNSIGNED_INT, 0);
+		else
+			glDrawArrays(GL_LINES, 0, mesh->size);
+	}
+
 	glBindVertexArray(0);
 }
 
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
-	activeShader->SetMatrix("model", Command->model);
 
 	for (RenderNode &node : Command->nodes) {
+		UseShader(node.material->shader);
+		activeShader->SetMatrix("model", Command->model);
+
 		// Update shader uniforms here and bind texture units to it's respective slots.
 		UniformAttr *pUniform = nullptr;
 
@@ -249,7 +263,7 @@ void Renderer::Render() {
 
 		settings.SetPolygonMode(state.polygonMode);
 
-		UseShader(command->shader);
+		/*UseShader(command->shader);*/
 
 		// Updating shader uniforms and texture units will be done in this function.
 		RenderPushedCommand(command);
@@ -273,7 +287,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
 	for (SceneInstance *instance : Level->renderInstances) {
 		command.scene			= instance->scene;
-		command.shader			= instance->shader;
+		//command.shader			= instance->shader;
 		command.renderSetting	= instance->renderState;
 
 		glm::mat4 &model = command.model;

@@ -10,6 +10,65 @@ void FloatingPinArray::Alloc(const int NewWidth, const int NewDepth) {
 }
 
 
+void FloatingPinArray::BuildSurface(const int Surface, const int Tile) {
+	typedef FloatingPin* (FloatingPinArray::*FindFunc)(FloatingPin &Pin, PinColumn &Column) const;
+	static FindFunc Find[2] = {&FloatingPinArray::FindUpperOverlap, &FloatingPinArray::FindLowerOverlap};
+
+	PinColumn &Col   = Block[Tile];
+	PinColumn &ColE  = Block[Tile + 1];
+	PinColumn &ColS  = Block[Tile + Width];
+	PinColumn &ColSE = Block[Tile + Width + 1];
+
+	for (FloatingPin &Pin : Col) {
+		FloatingPin *PinE  = (this->*Find[Surface])(Pin, ColE);
+		FloatingPin *PinS  = (this->*Find[Surface])(Pin, ColS);
+		FloatingPin *PinSE = (this->*Find[Surface])(Pin, ColSE);
+
+		if (PinE) {
+			if (PinSE) {
+				if (PinS) {
+					// All 4 overlap
+					float dltNWSE = fabs(Pin.Pos[Surface] - PinSE->Pos[Surface]);
+					float dltNESW = fabs(PinE->Pos[Surface] - PinS->Pos[Surface]);
+
+					if (dltNWSE < dltNESW) {
+						Model.indices.Push(Pin.Vert[Surface]);
+						Model.indices.Push(PinSE->Vert[Surface]);
+						Model.indices.Push(PinE->Vert[Surface]);
+
+						Model.indices.Push(Pin.Vert[Surface]);
+						Model.indices.Push(PinS->Vert[Surface]);
+						Model.indices.Push(PinSE->Vert[Surface]);
+					} else {
+						Model.indices.Push(Pin.Vert[Surface]);
+						Model.indices.Push(PinS->Vert[Surface]);
+						Model.indices.Push(PinE->Vert[Surface]);
+
+						Model.indices.Push(PinS->Vert[Surface]);
+						Model.indices.Push(PinSE->Vert[Surface]);
+						Model.indices.Push(PinE->Vert[Surface]);
+					}
+				} else {
+					// E/SE overlap
+					Model.indices.Push(Pin.Vert[Surface]);
+					Model.indices.Push(PinSE->Vert[Surface]);
+					Model.indices.Push(PinE->Vert[Surface]);
+				}
+			} else if (PinS) {
+				// E/S overlap
+				Model.indices.Push(Pin.Vert[Surface]);
+				Model.indices.Push(PinS->Vert[Surface]);
+				Model.indices.Push(PinE->Vert[Surface]);
+			}
+		} else if (PinS && PinSE) {
+			// S/SE overlap
+			Model.indices.Push(Pin.Vert[Surface]);
+			Model.indices.Push(PinS->Vert[Surface]);
+			Model.indices.Push(PinSE->Vert[Surface]);
+		}
+	}
+}
+
 void FloatingPinArray::Build(const float Spacing) {
 	Model.positions.Empty();
 	Model.indices.Empty();
@@ -21,72 +80,30 @@ void FloatingPinArray::Build(const float Spacing) {
 		for (int w = 0; w < Width; w++) {
 			pos.x = w * Spacing;
 
-			PinColumn &Col   = Block[d * Width + w];
+			const int tile = d * Width + w;
+			PinColumn &Col = Block[tile];
 
 			for (FloatingPin &Pin : Col) {
 				pos.y = Pin.Upper;
-
-				Pin.UpperVert = Model.positions.Length();
+				Pin.UpperVert = (int)Model.positions.Length();
 				Model.positions.Push(pos);
+
+				Lines.positions.Push(pos);
+				
+				pos.y = Pin.Lower;
+				Pin.LowerVert = (int)Model.positions.Length();
+				Model.positions.Push(pos);
+
+				Lines.positions.Push(pos);
 			}
 		}
 	}
 
 	for (int d = 0; d < Depth - 1; d++) {
 		for (int w = 0; w < Width - 1; w++) {
-			PinColumn &Col   = Block[d * Width + w];
-			PinColumn &ColE  = Block[d * Width + w + 1];
-			PinColumn &ColS  = Block[d * Width + w + Width];
-			PinColumn &ColSE = Block[d * Width + w + Width + 1];
-
-			for (FloatingPin &Pin : Col) {
-				FloatingPin *PinE  = FindUpperOverlap(Pin, ColE);
-				FloatingPin *PinS  = FindUpperOverlap(Pin, ColS);
-				FloatingPin *PinSE = FindUpperOverlap(Pin, ColSE);
-
-				if (PinE) {
-					if (PinSE) {
-						if (PinS) {
-							// All 4 overlap
-							float dltNWSE = fabs(Pin.Upper - PinSE->Upper);
-							float dltNESW = fabs(PinE->Upper - PinS->Upper);
-
-							if (dltNWSE < dltNESW) {
-								Model.indices.Push(Pin.UpperVert);
-								Model.indices.Push(PinSE->UpperVert);
-								Model.indices.Push(PinE->UpperVert);
-
-								Model.indices.Push(Pin.UpperVert);
-								Model.indices.Push(PinS->UpperVert);
-								Model.indices.Push(PinSE->UpperVert);
-							} else {
-								Model.indices.Push(Pin.UpperVert);
-								Model.indices.Push(PinS->UpperVert);
-								Model.indices.Push(PinE->UpperVert);
-
-								Model.indices.Push(PinS->UpperVert);
-								Model.indices.Push(PinSE->UpperVert);
-								Model.indices.Push(PinE->UpperVert);
-							}
-						} else {
-							// E/SE overlap
-							Model.indices.Push(Pin.UpperVert);
-							Model.indices.Push(PinSE->UpperVert);
-							Model.indices.Push(PinE->UpperVert);
-						}
-					} else if (PinS) {
-						// E/S overlap
-						Model.indices.Push(Pin.UpperVert);
-						Model.indices.Push(PinS->UpperVert);
-						Model.indices.Push(PinE->UpperVert);
-					}
-				} else if (PinS && PinSE) {
-					// S/SE overlap
-					Model.indices.Push(Pin.UpperVert);
-					Model.indices.Push(PinS->UpperVert);
-					Model.indices.Push(PinSE->UpperVert);
-				}
-			}
+			const int tile = d * Width + w;
+			BuildSurface(0, tile);
+			BuildSurface(1, tile);
 		}
 	}
 
@@ -94,8 +111,8 @@ void FloatingPinArray::Build(const float Spacing) {
 }
 
 
-FloatingPin* FloatingPinArray::FindUpperOverlap(FloatingPin &Pin, PinColumn &Column) {
-	for (int p = Column.Length() - 1; p >= 0; p--) {
+FloatingPin* FloatingPinArray::FindUpperOverlap(FloatingPin &Pin, PinColumn &Column) const {
+	for (int p = (int)Column.Length() - 1; p >= 0; p--) {
 		FloatingPin &PinB = Column[p];
 
 		if (PinB.Lower >= Pin.Lower && PinB.Lower <= Pin.Upper ||
@@ -107,11 +124,12 @@ FloatingPin* FloatingPinArray::FindUpperOverlap(FloatingPin &Pin, PinColumn &Col
 }
 
 
-FloatingPin* FloatingPinArray::FindLowerOverlap(FloatingPin &Pin, PinColumn &Column) {
+FloatingPin* FloatingPinArray::FindLowerOverlap(FloatingPin &Pin, PinColumn &Column) const {
 	for (int p = 0; p < Column.Length(); p++) {
 		FloatingPin &PinB = Column[p];
 
-		if (PinB.Upper <= Pin.Upper && PinB.Upper >= Pin.Lower)
+		if (PinB.Upper <= Pin.Upper && PinB.Upper >= Pin.Lower ||
+			PinB.Lower >= Pin.Lower && PinB.Lower <= Pin.Upper)
 			return &PinB;
 	}
 

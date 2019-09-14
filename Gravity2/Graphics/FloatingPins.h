@@ -2,11 +2,23 @@
 
 
 struct FloatingPin {
-	float	Upper;
-	float	Lower;
+	union {
+		struct {
+			float	Upper;
+			float	Lower;
+		};
 
-	int		UpperVert;
-	int		LowerVert;
+		float		Pos[2];
+	};
+
+	union {
+		struct {
+			int		UpperVert;
+			int		LowerVert;
+		};
+
+		int			Vert[2];
+	};
 
 	FloatingPin() = default;
 	
@@ -19,6 +31,9 @@ typedef Array<FloatingPin>	PinColumn;
 typedef Array<PinColumn>	PinBlock;
 
 class FloatingPinArray {
+protected:
+	void BuildSurface(const int Surface, const int Tile);
+
 public:
 	PinBlock	Block;
 	Mesh		Model;
@@ -26,9 +41,11 @@ public:
 	int			Width;
 	int			Depth;
 
+	Mesh		Lines;
+
 	void Alloc(const int NewWidth, const int NewDepth);
 	void Build(const float Spacing);
 
-	FloatingPin* FindUpperOverlap(FloatingPin &Pin, PinColumn &Column);
-	FloatingPin* FindLowerOverlap(FloatingPin &Pin, PinColumn &Column);
+	FloatingPin* FindUpperOverlap(FloatingPin &Pin, PinColumn &Column) const;
+	FloatingPin* FindLowerOverlap(FloatingPin &Pin, PinColumn &Column) const;
 };

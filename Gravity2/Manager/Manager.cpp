@@ -131,6 +131,8 @@ void MaterialData::Alloc(const MaterialCreationInfo &Info) {
 void MaterialData::Free() {
 	for (size_t i = 0; i < references.Length(); i++)
 		*references[i] = nullptr;
+	
+	references.Empty();
 
 	id = 0;
 	name.Release();

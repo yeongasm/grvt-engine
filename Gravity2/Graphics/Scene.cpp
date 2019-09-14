@@ -44,7 +44,7 @@ SceneCreationInfo::~SceneCreationInfo() {
 }
 
 
-Mesh::Mesh() : vao(), vbo(), ebo(), size() {}
+Mesh::Mesh() : vao(), vbo(), ebo(), size(), mode(GL_TRIANGLES) {}
 
 
 Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
@@ -64,6 +64,8 @@ Mesh& Mesh::operator= (Mesh &&Other) {
 		tangents	= Other.tangents;
 		bitangents	= Other.bitangents;
 		indices		= Other.indices;
+
+		mode		= Other.mode;
 
 		Other.Free();
 	}

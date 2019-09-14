@@ -129,7 +129,7 @@ private:
 public:
 	bool			instanced;
 	uint			id;
-	Shader			*shader;
+	//Shader			*shader;
 	RenderState		renderState;
 
 	SceneInstance();

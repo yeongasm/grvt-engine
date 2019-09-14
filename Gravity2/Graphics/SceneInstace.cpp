@@ -157,7 +157,7 @@ RenderState::~RenderState() {}
 
 
 SceneInstance::SceneInstance() : position(0.0f), scale(1.0f), rotation(0.0f),
-	scene{}, shader{}, nodes{}, instanced{}, id{}, renderState{} {}
+	scene{}, /*shader{},*/ nodes{}, instanced{}, id{}, renderState{} {}
 
 
 SceneInstance::SceneInstance(const SceneInstanceCreation &Info, Scene *Scene) { Alloc(Info, Scene); }
@@ -175,7 +175,7 @@ SceneInstance& SceneInstance::operator= (const SceneInstance &Other) {
 		scale		= Other.scale;
 		rotation	= Other.rotation;
 		scene		= Other.scene;
-		shader		= Other.shader;
+		//shader		= Other.shader;
 		nodes		= Other.nodes;
 		instanced	= Other.instanced;
 		id			= Other.id;
@@ -192,7 +192,7 @@ SceneInstance& SceneInstance::operator= (SceneInstance &&Other) {
 		scale		= Other.scale;
 		rotation	= Other.rotation;
 		scene		= Other.scene;
-		shader		= Other.shader;
+		//shader		= Other.shader;
 		nodes		= Other.nodes;
 		instanced	= Other.instanced;
 		id			= Other.id;
@@ -210,12 +210,12 @@ SceneInstance::~SceneInstance() { Free(); }
 
 bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 	scene		= Scene;
-	shader		= Info.shader;
+	//shader		= Info.shader;
 	rotation	= Info.rotation;
 	position	= Info.position;
 	scale		= Info.scale;
 	
-	Info.shader->info->references.Push(&shader);
+	//Info.shader->info->references.Push(&shader);
 	nodes.Reserve(Scene->meshes.Length());
 
 	MeshNode *node = nullptr;
@@ -236,7 +236,7 @@ void SceneInstance::Free() {
 	scale		= glm::vec3(1.0f);
 	rotation	= glm::vec3(0.0f);
 
-	shader = nullptr;
+	//shader = nullptr;
 	scene  = nullptr;
 
 	nodes.Release();

@@ -16,7 +16,7 @@ private:
 public:
 
 	Scene				*scene;
-	Shader				*shader;
+	//Shader				*shader;
 	RenderState			renderSetting;
 	Array<Node>			nodes;
 	Array<glm::mat4>	instances;

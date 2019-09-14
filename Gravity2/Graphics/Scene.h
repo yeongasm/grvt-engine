@@ -67,6 +67,8 @@ public:
 	Array<glm::vec3>	bitangents;
 	Array<uint>			indices;
 
+	uint				mode;
+
 	Mesh();
 
 	Mesh(const Mesh &Other)				= delete;

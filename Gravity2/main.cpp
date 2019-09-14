@@ -41,6 +41,7 @@ int main() {
 	Scene		*witch		= nullptr;
 	Scene		*cube		= nullptr;
 	Shader		*diffuse	= nullptr;
+	Shader		*colour		= nullptr;
 	Material	*material	= nullptr;
 	Scenery		*level		= nullptr;
 
@@ -64,11 +65,22 @@ int main() {
 		diffuse = manager->NewShader(info);
 	}
 
+	{
+		ShaderCreationInfo info;
+		info.name			= "Simple colour";
+		info.directory		= RootDir("Data/Shaders/");
+		info.vertexShader	= "basic_diffused.vs";
+		info.fragmentShader = "RawColour.fs";
+
+		colour = manager->NewShader(info);
+	}
+
 	SceneInstanceCreation info;
 	
 	info.shader = diffuse;
 	SceneInstance *witchInst = witch->CreateInstance(info);
 	Material *bodyMat = nullptr;
+	Material *objMat  = nullptr;
 
 	{
 		TextureCreationInfo info;
@@ -95,10 +107,11 @@ int main() {
 		bodyMat	= manager->NewMaterial(mat);
 
 		mat.name			= "Witch_obj_material";
+		mat.shader			= colour;
 		mat.textures.Release();
 		mat.textures.Push(object);
 
-		Material *objMat	= manager->NewMaterial(mat);
+		objMat = manager->NewMaterial(mat);
 		
 		//bodyMat->SetTexture("diffuseTexture", body);
 		//objMat->SetTexture("diffuseTexture", object);
@@ -107,17 +120,18 @@ int main() {
 		bodyMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
 		bodyMat->SetVector("material.specular", glm::vec3(0.5f, 0.5f, 0.5f ));
 		bodyMat->SetFloat("material.shininess", 32.0f);
+		objMat->SetVector("colour", glm::vec3(0.5f, 0.5f, 0.5f));
 
-		objMat->SetVector("material.ambient",	glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.diffuse",	glm::vec3(1.0f, 0.5f, 0.31f));
-		objMat->SetVector("material.specular",	glm::vec3(1.0f, 1.0f, 1.00f ));
-		objMat->SetFloat("material.shininess",	32.0f);
+		//objMat->SetVector("material.ambient",	glm::vec3(0.5f, 0.5f, 0.5f));
+		//objMat->SetVector("material.diffuse",	glm::vec3(0.5f, 0.5f, 0.5f));
+		//objMat->SetVector("material.specular",	glm::vec3(1.0f, 1.0f, 1.00f ));
+		//objMat->SetFloat("material.shininess",	32.0f);
 
-		witchInst->GetNode(0)->PushMaterial(bodyMat);
-		witchInst->GetNode(1)->PushMaterial(objMat);
-		witchInst->GetNode(2)->PushMaterial(objMat);
-		witchInst->GetNode(3)->PushMaterial(objMat);
-		witchInst->GetNode(4)->PushMaterial(objMat);
+		//witchInst->GetNode(0)->PushMaterial(bodyMat);
+		//witchInst->GetNode(1)->PushMaterial(objMat);
+		//witchInst->GetNode(2)->PushMaterial(objMat);
+		//witchInst->GetNode(3)->PushMaterial(objMat);
+		//witchInst->GetNode(4)->PushMaterial(objMat);
 
 	}
 
@@ -132,25 +146,33 @@ int main() {
 	fpa.Block[2].Push(FloatingPin(4, 0));
 	fpa.Block[5].Push(FloatingPin(4, 0));
 	fpa.Block[8].Push(FloatingPin(4, 2));
-	fpa.Block[7].Push(FloatingPin(7, 2));
+	fpa.Block[7].Push(FloatingPin(7, 5));
 	fpa.Block[3].Push(FloatingPin(10, 2));
 	fpa.Block[6].Push(FloatingPin(10, 2));
 	fpa.Build(10.0f);
 
 	SceneData *terrain = manager->scenes.Insert(new SceneData());
+	fpa.Lines.mode = GL_POINTS;
 	terrain->name = "Terrain";
 	terrain->directory = "Dummy dir";
 	terrain->file = "Dummy file";
 	terrain->scene = new Scene();
 	terrain->scene->meshes.Push(std::move(fpa.Model));
+	terrain->scene->meshes.Push(std::move(fpa.Lines));
 	terrain->scene->info = terrain;
 	terrain->scene->info->id = 10;
 	Middleware::PackageMeshForBuild(&terrain->scene->meshes[0]);
+	Middleware::PackageMeshForBuild(&terrain->scene->meshes[1]);
 
 	SceneInstance *terrainInstance = terrain->scene->CreateInstance(info);
+	//SceneInstance *terrainLines = terrain->scene->CreateInstance(info);
 	terrainInstance->GetNode(0)->PushMaterial(bodyMat);
+	terrainInstance->GetNode(1)->PushMaterial(objMat);
 	terrainInstance->renderState.DefaultModelRenderState();
-	//terrainInstance->renderState.polygonMode = GL_LINE;
+	terrainInstance->renderState.frontFace = GL_BACK;
+	//terrainLines->renderState.DefaultModelRenderState();
+	//terrainLines->GetNode(1)->PushMaterial(objMat);
+	//terrainLines->GetNode(2)->PushMaterial(objMat);
 
 	{
 		LevelCreationInfo info;
@@ -185,6 +207,7 @@ int main() {
 	level->AttachCamera(camera);
 	//level->PushSceneInstance(witchInst);
 	level->PushSceneInstance(terrainInstance);
+	//level->PushSceneInstance(terrainLines);
 
 	bool	showUI		= true;
 	float	deltaTime	= 0.0f;
