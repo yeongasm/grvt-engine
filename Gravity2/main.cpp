@@ -15,6 +15,11 @@ void LightWindowTest(const GravityApp *App) {
 }
 
 
+/**
+* But if you don't love your work, you can never be a professional - Chef Tatsuya Sekiguchi
+*/
+
+
 int main() {
 
 	GravityApp *app = NewApplication("Gravity Engine v2.0", 1366, 768, 4, 5);
@@ -159,7 +164,9 @@ int main() {
 
 	AppIO &io = app->io;
 
-	//witchInst->renderState.polygonMode = GL_LINE;
+	//witchInst->renderState.polygonMode	= GL_LINE;
+	witchInst->renderState.cullFace		= true;
+	witchInst->renderState.frontFace	= GL_FRONT;
 
 	while (!app->CloseAplication()) {
 		app->NewFrame();

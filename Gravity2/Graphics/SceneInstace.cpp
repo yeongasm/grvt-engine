@@ -156,8 +156,8 @@ void RenderState::DefaultModelRenderState() {
 RenderState::~RenderState() {}
 
 
-SceneInstance::SceneInstance() : position(0.0f), scale(1.0f), rotation(0.0f),
-	scene{}, shader{}, nodes{}, instanced{}, id{}, renderState{} {}
+SceneInstance::SceneInstance() : instanced(false), render(false), id(0), shader(nullptr), 
+	scene(nullptr), position(0.0f), scale(1.0f), rotation(0.0f), nodes(), renderState() {}
 
 
 SceneInstance::SceneInstance(const SceneInstanceCreation &Info, Scene *Scene) { Alloc(Info, Scene); }
@@ -171,14 +171,15 @@ SceneInstance::SceneInstance(SceneInstance &&Other) { *this = std::move(Other); 
 
 SceneInstance& SceneInstance::operator= (const SceneInstance &Other) {
 	if (this != &Other) {
+		instanced	= Other.instanced;
+		render		= Other.render;
+		id			= Other.id;
+		shader		= Other.shader;
+		scene		= Other.scene;
 		position	= Other.position;
 		scale		= Other.scale;
 		rotation	= Other.rotation;
-		scene		= Other.scene;
-		shader		= Other.shader;
 		nodes		= Other.nodes;
-		instanced	= Other.instanced;
-		id			= Other.id;
 		renderState = Other.renderState;
 	}
 
@@ -188,14 +189,15 @@ SceneInstance& SceneInstance::operator= (const SceneInstance &Other) {
 
 SceneInstance& SceneInstance::operator= (SceneInstance &&Other) {
 	if (this != &Other) {
+		instanced	= Other.instanced;
+		render		= Other.render;
+		id			= Other.id;
+		shader		= Other.shader;
+		scene		= Other.scene;
 		position	= Other.position;
 		scale		= Other.scale;
 		rotation	= Other.rotation;
-		scene		= Other.scene;
-		shader		= Other.shader;
 		nodes		= Other.nodes;
-		instanced	= Other.instanced;
-		id			= Other.id;
 		renderState = Other.renderState;
 
 		Other.Free();
@@ -224,8 +226,6 @@ bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 		node = &nodes.Insert(MeshNode());
 		node->PushMesh(&mesh);
 	}
-
-	//nodes.ShrinkToFit();
 
 	return true;
 }
@@ -326,8 +326,5 @@ MeshNode* SceneInstance::GetNode(size_t Index) {
 
 
 size_t SceneInstance::TotalNodes() {
-	// TODO(Afiq):
-	// A function for a single line of code ... Really? 
-	// Need to think of an alternative.
 	return nodes.Length();
 }

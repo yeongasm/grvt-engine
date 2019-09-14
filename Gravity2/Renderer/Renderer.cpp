@@ -265,14 +265,12 @@ void Renderer::Render() {
 void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Add a new buffer object into the buffer container.
-
 	RenderBuffer	*buffer = &renderBuffer;
 	RenderCommand	command;
 	RenderNode		rnode;
 
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
 	for (SceneInstance *instance : Level->renderInstances) {
-		//command.scene			= instance->scene;
 		command.shader			= instance->shader;
 		command.renderSetting	= instance->renderState;
 

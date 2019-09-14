@@ -81,7 +81,19 @@ public:
 
 	~Renderer();
 	 
+	/**
+	* Initialises the Renderer.
+	*/
 	void Init();
+
+	/**
+	* Render everything that is pushed into the RenderBuffer.
+	*/
 	void Render();
+
+	/**
+	* This function should only take whatever that is renderable in the level and adds it into the RenderBuffer.
+	* It should never check the validity of an object for render.
+	*/
 	void PreRenderLevel(Scenery *Level);
 };

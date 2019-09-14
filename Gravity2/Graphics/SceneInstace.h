@@ -113,23 +113,32 @@ struct RenderState {
 * This object simply represents an instance of a scene. By doing this, it allows us to create multiple instances of the scene object (Not to be confused with instances rendering).
 * Every resource loaded into the engine will always maintain it's native state (A texture is a texture, a shader is a shader and a model is a model).
 * We add a layer on top of the model's native state to allow more flexibility.
+* If any of the MeshNode in a SceneInstance has it's material removed, the SceneInstance will never be pushed into the renderer despite having the render flag set to true.
 *
 * TODO(Afiq):
-* MeshNodes need to be more easily accessible. Perhaps put them in public? The idea is to allow assigning materials as simple as dragging and dropping into the mesh.
+* MeshNodes need to be more easily accessible. Perhaps put them in public? 
+* The idea is to allow assigning materials as simple as dragging and dropping into the mesh.
 */
 class SceneInstance {
+public:
+
+	bool			instanced;
+	bool			render;
+	uint			id;
+	Shader			*shader;
+
 private:
+
+	Scene			*scene;
 	glm::vec3		position;
 	glm::vec3		scale;
 	glm::vec3		rotation;
-	Scene			*scene;
 	Array<MeshNode> nodes;
 
 	friend class Renderer;
+
 public:
-	bool			instanced;
-	uint			id;
-	Shader			*shader;
+
 	RenderState		renderState;
 
 	SceneInstance();

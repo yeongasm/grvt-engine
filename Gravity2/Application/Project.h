@@ -41,6 +41,7 @@ private:
 	void Release();
 
 	friend class GravityApp;
+
 public:
 
 	String			name;

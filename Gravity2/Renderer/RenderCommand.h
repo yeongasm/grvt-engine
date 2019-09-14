@@ -8,15 +8,11 @@
 * Only contain low level information required for rendering.
 */
 struct RenderCommand {
-private:
-
-	using Node = RenderNode;
-
 public:
 
 	Shader				*shader;
 	RenderState			renderSetting;
-	Array<Node>			nodes;
+	Array<RenderNode>	nodes;
 	Array<glm::mat4>	instances;
 	glm::mat4			model;
 	
