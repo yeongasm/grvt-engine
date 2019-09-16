@@ -2,7 +2,7 @@
 
 
 Renderer::RenderFuncs::RenderFuncs() : state{} {
-	state.frontFace = GL_CCW;
+	state.frontFace = GL_FRONT;
 	state.polygonMode = GL_FILL;
 }
 
@@ -69,7 +69,16 @@ void Renderer::RenderFuncs::SetCullFace(GLenum Face) {
 	if (state.frontFace != Face) {
 		state.frontFace = Face;
 
-		glCullFace(state.frontFace);
+		glFrontFace(state.frontFace);
+	}
+}
+
+
+void Renderer::RenderFuncs::SetCullDirection(GLenum Direction) {
+	if (state.cullDirection != Direction) {
+		state.cullDirection = Direction;
+
+		glCullFace(state.cullDirection);
 	}
 }
 
@@ -122,20 +131,23 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
-	activeShader->SetMatrix("model", Command->model);
 
 	for (RenderNode &node : Command->nodes) {
 		// Update shader uniforms here and bind texture units to it's respective slots.
 		UniformAttr *pUniform = nullptr;
 
 		if (node.material) {
-			// 1. Update shader uniform values.
+			// 1. Update the current shader when a material exists.
+			UseShader(node.material->shader);
+			activeShader->SetMatrix("model", Command->model);
+			
+			// 2. Update shader uniform values.
 			for (auto &pair : node.material->uniforms) {
 				pUniform = &pair.second;
 				activeShader->SetUniform(*pUniform);
 			}
 
-			// 2. Update texture sample units.
+			// 3. Update texture sample units.
 			for (Texture *texture : node.material->textures) {
 				glActiveTexture(GL_TEXTURE0 + texture->type);
 				glBindTexture(texture->id.Target, texture->id);
@@ -202,7 +214,8 @@ void Renderer::Render() {
 	// 1. Set the default values for the rendering states.
 	settings.SetBlend(false);
 	settings.SetCull(true);
-	settings.SetCullFace(GL_BACK);
+	settings.SetCullFace(GL_CCW);
+	settings.SetCullDirection(GL_BACK);
 	settings.SetDepthTest(true);
 	settings.SetDepthFunc(GL_LESS);
 
@@ -236,20 +249,20 @@ void Renderer::Render() {
 		// 2.1 Update rendering states per command. Currently being tested to see if it works.
 		settings.SetBlend(state.blending);
 		settings.SetCull(state.cullFace);
-		settings.SetDepthTest(state.cullFace);
+		settings.SetDepthTest(state.depthFunc);
 
 		if (settings.Blend())
 			settings.SetBlendFunc(state.blendSrc, state.blendDst);
 
-		if (settings.CullFace())
+		if (settings.CullFace()) {
 			settings.SetCullFace(state.frontFace);
+			settings.SetCullDirection(state.cullDirection);
+		}
 
 		if (settings.DepthTest())
 			settings.SetDepthFunc(state.depthFunc);
 
 		settings.SetPolygonMode(state.polygonMode);
-
-		UseShader(command->shader);
 
 		// Updating shader uniforms and texture units will be done in this function.
 		RenderPushedCommand(command);
@@ -271,7 +284,6 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
 	for (SceneInstance *instance : Level->renderInstances) {
-		command.shader			= instance->shader;
 		command.renderSetting	= instance->renderState;
 
 		glm::mat4 &model = command.model;

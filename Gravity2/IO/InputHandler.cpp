@@ -30,7 +30,7 @@ bool InputHandler::OnHold(float MinDuration, float *Buf) {
 
 		float now = (float)glfwGetTime();
 
-		duration = now - pressTime;
+		duration = min(now - pressTime, 1.0f);
 
 		if (duration >= MinDuration)
 			hold = true;

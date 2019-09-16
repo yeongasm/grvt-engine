@@ -16,6 +16,7 @@ private:
 
 	// TODO(Afiq): There should be a better solution than this.
 	friend class Renderer;
+
 public:
 
 	MeshNode();
@@ -47,13 +48,11 @@ public:
 * @param [OPTIONAL] (glm::vec3)		Default = glm::vec3(0.0f)	position	- Initial position of the scene instance.
 * @param [OPTIONAL] (glm::vec3)		Default = glm::vec3(1.0f)	scale		- Initial scale of the scene instance.
 * @param [OPTIONAL] (glm::vec3)		Default = glm::vec3(0.0f)	rotation	- Initial rotation of the scene instance.
-* @param [REQUIRED]	(Shader*)		Default = nullptr			shader		- The shader that the scene instance will rely on.
 */
 struct SceneInstanceCreation {
 	glm::vec3	position;
 	glm::vec3	scale;
 	glm::vec3	rotation;
-	Shader		*shader;
 
 	SceneInstanceCreation();
 	SceneInstanceCreation(const SceneInstanceCreation &Other);
@@ -79,6 +78,7 @@ struct RenderState {
 	GLenum blendSrc;
 	GLenum blendDst;
 	GLenum frontFace;
+	GLenum cullDirection;
 	GLenum polygonMode;
 
 	RenderState();
@@ -99,6 +99,7 @@ struct RenderState {
 	* @param blendSrc		= 0.
 	* @param blendDst		= 0.
 	* @param frontFace		= GL_CCW.
+	* @param cullDirection	= GL_BACK.
 	* @param polygonMode	= GL_FILL.
 	*/
 	void DefaultModelRenderState();
@@ -124,8 +125,6 @@ public:
 
 	bool			instanced;
 	bool			render;
-	uint			id;
-	Shader			*shader;
 
 private:
 

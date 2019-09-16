@@ -1,12 +1,23 @@
 #include "stdafx.h"
 
 
-AppIO::AppIO() :
-	mouseWheel(0.0f),
-	mouseWheelH(0.0f),
-	mousePos(0.0f, 0.0f),
-	keys{},
-	mouseButton{} {}
+AppIO::AppIO() : 
+	mouseWheel					(0.0f), 
+	mouseWheelH					(0.0f), 
+	minDurationForHold			(1.0f), 
+	mouseDoubleClickTime		(0.5f), 
+	mouseDoubleClickMaxDist		(5.0f),
+	keyDoubleTapTime			(0.5f), 
+	mouseState					{IO_INPUT_NONE}, 
+	keyState					{IO_INPUT_NONE}, 
+	clickTime					{0.0f}, 
+	keyPressTime				{0.0f}, 
+	mouseHoldDuration			{0.0f}, 
+	keyHoldDuration				{0.0f}, 
+	mouseClickPos				(0.0f, 0.0f), 
+	mousePos					(0.0f, 0.0f), 
+	keys						(), 
+	mouseButton					() {}
 
 
 AppIO::AppIO(const AppIO &Other) {
@@ -16,15 +27,29 @@ AppIO::AppIO(const AppIO &Other) {
 
 AppIO& AppIO::operator= (const AppIO &Other) {
 	if (this != &Other) {
-		mouseWheel	= Other.mouseWheel;
-		mouseWheelH = Other.mouseWheelH;
-		mousePos	= Other.mousePos;
+		mouseWheel				= Other.mouseWheel;
+		mouseWheelH				= Other.mouseWheelH;
+		minDurationForHold		= Other.minDurationForHold;
+		mouseDoubleClickTime	= Other.mouseDoubleClickTime;
+		mouseDoubleClickMaxDist = Other.mouseDoubleClickMaxDist;
+		keyDoubleTapTime		= Other.keyDoubleTapTime;
+		
+		mousePos				= Other.mousePos;
+		mouseClickPos			= Other.mouseClickPos;
 
-		for (uint i = 0; i < ArrayLen(keys); i++)
+		for (uint i = 0; i < MOUSE_BUTTON_MAX; i++) {
+			clickTime[i]		= Other.clickTime[i];
+			keyPressTime[i]		= Other.keyPressTime[i];
+			mouseState[i]		= Other.mouseState[i];
+			mouseButton[i]		= Other.mouseButton[i];
+			mouseHoldDuration[i] = Other.mouseHoldDuration[i];
+		}
+
+		for (uint i = 0; i < ArrayLen(keys); i++) {
 			keys[i] = Other.keys[i];
-
-		for (uint i = 0; i < ArrayLen(mouseButton); i++)
-			mouseButton[i] = Other.mouseButton[i];
+			keyState[i] = Other.keyState[i];
+			keyHoldDuration[i] = Other.keyHoldDuration[i];
+		}
 	}
 
 	return *this;
@@ -35,43 +60,54 @@ AppIO::~AppIO() {}
 
 
 bool AppIO::IsKeyPressed(int Key) {
-	return keys[Key].OnPress();
+	return keyState[Key] == IO_INPUT_PRESSED;
 }
 
 
 bool AppIO::IsKeyHeld(int Key) {
-	return keys[Key].OnHold();
+	return keyState[Key] == IO_INPUT_HELD;
+}
+
+
+bool AppIO::IsKeyDoubleTapped(int Key) {
+	return keyState[Key] == IO_INPUT_REPEAT;
 }
 
 
 bool AppIO::IsKeyReleased(int Key) {
-	return keys[Key].OnRelease();
+	return keyState[Key] == IO_INPUT_RELEASED;
 }
 
 
 bool AppIO::IsMouseClicked(uint Button) {
-	if (Button < 0 || Button > 5)
+	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	mouseClickPos = mousePos;
+	return mouseState[Button] == IO_INPUT_PRESSED;
+}
 
-	return mouseButton[Button].OnPress();
+
+bool AppIO::IsMouseDoubleClicked(uint Button) {
+	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
+		return false;
+
+	return mouseState[Button] == IO_INPUT_REPEAT;
 }
 
 
 bool AppIO::IsMouseHeld(uint Button) {
-	if (Button < 0 || Button > 5)
+	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	if (mouseButton[Button].OnPress())
-		mouseClickPos = mousePos;
-
-	return mouseButton[Button].OnHold();
+	return mouseState[Button] == IO_INPUT_HELD;
 }
 
 
 bool AppIO::IsMouseReleased(uint Button) {
-	return mouseButton[Button].OnRelease();
+	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
+		return false;
+
+	return mouseState[Button] == IO_INPUT_RELEASED;
 }
 
 

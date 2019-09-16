@@ -50,11 +50,12 @@ private:
 		void SetBlendFunc(GLenum Src, GLenum Dst);
 		void SetCull(bool Enable);
 		void SetCullFace(GLenum Face);
+		void SetCullDirection(GLenum Direction);
 		void SetPolygonMode(GLenum Mode);
 
-		bool Blend() const;
-		bool CullFace() const;
-		bool DepthTest() const;
+		bool Blend			() const;
+		bool CullFace		() const;
+		bool DepthTest		() const;
 	};
 
 	int				renderWidth;

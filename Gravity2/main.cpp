@@ -70,8 +70,6 @@ int main() {
 	}
 
 	SceneInstanceCreation info;
-	
-	info.shader = diffuse;
 	SceneInstance *witchInst = witch->CreateInstance(info);
 
 	{
@@ -163,10 +161,9 @@ int main() {
 	bool	enableVSync = app->VSyncStatus();
 
 	AppIO &io = app->io;
-
-	//witchInst->renderState.polygonMode	= GL_LINE;
-	witchInst->renderState.cullFace		= true;
-	witchInst->renderState.frontFace	= GL_FRONT;
+	
+	witchInst->renderState.cullFace	= true;
+	int clicknum = 0;
 
 	while (!app->CloseAplication()) {
 		app->NewFrame();

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-RenderCommand::RenderCommand() : shader{}, renderSetting{},
+RenderCommand::RenderCommand() : renderSetting{},
 nodes{}, model(1.0f) {}
 
 
@@ -13,7 +13,6 @@ RenderCommand::RenderCommand(RenderCommand &&Other) { *this = std::move(Other); 
 
 RenderCommand& RenderCommand::operator= (const RenderCommand &Other) {
 	if (this != &Other) {
-		shader = Other.shader;
 		renderSetting = Other.renderSetting;
 		nodes = Other.nodes;
 		model = Other.model;
@@ -25,7 +24,6 @@ RenderCommand& RenderCommand::operator= (const RenderCommand &Other) {
 
 RenderCommand& RenderCommand::operator= (RenderCommand &&Other) {
 	if (this != &Other) {
-		shader = Other.shader;
 		renderSetting = Other.renderSetting;
 		nodes = Other.nodes;
 		model = Other.model;

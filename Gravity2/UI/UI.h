@@ -15,6 +15,7 @@ enum WindowIOFlags : uint {
 	WINDOW_ON_SUBMIT	= 0x00,
 	WINDOW_ON_RGTCLK	= 0x01,
 	WINDOW_ON_LFTCLK	= 0x02,
+	WINDOW_ON_DBLCLK	= 0x03,
 	WINDOW_EVENT_MAX
 };
 
@@ -46,6 +47,7 @@ struct WindowIOEvent {
 */
 class GravityWindow {                                                                                                                                                     
 protected:
+	bool					isOpen;
 	bool					isActive;
 	ImGuiWindow				*imguiWindow;
 	GravityApp				*application;
@@ -109,6 +111,9 @@ DeclNewWindow(NewScenery)
 DeclNewWindow(NewSceneInstance)
 
 
+/**
+* Definitions for all of the functions in this class can be seen in WindowFunctions.cpp
+*/
 class WindowProjectExplorerTemplate : public GravityWindow {
 private:
 
@@ -116,29 +121,94 @@ private:
 		EXPLORER_ACTION_NONE			= 0x00,
 		EXPLORER_SCENE_CONTEXT_MENU		= 0x01,
 		EXPLORER_MATERIAL_CONTEXT_MENU	= 0x02,
-		EXPLORER_NEW_SCENEISNT_WINDOW	= 0x03
+		EXPLORER_NEW_SCENEISNT_WINDOW	= 0x03,
+		EXPLORER_OPEN_SCENEINFO_WINDOW	= 0x04
 	};
 
 	SceneData		*hoveredScene	= nullptr;
 	MaterialData	*hoveredMat		= nullptr;
 	ExplorerActions action			= EXPLORER_ACTION_NONE;
 
+	/**
+	* Shows all of the loaded scenes inside of the engine.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	ShowSceneList			();
+
+	/**
+	* Opens up a context menu that contains options to manipulate a Scene.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	SceneListContextMenu	();
-	void	MaterialListContextMenu	();
+
+	/**
+	* Shows all of the loaded textures inside of the engine.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	ShowTextureList			();
+
+	/**
+	* Shows all of the loaded shaders inside of the engine.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	ShowShaderList			();
+
+	/**
+	* Shows all of the loaded materials inside of the engine.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	ShowMaterialList		();
+
+	/**
+	* Opens up a context menu that contains options to manipulate a Material.
+	* Definition is located in WindowFunctions.cpp
+	*/
+	void	MaterialListContextMenu();
+
+	/**
+	* Shows all of the loaded level inside of the engine.
+	* Definition is located in WindowFunctions.cpp
+	*/
 	void	ShowSceneryList			();
 
 public:
+
 	using GravityWindow::GravityWindow;
+
 	void Draw();
 	void Events();
 };
 
 
+class WindowSceneInfoTemplate : public GravityWindow {
+private:
 
+	SceneData *deleteOnClick = nullptr;
+
+	struct InfoDisplay {
+		String	name;
+		bool	isActive = false;
+		bool	isOpen	 = false;
+		Scene	*pScene	 = nullptr;
+
+		InfoDisplay() {}
+	};
+
+	Array<InfoDisplay>	infoDisplays;
+
+	const char *sceneTypes[SCENE_TYPE_MAX] = {
+		"None", "Cube", "Sphere", "Quad", "Plane", "Custom"
+	};
+
+public:
+
+	using GravityWindow::GravityWindow;
+
+	void Draw();
+	void Events();
+
+	void PushSceneForDisplay(Scene *Scene);
+};
 
 
 /**
@@ -158,6 +228,7 @@ void ImGuiCustomToolTip(const char *Description, float WrapMultiplier = 20.0f);
 * Params pair can be declared as an array on the stack and passed in as a pointer.
 */
 void ImGuiCustomColumnPairToolTip(Pair<const char*, const char*> *Params, size_t Length, float WrapMultiplier = 15.0f);
+
 
 struct WindowDebugger {
 	static ImGuiWindow *window;

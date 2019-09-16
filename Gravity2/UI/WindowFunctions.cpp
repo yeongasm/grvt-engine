@@ -53,6 +53,9 @@ void WindowProjectExplorerTemplate::ShowSceneList() {
 		if (ImGui::Selectable(label, selected == i, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_PressedOnClick))
 			selected = i;
 
+		if (selected != -1 && keyEvent[WINDOW_ON_DBLCLK])
+			action = EXPLORER_OPEN_SCENEINFO_WINDOW;
+
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup) && keyEvent[WINDOW_ON_RGTCLK]) {
 			action = EXPLORER_SCENE_CONTEXT_MENU;
 			selected = i;
@@ -80,7 +83,7 @@ void WindowProjectExplorerTemplate::SceneListContextMenu() {
 	bool close = false;
 	WindowsHandler &ui = application->ui;
 	ResourceManager *manager = application->GetResourceHandler();
-	
+
 	if (action == EXPLORER_SCENE_CONTEXT_MENU)
 		ImGui::OpenPopup("Scene Context Menu");
 
@@ -90,12 +93,14 @@ void WindowProjectExplorerTemplate::SceneListContextMenu() {
 		// ImGui does not consider Popups to be a child window! Hence why we needed to do this.
 		isActive = true;
 		ImGui::Text(hoveredScene->name.c_str());
+		ImGui::Separator();
 		if (ImGui::Selectable("New Scene Instance")) {
 			action = EXPLORER_NEW_SCENEISNT_WINDOW;
 			close = true;
 		}
 
 		if (ImGui::Selectable("Scene Info")) {
+			action = EXPLORER_OPEN_SCENEINFO_WINDOW;
 			close = true;
 		}
 

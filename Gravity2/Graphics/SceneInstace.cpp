@@ -61,7 +61,7 @@ void MeshNode::Free() {
 }
 
 
-SceneInstanceCreation::SceneInstanceCreation() : position(0.0f), scale(1.0f), rotation(0.0f), shader{} {}
+SceneInstanceCreation::SceneInstanceCreation() : position(0.0f), scale(1.0f), rotation(0.0f) {}
 
 
 SceneInstanceCreation::SceneInstanceCreation(const SceneInstanceCreation &Other) { *this = Other; }
@@ -75,7 +75,6 @@ SceneInstanceCreation& SceneInstanceCreation::operator= (const SceneInstanceCrea
 		position	= Other.position;
 		scale		= Other.scale;
 		rotation	= Other.rotation;
-		shader		= Other.shader;
 	}
 
 	return *this;
@@ -87,22 +86,19 @@ SceneInstanceCreation& SceneInstanceCreation::operator= (SceneInstanceCreation &
 		position	= Other.position;
 		scale		= Other.scale;
 		rotation	= Other.rotation;
-		shader		= Other.shader;
 
-		Other.~SceneInstanceCreation();
+		new (&Other) SceneInstanceCreation();
 	}
 
 	return *this;
 }
 
 
-SceneInstanceCreation::~SceneInstanceCreation() {
-	shader = nullptr;
-}
+SceneInstanceCreation::~SceneInstanceCreation() {}
 
 
-RenderState::RenderState() : depthTesting(false), blending(false), cullFace(true), depthFunc(0), 
-	blendSrc(0), blendDst(0), frontFace(0), polygonMode(0) {}
+RenderState::RenderState() : depthTesting(false), blending(false), cullFace(false), depthFunc(0), 
+	blendSrc(0), blendDst(0), frontFace(0), cullDirection(0), polygonMode(0) {}
 
 
 RenderState::RenderState(const RenderState &Other) { *this = Other; }
@@ -119,6 +115,7 @@ RenderState& RenderState::operator= (const RenderState &Other) {
 	blendSrc		= Other.blendSrc;
 	blendDst		= Other.blendDst;
 	frontFace		= Other.frontFace;
+	cullDirection	= Other.cullDirection;
 	polygonMode		= Other.polygonMode;
 
 	return *this;
@@ -134,6 +131,7 @@ RenderState& RenderState::operator= (RenderState &&Other) {
 		blendSrc		= Other.blendSrc;
 		blendDst		= Other.blendDst;
 		frontFace		= Other.frontFace;
+		cullDirection	= Other.cullDirection;
 		polygonMode		= Other.polygonMode;
 
 		Other.~RenderState();
@@ -149,6 +147,7 @@ void RenderState::DefaultModelRenderState() {
 	cullFace		= true;
 	depthFunc		= GL_LESS;
 	frontFace		= GL_CCW;
+	cullDirection	= GL_BACK;
 	polygonMode		= GL_FILL;
 }
 
@@ -156,8 +155,8 @@ void RenderState::DefaultModelRenderState() {
 RenderState::~RenderState() {}
 
 
-SceneInstance::SceneInstance() : instanced(false), render(false), id(0), shader(nullptr), 
-	scene(nullptr), position(0.0f), scale(1.0f), rotation(0.0f), nodes(), renderState() {}
+SceneInstance::SceneInstance() : instanced(false), render(false), scene(nullptr), 
+	position(0.0f), scale(1.0f), rotation(0.0f), nodes(), renderState() {}
 
 
 SceneInstance::SceneInstance(const SceneInstanceCreation &Info, Scene *Scene) { Alloc(Info, Scene); }
@@ -173,8 +172,6 @@ SceneInstance& SceneInstance::operator= (const SceneInstance &Other) {
 	if (this != &Other) {
 		instanced	= Other.instanced;
 		render		= Other.render;
-		id			= Other.id;
-		shader		= Other.shader;
 		scene		= Other.scene;
 		position	= Other.position;
 		scale		= Other.scale;
@@ -191,8 +188,6 @@ SceneInstance& SceneInstance::operator= (SceneInstance &&Other) {
 	if (this != &Other) {
 		instanced	= Other.instanced;
 		render		= Other.render;
-		id			= Other.id;
-		shader		= Other.shader;
 		scene		= Other.scene;
 		position	= Other.position;
 		scale		= Other.scale;
@@ -212,12 +207,10 @@ SceneInstance::~SceneInstance() { Free(); }
 
 bool SceneInstance::Alloc(const SceneInstanceCreation &Info, Scene *Scene) {
 	scene		= Scene;
-	shader		= Info.shader;
 	rotation	= Info.rotation;
 	position	= Info.position;
 	scale		= Info.scale;
 	
-	Info.shader->info->references.Push(&shader);
 	nodes.Reserve(Scene->meshes.Length());
 
 	MeshNode *node = nullptr;
@@ -236,7 +229,6 @@ void SceneInstance::Free() {
 	scale		= glm::vec3(1.0f);
 	rotation	= glm::vec3(0.0f);
 
-	shader = nullptr;
 	scene  = nullptr;
 
 	nodes.Release();

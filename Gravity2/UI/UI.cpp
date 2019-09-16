@@ -13,7 +13,7 @@ WindowIOEvent::operator bool() {
 
 
 GravityWindow::GravityWindow() :
-	isActive(false), imguiWindow(nullptr), application(nullptr), keyEvent{}, name() {}
+	isOpen(false), isActive(false), imguiWindow(nullptr), application(nullptr), keyEvent{}, name() {}
 
 
 GravityWindow::GravityWindow(const GravityWindow &Other) { *this = Other; }
@@ -26,6 +26,7 @@ GravityWindow& GravityWindow::operator= (const GravityWindow &Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
+		isOpen		= Other.isOpen;
 		isActive	= Other.isActive;
 		imguiWindow = Other.imguiWindow;
 		application = Other.application;

@@ -6,12 +6,13 @@
 * Specify the type of scene that is being created.
 */
 enum SceneType {
-	SCENE_TYPE_NONE			= 0,
-	SCENE_TYPE_BASIC_CUBE,
-	SCENE_TYPE_BASIC_SPHERE,
-	SCENE_TYPE_BASIC_QUAD,
-	SCENE_TYPE_BASIC_PLANE,
-	SCENE_TYPE_CUSTOM
+	SCENE_TYPE_NONE			= 0x00,
+	SCENE_TYPE_BASIC_CUBE	= 0x01,
+	SCENE_TYPE_BASIC_SPHERE	= 0x02,
+	SCENE_TYPE_BASIC_QUAD	= 0x03,
+	SCENE_TYPE_BASIC_PLANE	= 0x04,
+	SCENE_TYPE_CUSTOM		= 0x05,
+	SCENE_TYPE_MAX
 };
 
 
@@ -96,18 +97,18 @@ class SceneInstance;
 * A Scene contains all required data for rendering.
 */
 class Scene {
+public:
+
+	SceneType				type;
+	Array<Mesh>				meshes;
+
 private:
 
-	using MeshArr	= Array<Mesh>;
-	using Instances = Array<SceneInstance>;
+	Array<SceneInstance>	instances;
 
 public:
 
-	bool		instanced;
-	SceneType	type;
-	MeshArr		meshes;
-	Instances	instances;
-	SceneData	*info;
+	SceneData				*info;
 
 	Scene();
 	Scene(const Scene &Other)				= delete;
@@ -117,7 +118,9 @@ public:
 	Scene& operator= (Scene &&Other)		= delete;
 	~Scene();
 
-	void			Free			();
-	bool			RemoveInstance	(SceneInstance *Instance, bool Move = false);
-	SceneInstance*	CreateInstance	(const SceneInstanceCreation &Info);
+	void			Free				();
+	SceneInstance*	CreateInstance		(const SceneInstanceCreation &Info);
+	SceneInstance*	CreateInstanceFrom	(const SceneInstance &Instance);
+	bool			RemoveInstance		(SceneInstance *Instance, bool Move = false);
+	void			ReleaseAllInstances	();
 };

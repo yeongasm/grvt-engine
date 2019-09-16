@@ -30,7 +30,7 @@ void GravityApp::GravityKeyCallback(GLFWwindow *Window, int Key, int ScanCode, i
 	ImGui_ImplGlfw_KeyCallback(Window, Key, ScanCode, Action, Mods);
 	
 	if (Key >= 0 && Key < 512) {
-		if (Action == GLFW_PRESS)
+		if (Action == GLFW_PRESS) {}
 			grApp->io.keys[Key].currState = GLFW_PRESS;
 		if (Action == GLFW_RELEASE)
 			grApp->io.keys[Key].currState = GLFW_RELEASE;
@@ -187,16 +187,65 @@ float GravityApp::Tick() {
 	renderer->renderWidth	= width;
 	renderer->renderHeight	= height;
 
-	// NOTE(Afiq): 
-	// I feel like IO related operations should be placed inside of the NewFrame() function rather than the Tick() function.
-	// Further thought should be given into the idea.
-	// 2. Update mouse position from ImGui's IO handler.
+	// 4. Update Gravity's IO System for every frame. 
+	// TODO(Afiq): 
+	// Right now we don't currently check for valid and invalid mouse position which probably should be added into.
 	ImGuiIO &guiIO = ImGui::GetIO();
 	io.mousePos = glm::vec2(guiIO.MousePos.x, guiIO.MousePos.y);
 
-	for (int i = 0; i < MOUSE_BUTTON_MAX; i++)
+	for (int i = 0; i < MOUSE_BUTTON_MAX; i++) {
 		io.mouseButton[i].currState = glfwGetMouseButton(window, i);
+		io.mouseState[i] = IO_INPUT_NONE;
+		
+		if (io.mouseButton[i].OnPress())
+			io.mouseState[i] = IO_INPUT_PRESSED;
+		
+		if (io.mouseButton[i].OnHold(io.minDurationForHold, &io.mouseHoldDuration[i]))
+			io.mouseState[i] = IO_INPUT_HELD;
 
+		if (io.mouseButton[i].OnRelease())
+			io.mouseState[i] = IO_INPUT_RELEASED;
+
+		if (io.mouseState[i] == IO_INPUT_PRESSED) {
+			io.mouseClickPos = io.mousePos;
+			if (lastFrameTime - io.clickTime[i] < io.mouseDoubleClickTime) {
+				glm::vec2 deltaFromClickPos = io.mousePos - io.mouseClickPos;
+				float squaredLength = deltaFromClickPos.x * deltaFromClickPos.x + deltaFromClickPos.y * deltaFromClickPos.y;
+				if (squaredLength < io.mouseDoubleClickMaxDist * io.mouseDoubleClickMaxDist)
+					io.mouseState[i] = IO_INPUT_REPEAT;
+				// This is done to ensure that the third click isn't registered as a double click.
+				io.clickTime[i] = -FLT_MAX;
+			} else {
+				io.clickTime[i] = lastFrameTime;
+			}
+		} else if (io.mouseState[i] == IO_INPUT_HELD) {
+			io.mouseClickPos = io.mousePos;
+		}
+	}
+
+	for (int i = 0; i < 512; i++) {
+		io.keyState[i] = IO_INPUT_NONE;
+
+		if (io.keys[i].OnPress())
+			io.keyState[i] = IO_INPUT_PRESSED;
+
+		if (io.keys[i].OnHold(io.minDurationForHold, &io.keyHoldDuration[i]))
+			io.keyState[i] = IO_INPUT_HELD;
+
+		if (io.keys[i].OnRelease())
+			io.keyState[i] = IO_INPUT_RELEASED;
+
+		if (io.keyState[i] == IO_INPUT_PRESSED) {
+			if (lastFrameTime - io.keyPressTime[i] < io.keyDoubleTapTime) {
+				io.keyState[i] = IO_INPUT_REPEAT;
+				io.keyPressTime[i] = -FLT_MAX;
+			} else {
+				io.keyPressTime[i] = lastFrameTime;
+			}
+		}
+	}
+
+	// 5. The build queue listens for incoming packets for every frame and builds it.
 	Middleware::GetBuildQueue()->Listen();
 
 	return deltaTime;

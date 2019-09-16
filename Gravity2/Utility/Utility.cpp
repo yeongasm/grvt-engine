@@ -56,7 +56,7 @@ bool GetFileNameFromPath(String &Path, String &File, String &Directory) {
 		}
 	}
 
-	if (lastIdx == -1)
+	if (lastIdx == -1 || lastIdx == Path.Length() - 1)
 		return false;
 
 	Iterator<char> it = Iterator<char>(&Path[0]);
@@ -182,7 +182,7 @@ Timer::Timer() {
 
 
 Timer::~Timer() {
-	printf("Time: %.6f ms\n\n", Now());
+	//printf("Time: %.6f ms\n\n", Now());
 }
 
 

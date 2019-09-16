@@ -10,7 +10,6 @@
 struct RenderCommand {
 public:
 
-	Shader				*shader;
 	RenderState			renderSetting;
 	Array<RenderNode>	nodes;
 	Array<glm::mat4>	instances;

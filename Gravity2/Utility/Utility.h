@@ -144,6 +144,9 @@ struct Timer {
 	Timer();
 	~Timer();
 
+	/**
+	* Returns the duration of time passed from the start of this struct in milliseconds.
+	*/
 	float Now();
 };
 

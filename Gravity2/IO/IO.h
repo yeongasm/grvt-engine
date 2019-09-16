@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum MouseButton : uint {
+enum MouseButton : uint32 {
 	MOUSE_BUTTON_LEFT	= 0x00,
 	MOUSE_BUTTON_RIGHT	= 0x01,
 	MOUSE_BUTTON_MIDDLE = 0x02,
@@ -11,13 +11,51 @@ enum MouseButton : uint {
 };
 
 
+enum IOInputState : uint32 {
+	IO_INPUT_NONE		= 0x00,
+	IO_INPUT_PRESSED	= 0x01,
+	IO_INPUT_HELD		= 0x02,
+	IO_INPUT_RELEASED	= 0x03,
+	IO_INPUT_REPEAT		= 0x04
+};
+
+
+/**
+* Gravity Engine's IO data structure.
+*
+* Responsible for handling all user interactions with the IO.
+* NEVER call the variables for detecting IO state changes. Only use the functions provided.
+*
+* Several variables can be altered to slightly alter the IO's behavior.
+*
+* @param (float) Default = 1.0f minDurationForHold		- Minimum time in seconds required to trigger an OnHold() event.
+* @param (float) Default = 0.5f mouseDoubleClickTime		- Minimum time in seconds required for the second click to be registered as a double click.
+* @param (float) Default = 5.0f mouseDoubleClickMaxDist	- Minimum distance in pixels from the initial click for the second click to be registered as a double click.
+* @param (float) Default = 0.5f keyDoubleTapTime			- Minimum time in seconds required for the second key press to be registerd as a double tap.
+*/
 struct AppIO {
+
 	float			mouseWheel;
 	float			mouseWheelH;
+	float			minDurationForHold;
+	float			mouseDoubleClickTime;
+	float			mouseDoubleClickMaxDist;
+	float			keyDoubleTapTime;
+
 	glm::vec2		mouseClickPos;
 	glm::vec2		mousePos;
-	InputHandler	keys[512];
+
+	float			clickTime[5];
+	float			keyPressTime[5];
+	float			mouseHoldDuration[5];
+
+	IOInputState	mouseState[5];
 	InputHandler	mouseButton[5];
+	
+	float			keyHoldDuration[512];
+	IOInputState	keyState[512];
+	InputHandler	keys[512];
+
 
 	AppIO();
 
@@ -35,6 +73,13 @@ struct AppIO {
 	* @param [REQUIRED] (int) Key - GLFW's key macro.
 	*/
 	bool		IsKeyPressed		(int Key);
+
+	/**
+	* Returns true upon double tapping the key supplied into the argument.
+	*
+	* @param [REQUIRED] (int) Key - GLFW's key macro.
+	*/
+	bool		IsKeyDoubleTapped	(int Key);
 
 	/**
 	* Returns true upon holding the key supplied into the argument.
@@ -57,6 +102,14 @@ struct AppIO {
 	* @param [OPTIONAL] (uint)	Default = 0		Button - Mouse button index.
 	*/
 	bool		IsMouseClicked		(uint Button = 0);
+
+	/**
+	* Returns true upon pressing the mouse button supplied into the argument twice within the set interval.
+	* Updates mouse click position within the application's IO.
+	*
+	* @param [OPTIONAL] (uint)	Default = 0		Button - Mouse button index.
+	*/
+	bool		IsMouseDoubleClicked(uint Button = 0);
 	
 	/**
 	* Returns true upon holding the mouse button supplied into the argument.

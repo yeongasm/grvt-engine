@@ -138,7 +138,7 @@ void Mesh::Free() {
 //}
 
 
-Scene::Scene() : instanced(false), type(SCENE_TYPE_NONE), meshes(), instances(), info(nullptr) {}
+Scene::Scene() : type(SCENE_TYPE_NONE), meshes(), instances(), info(nullptr) {}
 
 
 Scene::~Scene() {
@@ -147,11 +147,23 @@ Scene::~Scene() {
 
 void Scene::Free() {
 	type		= SCENE_TYPE_NONE;
-	instanced	= false;
 	info		= nullptr;
 
 	instances.Release();
 	meshes.Release();
+}
+
+
+SceneInstance* Scene::CreateInstance(const SceneInstanceCreation &Info) { 
+	SceneInstance *instance = &instances.Insert(SceneInstance());
+	instance->Alloc(Info, this);
+
+	return instance;
+}
+
+
+SceneInstance* Scene::CreateInstanceFrom(const SceneInstance &Instance) {
+	return &instances.Insert(Instance);
 }
 
 
@@ -172,15 +184,6 @@ bool Scene::RemoveInstance(SceneInstance *Instance, bool Move) {
 }
 
 
-SceneInstance* Scene::CreateInstance(const SceneInstanceCreation &Info) {
-	if (!Info.shader)
-		return nullptr;
-
-	size_t idx = instances.Push(SceneInstance());
-	SceneInstance *instance = &instances[idx];
-
-	instance->id = ((info->id * 1000) + (uint)idx);
-	instance->Alloc(Info, this);
-
-	return instance;
+void Scene::ReleaseAllInstances() {
+	instances.Empty();
 }
