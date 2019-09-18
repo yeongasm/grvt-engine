@@ -12,6 +12,7 @@
 */
 struct RenderNode {
 	uint		size;
+	uint		mode;
 	size_t		amount;
 	Material	*material;
 	Mesh		*mesh;

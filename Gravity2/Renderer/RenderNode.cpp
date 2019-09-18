@@ -21,6 +21,7 @@ RenderNode& RenderNode::operator= (const RenderNode &Other) {
 	// Prevention check in runtime.
 	if (this != &Other) {
 		size		= Other.size;
+		mode		= Other.mode;
 		amount		= Other.amount;
 		material	= Other.material;
 		mesh		= Other.mesh;
@@ -37,6 +38,7 @@ RenderNode& RenderNode::operator= (RenderNode &&Other) {
 	// Prevention check in runtime.
 	if (this != &Other) {
 		size		= Other.size;
+		mode		= Other.mode;
 		amount		= Other.amount;
 		material	= Other.material;
 		mesh		= Other.mesh;
@@ -50,6 +52,7 @@ RenderNode& RenderNode::operator= (RenderNode &&Other) {
 
 RenderNode::~RenderNode() {
 	size		= 0;
+	mode		= 0;
 	amount		= 0;
 	material	= nullptr;
 	mesh		= nullptr;

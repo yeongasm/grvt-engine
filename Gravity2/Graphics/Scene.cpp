@@ -44,7 +44,7 @@ SceneCreationInfo::~SceneCreationInfo() {
 }
 
 
-Mesh::Mesh() : vao(), vbo(), ebo(), size() {}
+Mesh::Mesh() : vao(), vbo(), ebo(), size(0) {}
 
 
 Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
@@ -57,6 +57,8 @@ Mesh& Mesh::operator= (Mesh &&Other) {
 		vao = std::move(Other.vao);
 		vbo = std::move(Other.vbo);
 		ebo = std::move(Other.ebo);
+
+		size = Other.size;
 
 		positions	= Other.positions;
 		uv			= Other.uv;
@@ -81,6 +83,8 @@ void Mesh::Free() {
 	ebo.Delete();
 	vbo.Delete();
 	vao.Delete();
+
+	size = 0;
 
 	positions.Release();
 	uv.Release();

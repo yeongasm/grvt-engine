@@ -11,6 +11,7 @@
 */
 class MeshNode {
 private:
+	uint		mode;
 	Mesh		*mesh;
 	Material	*material;
 
@@ -33,6 +34,7 @@ public:
 	void Alloc			(Material *Material, Mesh *Mesh);
 	void PushMaterial	(Material *Material);
 	void PushMesh		(Mesh *Mesh);
+	void SetRenderMode	(uint Mode = GL_TRIANGLES);
 
 	void Free			();
 };

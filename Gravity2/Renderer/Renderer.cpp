@@ -120,10 +120,13 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 	glBindVertexArray(mesh->vao);
 
+	if (Node->mode == GL_POINTS)
+		glPointSize(5.0f);
+
 	if (mesh->ebo)
-		glDrawElements(GL_TRIANGLES, mesh->size, GL_UNSIGNED_INT, 0);
+		glDrawElements(Node->mode, mesh->size, GL_UNSIGNED_INT, 0);
 	else
-		glDrawArrays(GL_TRIANGLES, 0, mesh->size);
+		glDrawArrays(Node->mode, 0, mesh->size);
 	
 	glBindVertexArray(0);
 }
@@ -304,6 +307,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 			rnode.material	= node.material;
 			rnode.mesh		= node.mesh;
 			rnode.size		= node.mesh->size;
+			rnode.mode		= node.mode;
 
 			//rnode.amount = instance->scene->meshes.Length();
 			command.nodes.Push(rnode);

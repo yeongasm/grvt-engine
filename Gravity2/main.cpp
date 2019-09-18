@@ -119,6 +119,9 @@ int main() {
 		witchInst->GetNode(3)->PushMaterial(objMat);
 		witchInst->GetNode(4)->PushMaterial(objMat);
 
+		for (size_t i = 0; i < 5; i++)
+			witchInst->GetNode(i)->SetRenderMode(GL_TRIANGLES);
+
 	}
 
 	witchInst->renderState.DefaultModelRenderState();
@@ -218,11 +221,6 @@ int main() {
 		}
 
 		app->ui.Tick();
-		
-#if IMGUI_WINDOW_DEBUGGER
-		WindowDebugger::RenderDebugger();
-#endif
-
 		app->SwapBuffer();
 	}
 

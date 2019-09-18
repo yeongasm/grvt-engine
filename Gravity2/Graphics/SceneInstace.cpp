@@ -17,6 +17,7 @@ MeshNode& MeshNode::operator= (const MeshNode &Other) {
 	if (this != &Other) {
 		material	= Other.material;
 		mesh		= Other.mesh;
+		mode		= Other.mode;
 	}
 
 	return *this;
@@ -27,6 +28,7 @@ MeshNode& MeshNode::operator= (MeshNode &&Other) {
 	if (this != &Other) {
 		material	= Other.material;
 		mesh		= Other.mesh;
+		mode		= Other.mode;
 
 		Other.Free();
 	}
@@ -49,9 +51,15 @@ void MeshNode::PushMesh(Mesh *Mesh) {
 }
 
 
+void MeshNode::SetRenderMode(uint Mode) {
+	mode = Mode;
+}
+
+
 void MeshNode::Alloc(Material *Material, Mesh *Mesh) {
 	material	= Material;
 	mesh		= Mesh;
+	mode		= GL_TRIANGLES;
 }
 
 
