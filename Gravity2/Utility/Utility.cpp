@@ -24,7 +24,6 @@ bool OpenFile(String &Buffer, const String &Path) {
 
 	Buffer[pos] = '\0';
 	Buffer.UpdateHash();
-	Buffer.ShrinkToFit();
 
 	return true;
 }

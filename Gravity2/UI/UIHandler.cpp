@@ -382,7 +382,7 @@ void WindowNewProjectTemplate::Draw() {
 			ImGui::Spacing();
 			ImGui::Text("File name");
 			ImGui::Spacing();
-			ImGui::Text("Directory");
+			ImGui::Text("Location");
 		}
 		ImGui::EndChild();
 		ImGui::SameLine();
@@ -396,7 +396,7 @@ void WindowNewProjectTemplate::Draw() {
 			if (ImGui::InputText("File name", fileString.First(), 512))
 				sameName = false;
 
-			ImGui::InputText("Directory", dirString.First(), 512);
+			ImGui::InputText("Location", dirString.First(), 512);
 			ImGui::PopItemWidth();
 		}
 		ImGui::EndChild();
@@ -1247,7 +1247,7 @@ void WindowNewSceneryTemplate::Draw() {
 		ImGui::Spacing();
 		ImGui::Text("File");
 		ImGui::Spacing();
-		ImGui::Text("Directory");
+		ImGui::Text("Location");
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
@@ -1502,7 +1502,7 @@ void WindowSceneInfoTemplate::Draw() {
 			ImGui::ItemSize(ImVec2(0.0f, 5.0f));
 			ImGui::Text("File Name");
 			ImGui::ItemSize(ImVec2(0.0f, 6.0f));
-			ImGui::Text("Directory");
+			ImGui::Text("Location");
 			ImGui::ItemSize(ImVec2(0.0f, 7.0f));
 			ImGui::Text("Scene Type");
 			ImGui::ItemSize(ImVec2(0.0f, 5.0f));
@@ -1522,7 +1522,7 @@ void WindowSceneInfoTemplate::Draw() {
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.175f, 0.177f, 0.176f, 1.0f));
 			ImGui::InputText("##Filename", display.pScene->info->file.First(), 128, ImGuiInputTextFlags_ReadOnly);
 			ImGui::Spacing();
-			ImGui::InputText("##Directory", display.pScene->info->directory.First(), 128, ImGuiInputTextFlags_ReadOnly);
+			ImGui::InputText("##Location", display.pScene->info->directory.First(), 128, ImGuiInputTextFlags_ReadOnly);
 			ImGui::PopStyleColor();
 			ImGui::ItemSize(ImVec2(0.0f, 2.0f));
 			ImGui::PopItemWidth();
