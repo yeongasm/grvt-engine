@@ -21,15 +21,74 @@ using uint64	= unsigned __int64;
 
 /**
 * [BASEAPI]
-* BufferObject data structure.
+* GraphicsObject data structure.
 *
 * Low level API functionality.
-* Generic Buffer Object for OpenGL.
+* Never to be used for identifying graphic related objects as this is an abstract class.
 */
-struct BufferObject {
+struct GraphicsObject {
 
 	uint32	Id;
 	uint32	Target;
+
+	GraphicsObject();
+	virtual ~GraphicsObject();
+
+	GraphicsObject(const GraphicsObject &Rhs)				= delete;
+	GraphicsObject& operator= (const GraphicsObject &Rhs)	= delete;
+
+	GraphicsObject(GraphicsObject &&Rhs)					= delete;
+	GraphicsObject& operator= (GraphicsObject &&Rhs)		= delete;
+
+	operator uint32();
+
+	/**
+	* [BASEAPI]
+	* Creates a derived object of the specified target's type.
+	*
+	* @param [REQUIRED] (uint32) Target - The buffer's target type.
+	*/
+	virtual bool Alloc(uint32 Target) = 0;
+
+	/**
+	* [BASEAPI]
+	* Deletes this derived object from OpenGL and sets it's value to 0.
+	*/
+	virtual bool Delete() = 0;
+
+	/**
+	* [BASEAPI]
+	* Binds the derived object and update it's state in OpenGL.
+	*
+	* Return false if no Target is specified (Only true for some objects).
+	*/
+	virtual bool Bind() = 0;
+
+	/**
+	* [BASEAPI]
+	* Unbinds the derived object and reset OpenGL's state for the specified target.
+	*
+	* Return false if no Target is specified (Only true for some objects).
+	*/
+	virtual bool UnBind() = 0;
+
+	/**
+	* [BASEAPI]
+	* Resets the values of this derived object.
+	* Note, this does not delete the derived object from OpenGL. Be sure to keep track of the Id.
+	*/
+	virtual void Reset();
+};
+
+
+/**
+* [BASEAPI]
+* BufferObject data structure.
+*
+* Low level API functionality.
+* Can be used for Buffer Objects for Meshes.
+*/
+struct BufferObject : public GraphicsObject {
 
 	BufferObject();
 	~BufferObject();
@@ -39,8 +98,8 @@ struct BufferObject {
 
 	BufferObject(BufferObject &&Rhs);
 	BufferObject& operator= (BufferObject &&Rhs);
-
-	operator uint32();
+	
+	using GraphicsObject::operator uint32;
 
 	/**
 	* [BASEAPI]
@@ -77,8 +136,10 @@ struct BufferObject {
 	* Resets the values of this buffer object.
 	* Note, this does not delete the buffer object from OpenGL. Be sure to keep track of the Id.
 	*/
-	void Reset();
+	//void Reset();
 };
+
+
 
 
 /**
@@ -91,9 +152,7 @@ struct BufferObject {
 * NOTE(Afiq):
 * Would be nice to have the VAO track which Buffer is attached to it. A future feature perhaps.
 */
-struct VertArrayObj {
-
-	uint32 Id;
+struct VertArrayObj : public GraphicsObject {
 
 	VertArrayObj();
 	~VertArrayObj();
@@ -104,13 +163,15 @@ struct VertArrayObj {
 	VertArrayObj(VertArrayObj &&Rhs);
 	VertArrayObj& operator= (VertArrayObj &&Rhs);
 
-	operator uint32();
+	using GraphicsObject::operator uint32;
 
 	/**
 	* [BASEAPI]
 	* Creates a new Vertex Array Object (VAO).
+	*
+	* Do not provide anything into Target when creating a Vertex Array Object.
 	*/
-	bool Alloc();
+	bool Alloc(uint32 Target = 0);
 
 	/**
 	* [BASEAPI]
@@ -128,14 +189,14 @@ struct VertArrayObj {
 	* [BASEAPI]
 	* Unbinds the Vertex Array Object from OpenGL.
 	*/
-	void UnBind();
+	bool UnBind();
 
 	/**
 	* [BASEAPI]
 	* Resets the value of this vertex array object.
 	* Note, this does not delete the vertex array object from OpenGL. Be sure to keep track of the Id.
 	*/
-	void Reset();
+	//void Reset();
 };
 
 
@@ -207,10 +268,7 @@ public:
 * Low level API functionality.
 * Texture ID for OpenGL.
 */
-struct TextureID {
-
-	uint32 Id;
-	uint32 Target;
+struct TextureID : public GraphicsObject {
 
 	TextureID();
 	~TextureID();
@@ -221,7 +279,7 @@ struct TextureID {
 	TextureID(TextureID &&Rhs);
 	TextureID& operator= (TextureID &&Rhs);
 
-	operator uint32();
+	using GraphicsObject::operator uint32;
 
 	/**
 	* [BASEAPI]
@@ -252,7 +310,7 @@ struct TextureID {
 	* Resets the value of this Texture.
 	* Note, this does not delete the Texture from OpenGL. Be sure to keep track of the Id.
 	*/
-	void	Reset();
+	//void	Reset();
 };
 
 
@@ -278,7 +336,7 @@ struct TextureID {
 struct TextureBuildData {
 private:
 
-	using Params= Pair<uint32, uint32>;
+	using Params = Pair<uint32, uint32>;
 
 public:
 
@@ -302,6 +360,96 @@ public:
 	TextureBuildData& operator= (TextureBuildData &&Rhs);
 
 	~TextureBuildData();
+};
+
+
+/**
+* [BASEAPI]
+* BufferID data structure.
+*
+* Low level API functionality.
+* Framebuffer / Renderbuffer ID for OpenGL.
+*/
+struct BufferID : public GraphicsObject {
+
+	uint32 InternalFormat;
+	uint32 Attachment;
+
+	BufferID();
+	~BufferID();
+
+	BufferID(const BufferID &Rhs) = delete;
+	BufferID& operator= (const BufferID &Rhs) = delete;
+
+	BufferID(BufferID &&Rhs);
+	BufferID& operator= (BufferID &&Rhs);
+
+	using GraphicsObject::operator uint32;
+
+	/**
+	* [BASEAPI]
+	* Creates a new Framebuffer / Renderbuffer.
+	*/
+	bool	Alloc(uint32 Target);
+
+	/**
+	* [BASEAPI]
+	* Deletes this Framebuffer / Renderbuffer and removes it from OpenGL.
+	*/
+	bool	Delete();
+
+	/**
+	* [BASEAPI]
+	* Binds this Framebuffer / Renderbuffer and updates OpenGL's state.
+	*/
+	bool	Bind();
+
+	/**
+	* [BASEAPI]
+	* Unbinds the Framebuffer / Renderbuffer from OpenGL.
+	*/
+	bool	UnBind();
+
+	/**
+	* [BASEAPI]
+	* Resets the value of this Framebuffer / Renderbuffer.
+	* Note, this does not delete the Framebuffer / Renderbuffer from OpenGL. Be sure to keep track of the Id.
+	*/
+	void	Reset();
+};
+
+
+/**
+* TODO(Afiq):
+* [BASEAPI]
+* ScreenbufferBuildData data structure.
+*
+* @param [REQUIRED] (void*)							DataPtr - Texture's data. The type of pointer assigned needs to be the same as the type specified in TextureCreationInfo's type parameter.
+*/
+struct BufferBuildData {
+	/**
+	* Only information required for framebuffers.
+	* Also required for renderbuffers.
+	*/
+	uint32	Target;
+
+	/**
+	* Information required for renderbuffers.
+	*/
+	uint32	InternalFormat;
+	uint32	Attachment;
+	int32	Width;
+	int32	Height;
+
+	BufferBuildData();
+
+	BufferBuildData(const BufferBuildData &Rhs);
+	BufferBuildData(BufferBuildData &&Rhs);
+
+	BufferBuildData& operator= (const BufferBuildData &Rhs);
+	BufferBuildData& operator= (BufferBuildData &&Rhs);
+
+	~BufferBuildData();
 };
 
 
@@ -358,4 +506,10 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* An OpenGL wrapper to delete a cubemap.
 	*/
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to create a frambuffer.
+	*/
+	void BuildFramebuffer(BufferID &ID, BufferBuildData &Data);
 }

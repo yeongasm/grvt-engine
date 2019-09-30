@@ -192,7 +192,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\Application.cpp" />
-    <ClCompile Include="Graphics\Screenbuffer.cpp" />
+    <ClCompile Include="Graphics\Postprocessing.cpp" />
     <ClCompile Include="IO\InputHandler.cpp" />
     <ClCompile Include="IO\IO.cpp" />
     <ClCompile Include="Application\Project.cpp" />
@@ -255,7 +255,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
-    <ClInclude Include="Graphics\Screenbuffer.h" />
+    <ClInclude Include="Graphics\Postprocessing.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
     <ClInclude Include="IO\InputHandler.h" />
     <ClInclude Include="IO\IO.h" />

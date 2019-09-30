@@ -1,10 +1,18 @@
 #include "stdafx.h"
 
 
-BufferObject::BufferObject() : Id(0), Target(0) {}
+GraphicsObject::GraphicsObject() : Id(0), Target(0) {}
 
 
-BufferObject::~BufferObject() { Delete(); }
+GraphicsObject::~GraphicsObject() {}
+
+
+void GraphicsObject::Reset() {
+	Id = Target = 0;
+}
+
+
+BufferObject::BufferObject() : GraphicsObject() {}
 
 
 BufferObject::BufferObject(BufferObject &&Rhs) { *this = std::move(Rhs); }
@@ -26,7 +34,10 @@ BufferObject& BufferObject::operator= (BufferObject &&Rhs) {
 }
 
 
-BufferObject::operator uint32() { return Id; }
+GraphicsObject::operator uint32() { return Id; }
+
+
+BufferObject::~BufferObject() { Delete(); }
 
 
 bool BufferObject::Alloc(uint32 Target) {
@@ -45,7 +56,7 @@ bool BufferObject::Delete() {
 		return false;
 
 	glDeleteBuffers(1, &Id);
-	new (this) BufferObject();
+	Reset();
 
 	return true;
 }
@@ -71,12 +82,7 @@ bool BufferObject::UnBind() {
 }
 
 
-void BufferObject::Reset() {
-	Id = Target = 0;
-}
-
-
-VertArrayObj::VertArrayObj() : Id(0) {}
+VertArrayObj::VertArrayObj() : GraphicsObject() {}
 
 
 VertArrayObj::~VertArrayObj() { Delete(); }
@@ -100,10 +106,7 @@ VertArrayObj& VertArrayObj::operator= (VertArrayObj &&Rhs) {
 }
 
 
-VertArrayObj::operator uint32() { return Id; }
-
-
-bool VertArrayObj::Alloc() {
+bool VertArrayObj::Alloc(uint32 Target) {
 	if (Id)
 		return false;
 
@@ -118,7 +121,7 @@ bool VertArrayObj::Delete() {
 		return false;
 
 	glDeleteVertexArrays(1, &Id);
-	new (this) VertArrayObj();
+	Reset();
 
 	return true;
 }
@@ -134,13 +137,13 @@ bool VertArrayObj::Bind() {
 }
 
 
-void VertArrayObj::UnBind() {
+bool VertArrayObj::UnBind() {
+	if (!Id)
+		return false;
+
 	glBindVertexArray(0);
-}
 
-
-void VertArrayObj::Reset() {
-	Id = 0;
+	return true;
 }
 
 
@@ -238,7 +241,7 @@ MeshBuildData& MeshBuildData::operator= (MeshBuildData &&Rhs) {
 MeshBuildData::~MeshBuildData() { Data = nullptr, Indices = nullptr; Size = 0; Length = 0; VertexAttribPointers.Release(); }
 
 
-TextureID::TextureID() : Id(0), Target(0) {}
+TextureID::TextureID() : GraphicsObject() {}
 
 
 TextureID::~TextureID() { Delete(); }
@@ -263,9 +266,6 @@ TextureID& TextureID::operator= (TextureID &&Rhs) {
 }
 
 
-TextureID::operator uint32() { return Id; }
-
-
 bool TextureID::Alloc(uint32 Target) {
 	if (Id || !Target)
 		return false;
@@ -282,7 +282,7 @@ bool TextureID::Delete() {
 		return false;
 
 	glDeleteTextures(1, &Id);
-	new (this) TextureID();
+	Reset();
 
 	return true;
 }
@@ -305,11 +305,6 @@ bool TextureID::UnBind() {
 	glBindTexture(Target, 0);
 
 	return true;
-}
-
-
-void TextureID::Reset() {
-	Id = Target = 0;
 }
 
 
@@ -370,12 +365,104 @@ TextureBuildData& TextureBuildData::operator= (TextureBuildData &&Rhs) {
 TextureBuildData::~TextureBuildData() { Parameters.Release(); }
 
 
-void BaseAPI::BuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data) {
-	VAO.Alloc();
-	VBO.Alloc(GL_ARRAY_BUFFER);
+BufferID::BufferID() : GraphicsObject(), Attachment(0), InternalFormat(0) {}
 
-	if (Data.Length)
-		EBO.Alloc(GL_ELEMENT_ARRAY_BUFFER);
+
+BufferID::~BufferID() { Delete(); }
+
+
+BufferID::BufferID(BufferID &&Rhs) { *this = std::move(Rhs); }
+
+
+BufferID& BufferID::operator= (BufferID &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		Reset();
+
+		Id			= Rhs.Id;
+		Target		= Rhs.Target;
+		Attachment	= Rhs.Attachment;
+
+		Rhs.Reset();
+	}
+
+	return *this;
+}
+
+
+bool BufferID::Alloc(uint32 Target) {
+	if (Id)
+		return false;
+
+	this->Target = Target;
+
+	if (this->Target == GL_FRAMEBUFFER)
+		glGenFramebuffers(1, &Id);
+
+	if (this->Target == GL_RENDERBUFFER)
+		glGenRenderbuffers(1, &Id);
+
+	return true;
+}
+
+
+bool BufferID::Delete() {
+	if (!Id)
+		return false;
+
+	if (Target == GL_FRAMEBUFFER)
+		glDeleteFramebuffers(1, &Id);
+	
+	if (Target == GL_RENDERBUFFER)
+		glDeleteRenderbuffers(1, &Id);
+
+	return true;
+}
+
+
+bool BufferID::Bind() {
+	if (!Target)
+		return false;
+
+	if (Target == GL_FRAMEBUFFER)
+		glBindFramebuffer(Target, Id);
+
+	if (Target == GL_RENDERBUFFER)
+		glBindRenderbuffer(Target, Id);
+
+	return true;
+}
+
+
+bool BufferID::UnBind() {
+	if (!Target)
+		return false;
+
+	if (Target == GL_FRAMEBUFFER)
+		glBindFramebuffer(Target, 0);
+
+	if (Target == GL_RENDERBUFFER)
+		glBindRenderbuffer(Target, 0);
+
+	return true;
+}
+
+
+void BufferID::Reset() {
+	Id = Target = Attachment = InternalFormat = 0;
+}
+
+
+
+void BaseAPI::BuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO, MeshBuildData &Data) {
+	if (!VAO) {
+		VAO.Alloc();
+		VBO.Alloc(GL_ARRAY_BUFFER);
+
+		if (Data.Length)
+			EBO.Alloc(GL_ELEMENT_ARRAY_BUFFER);
+	}
 
 	VAO.Bind();
 	VBO.Bind();
@@ -391,20 +478,24 @@ void BaseAPI::BuildMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO,
 		glVertexAttribPointer(Ptr.Index, Ptr.Size, GL_FLOAT, GL_FALSE, Ptr.Stride, (GLvoid*)(Ptr.Pointer));
 	}
 
-	// NOTE(Afiq): Should we make the mesh only hold a VAO and not the VBO and EBO since they're not really required.
 	VAO.UnBind();
 }
 
 
 void BaseAPI::DeleteMesh(VertArrayObj &VAO, BufferObject &VBO, BufferObject &EBO) {
+	if (!VAO)
+		return;
+
 	VBO.Delete();
 	EBO.Delete();
 	VAO.Delete();
 }
 
 
-void BaseAPI::BuildTexture(TextureID &ID, TextureBuildData &Data) {
-	ID.Alloc(Data.Target);
+void BaseAPI::BuildTexture(TextureID &ID, TextureBuildData &Data) { 
+	if (!ID)
+		ID.Alloc(Data.Target);
+
 	ID.Bind();
 
 	switch (Data.Type) {
@@ -433,7 +524,7 @@ void BaseAPI::BuildTexture(TextureID &ID, TextureBuildData &Data) {
 
 void BaseAPI::GenerateGenericTextureData(TextureBuildData &Data) {
 	Data.Target = GL_TEXTURE_2D;
-	Data.Type = GL_UNSIGNED_BYTE;
+	Data.Type	= GL_UNSIGNED_BYTE;
 	Data.Format = GL_RGB;
 	Data.Parameters = {{GL_TEXTURE_WRAP_S,		GL_REPEAT},
 					   {GL_TEXTURE_WRAP_T,		GL_REPEAT},
@@ -443,5 +534,23 @@ void BaseAPI::GenerateGenericTextureData(TextureBuildData &Data) {
 
 
 void BaseAPI::DeleteTexture(TextureID &ID) {
-	ID.Delete();
+	if (ID)
+		ID.Delete();
+}
+
+
+void BaseAPI::BuildFramebuffer(BufferID &ID, BufferBuildData &Data) {
+	if (ID)
+		ID.Alloc(Data.Target);
+
+	ID.Bind();
+
+	if (Data.InternalFormat) {
+		ID.InternalFormat = Data.InternalFormat;
+		ID.Attachment = Data.Attachment;
+
+		glRenderbufferStorage(ID.Target, ID.InternalFormat, Data.Width, Data.Height);
+	}
+
+	ID.UnBind();
 }

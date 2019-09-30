@@ -135,12 +135,9 @@ struct SceneryData {
 * Every object has a database of it's own with a unique id assigned to it.
 *
 * TODO(Afiq):
-* Separate resource loading from OpenGL calls.
-* Doing this would enable us to parse data into the engine in a separate thread.
-*
-* One thing we did not take into account when making the delete functions was to make it suitable for real time.
-* We have to find all levels that refer to that object and remove it from that level.
-* Needs to be restructured so that each material store a reference count to who ever is using it.
+* Deleting a resource that's tied to an OpenGL object can no longer be done in the resource manager.
+* It needs to send the OpenGL object to the ResourceBuildQueue, when the build queue has finished deleting the object from the GPU,
+* only then do we delete the object from memory.
 */
 class ResourceManager {
 public:
@@ -209,6 +206,11 @@ public:
 	bool		DeleteMaterial		(const String &Name);
 	bool		DeleteLevel			(const String &Name);
 
+	/**
+	* TODO(Afiq):
+	* We need to let the BuildQueue delete the OpenGL objects first before releasing them from memory.
+	* One method that can be thought of right now is to push all resource into the build queue and wait for an OK message only then do we release it from memory.
+	*/
 	void		CleanResource		();
 
 	ResourceManager();

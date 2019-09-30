@@ -14,6 +14,7 @@ class Mesh;
 class Scene;
 class Texture;
 class Shader;
+class Postprocess;
 
 
 /**
@@ -74,17 +75,85 @@ struct TexturePacket {
 
 
 /**
+* [MIDDLEWARE]
+* FramebufferPacket data structure.
+*
+* A FramebufferPacket is required to bridge the gap between the high-level abstraction API with the low level API.
+* Low-level API can only process framebuffer data that is contained inside of this data structure.
+*/
+struct FramebufferPacket {
+	Postprocess			*PostprocessPtr;
+	BufferBuildData		BuildData;
+
+	FramebufferPacket();
+	FramebufferPacket(Postprocess *Resource, BufferBuildData Data);
+
+	FramebufferPacket(const FramebufferPacket &Rhs);
+	FramebufferPacket(FramebufferPacket &&Rhs);
+
+	FramebufferPacket& operator= (const FramebufferPacket &Rhs);
+	FramebufferPacket& operator= (FramebufferPacket &&Rhs);
+
+	~FramebufferPacket();
+};
+
+
+/**
+* [MIDDLEWARE]
+* GfxObjectType enums.
+*
+* A list of available graphics object in the engine.
+* Used for identifying the derived class of GraphicsObject.
+*/
+enum GfxObjectType : uint32 {
+	GFX_TYPE_NONE			= 0x00,	// Used only for initialisation.
+	GFX_TYPE_MESHBUFFER		= 0x01,
+	GFX_TYPE_VERTEXARRAY	= 0x02,
+	GFX_TYPE_TEXTUREID		= 0x03,
+	GFX_TYPE_SHADERID		= 0x04,
+	GFX_TYPE_POSTPROCESS	= 0x05
+};
+
+
+/**
+* [MIDDLEWARE]
+* DeletePacket data strucure.
+*
+* A DeletePacket is required to remove a GraphicsObject from the GPU before removing it from memory.
+*/
+struct DeletePacket {
+	GraphicsObject	*ObjectPtr;
+	GfxObjectType	Type;
+
+	DeletePacket();
+	DeletePacket(GraphicsObject *Resource, GfxObjectType Type);
+
+	DeletePacket(const DeletePacket &Rhs);
+	DeletePacket(DeletePacket &&Rhs);
+
+	DeletePacket& operator= (const DeletePacket &Rhs);
+	DeletePacket& operator= (DeletePacket &&Rhs);
+
+	~DeletePacket();
+};
+
+
+/**
 * ResourceBuildQueue data structure.
 *
 * A global instance is already set up upon the application's creation.
 *
 * [WARNING] DO NOT CREATE AN INSTANCE OF THIS CLASS! THERE SHOULD ONLY BE ONE!
+* NOTE(Afiq):
+* 
 */
 class ResourceBuildQueue {
 private:
 
-	std::deque<MeshPacket>		MeshQueue;
-	std::deque<TexturePacket>	TextureQueue;
+	std::deque<MeshPacket>			MeshQueue;
+	std::deque<TexturePacket>		TextureQueue;
+	std::deque<FramebufferPacket>	FramebufferQueue;
+	std::deque<DeletePacket>		DeleteQueue;
 
 public:
 
@@ -103,6 +172,20 @@ public:
 	* Adds a texture to be built by OpenGL.
 	*/
 	void AddTextureForBuild(Texture *Texture, TextureBuildData Data);
+
+
+	/**
+	* [MIDDLEWARE]
+	* Removes a GraphicsObject from the GPU.
+	*/
+	void QueueObjectForDelete(GraphicsObject *Object, GfxObjectType Type);
+
+
+	/**
+	* [MIDDLEWARE]
+	* Removes a GraphicsObject from the GPU.
+	*/
+	void QueueObjectForDelete(DeletePacket &Packet);
 
 
 	/**
@@ -139,6 +222,8 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* Packages the mesh to and sends it to the ResourceBuildQueue.
 	* If mesh set up requires more manual intervention, e.g: manually setting up the vertex attribute pointers, call AddMeshForBuild from ResourceBuildQueue.
+	*
+	* WARNING: This function allocates temporary memory on the heap. It is deleted once the Mesh has been successfully built.
 	*/
 	void				PackageMeshForBuild		(Mesh *MeshSrc);
 
