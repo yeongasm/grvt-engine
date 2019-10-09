@@ -69,16 +69,7 @@
     <ClCompile Include="Renderer\RenderCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GravityOpenAPI\LowLevelAPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GravityOpenAPI\Middleware.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Application\Project.cpp">
@@ -106,6 +97,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Postprocessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GravityGL\LowLevelAPI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GravityGL\Foundations.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GravityGL\Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\RenderInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -158,16 +161,7 @@
     <ClInclude Include="Renderer\RenderCommand.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityOpenAPI\LowLevelAPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GravityOpenAPI\Middleware.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Application\Project.h">
@@ -192,6 +186,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Postprocessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityGL\LowLevelAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityGL\Foundations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GravityGL\Interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\RenderInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

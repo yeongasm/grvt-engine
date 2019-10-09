@@ -11,10 +11,6 @@ TextureData::TextureData() : id{}, name{}, file{},
 	directory{}, texture{}, references{} {}
 
 
-TextureData::TextureData(const TextureCreationInfo &Info) : id(0), name(Info.name), file(Info.files[0]), 
-	directory(Info.directory), texture(new Texture()), references{} {}
-
-
 void TextureData::Alloc(const TextureCreationInfo &Info) {
 	id			= 0;
 	name		= Info.name;
@@ -39,7 +35,7 @@ void TextureData::Free() {
 	name.Release();
 	file.Release();
 	directory.Release();
-	references.Length();
+	references.Release();
 }
 
 
@@ -91,10 +87,6 @@ void ShaderData::Free() {
 
 SceneData::SceneData() : id{}, file{}, 
 	directory{}, scene{} {}
-
-
-SceneData::SceneData(const SceneCreationInfo &Info) : id(0), name(Info.name),
-file(Info.file), directory(Info.directory), scene(new Scene()) {}
 
 
 SceneData::~SceneData() { Free(); }
@@ -168,12 +160,6 @@ void SceneryData::Free() {
 	name.Release();
 	directory.Release();
 	filename.Release();
-}
-
-
-uint ResourceManager::GenerateResourceID() {
-	static uint lastID = 0;
-	return lastID++;
 }
 
 

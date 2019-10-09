@@ -87,7 +87,7 @@ public:
 * TextureCreationInfo.parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR}
 * TextureCreationInfo.parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
 */
-void GenerateGenericCubemapInfo(TextureCreationInfo &Info);
+//void GenerateGenericCubemapInfo(TextureCreationInfo &Info);
 
 
 // Forward declaration of the struct.
@@ -99,10 +99,13 @@ struct TextureData;
 * All of Gravity's texture objects are to be of pointer-type.
 * When creating a cubemap texture, specify in the order of Right -> Left -> Top -> Bottom -> Front -> Back inside TextureCreationInfo struct.
 * Gravity does not take into account the order of faces that is specified in the struct and would always generate in that order.
+*
+* NOTE(Afiq):
+* Would be nice if textures store their parameters but is it necessary?
 */
 class Texture {
 public:
-	TextureID	id;
+	ObjHandle	handle;
 	TextureType type;
 	TextureData	*info;
 

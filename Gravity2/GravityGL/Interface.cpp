@@ -90,7 +90,114 @@ TexturePacket& TexturePacket::operator= (TexturePacket &&Rhs) {
 TexturePacket::~TexturePacket() { TexturePtr = nullptr; }
 
 
-ResourceBuildQueue::ResourceBuildQueue() : MeshQueue() {}
+RenderbufferPacket::RenderbufferPacket() : RenderBufferPtr(nullptr), BuildData() {}
+
+
+RenderbufferPacket::RenderbufferPacket(RenderBuffer *Resource, RenderbufferBuildData Data) :
+	RenderBufferPtr(Resource), BuildData(Data) {}
+
+
+RenderbufferPacket::RenderbufferPacket(const RenderbufferPacket &Rhs) { *this = Rhs; }
+
+
+RenderbufferPacket& RenderbufferPacket::operator= (const RenderbufferPacket &Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		RenderBufferPtr = Rhs.RenderBufferPtr;
+		BuildData		= Rhs.BuildData;
+	}
+
+	return *this;
+}
+
+
+RenderbufferPacket::RenderbufferPacket(RenderbufferPacket &&Rhs) { *this = std::move(Rhs); }
+
+
+RenderbufferPacket& RenderbufferPacket::operator= (RenderbufferPacket &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		RenderBufferPtr = Rhs.RenderBufferPtr;
+		BuildData		= Rhs.BuildData;
+
+		new (&Rhs) RenderbufferPacket();
+	}
+
+	return *this;
+}
+
+
+RenderbufferPacket::~RenderbufferPacket() { RenderBufferPtr = nullptr; }
+
+
+FramebufferPacket::FramebufferPacket() : PostProcessPtr(nullptr), BuildData() {}
+
+
+FramebufferPacket::FramebufferPacket(PostProcess *Resource, FramebufferBuildData Data) :
+	PostProcessPtr(Resource), BuildData(Data) {}
+
+
+FramebufferPacket::FramebufferPacket(const FramebufferPacket &Rhs) { *this = Rhs; }
+
+
+FramebufferPacket& FramebufferPacket::operator= (const FramebufferPacket &Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		PostProcessPtr	= Rhs.PostProcessPtr;
+		BuildData		= Rhs.BuildData;
+	}
+
+	return *this;
+}
+
+
+FramebufferPacket::FramebufferPacket(FramebufferPacket &&Rhs) { *this = std::move(Rhs); }
+
+
+FramebufferPacket& FramebufferPacket::operator= (FramebufferPacket &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		PostProcessPtr	= Rhs.PostProcessPtr;
+		BuildData		= Rhs.BuildData;
+
+		new (&Rhs) FramebufferPacket();
+	}
+
+	return *this;
+}
+
+
+FramebufferPacket::~FramebufferPacket() { PostProcessPtr = nullptr; }
+
+
+DeletePacket::DeletePacket() : Handle(), Type(GFX_TYPE_NONE) {}
+
+
+DeletePacket::DeletePacket(DeletePacket &&Rhs) { *this = std::move(Rhs); }
+
+
+DeletePacket& DeletePacket::operator= (DeletePacket &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		Handle		= std::move(Rhs.Handle);
+		Type		= Rhs.Type;
+
+		new (&Rhs) DeletePacket();
+	}
+
+	return *this;
+}
+
+
+DeletePacket::~DeletePacket() { Type = GFX_TYPE_NONE; }
+
+
+ResourceBuildQueue::ResourceBuildQueue() : MeshQueue(), TextureQueue(), FramebufferQueue(), DeleteQueue() {}
 
 
 ResourceBuildQueue::~ResourceBuildQueue() {}
@@ -106,20 +213,66 @@ void ResourceBuildQueue::AddTextureForBuild(Texture *Texture, TextureBuildData D
 }
 
 
+void ResourceBuildQueue::AddPostprocessForBuild(PostProcess *Framebuffer, FramebufferBuildData Data) {
+	FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
+}
+
+
+void ResourceBuildQueue::AddRenderBufferForBuild(RenderBuffer *Renderbuffer, RenderbufferBuildData Data) {
+	RenderbufferQueue.push_back(RenderbufferPacket(Renderbuffer, Data));
+}
+
+
+void ResourceBuildQueue::AddHandleForDelete(ObjHandle &Handle, GfxObjectType Type) {
+	DeletePacket Packet;
+	Packet.Handle	= std::move(Handle);
+	Packet.Type		= Type;
+
+	DeleteQueue.push_back(std::move(Packet));
+}
+
+
 void ResourceBuildQueue::Listen() {
 	// Build meshes that are in the queue.
 	for (MeshPacket &Packet : MeshQueue) {
 		BaseAPI::BuildMesh(Packet.MeshPtr->vao, Packet.MeshPtr->vbo, Packet.MeshPtr->ebo, Packet.BuildData);
-		Packet.MeshPtr->size = (Packet.MeshPtr->ebo) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
+		Packet.MeshPtr->size = (Packet.MeshPtr->ebo.Id) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
 		free(Packet.BuildData.Data);
 		MeshQueue.pop_front();
 	}
 
 	// Build textures that are in the queue.
 	for (TexturePacket &Packet : TextureQueue) {
-		BaseAPI::BuildTexture(Packet.TexturePtr->id, Packet.BuildData);
+		BaseAPI::BuildTexture(Packet.TexturePtr->handle, Packet.BuildData);
 		free(Packet.BuildData.DataPtr);
 		TextureQueue.pop_front();
+	}
+
+	// Build framebuffers that are in the queue.
+	for (FramebufferPacket &Packet : FramebufferQueue) {
+		BaseAPI::BuildFramebuffer(Packet.PostProcessPtr->id, Packet.BuildData);
+		FramebufferQueue.pop_front();
+	}
+
+	// Listen to delete packets.
+	for (DeletePacket &Packet : DeleteQueue) {
+		switch (Packet.Type) {
+		case GFX_TYPE_MESHBUFFER:
+			BaseAPI::GrDeleteBufferObject(Packet.Handle);
+			break;
+		case GFX_TYPE_VERTEXARRAY:
+			BaseAPI::GrDeleteVertexArray(Packet.Handle);
+			break;
+		case GFX_TYPE_TEXTUREID:
+			BaseAPI::GrDeleteTexture(Packet.Handle);
+			break;
+		case GFX_TYPE_POSTPROCESS:
+			BaseAPI::GrDeleteFramebuffer(Packet.Handle);
+			break;
+		case GFX_TYPE_RENDERBUFFER:
+			BaseAPI::GrDeleteRenderbuffer(Packet.Handle);
+			break;
+		}
 	}
 }
 

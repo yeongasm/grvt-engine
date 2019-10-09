@@ -80,12 +80,7 @@ Mesh::~Mesh() {
 
 
 void Mesh::Free() {
-	ebo.Delete();
-	vbo.Delete();
-	vao.Delete();
-
 	size = 0;
-
 	positions.Release();
 	uv.Release();
 	normals.Release();

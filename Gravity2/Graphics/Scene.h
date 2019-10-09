@@ -56,9 +56,9 @@ struct SceneCreationInfo {
 class Mesh {
 public:
 
-	VertArrayObj	vao;
-	BufferObject	vbo;
-	BufferObject	ebo;
+	ObjHandle		vao;
+	ObjHandle		vbo;
+	ObjHandle		ebo;
 	uint			size;
 
 	Array<glm::vec3>	positions;

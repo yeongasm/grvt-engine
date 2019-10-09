@@ -16,14 +16,13 @@ public:
 	References	references;
 
 	TextureData();
-	TextureData(const TextureCreationInfo &Info);
-	TextureData(const TextureData &Data)				= delete;
-	TextureData(TextureData &&Data)						= delete;
-	
-	TextureData& operator= (const TextureData &Data)	= delete;
-	TextureData& operator= (TextureData &&Data)			= delete;
-
 	~TextureData();
+;
+	TextureData(const TextureData &Data)				= delete;
+	TextureData& operator= (const TextureData &Data)	= delete;
+	
+	TextureData(TextureData &&Data)						= delete;
+	TextureData& operator= (TextureData &&Data)			= delete;
 
 	void Alloc(const TextureCreationInfo &Info);
 	void Free();
@@ -62,6 +61,7 @@ public:
 
 
 struct SceneData {
+
 	uint	id;
 	String	name;
 	String	file;
@@ -69,17 +69,17 @@ struct SceneData {
 	Scene	*scene;
 
 	SceneData();
-	SceneData(const SceneCreationInfo &Info);
+	~SceneData();
+
 	SceneData(const SceneData &Data)				= delete;
 	SceneData(SceneData &&Data)						= delete;
 
 	SceneData& operator= (const SceneData &Data)	= delete;
 	SceneData& operator= (SceneData &&Data)			= delete;
 
-	~SceneData();
-
 	void Alloc(const SceneCreationInfo &Info);
 	void Free();
+
 };
 
 
@@ -96,20 +96,22 @@ public:
 	References	references;
 
 	MaterialData();
-	MaterialData(const MaterialData &Data)				= delete;
-	MaterialData(MaterialData &&Data)					= delete;
-
-	MaterialData& operator= (const MaterialData &Data)	= delete;
-	MaterialData& operator= (MaterialData &&Data)		= delete;
-
 	~MaterialData();
+
+	MaterialData(const MaterialData &Data)				= delete;
+	MaterialData& operator= (const MaterialData &Data)	= delete;
+
+	MaterialData(MaterialData &&Data)					= delete;
+	MaterialData& operator= (MaterialData &&Data)		= delete;
 
 	void Alloc(const MaterialCreationInfo &Info);
 	void Free();
+
 };
 
 
 struct SceneryData {
+
 	uint		id;
 	String		name;
 	String		directory;
@@ -117,16 +119,68 @@ struct SceneryData {
 	Scenery		*level;
 
 	SceneryData();
-	SceneryData(const SceneryData &Data)				= delete;
-	SceneryData(SceneryData &&Data)						= delete;
-
-	SceneryData& operator= (const SceneryData &Data)	= delete;
-	SceneryData& operator= (SceneryData &&Data)			= delete;
-
 	~SceneryData();
+
+	SceneryData(const SceneryData &Data)				= delete;
+	SceneryData& operator= (const SceneryData &Data)	= delete;
+
+	SceneryData(SceneryData &&Data)						= delete;
+	SceneryData& operator= (SceneryData &&Data)			= delete;
 
 	void Alloc(const LevelCreationInfo &Info);
 	void Free();
+
+};
+
+
+struct OffScreenBufferData {
+private:
+
+	using References = Array<RenderBuffer**>;
+
+public:
+
+	uint			id;
+	String			name;
+	RenderBuffer	*renderbuffer;
+
+	OffScreenBufferData();
+	~OffScreenBufferData();
+
+	OffScreenBufferData(const OffScreenBufferData &Data)				= delete;
+	OffScreenBufferData& operator= (const OffScreenBufferData &Data)	= delete;
+
+	OffScreenBufferData& operator= (OffScreenBufferData &&Data)			= delete;
+	OffScreenBufferData(OffScreenBufferData &&Data)						= delete;
+
+};
+
+
+struct PostProcessData {
+private:
+
+	using References = Array<PostProcess**>;
+
+public:
+
+	uint		id;
+	String		name;
+	PostProcess *framebuffer;
+	References	references;
+
+	PostProcessData();
+	~PostProcessData();
+
+	PostProcessData(const PostProcessData &Data)				= delete;
+	PostProcessData& operator= (const PostProcessData &Data)	= delete;
+
+	PostProcessData(PostProcessData &&Data)						= delete;
+	PostProcessData& operator= (PostProcessData &&Data)			= delete;
+
+
+	void Alloc(const PostProcessCreationInfo &Info);
+	void Free();
+
 };
 
 
@@ -145,35 +199,34 @@ public:
 	/**
 	* Never call this to add new textures into the engine. Call NewTexture() instead.
 	*/
-	Array<TextureData* > textures;
+	Array<TextureData* >		textures;
 
 	/**
 	* Never call this to add new shaders into the engine. Call NewShader() instead.
 	*/
-	Array<ShaderData*  > shaders;
+	Array<ShaderData*  >		shaders;
 
 	/**
 	* Never call this to add new scenes into the engine. Call NewScene() instead.
 	*/
-	Array<SceneData*   > scenes;
+	Array<SceneData*   >		scenes;
 
 	/**
 	* Never call this to add new materials into the engine. Call NewMaterial() instead.
 	*/
-	Array<MaterialData*> materials;
+	Array<MaterialData*>		materials;
 
 	/**
 	* Never call this to add new levels into the engine. Call NewLevel() instead.
 	*/
-	Array<SceneryData* > levels;
-	
-private:
+	Array<SceneryData* >		levels;
 
 	/**
-	* A step up from the previous version where we use templates instead of a long list of enums.
-	* This function would return a unique id from every single resource type.
+	* Never call this to add new framebuffers into the engine. Call NewPostProcess() instead;
 	*/
-	uint GenerateResourceID();
+	Array<PostProcessData* >	framebuffers;
+
+private:
 
 	/**
 	* We supply the base resource type into the template specifier to generate unique ids.
@@ -181,10 +234,7 @@ private:
 	* @template <Resource> - Gravity resource types such as a scene, shader, textures and etc.
 	*/
 	template <typename Resource>
-	uint GenerateID() {
-		static uint id = 0;
-		return id++;
-	}
+	uint GenerateID() { static uint id = 0; return id++; }
 
 public:
 

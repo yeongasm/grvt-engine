@@ -14,7 +14,8 @@ class Mesh;
 class Scene;
 class Texture;
 class Shader;
-class Postprocess;
+class RenderBuffer;
+class PostProcess;
 
 
 /**
@@ -76,25 +77,53 @@ struct TexturePacket {
 
 /**
 * [MIDDLEWARE]
+* RenderbufferPacket data structure.
+*
+* A RenderbufferPacket is required to bridge the gap between the high-level abstraction API with the low level API.
+* Low-level API can only process framebuffer data that is contained inside of this data structure.
+*/
+struct RenderbufferPacket {
+
+	RenderBuffer			*RenderBufferPtr;
+	RenderbufferBuildData	BuildData;
+
+	RenderbufferPacket();
+	RenderbufferPacket(RenderBuffer *Resource, RenderbufferBuildData Data);
+
+	RenderbufferPacket(const RenderbufferPacket &Rhs);
+	RenderbufferPacket& operator= (const RenderbufferPacket &Rhs);
+
+	RenderbufferPacket(RenderbufferPacket &&Rhs);
+	RenderbufferPacket& operator= (RenderbufferPacket &&Rhs);
+
+	~RenderbufferPacket();
+
+};
+
+
+/**
+* [MIDDLEWARE]
 * FramebufferPacket data structure.
 *
 * A FramebufferPacket is required to bridge the gap between the high-level abstraction API with the low level API.
 * Low-level API can only process framebuffer data that is contained inside of this data structure.
 */
 struct FramebufferPacket {
-	Postprocess			*PostprocessPtr;
-	BufferBuildData		BuildData;
+
+	PostProcess				*PostProcessPtr;
+	FramebufferBuildData	BuildData;
 
 	FramebufferPacket();
-	FramebufferPacket(Postprocess *Resource, BufferBuildData Data);
+	FramebufferPacket(PostProcess *Resource, FramebufferBuildData Data);
 
 	FramebufferPacket(const FramebufferPacket &Rhs);
-	FramebufferPacket(FramebufferPacket &&Rhs);
-
 	FramebufferPacket& operator= (const FramebufferPacket &Rhs);
+
+	FramebufferPacket(FramebufferPacket &&Rhs);
 	FramebufferPacket& operator= (FramebufferPacket &&Rhs);
 
 	~FramebufferPacket();
+
 };
 
 
@@ -111,7 +140,8 @@ enum GfxObjectType : uint32 {
 	GFX_TYPE_VERTEXARRAY	= 0x02,
 	GFX_TYPE_TEXTUREID		= 0x03,
 	GFX_TYPE_SHADERID		= 0x04,
-	GFX_TYPE_POSTPROCESS	= 0x05
+	GFX_TYPE_POSTPROCESS	= 0x05,
+	GFX_TYPE_RENDERBUFFER	= 0x06
 };
 
 
@@ -122,19 +152,20 @@ enum GfxObjectType : uint32 {
 * A DeletePacket is required to remove a GraphicsObject from the GPU before removing it from memory.
 */
 struct DeletePacket {
-	GraphicsObject	*ObjectPtr;
+
+	ObjHandle		Handle;
 	GfxObjectType	Type;
 
 	DeletePacket();
-	DeletePacket(GraphicsObject *Resource, GfxObjectType Type);
+	~DeletePacket();
 
-	DeletePacket(const DeletePacket &Rhs);
+	DeletePacket(const DeletePacket &Rhs)				= delete;
+	DeletePacket& operator= (const DeletePacket &Rhs)	= delete;
+
 	DeletePacket(DeletePacket &&Rhs);
-
-	DeletePacket& operator= (const DeletePacket &Rhs);
 	DeletePacket& operator= (DeletePacket &&Rhs);
 
-	~DeletePacket();
+
 };
 
 
@@ -153,6 +184,7 @@ private:
 	std::deque<MeshPacket>			MeshQueue;
 	std::deque<TexturePacket>		TextureQueue;
 	std::deque<FramebufferPacket>	FramebufferQueue;
+	std::deque<RenderbufferPacket>	RenderbufferQueue;
 	std::deque<DeletePacket>		DeleteQueue;
 
 public:
@@ -173,19 +205,26 @@ public:
 	*/
 	void AddTextureForBuild(Texture *Texture, TextureBuildData Data);
 
+	
+	/**
+	* [MIDDLEWARE]
+	* Adds a framebuffer to be built by OpenGL.
+	*/
+	void AddPostprocessForBuild(PostProcess *Framebuffer, FramebufferBuildData Data);
+
+
+	/**
+	* [MIDDLEWARE]
+	* Adds a renderbuffer to be built by OpenGL.
+	*/
+	void AddRenderBufferForBuild(RenderBuffer *Renderbuffer, RenderbufferBuildData Data);
+
 
 	/**
 	* [MIDDLEWARE]
 	* Removes a GraphicsObject from the GPU.
 	*/
-	void QueueObjectForDelete(GraphicsObject *Object, GfxObjectType Type);
-
-
-	/**
-	* [MIDDLEWARE]
-	* Removes a GraphicsObject from the GPU.
-	*/
-	void QueueObjectForDelete(DeletePacket &Packet);
+	void AddHandleForDelete(ObjHandle &Handle, GfxObjectType Type);
 
 
 	/**

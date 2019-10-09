@@ -118,12 +118,12 @@ void Renderer::UseShader(Shader *Shader) {
 void Renderer::RenderMesh(RenderNode *Node) {
 	Mesh *mesh = Node->mesh;
 
-	glBindVertexArray(mesh->vao);
+	glBindVertexArray(mesh->vao.Id);
 
 	if (Node->mode == GL_POINTS)
 		glPointSize(5.0f);
 
-	if (mesh->ebo)
+	if (mesh->ebo.Id)
 		glDrawElements(Node->mode, mesh->size, GL_UNSIGNED_INT, 0);
 	else
 		glDrawArrays(Node->mode, 0, mesh->size);
@@ -153,7 +153,7 @@ void Renderer::RenderPushedCommand(RenderCommand *Command) {
 			// 3. Update texture sample units.
 			for (Texture *texture : node.material->textures) {
 				glActiveTexture(GL_TEXTURE0 + texture->type);
-				glBindTexture(texture->id.Target, texture->id);
+				glBindTexture(texture->handle.Target, texture->handle.Id);
 			}
 			glActiveTexture(GL_TEXTURE0);
 		}
@@ -171,7 +171,7 @@ Renderer::Renderer() :
 	pvBufferObject(0),
 	activeShader(nullptr),
 	settings(),
-	renderBuffer() {}
+	renderInstance() {}
 
 
 Renderer::~Renderer() {}
@@ -233,19 +233,19 @@ void Renderer::Render() {
 
 	// Update the projection and view composite matrix inside of the UBO.
 	glBindBuffer(GL_UNIFORM_BUFFER, pvBufferObject);
-	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(renderBuffer.compProjView));
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(renderInstance.compProjView));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	// Update the light data inside of the UBO.
-	size_t totalLights = renderBuffer.lights.Length();
+	size_t totalLights = renderInstance.lights.Length();
 	glBindBuffer(GL_UNIFORM_BUFFER, lightBufferObj);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(int), &totalLights);
-	glBufferSubData(GL_UNIFORM_BUFFER, 16, totalLights * sizeof(glm::mat4), renderBuffer.lights.First());
+	glBufferSubData(GL_UNIFORM_BUFFER, 16, totalLights * sizeof(glm::mat4), renderInstance.lights.First());
 
 
 	// 2. Render all pushed data onto the screen.
-	for (size_t i = 0; i < renderBuffer.commands.Length(); i++) {
-		command	= &renderBuffer.commands[i];
+	for (size_t i = 0; i < renderInstance.commands.Length(); i++) {
+		command	= &renderInstance.commands[i];
 
 		state = command->renderSetting;
 		
@@ -273,37 +273,37 @@ void Renderer::Render() {
 
 	settings.SetPolygonMode(GL_FILL);
 
-	// 3. Remove the buffer from the queue.
-	renderBuffer.Free();
+	// 3. Remove the instance from the queue.
+	renderInstance.Free();
 }
 
 
 void Renderer::PreRenderLevel(Scenery *Level) {
 
 	// Add a new buffer object into the buffer container.
-	RenderBuffer	*buffer = &renderBuffer;
+	RenderInstance	*instance = &renderInstance;
 	RenderCommand	command;
 	RenderNode		rnode;
 
 	// Right now we only cater for scene instances that are not pushed for instanced rendering.
-	for (SceneInstance *instance : Level->renderInstances) {
-		command.renderSetting	= instance->renderState;
+	for (SceneInstance *scene : Level->renderInstances) {
+		command.renderSetting	= scene->renderState;
 
 		glm::mat4 &model = command.model;
 
-		model = glm::translate(model, instance->GetPosition());
-		model = glm::scale(model, instance->GetScale());
+		model = glm::translate(model, scene->GetPosition());
+		model = glm::scale(model, scene->GetScale());
 
-		if (instance->GetRotation().x)
-			model = glm::rotate(model, glm::radians(instance->GetRotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
+		if (scene->GetRotation().x)
+			model = glm::rotate(model, glm::radians(scene->GetRotation().x), glm::vec3(1.0f, 0.0f, 0.0f));
 
-		if (instance->GetRotation().y)
-			model = glm::rotate(model, glm::radians(instance->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
+		if (scene->GetRotation().y)
+			model = glm::rotate(model, glm::radians(scene->GetRotation().y), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		if (instance->GetRotation().z)
-			model = glm::rotate(model, glm::radians(instance->GetRotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
+		if (scene->GetRotation().z)
+			model = glm::rotate(model, glm::radians(scene->GetRotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		for (MeshNode &node : instance->nodes) {
+		for (MeshNode &node : scene->nodes) {
 			rnode.material	= node.material;
 			rnode.mesh		= node.mesh;
 			rnode.size		= node.mesh->size;
@@ -313,7 +313,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 			command.nodes.Push(rnode);
 		}
 
-		buffer->commands.Push(command);
+		instance->commands.Push(command);
 		command.nodes.Empty();
 	}
 
@@ -335,7 +335,7 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 	// mat[3][2]				= Quadratic (For  Spotlight).
 	for (Light *plight : Level->lights) {
 		plight->Compute(light);
-		buffer->lights.Push(light);
+		instance->lights.Push(light);
 	}
 
 	// TODO(Afiq):
@@ -343,11 +343,11 @@ void Renderer::PreRenderLevel(Scenery *Level) {
 	// Sort by FBO (When implemented) -> impleShader -> RenderStates (Mainly depth and then face culling) -> Models.
 	// This is to reduce OpenGL's internal state switching in order to enhance performance.
 
-	buffer->camera = Level->camera;
+	instance->camera = Level->camera;
 	
 
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (*(float*)&renderWidth / *(float*)&renderHeight), 0.1f, 1000.0f);
-	glm::mat4 view = buffer->camera->GetViewMatrix();
+	glm::mat4 view = instance->camera->GetViewMatrix();
 
-	buffer->compProjView = projection * view;
+	instance->compProjView = projection * view;
 }

@@ -10,7 +10,6 @@ class GravityApp;
 
 /**
 * TODO(Afiq): 
-* Allow Renderer to only render contents from a Scenery object.
 * Renderer has it's own "framebuffer" if you will.
 * When multi-threading is implemented in the future, the main thread would constantly be pushing into the Renderer's buffer deque.
 * The Renderer which will be on it's own thread will always render contents from the earliest pushed in RenderBuffer.
@@ -64,7 +63,7 @@ private:
 	uint			pvBufferObject;
 	Shader			*activeShader;
 	RenderFuncs		settings;
-	RenderBuffer	renderBuffer;
+	RenderInstance	renderInstance;
 
 	void UseShader(Shader *Shader);
 	void RenderMesh(RenderNode *Node);

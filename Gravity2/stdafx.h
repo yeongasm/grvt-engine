@@ -69,8 +69,11 @@
 
 // Utility header file.
 #include "Utility/Utility.h"
-#include "GravityOpenAPI/LowLevelAPI.h"
-#include "GravityOpenAPI/Middleware.h"
+
+// Gravity's GL Interface
+#include "GravityGL/Foundations.h"
+#include "GravityGL/LowLevelAPI.h"
+#include "GravityGL/Interface.h"
 
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
@@ -80,7 +83,6 @@
 #include "Graphics/SceneInstace.h"
 #include "Graphics/Lighting.h"
 
-
 #include "Camera/Camera.h"
 
 #include "Level/Scenery.h"
@@ -88,10 +90,8 @@
 
 #include "Renderer/RenderNode.h"
 #include "Renderer/RenderCommand.h"
-#include "Renderer/RenderBuffer.h"
+#include "Renderer/RenderInstance.h"
 #include "Renderer/Renderer.h"
-
-#define IMGUI_WINDOW_DEBUGGER 1
 
 #include "IO/InputHandler.h"
 #include "IO/IO.h"

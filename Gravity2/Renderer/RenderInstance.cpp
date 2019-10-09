@@ -1,29 +1,27 @@
 #include "stdafx.h"
 
 
-RenderBuffer::RenderBuffer() :
+RenderInstance::RenderInstance() :
 	compProjView{},
 	lights{},
 	commands{},
-	//alphaCommands{},
 	//instancingCommands{},
 	camera{} {}
 
 
-RenderBuffer::RenderBuffer(const RenderBuffer &Other) { *this = Other; }
+RenderInstance::RenderInstance(const RenderInstance &Other) { *this = Other; }
 
 
-RenderBuffer::RenderBuffer(RenderBuffer &&Other) { *this = std::move(Other); }
+RenderInstance::RenderInstance(RenderInstance &&Other) { *this = std::move(Other); }
 
 
-RenderBuffer& RenderBuffer::operator= (const RenderBuffer &Other) {
+RenderInstance& RenderInstance::operator= (const RenderInstance &Other) {
 	// Prevent the object from copying to itself in debug.
 	_ASSERTE(this != &Other);
 
 	// Runtime check.
 	if (this != &Other) {
 		commands			= Other.commands;
-		//alphaCommands		= Other.alphaCommands;
 		//instancingCommands	= Other.instancingCommands;
 		camera				= Other.camera;
 	}
@@ -32,7 +30,7 @@ RenderBuffer& RenderBuffer::operator= (const RenderBuffer &Other) {
 }
 
 
-RenderBuffer& RenderBuffer::operator= (RenderBuffer &&Other) {
+RenderInstance& RenderInstance::operator= (RenderInstance &&Other) {
 	// Prevent the object from copying to itself in debug.
 	_ASSERTE(this != &Other);
 
@@ -41,26 +39,24 @@ RenderBuffer& RenderBuffer::operator= (RenderBuffer &&Other) {
 		Free();
 
 		commands			= Other.commands;
-		//alphaCommands		= Other.alphaCommands;
 		//instancingCommands	= Other.instancingCommands;
 		camera				= Other.camera;
 
-		new (&Other) RenderBuffer();
+		new (&Other) RenderInstance();
 	}
 
 	return *this;
 }
 
 
-RenderBuffer::~RenderBuffer() {
+RenderInstance::~RenderInstance() {
 	Free();
 }
 
 
-void RenderBuffer::Free() {
+void RenderInstance::Free() {
 	camera = nullptr;
 	commands.Empty();
 	lights.Empty();
-	//alphaCommands.Release();
 	//instancingCommands.Release();
 }
