@@ -471,4 +471,11 @@ namespace Middleware {
 	}
 
 
+	void PackageFramebufferForBuild(PostProcess *FramebufferSrc) {
+		FramebufferBuildData buildData;
+
+		//buildData.DrawBuffer = 
+	}
+
+
 }

@@ -66,7 +66,7 @@ RenderBuffer& RenderBuffer::operator= (RenderBuffer &&Other) {
 RenderBuffer::~RenderBuffer() {}
 
 
-PostProcessAttachment::PostProcessAttachment() : texture(nullptr), type(FRAMEBUFFER_ATTACHMENT_NONE) {}
+PostProcessAttachment::PostProcessAttachment() : texture(nullptr), type(FRAMEBUFFER_ATTACHMENT_NONE), subType(FRAMEBUFFER_SUBATTACH_NONE), draw(false) {}
 
 
 PostProcessAttachment::PostProcessAttachment(const PostProcessAttachment &Other) { *this = Other; }
@@ -82,7 +82,9 @@ PostProcessAttachment& PostProcessAttachment::operator= (const PostProcessAttach
 		if (Other.type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER)
 			renderbuffer = Other.renderbuffer;
 
-		type = Other.type;
+		type	= Other.type;
+		subType = Other.subType;
+		draw	= Other.draw;
 	}
 
 	return *this;
@@ -102,7 +104,9 @@ PostProcessAttachment& PostProcessAttachment::operator= (PostProcessAttachment &
 		if (Other.type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER)
 			renderbuffer = Other.renderbuffer;
 
-		type = Other.type;
+		type	= Other.type;
+		subType = Other.subType;
+		draw	= Other.draw;
 
 		new (&Other) PostProcessAttachment();
 	}
@@ -114,6 +118,8 @@ PostProcessAttachment& PostProcessAttachment::operator= (PostProcessAttachment &
 PostProcessAttachment::~PostProcessAttachment() {
 	texture = nullptr;
 	type	= FRAMEBUFFER_ATTACHMENT_NONE;
+	subType = FRAMEBUFFER_SUBATTACH_NONE;
+	draw	= false;
 }
 
 

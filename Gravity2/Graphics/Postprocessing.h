@@ -83,6 +83,17 @@ enum AttachmentType : uint32 {
 
 
 /**
+* Specify the framebuffer's sub attachment type.
+*/
+enum SubAttachmentType : uint32 {
+	FRAMEBUFFER_SUBATTACH_NONE			= 0x00, // On first init only.
+	FRAMEBUFFER_SUBATTACH_COLOUR		= 0x01,
+	FRAMEBUFFER_SUBATTACH_DEPTH			= 0x02,
+	FRAMEBUFFER_SUBATTACH_STENCIL		= 0x03
+};
+
+
+/**
 * PostProcessAttachment data structure.
 * Specifies the Framebuffer's attachment.
 */
@@ -93,7 +104,9 @@ struct PostProcessAttachment {
 		RenderBuffer	*renderbuffer;
 	};
 
-	AttachmentType type;
+	AttachmentType		type;
+	SubAttachmentType	subType;
+	bool				draw;
 
 	PostProcessAttachment();
 

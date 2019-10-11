@@ -102,16 +102,18 @@ enum LogType : size_t {
 };
 
 enum LogComponent : size_t {
-	LOG_SHADER		= 0,
-	LOG_TEXTURE		= 1,
-	LOG_SCENE		= 2,
-	LOG_MANAGER		= 3,
-	LOG_OPENFILE	= 4,
-	LOG_MATERIAL	= 5,
-	LOG_SCENEINST	= 6,
-	LOG_APP			= 7,
-	LOG_LIGHT		= 8,
-	LOG_LEVEL		= 9
+	LOG_SHADER			= 0x00,
+	LOG_TEXTURE			= 0x01,
+	LOG_SCENE			= 0x02,
+	LOG_MANAGER			= 0x03,
+	LOG_OPENFILE		= 0x04,
+	LOG_MATERIAL		= 0x05,
+	LOG_SCENEINST		= 0x06,
+	LOG_APP				= 0x07,
+	LOG_LIGHT			= 0x08,
+	LOG_LEVEL			= 0x09,
+	LOG_POSTPROCESS		= 0x0A,
+	LOG_RENDERBUFFER	= 0x0B
 };
 
 /**
@@ -165,21 +167,5 @@ constexpr _Type&& Forward(_Type &&Arg) {
 	return static_cast<_Type&&>(Arg);
 }
 
-
-/**
-* NOTE(Afiq):
-* Should we introduct a form of function data structure for abstraction?
-* I can see the use of it when building our own thread wrapper but would it work? Not so sure ...
-*/
-//template <typename Type>
-//struct Function {
-//	using Callback = Type(*)(void*);
-//
-//	Callback Func;
-//
-//	Function(Callback Source) : Func(Source) {}
-//
-//	Type operator() () { return Func(); }
-//};
 
 #endif // !GRAVITY_UTILITY

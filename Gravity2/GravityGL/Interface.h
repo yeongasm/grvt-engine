@@ -175,8 +175,8 @@ struct DeletePacket {
 * A global instance is already set up upon the application's creation.
 *
 * [WARNING] DO NOT CREATE AN INSTANCE OF THIS CLASS! THERE SHOULD ONLY BE ONE!
-* NOTE(Afiq):
-* 
+* TODO(Afiq):
+* Implement for shaders
 */
 class ResourceBuildQueue {
 private:
@@ -243,19 +243,19 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* This sets the global ResourceBuildQueue variable to an instance of it.
 	*/
-	void				SetBuildQueue			(ResourceBuildQueue *BuildQueue);
+	void				SetBuildQueue				(ResourceBuildQueue *BuildQueue);
 
 	/**
 	* [MIDDLEWARE]
 	* Simply returns the global ResourceBuildQueue variable.
 	*/
-	ResourceBuildQueue* GetBuildQueue			();
+	ResourceBuildQueue* GetBuildQueue				();
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API for processing data loading by Assimp and being passed into the engine.
 	*/
-	void				ParseMeshFromAssimp		(const String Path, bool FlipUV, Scene *Scene);
+	void				ParseMeshFromAssimp			(const String Path, bool FlipUV, Scene *Scene);
 
 	/**
 	* [MIDDLEWARE]
@@ -264,12 +264,25 @@ namespace Middleware {
 	*
 	* WARNING: This function allocates temporary memory on the heap. It is deleted once the Mesh has been successfully built.
 	*/
-	void				PackageMeshForBuild		(Mesh *MeshSrc);
+	void				PackageMeshForBuild			(Mesh *MeshSrc);
 
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API to load textures from file into engine.
 	*/
-	void				ParseTextureFromFile	(const String Path, Texture *Texture);
+	void				ParseTextureFromFile		(const String Path, Texture *Texture);
+
+
+	/**
+	* [MIDDLEWARE]
+	* A mid level API to build framebuffers into the engine.
+	*/
+	void				PackageFramebufferForBuild	(PostProcess *FramebufferSrc);
+
+	/**
+	* [MIDDLEWARE]
+	* A mid level API to build renderbuffers into the engine.
+	*/
+	void				PackageRenderbufferForBuild	(RenderBuffer *RenderbufferSrc);
 }

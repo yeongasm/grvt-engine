@@ -59,9 +59,6 @@ bool BaseAPI::GrBindBufferObject(ObjHandle &Handle) {
 	if (!Handle.Id || !Handle.Target)
 		return false;
 
-	if (Handle.Target == GL_ARRAY_BUFFER)
-		printf("It's the same");
-
 	glBindBuffer(Handle.Target, Handle.Id);
 
 	return true;

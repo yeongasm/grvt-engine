@@ -133,7 +133,7 @@ struct SceneryData {
 };
 
 
-struct OffScreenBufferData {
+struct RenderBufferData {
 private:
 
 	using References = Array<RenderBuffer**>;
@@ -143,16 +143,19 @@ public:
 	uint			id;
 	String			name;
 	RenderBuffer	*renderbuffer;
+	References		references;
 
-	OffScreenBufferData();
-	~OffScreenBufferData();
+	RenderBufferData();
+	~RenderBufferData();
 
-	OffScreenBufferData(const OffScreenBufferData &Data)				= delete;
-	OffScreenBufferData& operator= (const OffScreenBufferData &Data)	= delete;
+	RenderBufferData(const RenderBufferData &Data)				= delete;
+	RenderBufferData& operator= (const RenderBufferData &Data)	= delete;
 
-	OffScreenBufferData& operator= (OffScreenBufferData &&Data)			= delete;
-	OffScreenBufferData(OffScreenBufferData &&Data)						= delete;
+	RenderBufferData& operator= (RenderBufferData &&Data)		= delete;
+	RenderBufferData(RenderBufferData &&Data)					= delete;
 
+	void Alloc(const RenderBufferCreationInfo &Info);
+	void Free();
 };
 
 
@@ -199,17 +202,17 @@ public:
 	/**
 	* Never call this to add new textures into the engine. Call NewTexture() instead.
 	*/
-	Array<TextureData* >		textures;
+	Array<TextureData*>			textures;
 
 	/**
 	* Never call this to add new shaders into the engine. Call NewShader() instead.
 	*/
-	Array<ShaderData*  >		shaders;
+	Array<ShaderData*>			shaders;
 
 	/**
 	* Never call this to add new scenes into the engine. Call NewScene() instead.
 	*/
-	Array<SceneData*   >		scenes;
+	Array<SceneData*>			scenes;
 
 	/**
 	* Never call this to add new materials into the engine. Call NewMaterial() instead.
@@ -219,12 +222,17 @@ public:
 	/**
 	* Never call this to add new levels into the engine. Call NewLevel() instead.
 	*/
-	Array<SceneryData* >		levels;
+	Array<SceneryData*>			levels;
 
 	/**
-	* Never call this to add new framebuffers into the engine. Call NewPostProcess() instead;
+	* Never call this to add new framebuffers into the engine. Call NewPostProcess() instead.
 	*/
-	Array<PostProcessData* >	framebuffers;
+	Array<PostProcessData*>		framebuffers;
+
+	/**
+	* Never call this to add new renderbuffers into the engine. Call NewRenderBuffer() instead.
+	*/
+	Array<RenderBufferData*>	renderbuffers;
 
 private:
 
@@ -238,23 +246,29 @@ private:
 
 public:
 
-	Scene*		NewScene			(const SceneCreationInfo &Info);
-	Shader*		NewShader			(const ShaderCreationInfo &Info);
-	Texture*	NewTexture			(const TextureCreationInfo &Info);
-	Material*	NewMaterial			(const MaterialCreationInfo &Info);
-	Scenery*	NewLevel			(const LevelCreationInfo &Info);
+	Scene*			NewScene			(const SceneCreationInfo &Info);
+	Shader*			NewShader			(const ShaderCreationInfo &Info);
+	Texture*		NewTexture			(const TextureCreationInfo &Info);
+	Material*		NewMaterial			(const MaterialCreationInfo &Info);
+	Scenery*		NewLevel			(const LevelCreationInfo &Info);
+	PostProcess*	NewPostProcess		(const PostProcessCreationInfo &Info);
+	RenderBuffer*	NewRenderBuffer		(const RenderBufferCreationInfo *Info);
 
-	Scene*		GetScene			(const String &Name);
-	Shader*		GetShader			(const String &Name);
-	Texture*	GetTexture			(const String &Name);
-	Material*	GetMaterial			(const String &Name);
-	Scenery*	GetLevel			(const String &Name);
+	Scene*			GetScene			(const String &Name);
+	Shader*			GetShader			(const String &Name);
+	Texture*		GetTexture			(const String &Name);
+	Material*		GetMaterial			(const String &Name);
+	Scenery*		GetLevel			(const String &Name);
+	PostProcess*	GetPostProcess		(const String &Name);
+	RenderBuffer*	GetRenderBuffer		(const String &Name);
 
-	bool		DeleteScene			(const String &Name);
-	bool		DeleteShader		(const String &Name);
-	bool		DeleteTexture		(const String &Name);
-	bool		DeleteMaterial		(const String &Name);
-	bool		DeleteLevel			(const String &Name);
+	bool			DeleteScene			(const String &Name);
+	bool			DeleteShader		(const String &Name);
+	bool			DeleteTexture		(const String &Name);
+	bool			DeleteMaterial		(const String &Name);
+	bool			DeleteLevel			(const String &Name);
+	bool			DeletePostProcess	(const String &Name);
+	bool			DeleteRenderBuffer	(const String &Name);
 
 	/**
 	* TODO(Afiq):

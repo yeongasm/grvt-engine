@@ -125,21 +125,20 @@ bool OpenNativeFileDialog(Array<String> &Buffer, const char *Format) {
 
 
 static String logErrorTypes[] = {"WARNING", "ERROR", "INFO"};
-String *Logger::logType = logErrorTypes;
+String* Logger::logType = logErrorTypes;
 
 
 static String logComponentTypes[] = {"SHADER", "TEXTURE", "SCENE", 
 	"MANAGER", "OPEN FILE", "MATERIAL", "SCENE INSTANCE", "APP",
-	"LIGHT", "LEVEL"};
-String *Logger::logComponent = logComponentTypes;
+	"LIGHT", "LEVEL", "POSTPROCESS", "RENDERBUFFER"};
+String* Logger::logComponent = logComponentTypes;
 
 
 String Logger::logFileInstance = RootDir("Log/Gravity.log");
 Array<String> Logger::logData = Array<String>();
 
 
-void Logger::Log(LogType Type, LogComponent Component, const String &Message) {	
-	static bool onInit = true;
+void Logger::Log(LogType Type, LogComponent Component, const String &Message) {
 	String log;
 	log.Write("[%s] %s::%s -> %s\n", __TIME__, ~logType[Type], ~logComponent[Component], /*now*/ /*__TIME__,*/ ~Message);
 	log.Print(false);

@@ -147,7 +147,8 @@ void SceneryData::Alloc(const LevelCreationInfo &Info) {
 	directory	= Info.directory;
 	filename	= Info.filename;
 
-	level = new Scenery();
+	if (!level)
+		level = new Scenery();
 }
 
 
@@ -160,6 +161,58 @@ void SceneryData::Free() {
 	name.Release();
 	directory.Release();
 	filename.Release();
+}
+
+
+RenderBufferData::RenderBufferData() : id{}, name{}, renderbuffer{}, references{} {}
+
+
+RenderBufferData::~RenderBufferData() { Free(); }
+
+
+void RenderBufferData::Alloc(const RenderBufferCreationInfo &Info) {
+	name = Info.name;
+	renderbuffer = new RenderBuffer();
+}
+
+
+void RenderBufferData::Free() {
+	name.Release();
+
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
+	if (renderbuffer)
+		delete renderbuffer;
+}
+
+
+PostProcessData::PostProcessData() : id{}, name{}, framebuffer{}, references{} {}
+
+
+PostProcessData::~PostProcessData() { Free(); }
+
+
+void PostProcessData::Alloc(const PostProcessCreationInfo &Info) {
+	if (!framebuffer) {
+		framebuffer = new PostProcess();
+		framebuffer->width		= Info.width;
+		framebuffer->height		= Info.height;
+		framebuffer->attachment = Info.attachment;
+	}
+
+	name = Info.name;
+}
+
+
+void PostProcessData::Free() {
+	if (framebuffer)
+		delete framebuffer;
+
+	for (size_t i = 0; i < references.Length(); i++)
+		*references[i] = nullptr;
+
+	name.Release();
 }
 
 
@@ -404,6 +457,39 @@ Scenery* ResourceManager::NewLevel(const LevelCreationInfo &Info) {
 	data->level->info = data;
 
 	return data->level;
+}
+
+
+PostProcess* ResourceManager::NewPostProcess(const PostProcessCreationInfo &Info) {
+	String msg;
+
+	// 1. PostProcess must contain a name.
+	if (!Info.name.Length()) {
+		msg.SetString("A name must be specified for the framebuffer. Aborting operation!");
+		Logger::Log(LOG_WARN, LOG_POSTPROCESS, msg);
+
+		return nullptr;
+	}
+
+	// 2. Check if postprocess with the specified name exists.
+	for (PostProcessData *data : framebuffers) {
+		if (data->name == Info.name) {
+			msg.SetString("Framebuffer name must be unique. Framebuffer with such name already exist in engine.");
+			Logger::Log(LOG_WARN, LOG_POSTPROCESS, msg);
+
+			return nullptr;
+		}
+	}
+	
+	PostProcessData *data = framebuffers.Insert(new PostProcessData());
+	data->id = GenerateID<PostProcess>();
+	data->Alloc(Info);
+	data->framebuffer->info = data;
+
+	// 3. Sends the framebuffer into the Middleware to be built by OpenGL.
+	Middleware::PackageFramebufferForBuild(data->framebuffer);
+
+	return nullptr;
 }
 
 
