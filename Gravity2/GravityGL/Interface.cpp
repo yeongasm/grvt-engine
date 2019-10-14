@@ -472,9 +472,41 @@ namespace Middleware {
 
 
 	void PackageFramebufferForBuild(PostProcess *FramebufferSrc) {
+		uint32 imgCount = 0;
+		uint32 rbCount = 0;
 		FramebufferBuildData buildData;
 
-		//buildData.DrawBuffer = 
+		for (PostProcessAttachment &attachment : FramebufferSrc->attachment) {
+			if (attachment.type == FRAMEBUFFER_ATTACHMENT_TEXTURE) {
+				switch (attachment.subType) {
+				case FRAMEBUFFER_SUBATTACH_COLOUR:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_COLOR_ATTACHMENT0 + imgCount++, attachment.draw));
+					break;
+				case FRAMEBUFFER_SUBATTACH_DEPTH:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_DEPTH_ATTACHMENT, false));
+					break;
+				case FRAMEBUFFER_SUBATTACH_STENCIL:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_DEPTH_STENCIL_ATTACHMENT, false));
+					break;
+				}
+			}
+
+			if (attachment.type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER) {
+				switch (attachment.subType) {
+				case FRAMEBUFFER_SUBATTACH_COLOUR:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_COLOR_ATTACHMENT0 + rbCount++, false));
+					break;
+				case FRAMEBUFFER_SUBATTACH_DEPTH:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_DEPTH_ATTACHMENT, false));
+					break;
+				case FRAMEBUFFER_SUBATTACH_STENCIL:
+					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_DEPTH_STENCIL_ATTACHMENT, false));
+					break;
+				}
+			}
+		}
+
+		GetBuildQueue()->AddPostprocessForBuild(FramebufferSrc, buildData);
 	}
 
 

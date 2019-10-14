@@ -487,9 +487,44 @@ PostProcess* ResourceManager::NewPostProcess(const PostProcessCreationInfo &Info
 	data->framebuffer->info = data;
 
 	// 3. Sends the framebuffer into the Middleware to be built by OpenGL.
+	// This phase does not need to multi-threaded as we're only doing a simple operation.
 	Middleware::PackageFramebufferForBuild(data->framebuffer);
 
-	return nullptr;
+	return data->framebuffer;
+}
+
+
+RenderBuffer* ResourceManager::NewRenderBuffer(const RenderBufferCreationInfo &Info) {
+	String msg;
+
+	// 1. RenderBuffer must contain a name.
+	if (!Info.name.Length()) {
+		msg.SetString("A name must be specified for the renderbuffer. Aborting operation!");
+		Logger::Log(LOG_WARN, LOG_RENDERBUFFER, msg);
+
+		return nullptr;
+	}
+
+	// 2. Check if renderbuffer with the specified name exists.
+	for (RenderBufferData *data : renderbuffers) {
+		if (data->name == Info.name) {
+			msg.SetString("Renderbuffer name must be unique. Renderbuffer with such name already exist in engine.");
+			Logger::Log(LOG_WARN, LOG_RENDERBUFFER, msg);
+
+			return nullptr;
+		}
+	}
+
+	RenderBufferData *data = renderbuffers.Insert(new RenderBufferData());
+	data->id = GenerateID<RenderBuffer>();
+	data->Alloc(Info);
+	data->renderbuffer->info = data;
+
+	// 3. Sends the renderbuffer into the Middleware to be built by OpenGL.
+	// This phase does not need to be multi-threaded as we are only doing a simple operation.
+	Middleware::PackageRenderbufferForBuild(data->renderbuffer);
+
+	return data->renderbuffer;
 }
 
 

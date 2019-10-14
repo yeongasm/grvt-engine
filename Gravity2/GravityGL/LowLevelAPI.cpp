@@ -242,7 +242,7 @@ FramebufferAttachment::~FramebufferAttachment() {
 }
 
 
-FramebufferBuildData::FramebufferBuildData() : Attachment(), ReadBuffer(0), DrawBuffer(0) {}
+FramebufferBuildData::FramebufferBuildData() : Attachment() {}
 
 
 FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData &Rhs) { *this = Rhs; }
@@ -251,11 +251,8 @@ FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData &Rhs) { *t
 FramebufferBuildData& FramebufferBuildData::operator= (const FramebufferBuildData &Rhs) {
 	_ASSERTE(this != &Rhs);
 
-	if (this != &Rhs) {
+	if (this != &Rhs)
 		Attachment	= Rhs.Attachment;
-		ReadBuffer	= Rhs.ReadBuffer;
-		DrawBuffer	= Rhs.DrawBuffer;
-	}
 
 	return *this;
 }
@@ -269,8 +266,6 @@ FramebufferBuildData& FramebufferBuildData::operator= (FramebufferBuildData &&Rh
 
 	if (this != &Rhs) {
 		Attachment	= Rhs.Attachment;
-		ReadBuffer	= Rhs.ReadBuffer;
-		DrawBuffer	= Rhs.DrawBuffer;
 
 		new (&Rhs) FramebufferBuildData();
 	}
@@ -357,12 +352,14 @@ void BaseAPI::BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data) {
 	if (!Handle.Id)
 		GrCreateFramebuffer(Handle);
 
-	Array<uint32> DrawBuffers;
+	bool			hasImage = false;
+	Array<uint32>	DrawBuffers;
 
 	GrBindFramebuffer(Handle);
 
 	for (FramebufferAttachment &Attachment : Data.Attachment) {
 		if (Attachment.Handle->Target != GL_RENDERBUFFER) {
+			hasImage = true;
 			glFramebufferTexture2D(Handle.Target, Attachment.Attachment, Attachment.Handle->Target, Attachment.Handle->Id, 0);
 
 			if (Attachment.Draw)
@@ -374,11 +371,10 @@ void BaseAPI::BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data) {
 		glFramebufferRenderbuffer(Handle.Target, Attachment.Attachment, Attachment.Handle->Target, Attachment.Handle->Id);
 	}
 
-	if (Data.DrawBuffer)
-		glDrawBuffer(Data.DrawBuffer);
-
-	if (Data.ReadBuffer)
-		glReadBuffer(Data.ReadBuffer);
+	if (!hasImage) {
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+	}
 
 	if (DrawBuffers.Length())
 		glDrawBuffers((GLsizei)DrawBuffers.Length(), DrawBuffers.First());

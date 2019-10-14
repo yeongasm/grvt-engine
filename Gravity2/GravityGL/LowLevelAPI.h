@@ -173,8 +173,6 @@ private:
 public:
 
 	Attachments Attachment;
-	uint32		ReadBuffer;
-	uint32		DrawBuffer;
 
 	FramebufferBuildData();
 

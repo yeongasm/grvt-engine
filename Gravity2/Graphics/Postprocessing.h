@@ -56,7 +56,7 @@ struct RenderBufferCreationInfo {
 class RenderBuffer {
 public:
 	
-	ObjHandle				id;
+	ObjHandle				handle;
 	RenderBufferType		type;
 	RenderBufferData		*info;
 
@@ -124,6 +124,8 @@ struct PostProcessAttachment {
 /**
 * PostProcessCreationInfo data structure.
 * Used to create a Framebuffer for Gravity.
+*
+* In OpenGL 4.3, it is possible to create a framebuffer with no image attachment.
 */
 struct PostProcessCreationInfo {
 private:

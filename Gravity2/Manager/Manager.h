@@ -195,6 +195,10 @@ public:
 * Deleting a resource that's tied to an OpenGL object can no longer be done in the resource manager.
 * It needs to send the OpenGL object to the ResourceBuildQueue, when the build queue has finished deleting the object from the GPU,
 * only then do we delete the object from memory.
+*
+* TODO(Afiq):
+* Remove all logs from the ResourceManager. Make the UI handle the logic for the logs instead.
+* Replace logs with comments instead.
 */
 class ResourceManager {
 public:
@@ -252,7 +256,7 @@ public:
 	Material*		NewMaterial			(const MaterialCreationInfo &Info);
 	Scenery*		NewLevel			(const LevelCreationInfo &Info);
 	PostProcess*	NewPostProcess		(const PostProcessCreationInfo &Info);
-	RenderBuffer*	NewRenderBuffer		(const RenderBufferCreationInfo *Info);
+	RenderBuffer*	NewRenderBuffer		(const RenderBufferCreationInfo &Info);
 
 	Scene*			GetScene			(const String &Name);
 	Shader*			GetShader			(const String &Name);

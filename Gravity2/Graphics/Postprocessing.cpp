@@ -42,7 +42,7 @@ RenderBufferCreationInfo::~RenderBufferCreationInfo() {
 }
 
 
-RenderBuffer::RenderBuffer() : id(), type(RENDERBUFFER_TYPE_NONE), info(nullptr) {}
+RenderBuffer::RenderBuffer() : handle(), type(RENDERBUFFER_TYPE_NONE), info(nullptr) {}
 
 
 RenderBuffer::RenderBuffer(RenderBuffer &&Other) { *this = std::move(Other); }
@@ -52,7 +52,7 @@ RenderBuffer& RenderBuffer::operator= (RenderBuffer &&Other) {
 	_ASSERTE(this != &Other);
 	
 	if (this != &Other) {
-		id		= std::move(Other.id);
+		handle	= std::move(Other.handle);
 		type	= Other.type;
 		info	= Other.info;
 
