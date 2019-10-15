@@ -1,10 +1,7 @@
 #include "stdafx.h"
 
 
-MaterialCreationInfo::MaterialCreationInfo() :
-	name{},
-	shader{},
-	textures{} {}
+MaterialCreationInfo::MaterialCreationInfo() : Name{}, Shader{}, Textures{} {}
 
 
 MaterialCreationInfo::MaterialCreationInfo(const MaterialCreationInfo &Other) { *this = Other; }
@@ -18,9 +15,9 @@ MaterialCreationInfo& MaterialCreationInfo::operator= (const MaterialCreationInf
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		name		= Other.name;
-		shader		= Other.shader;
-		textures	= Other.textures;
+		Name		= Other.Name;
+		Shader		= Other.Shader;
+		Textures	= Other.Textures;
 	}
 
 	return *this;
@@ -32,9 +29,9 @@ MaterialCreationInfo& MaterialCreationInfo::operator= (MaterialCreationInfo &&Ot
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		name		= Other.name;
-		shader		= Other.shader;
-		textures	= Other.textures;
+		Name		= Other.Name;
+		Shader		= Other.Shader;
+		Textures	= Other.Textures;
 
 		new (&Other) MaterialCreationInfo();
 	}
@@ -44,13 +41,13 @@ MaterialCreationInfo& MaterialCreationInfo::operator= (MaterialCreationInfo &&Ot
 
 
 MaterialCreationInfo::~MaterialCreationInfo() {
-	shader = nullptr;
-	name.Release();
-	textures.Release();
+	Shader = nullptr;
+	Name.Release();
+	Textures.Release();
 }
 
 
-Material::Material() : name{}, shader{}, info{}, uniforms{}, textures{} {}
+Material::Material() : Name{}, Shader{}, Info{}, Uniforms{}, Textures{} {}
 
 
 Material::Material(const MaterialCreationInfo &Info) { Alloc(Info); }
@@ -64,11 +61,11 @@ Material::Material(Material &&Other) { *this = std::move(Other); }
 
 Material& Material::operator= (const Material &Other) {
 	if (this != &Other) {
-		name		= Other.name;
-		shader		= Other.shader;
-		info		= Other.info;
-		uniforms	= Other.uniforms;
-		textures	= Other.textures;
+		Name		= Other.Name;
+		Shader		= Other.Shader;
+		Info		= Other.Info;
+		Uniforms	= Other.Uniforms;
+		Textures	= Other.Textures;
 	}
 
 	return *this;
@@ -79,10 +76,10 @@ Material& Material::operator= (Material &&Other) {
 	if (this != &Other) {
 		Free();
 
-		shader		= Other.shader;
-		info		= Other.info;
-		uniforms	= Other.uniforms;
-		textures	= Other.textures;
+		Shader		= Other.Shader;
+		Info		= Other.Info;
+		Uniforms	= Other.Uniforms;
+		Textures	= Other.Textures;
 
 		Other.Free();
 	}
@@ -96,189 +93,189 @@ Material::~Material() { Free(); }
 
 
 void Material::Alloc(const MaterialCreationInfo &Info) {
-	name = Info.name;
+	Name = Info.Name;
 	
-	if (Info.shader) {
-		shader = Info.shader;
-		uniforms = shader->attributes.uniforms;
-		Info.shader->info->references.Push(&shader);
+	if (Info.Shader) {
+		Shader = Info.Shader;
+		Uniforms = Shader->Attributes.Uniforms;
+		Info.Shader->Info->References.Push(&Shader);
 	}
 	
-	if (Info.textures.Length()) {
+	if (Info.Textures.Length()) {
 		// The downside of creating references to a texture is we can not just copy the array.
-		for (size_t i = 0; i < Info.textures.Length(); i++) {
-			textures.Push(Info.textures[i]);
-			Info.textures[i]->info->references.Push(&textures[i]);
+		for (size_t i = 0; i < Info.Textures.Length(); i++) {
+			Textures.Push(Info.Textures[i]);
+			Info.Textures[i]->Info->References.Push(&Textures[i]);
 		}
 	}
 }
 
 
 void Material::Free() {
-	shader	= nullptr;
-	info	= nullptr;
+	Shader	= nullptr;
+	Info	= nullptr;
 
-	name.Release();
-	uniforms.clear();
-	textures.Release();
+	Name.Release();
+	Uniforms.clear();
+	Textures.Release();
 }
 
 
 bool Material::SetBool(const String &Uniform, bool Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.type != ATTR_TYPE_BOOL)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetInt(const String &Uniform, int Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.type != ATTR_TYPE_INT)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetFloat(const String &Uniform, float Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.type != ATTR_TYPE_FLOAT)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetVector(const String &Uniform, glm::vec2 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_VEC2)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetVector(const String &Uniform, glm::vec3 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_VEC3)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetVector(const String &Uniform, glm::vec4 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_VEC4)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetMatrix(const String &Uniform, glm::mat2 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_MAT2)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetMatrix(const String &Uniform, glm::mat3 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_MAT3)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
 bool Material::SetMatrix(const String &Uniform, glm::mat4 Value) {
-	auto it = uniforms.find(Uniform);
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
 	if (it->second.subType != ATTR_SUB_MAT4)
 		return false;
 
-	uniforms[Uniform].UpdateValue(Value);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }
 
 
-bool Material::SetTexture(const String &Uniform, Texture *Texture) {
-	auto it = uniforms.find(Uniform);
+bool Material::SetTexture(const String &Uniform, TextureObj *Texture) {
+	auto it = Uniforms.find(Uniform);
 	
-	if (it == uniforms.end())
+	if (it == Uniforms.end())
 		return false;
 
-	if (!shader->IsUniformAMaterial(it->second))
+	if (!Shader->IsUniformAMaterial(it->second))
 		return false;
 
-	uniforms[Uniform].UpdateValue(Texture->type);
-	uniforms[Uniform].inUse = true;
+	Uniforms[Uniform].UpdateValue(Texture->Type);
+	Uniforms[Uniform].inUse = true;
 
 	return true;
 }

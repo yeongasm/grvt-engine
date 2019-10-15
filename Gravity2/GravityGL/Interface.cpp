@@ -51,7 +51,7 @@ MeshPacket::~MeshPacket() { MeshPtr = nullptr; }
 TexturePacket::TexturePacket() : TexturePtr(nullptr) {}
 
 
-TexturePacket::TexturePacket(Texture *Resource, TextureBuildData Data) :
+TexturePacket::TexturePacket(TextureObj *Resource, TextureBuildData Data) :
 	TexturePtr(Resource), BuildData(Data) {}
 
 
@@ -208,7 +208,7 @@ void ResourceBuildQueue::AddMeshForBuild(Mesh *Mesh, MeshBuildData Data) {
 }
 
 
-void ResourceBuildQueue::AddTextureForBuild(Texture *Texture, TextureBuildData Data) {
+void ResourceBuildQueue::AddTextureForBuild(TextureObj *Texture, TextureBuildData Data) {
 	TextureQueue.push_back(TexturePacket(Texture, Data));
 }
 
@@ -243,7 +243,7 @@ void ResourceBuildQueue::Listen() {
 
 	// Build textures that are in the queue.
 	for (TexturePacket &Packet : TextureQueue) {
-		BaseAPI::BuildTexture(Packet.TexturePtr->handle, Packet.BuildData);
+		BaseAPI::BuildTexture(Packet.TexturePtr->Handle, Packet.BuildData);
 		free(Packet.BuildData.DataPtr);
 		TextureQueue.pop_front();
 	}
@@ -371,12 +371,11 @@ namespace Middleware {
 	}
 
 
-	void Middleware::ParseTextureFromFile(const String Path, Texture *Texture) {
+	void Middleware::ParseTextureFromFile(const String Path, TextureObj *Texture) {
 		int32 channels = 0;
 		TextureBuildData buildData;
 
 		BaseAPI::GenerateGenericTextureData(buildData);
-
 		stbi_set_flip_vertically_on_load(buildData.Flip);
 
 		buildData.DataPtr = (uint8*)stbi_load(Path.c_str(), (int32*)&buildData.Width, (int32*)&buildData.Height, &channels, 0);

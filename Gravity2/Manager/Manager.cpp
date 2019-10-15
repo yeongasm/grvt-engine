@@ -7,47 +7,44 @@
 
 
 
-TextureData::TextureData() : id{}, name{}, file{},
-	directory{}, texture{}, references{} {}
+TextureData::TextureData() : Id(), Name(), Path(), Texture(), References() {}
 
 
 void TextureData::Alloc(const TextureCreationInfo &Info) {
-	id			= 0;
-	name		= Info.name;
-	file		= Info.files[0];
-	directory	= Info.directory;
-	texture		= new Texture();
+	Id			= 0;
+	Name		= Info.Name;
+	Path		= Info.Path[0];
+	Texture		= new TextureObj();
 	
-	texture->type = Info.type;
+	Texture->Type = Info.Type;
 }
 
 
 void TextureData::Free() {
-	for (size_t i = 0; i < references.Length(); i++)
-		*references[i] = nullptr;
+	for (size_t i = 0; i < References.Length(); i++)
+		*References[i] = nullptr;
 
-	if (texture) {
-		delete texture;
-		texture = nullptr;
+	if (Texture) {
+		delete Texture;
+		Texture = nullptr;
 	}
 
-	id = 0;
-	name.Release();
-	file.Release();
-	directory.Release();
-	references.Release();
+	Id = 0;
+	Name.Release();
+	Path.Release();
+	References.Release();
 }
 
 
-TextureData::~TextureData() { Free(); }
+TextureData::~TextureData() {}
 
 
 ShaderData::ShaderData() : id{}, name{}, vertexFile{}, fragmentFile{}, 
-	geometryFile{}, directory{}, shader{}, references{} {}
+	geometryFile{}, directory{}, shader{}, References{} {}
 
 
 ShaderData::ShaderData(const ShaderCreationInfo &Info) : id(0), name(Info.name), vertexFile(Info.vertexShader), fragmentFile(Info.fragmentShader),
-	geometryFile(Info.geometryShader), directory(Info.directory), shader(new Shader()), references{} {}
+	geometryFile(Info.geometryShader), directory(Info.directory), shader(new ShaderObj()), References{} {}
 
 
 ShaderData::~ShaderData() { Free(); }
@@ -341,57 +338,16 @@ Shader* ResourceManager::NewShader(const ShaderCreationInfo &Info) {
 }
 
 
-Texture* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
-	String msg;
-	// 1. Check if specified files already exist inside Gravity as a texture.
-	// NOTE: We are generating a texture and not a cubemap. Best to seggregate different features.
-	for (TextureData *data : textures) {
-		if (data->file == Info.files[0]) {
-			msg.Write("Texture with file [%s] already exist!", ~Info.files[0]);
-			Logger::Log(LOG_WARN, LOG_TEXTURE, ~msg);
-			return nullptr;
-		}
-	}
+TextureObj* ResourceManager::NewTexture(const TextureCreationInfo &Info) {
+	TextureData *pData = Textures.Insert(new TextureData());
 
-	// 2. Check if name exist in TextureCreationInfo struct.
-	if (!Info.name.Length()) {
-		msg.SetString("A name must be specified for the texture. Aborting operation.");
-		Logger::Log(LOG_WARN, LOG_TEXTURE, msg);
-		return nullptr;
-	}
+	pData->Alloc(Info);
+	pData->Id = GenerateID<TextureObj>();
+	pData->Texture->Info = pData;
 
-	// 3. Check for textures with similar name.
-	for (TextureData *data : textures) {
-		if (data->name == Info.name) {
-			msg.Write("Texture with name [%s] already exist! Texture name must be unique", ~Info.name);
-			Logger::Log(LOG_WARN, LOG_TEXTURE, msg);
-			return data->texture;
-		}
-	}
+	Middleware::ParseTextureFromFile(pData->Path, pData->Texture);
 
-	// 4. Ensure that only 1 file is specified for a texture.
-	if (Info.files.Length() > 1) {
-		msg.SetString("More than 1 texture file is specified! Unable to create a texture with multiple texture files.");
-		Logger::Log(LOG_WARN, LOG_TEXTURE, msg);
-		return nullptr;
-	}
-
-	size_t idx = textures.Push(new TextureData());
-	TextureData *data = textures[idx];
-
-	data->Alloc(Info);
-	data->id = GenerateID<Texture>();
-	data->texture->info = data;
-
-	msg.Write("Building [%s] ... ", ~Info.name);
-	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
-
-	String path;
-	path.Write("%s/%s", Info.directory.c_str(), Info.files[0].c_str());
-
-	Middleware::ParseTextureFromFile(path, data->texture);
-
-	return data->texture;
+	return pData->Texture;
 }
 
 
@@ -580,26 +536,15 @@ Shader* ResourceManager::GetShader(const String &Name) {
 }
 
 
-Texture* ResourceManager::GetTexture(const String &Name) {
-	Texture *pTexture = nullptr;
+TextureObj* ResourceManager::GetTexture(const String &Name) {
+	TextureObj *pTexture = nullptr;
 
-	String msg("Attempting to retrieve [%s] texture from engine.", ~Name);
-	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
-
-	for (size_t i = 0; i < textures.Length(); i++) {
-		if (textures[i]->name != Name)
+	for (TextureData *pData : Textures) {
+		if (pData->Name != Name)
 			continue;
 
-		pTexture = textures[i]->texture;
+		pTexture = pData->Texture;
 		break;
-	}
-
-	if (!pTexture) {
-		msg.Write("Unable to retrieve [%s] texture from engine", ~Name);
-		Logger::Log(LOG_ERR, LOG_TEXTURE, msg);
-	} else {
-		msg.SetString("Texture retrieved from engine!");
-		Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
 	}
 
 	return pTexture;
@@ -739,44 +684,20 @@ bool ResourceManager::DeleteShader(const String &Name) {
 }
 
 
-bool ResourceManager::DeleteTexture(const String &Name) {
-	String msg("Attempting to delete [%s] texture.", ~Name);
-	Logger::Log(LOG_INFO, LOG_TEXTURE, msg);
+void ResourceManager::DeleteTexture(TextureObj *&Texture) {
+	// Remove the texture object from the GPU.
+	Middleware::GetBuildQueue()->AddHandleForDelete(Texture->Handle, GFX_TYPE_TEXTUREID);
 
-	size_t idx = -1;
+	// Get the data handle and remove the texture from memory.
+	TextureData *pData = Texture->Info;
+	size_t index = Textures.Find(pData);
+	pData->Free();
 
-	for (size_t i = 0; i < textures.Length(); i++) {
-		if (textures[i]->name != Name)
-			continue;
+	// Delete the data handle and remove it from the array.
+	delete pData;
+	Textures.PopAt(index);
 
-		idx = i;
-		break;
-	}
-
-
-	if (idx == -1) {
-		msg.SetString("Unable to find texture with such name. Does not exist within engine.");
-		Logger::Log(LOG_ERR, LOG_SHADER, msg);
-		return false;
-	}
-
-	//// Remove all reference to this Texture from Materials.
-	//for (MaterialData *data : materials) {
-	//	for (size_t i = 0; i < data->material->textures.Length(); i++) {
-	//		if (textures[idx]->texture != data->material->textures[i])
-	//			continue;
-
-	//		data->material->textures[i] = nullptr;
-	//	}
-	//}
-	
-	delete textures[idx];
-	textures.PopAt(idx);
-
-	msg.SetString("Texture deleted!");
-	Logger::Log(LOG_INFO, LOG_SHADER, msg);
-
-	return false;
+	Texture = nullptr;
 }
 
 
@@ -843,14 +764,9 @@ bool ResourceManager::DeleteLevel(const String &Name) {
 
 
 void ResourceManager::CleanResource() {
-	String msg;
-	msg.SetString("Deleting all resources from engine.");
-	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
 
-	for (size_t i = 0; i < textures.Length(); i++) {
-		delete textures[i];
-		textures[i] = nullptr;
-	}
+	for (TextureData *pData : Textures)
+		pData->Free();
 
 	for (size_t i = 0; i < shaders.Length(); i++) {
 		delete shaders[i];
@@ -872,18 +788,11 @@ void ResourceManager::CleanResource() {
 		levels[i] = nullptr;
 	}
 
-	textures.Empty(); shaders.Empty(); scenes.Empty(); materials.Empty(); levels.Empty();
-
-	msg.SetString("Successfully removed all resources from engine.");
-	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
+	Textures.Empty(); shaders.Empty(); scenes.Empty(); materials.Empty(); levels.Empty();
 }
 
 ResourceManager::ResourceManager() {
-	String msg;
-	msg.Write("Initialising Gravity's resource manager.");
-	Logger::Log(LOG_INFO, LOG_MANAGER, msg);
-
-	textures.Reserve(256);
+	Textures.Reserve(256);
 	shaders.Reserve(256);
 	scenes.Reserve(256);
 	materials.Reserve(256);

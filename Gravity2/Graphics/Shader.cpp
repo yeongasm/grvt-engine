@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-ShaderAttr::ShaderAttr() : attributes{}, uniforms{} {}
+ShaderAttr::ShaderAttr() : Attributes{}, Uniforms{} {}
 
 
 ShaderAttr::ShaderAttr(const ShaderAttr &Other) { *this = Other; }
@@ -12,8 +12,8 @@ ShaderAttr::ShaderAttr(ShaderAttr &&Other) { *this = std::move(Other); }
 
 ShaderAttr& ShaderAttr::operator= (const ShaderAttr &Other) {
 	if (this != &Other) {
-		attributes	= Other.attributes;
-		uniforms	= Other.uniforms;
+		Attributes	= Other.Attributes;
+		Uniforms	= Other.Uniforms;
 	}
 
 	return *this;
@@ -22,8 +22,8 @@ ShaderAttr& ShaderAttr::operator= (const ShaderAttr &Other) {
 
 ShaderAttr& ShaderAttr::operator= (ShaderAttr &&Other) {
 	if (this != &Other) {
-		attributes	= Other.attributes;
-		uniforms	= Other.uniforms;
+		Attributes	= Other.Attributes;
+		Uniforms	= Other.Uniforms;
 
 		Other.~ShaderAttr();
 	}
@@ -33,17 +33,17 @@ ShaderAttr& ShaderAttr::operator= (ShaderAttr &&Other) {
 
 
 ShaderAttr::~ShaderAttr() {
-	attributes.clear();
-	uniforms.clear();
+	Attributes.clear();
+	Uniforms.clear();
 }
 
 
-void Shader::DeleteShader(const std::initializer_list<uint> &IDs) {
+void ShaderObj::DeleteShader(const std::initializer_list<uint> &IDs) {
 	for (auto id : IDs)
 		glDeleteShader(id);
 }
 
-bool Shader::CompileShader(uint &ID, const char *Source, ShaderType Type) {
+bool ShaderObj::CompileShader(uint &ID, const char *Source, ShaderType Type) {
 	int		compiled;
 	char	infoLog[1024];
 
@@ -63,7 +63,7 @@ bool Shader::CompileShader(uint &ID, const char *Source, ShaderType Type) {
 	return true;
 }
 
-void Shader::GetAttributeType(uint Type, AttrType &Main, AttrSubType &Sub) {
+void ShaderObj::GetAttributeType(uint Type, AttrType &Main, AttrSubType &Sub) {
 	switch (Type) {
 	case GL_BOOL:
 		Main = ATTR_TYPE_BOOL;
@@ -122,38 +122,38 @@ void Shader::GetAttributeType(uint Type, AttrType &Main, AttrSubType &Sub) {
 	}
 }
 
-Shader::Shader() : id{}, info{}, attributes{} {}
+ShaderObj::ShaderObj() : Id{}, Info{}, Attributes{} {}
 
 
-Shader::Shader(Shader &&Other) {
+ShaderObj::ShaderObj(ShaderObj &&Other) {
 	*this = std::move(Other);
 }
 
 
-Shader::Shader(const ShaderCreationInfo &Info) : Shader() {
+ShaderObj::ShaderObj(const ShaderCreationInfo &Info) : ShaderObj() {
 	Alloc(Info);
 }
 
 
-Shader& Shader::operator= (Shader &&Other) {
+ShaderObj& ShaderObj::operator= (ShaderObj &&Other) {
 	_ASSERTE(this != &Other);
 
 	Free();
 
-	id			= Other.id;
-	info		= Other.info;
-	attributes	= Other.attributes;
+	Id			= Other.Id;
+	Info		= Other.Info;
+	Attributes	= Other.Attributes;
 
 	Other.Free();
 
 	return *this;
 }
 
-Shader::~Shader() {
+ShaderObj::~ShaderObj() {
 	Free();
 }
 
-bool Shader::Alloc(const ShaderCreationInfo &Info) {
+bool ShaderObj::Alloc(const ShaderCreationInfo &Info) {
 	if (!Info.name.Length())
 		return false;
 
@@ -200,17 +200,17 @@ bool Shader::Alloc(const ShaderCreationInfo &Info) {
 	int		compiled;
 	char	infoLog[1024];
 
-	id = glCreateProgram();
-	glAttachShader(id, vertexID);
-	glAttachShader(id, fragmentID);
+	Id = glCreateProgram();
+	glAttachShader(Id, vertexID);
+	glAttachShader(Id, fragmentID);
 
 	if (geometryBuf.Length())
-		glAttachShader(id, geometryID);
+		glAttachShader(Id, geometryID);
 
-	glLinkProgram(id);
-	glGetProgramiv(id, GL_LINK_STATUS, &compiled);
+	glLinkProgram(Id);
+	glGetProgramiv(Id, GL_LINK_STATUS, &compiled);
 	if (!compiled) {
-		glGetProgramInfoLog(id, 1024, nullptr, infoLog);
+		glGetProgramInfoLog(Id, 1024, nullptr, infoLog);
 		printf(infoLog);
 		DeleteShader({vertexID, fragmentID, geometryID});
 		Free();
@@ -219,25 +219,25 @@ bool Shader::Alloc(const ShaderCreationInfo &Info) {
 
 	DeleteShader({vertexID, fragmentID, geometryID});
 
-	RetrieveAttributes(&attributes);
+	RetrieveAttributes(&Attributes);
 
 	return true;
 }
 
-void Shader::Free() {
-	info = nullptr;
+void ShaderObj::Free() {
+	Info = nullptr;
 
-	glDeleteProgram(id);
-	id = 0;
+	glDeleteProgram(Id);
+	Id = 0;
 }
 
-void Shader::RetrieveAttributes(ShaderAttr *Buff) {
-	if (!id)
+void ShaderObj::RetrieveAttributes(ShaderAttr *Buff) {
+	if (!Id)
 		return;
 
 	int numAttributes, numUniforms;
-	glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &numAttributes);
-	glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &numUniforms);
+	glGetProgramiv(Id, GL_ACTIVE_ATTRIBUTES, &numAttributes);
+	glGetProgramiv(Id, GL_ACTIVE_UNIFORMS, &numUniforms);
 
 	//Buff->Attributes.Reserve(numAttributes, false);
 	//Buff->Uniforms.Reserve(numUniforms, false);
@@ -250,33 +250,33 @@ void Shader::RetrieveAttributes(ShaderAttr *Buff) {
 	int	size;
 
 	for (uint i = 0; i < (uint)numAttributes; i++) {
-		glGetActiveAttrib(id, i, sizeof(buffer), 0, &size, &glType, buffer);
+		glGetActiveAttrib(Id, i, sizeof(buffer), 0, &size, &glType, buffer);
 
 		GetAttributeType(glType, vertexAttr.type, vertexAttr.subType);
 		vertexAttr.name		= buffer;
-		vertexAttr.location = glGetAttribLocation(id, buffer);
+		vertexAttr.location = glGetAttribLocation(Id, buffer);
 		vertexAttr.size		= size;
 
-		Buff->attributes.emplace(buffer, vertexAttr);
+		Buff->Attributes.emplace(buffer, vertexAttr);
 	}
 
 	UniformAttr uniformAttr;
 
 	for (uint i = 0; i < (uint)numUniforms; i++) {
-		glGetActiveUniform(id, i, sizeof(buffer), 0, &size, &glType, buffer);
+		glGetActiveUniform(Id, i, sizeof(buffer), 0, &size, &glType, buffer);
 		
 		GetAttributeType(glType, uniformAttr.type, uniformAttr.subType);
 		uniformAttr.name		= buffer;
-		uniformAttr.location	= glGetUniformLocation(id, buffer);
+		uniformAttr.location	= glGetUniformLocation(Id, buffer);
 		uniformAttr.size		= size;
 
-		Buff->uniforms.emplace(buffer, uniformAttr);
+		Buff->Uniforms.emplace(buffer, uniformAttr);
 	}
 }
 
 
 
-bool Shader::IsUniformAMaterial(const UniformAttr &Uniform) {
+bool ShaderObj::IsUniformAMaterial(const UniformAttr &Uniform) {
 	switch (Uniform.type) {
 	case ATTR_TYPE_SAMPLER:
 		return true;
@@ -286,20 +286,20 @@ bool Shader::IsUniformAMaterial(const UniformAttr &Uniform) {
 }
 
 
-void Shader::Use() {
-	glUseProgram(id);
+void ShaderObj::Use() {
+	glUseProgram(Id);
 }
 
 
-void Shader::SetInt(const char *Uniform, int Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetInt(const char *Uniform, int Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform1i(location, Value);
 }
 
 
-void Shader::SetInt(const UniformAttr &Uniform) {
+void ShaderObj::SetInt(const UniformAttr &Uniform) {
 	if (Uniform.type != ATTR_TYPE_INT && Uniform.type != ATTR_TYPE_SAMPLER)
 		return;
 
@@ -307,15 +307,15 @@ void Shader::SetInt(const UniformAttr &Uniform) {
 }
 
 
-void Shader::SetBool(const char *Uniform, bool Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetBool(const char *Uniform, bool Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform1i(location, Value);
 }
 
 
-void Shader::SetBool(const UniformAttr &Uniform) {
+void ShaderObj::SetBool(const UniformAttr &Uniform) {
 	if (Uniform.type != ATTR_TYPE_BOOL)
 		return;
 
@@ -323,15 +323,15 @@ void Shader::SetBool(const UniformAttr &Uniform) {
 }
 
 
-void Shader::SetFloat(const char *Uniform, float Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetFloat(const char *Uniform, float Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform1f(location, Value);
 }
 
 
-void Shader::SetFloat(const UniformAttr &Uniform) {
+void ShaderObj::SetFloat(const UniformAttr &Uniform) {
 	if (Uniform.type != ATTR_TYPE_FLOAT)
 		return;
 
@@ -339,31 +339,31 @@ void Shader::SetFloat(const UniformAttr &Uniform) {
 }
 
 
-void Shader::SetVector(const char *Uniform, glm::vec2 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetVector(const char *Uniform, glm::vec2 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform2fv(location, 1, &Value[0]);
 }
 
 
-void Shader::SetVector(const char *Uniform, glm::vec3 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetVector(const char *Uniform, glm::vec3 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform3fv(location, 1, &Value[0]);
 }
 
 
-void Shader::SetVector(const char *Uniform, glm::vec4 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetVector(const char *Uniform, glm::vec4 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniform4fv(location, 1, &Value[0]);
 }
 
 
-void Shader::SetVector(const UniformAttr &Uniform) {
+void ShaderObj::SetVector(const UniformAttr &Uniform) {
 	if (Uniform.type != ATTR_TYPE_VECTOR)
 		return;
 
@@ -383,31 +383,31 @@ void Shader::SetVector(const UniformAttr &Uniform) {
 }
 
 
-void Shader::SetMatrix(const char *Uniform, glm::mat2 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetMatrix(const char *Uniform, glm::mat2 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniformMatrix2fv(location, 1, GL_FALSE, &Value[0][0]);
 }
 
 
-void Shader::SetMatrix(const char *Uniform, glm::mat3 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetMatrix(const char *Uniform, glm::mat3 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniformMatrix3fv(location, 1, GL_FALSE, &Value[0][0]);
 }
 
 
-void Shader::SetMatrix(const char *Uniform, glm::mat4 Value) {
-	int location = glGetUniformLocation(id, Uniform);
+void ShaderObj::SetMatrix(const char *Uniform, glm::mat4 Value) {
+	int location = glGetUniformLocation(Id, Uniform);
 
 	if (location != -1)
 		glUniformMatrix4fv(location, 1, GL_FALSE, &Value[0][0]);
 }
 
 
-void Shader::SetMatrix(const UniformAttr &Uniform) {
+void ShaderObj::SetMatrix(const UniformAttr &Uniform) {
 	if (Uniform.type != ATTR_TYPE_MATRIX)
 		return;
 
@@ -430,7 +430,7 @@ void Shader::SetMatrix(const UniformAttr &Uniform) {
 //void Shader::SetMaterial(const Material *Material) {
 //	UniformAttr *pUniform = nullptr;
 //
-//	for (auto pair : Material->uniforms) {
+//	for (auto pair : Material->Uniforms) {
 //		pUniform = &pair.second;
 //
 //		if (!IsUniformAMaterial(*pUniform))
@@ -451,7 +451,7 @@ void Shader::SetMatrix(const UniformAttr &Uniform) {
 //}
 
 
-void Shader::SetUniform(const UniformAttr &Uniform) {
+void ShaderObj::SetUniform(const UniformAttr &Uniform) {
 	switch (Uniform.type) {
 		case ATTR_TYPE_BOOL:
 		{

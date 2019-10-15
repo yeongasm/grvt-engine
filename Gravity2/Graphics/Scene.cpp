@@ -1,8 +1,7 @@
 #include "stdafx.h"
 
 
-SceneCreationInfo::SceneCreationInfo() : flipUVs(0), type{}, file{}, 
-	directory{}, name{} {}
+SceneCreationInfo::SceneCreationInfo() : Name(), Path(), FlipUVs() {}
 
 
 SceneCreationInfo::SceneCreationInfo(const SceneCreationInfo &Other) { *this = Other; }
@@ -12,10 +11,9 @@ SceneCreationInfo::SceneCreationInfo(SceneCreationInfo &&Other) { *this = std::m
 
 
 SceneCreationInfo& SceneCreationInfo::operator= (const SceneCreationInfo &Other) {
-	type		= Other.type;
-	file		= Other.file;
-	directory	= Other.directory;
-	name		= Other.name;
+	Name		= Other.Name;
+	Path		= Other.Path;
+	FlipUVs		= Other.FlipUVs;
 
 	return *this;
 }
@@ -23,49 +21,45 @@ SceneCreationInfo& SceneCreationInfo::operator= (const SceneCreationInfo &Other)
 
 SceneCreationInfo& SceneCreationInfo::operator= (SceneCreationInfo &&Other) {
 	if (this != &Other) {
+		Name	= Other.Name;
+		Path	= Other.Path;
+		FlipUVs = Other.FlipUVs;
 
-		type		= Other.type;
-		file		= Other.file;
-		directory	= Other.directory;
-		name		= Other.name;
+		Other.~SceneCreationInfo();
 	}
-
-	Other.~SceneCreationInfo();
 
 	return *this;
 }
 
 
 SceneCreationInfo::~SceneCreationInfo() {
-	type = SCENE_TYPE_NONE;
-	file.Release();
-	directory.Release();
-	name.Release();
+	Name.Release();
+	Path.Release();
 }
 
 
-Mesh::Mesh() : vao(), vbo(), ebo(), size(0) {}
+MeshObj::MeshObj() : Vao(), Vbo(), Ebo(), Size(0) {}
 
 
-Mesh::Mesh(Mesh &&Other) { *this = std::move(Other); }
+MeshObj::MeshObj(MeshObj &&Other) { *this = std::move(Other); }
 
 
-Mesh& Mesh::operator= (Mesh &&Other) {
+MeshObj& MeshObj::operator= (MeshObj &&Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		vao = std::move(Other.vao);
-		vbo = std::move(Other.vbo);
-		ebo = std::move(Other.ebo);
+		Vao = std::move(Other.Vao);
+		Vbo = std::move(Other.Vbo);
+		Ebo = std::move(Other.Ebo);
 
-		size = Other.size;
+		Size = Other.Size;
 
-		positions	= Other.positions;
-		uv			= Other.uv;
-		normals		= Other.normals;
-		tangents	= Other.tangents;
-		bitangents	= Other.bitangents;
-		indices		= Other.indices;
+		Positions	= Other.Positions;
+		Uv			= Other.Uv;
+		Normals		= Other.Normals;
+		Tangents	= Other.Tangents;
+		Bitangents	= Other.Bitangents;
+		Indices		= Other.Indices;
 
 		Other.Free();
 	}
@@ -74,19 +68,17 @@ Mesh& Mesh::operator= (Mesh &&Other) {
 }
 
 
-Mesh::~Mesh() {
-	Free();
-}
+MeshObj::~MeshObj() {}
 
 
-void Mesh::Free() {
-	size = 0;
-	positions.Release();
-	uv.Release();
-	normals.Release();
-	tangents.Release();
-	bitangents.Release();
-	indices.Release();
+void MeshObj::Free() {
+	Size = 0;
+	Positions.Release();
+	Uv.Release();
+	Normals.Release();
+	Tangents.Release();
+	Bitangents.Release();
+	Indices.Release();
 }
 
 
@@ -137,52 +129,49 @@ void Mesh::Free() {
 //}
 
 
-Scene::Scene() : type(SCENE_TYPE_NONE), meshes(), instances(), info(nullptr) {}
+SceneObj::SceneObj() : Meshes(), Instances(), Info(nullptr) {}
 
 
-Scene::~Scene() {
-	Free();
-}
+SceneObj::~SceneObj() {}
 
-void Scene::Free() {
-	type		= SCENE_TYPE_NONE;
-	info		= nullptr;
+void SceneObj::Free() {
+	Info = nullptr;
 
-	instances.Release();
-	meshes.Release();
+	Instances.Release();
+	Meshes.Release();
 }
 
 
-SceneInstance* Scene::CreateInstance(const SceneInstanceCreation &Info) { 
-	SceneInstance *instance = &instances.Insert(SceneInstance());
+SceneInstance* SceneObj::CreateInstance(const SceneInstanceCreation &Info) {
+	SceneInstance *instance = &Instances.Insert(SceneInstance());
 	instance->Alloc(Info, this);
 
 	return instance;
 }
 
 
-SceneInstance* Scene::CreateInstanceFrom(const SceneInstance &Instance) {
-	return &instances.Insert(Instance);
+SceneInstance* SceneObj::CreateInstanceFrom(const SceneInstance &Instance) {
+	return &Instances.Insert(Instance);
 }
 
 
-bool Scene::RemoveInstance(SceneInstance *Instance, bool Move) {
+bool SceneObj::RemoveInstance(SceneInstance *Instance, bool Move) {
 	size_t idx = -1;
 
-	for (SceneInstance &instance : instances) {
+	for (SceneInstance &instance : Instances) {
 		if (Instance != &instance)
 			continue;
 
-		idx = instances.IndexOf(instance);
+		idx = Instances.IndexOf(instance);
 		break;
 	}
 
-	instances.PopAt(idx, Move);
+	Instances.PopAt(idx, Move);
 
 	return (idx == -1) ? false : true;
 }
 
 
-void Scene::ReleaseAllInstances() {
-	instances.Empty();
+void SceneObj::ReleaseAllInstances() {
+	Instances.Empty();
 }

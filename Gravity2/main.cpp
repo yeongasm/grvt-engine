@@ -83,18 +83,17 @@ int main() {
 
 	{
 		TextureCreationInfo info;
-		info.name			= "Witch_body_albedo";
-		info.directory		= RootDir("Data/Models/witch/source/");
-		info.files.Push("body.jpg");
-		info.type			= TEXTURE_TYPE_ALBEDO;
+		info.Name			= "Witch_body_albedo";
+		info.Type			= TEXTURE_TYPE_ALBEDO;
+		info.Path.Push(RootDir("Data/Models/witch/source/body.jpg"));
 
-		Texture *body = manager->NewTexture(info);
+		TextureObj *body = manager->NewTexture(info);
 
-		info.files.Release();
-		info.name			= "Witch_obj_albedo";
-		info.files.Push("ob.jpg");
+		info.Path.Release();
+		info.Name			= "Witch_obj_albedo";
+		info.Path.Push(RootDir("Data/Models/witch/source/ob.jpg"));
 
-		Texture *object		= manager->NewTexture(info);
+		TextureObj *object		= manager->NewTexture(info);
 
 		MaterialCreationInfo mat;
 		mat.name			= "Witch_body_material";
@@ -237,7 +236,6 @@ int main() {
 
 	delete camera;
 
-//	DumpLogIntoFile
 	Logger::Free();
 
 #if 0

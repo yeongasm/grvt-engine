@@ -1,19 +1,18 @@
 #pragma once
 
 
+/**
+* TextureData object.
+*
+* Holds the actual texture object and stores additional information for the texture.
+*/
 struct TextureData {
-private:
 
-	using References = Array<Texture**>;
-
-public:
-
-	uint		id;
-	String		name;
-	String		file;
-	String		directory;
-	Texture		*texture;
-	References	references;
+	uint				Id;
+	String				Name;
+	String				Path;
+	TextureObj			*Texture;
+	Array<TextureObj**>	References;
 
 	TextureData();
 	~TextureData();
@@ -24,26 +23,32 @@ public:
 	TextureData(TextureData &&Data)						= delete;
 	TextureData& operator= (TextureData &&Data)			= delete;
 
+	/**
+	* Only allocates memory for a TextureObj and does construct the object in the GPU.
+	*/
 	void Alloc(const TextureCreationInfo &Info);
+
+	/**
+	* Only de-allocates the memory and does now destroy the object in the GPU.
+	* Do not call this function before removing the object from the GPU.
+	*/
 	void Free();
 };
 
 
+/**
+* TODO(Afiq):
+* The shader will be revamped into a more real time approach.
+*/
 struct ShaderData {
-private:
 
-	using References = Array<Shader**>;
-
-public:
-
-	uint		id;
-	String		name;
-	String		vertexFile;
-	String		fragmentFile;
-	String		geometryFile;
-	String		directory;
-	Shader		*shader;
-	References	references;
+	uint				Id;
+	String				Name;
+	String				VertexPath;
+	String				FragmentPath;
+	String				GeometryPath;
+	ShaderObj			*Shader;
+	Array<ShaderObj**>	References;
 
 	ShaderData();
 	ShaderData(const ShaderCreationInfo &Info);
@@ -62,10 +67,9 @@ public:
 
 struct SceneData {
 
-	uint	id;
-	String	name;
-	String	file;
-	String	directory;
+	uint	Id;
+	String	Name;
+	String	Path;
 	Scene	*scene;
 
 	SceneData();
@@ -206,37 +210,37 @@ public:
 	/**
 	* Never call this to add new textures into the engine. Call NewTexture() instead.
 	*/
-	Array<TextureData*>			textures;
+	Array<TextureData*>			TextureStore;
 
 	/**
 	* Never call this to add new shaders into the engine. Call NewShader() instead.
 	*/
-	Array<ShaderData*>			shaders;
+	Array<ShaderData*>			ShaderStore;
 
 	/**
 	* Never call this to add new scenes into the engine. Call NewScene() instead.
 	*/
-	Array<SceneData*>			scenes;
+	Array<SceneData*>			SceneStore;
 
 	/**
 	* Never call this to add new materials into the engine. Call NewMaterial() instead.
 	*/
-	Array<MaterialData*>		materials;
+	Array<MaterialData*>		MaterialStore;
 
 	/**
 	* Never call this to add new levels into the engine. Call NewLevel() instead.
 	*/
-	Array<SceneryData*>			levels;
+	Array<SceneryData*>			LevelStore;
 
 	/**
 	* Never call this to add new framebuffers into the engine. Call NewPostProcess() instead.
 	*/
-	Array<PostProcessData*>		framebuffers;
+	Array<PostProcessData*>		FramebufferStore;
 
 	/**
 	* Never call this to add new renderbuffers into the engine. Call NewRenderBuffer() instead.
 	*/
-	Array<RenderBufferData*>	renderbuffers;
+	Array<RenderBufferData*>	RenderbufferStore;
 
 private:
 
@@ -251,16 +255,16 @@ private:
 public:
 
 	Scene*			NewScene			(const SceneCreationInfo &Info);
-	Shader*			NewShader			(const ShaderCreationInfo &Info);
-	Texture*		NewTexture			(const TextureCreationInfo &Info);
+	ShaderObj*		NewShader			(const ShaderCreationInfo &Info);
+	TextureObj*		NewTexture			(const TextureCreationInfo &Info);
 	Material*		NewMaterial			(const MaterialCreationInfo &Info);
 	Scenery*		NewLevel			(const LevelCreationInfo &Info);
 	PostProcess*	NewPostProcess		(const PostProcessCreationInfo &Info);
 	RenderBuffer*	NewRenderBuffer		(const RenderBufferCreationInfo &Info);
 
 	Scene*			GetScene			(const String &Name);
-	Shader*			GetShader			(const String &Name);
-	Texture*		GetTexture			(const String &Name);
+	ShaderObj*		GetShader			(const String &Name);
+	TextureObj*		GetTexture			(const String &Name);
 	Material*		GetMaterial			(const String &Name);
 	Scenery*		GetLevel			(const String &Name);
 	PostProcess*	GetPostProcess		(const String &Name);
@@ -268,7 +272,7 @@ public:
 
 	bool			DeleteScene			(const String &Name);
 	bool			DeleteShader		(const String &Name);
-	bool			DeleteTexture		(const String &Name);
+	void			DeleteTexture		(TextureObj *&Texture);
 	bool			DeleteMaterial		(const String &Name);
 	bool			DeleteLevel			(const String &Name);
 	bool			DeletePostProcess	(const String &Name);

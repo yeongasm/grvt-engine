@@ -123,17 +123,18 @@ public:
 	using VertAttArr = std::map<String, VertexAttr>;
 	using UniformArr = std::map<String, UniformAttr>;
 
-	VertAttArr attributes;
-	UniformArr uniforms;
+	VertAttArr Attributes;
+	UniformArr Uniforms;
 
 	ShaderAttr();
-	ShaderAttr(const ShaderAttr &Other);
-	ShaderAttr(ShaderAttr &&Other);
+	~ShaderAttr();
 
+	ShaderAttr(const ShaderAttr &Other);
 	ShaderAttr& operator= (const ShaderAttr &Other);
+
+	ShaderAttr(ShaderAttr &&Other);
 	ShaderAttr& operator= (ShaderAttr &&Other);
 
-	~ShaderAttr();
 };
 
 // Forward declaration of the struct.
@@ -150,7 +151,7 @@ struct Material;
 * TODO(Afiq):
 * The shader class needs to be revamped as a whole. This class should only be an abstraction layer for an id that's the actual shaders.
 */
-class Shader {
+class ShaderObj {
 private:
 
 	enum ShaderType {
@@ -168,18 +169,20 @@ private:
 
 public:
 
-	uint		id;
-	ShaderData	*info;
-	ShaderAttr	attributes;
+	uint		Id;
+	ShaderData	*Info;
+	ShaderAttr	Attributes;
 
-	Shader();
-	Shader(const ShaderCreationInfo &Info);
-	Shader(const Shader &Other)					= delete;
-	Shader(Shader &&Other);
+	ShaderObj();
+	~ShaderObj();
 
-	Shader& operator= (const Shader &Other)		= delete;
-	Shader& operator= (Shader &&Other);
-	~Shader();
+	ShaderObj(const ShaderCreationInfo &Info);
+
+	ShaderObj(const ShaderObj &Other)					= delete;
+	ShaderObj& operator= (const ShaderObj &Other)		= delete;
+
+	ShaderObj(ShaderObj &&Other);
+	ShaderObj& operator= (ShaderObj &&Other);
 
 	bool		Alloc				(const ShaderCreationInfo &Info);
 	void		Free				();

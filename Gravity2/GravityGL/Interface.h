@@ -12,8 +12,7 @@
 */
 class Mesh;
 class Scene;
-class Texture;
-class Shader;
+class TextureObj;
 class RenderBuffer;
 class PostProcess;
 
@@ -59,11 +58,11 @@ struct TextureCreationInfo;
 * Low-level API can only process texture data that is contained inside of this data structure.
 */
 struct TexturePacket {
-	Texture				*TexturePtr;
+	TextureObj			*TexturePtr;
 	TextureBuildData	BuildData;
 
 	TexturePacket();
-	TexturePacket(Texture *Resource, TextureBuildData Data);
+	TexturePacket(TextureObj *Resource, TextureBuildData Data);
 
 	TexturePacket(const TexturePacket &Rhs);
 	TexturePacket(TexturePacket &&Rhs);
@@ -203,7 +202,7 @@ public:
 	* [MIDDLEWARE]
 	* Adds a texture to be built by OpenGL.
 	*/
-	void AddTextureForBuild(Texture *Texture, TextureBuildData Data);
+	void AddTextureForBuild(TextureObj *Texture, TextureBuildData Data);
 
 	
 	/**
@@ -271,7 +270,7 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* A mid level API to load textures from file into engine.
 	*/
-	void				ParseTextureFromFile		(const String Path, Texture *Texture);
+	void				ParseTextureFromFile		(const String Path, TextureObj *Texture);
 
 
 	/**

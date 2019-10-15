@@ -12,9 +12,9 @@
 */
 struct MaterialCreationInfo {
 public:
-	String			name;
-	Shader			*shader;
-	Array<Texture*>	textures;
+	String				Name;
+	ShaderObj			*Shader;
+	Array<TextureObj*>	Textures;
 
 	MaterialCreationInfo();
 	MaterialCreationInfo(const MaterialCreationInfo &Other);
@@ -40,14 +40,14 @@ struct MaterialData;
 struct Material {
 private:
 	using UniformArr = ShaderAttr::UniformArr;
-	using TextureArr = Array<Texture*>;
+	using TextureArr = Array<TextureObj*>;
 
 public:
-	String			name;
-	Shader			*shader;
-	MaterialData	*info;
-	UniformArr		uniforms;
-	TextureArr		textures;
+	String			Name;
+	ShaderObj		*Shader;
+	MaterialData	*Info;
+	UniformArr		Uniforms;
+	TextureArr		Textures;
 
 	Material();
 	Material(const MaterialCreationInfo &Info);
@@ -138,5 +138,5 @@ public:
 	* Does not update the value that's in the shader.
 	* Returns false if uniform with the specified name is not found.
 	*/
-	bool SetTexture	(const String &Uniform, Texture *Texture);
+	bool SetTexture	(const String &Uniform, TextureObj *Texture);
 };

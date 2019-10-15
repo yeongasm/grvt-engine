@@ -59,38 +59,18 @@ enum TextureFace {
 * @param [OPTIONAL] (Files)							Files		- Texture files. Only specify 1 or 6 along with it's face. Any more or any less and Gravity would not generate an OpenGL texture.
 */
 struct TextureCreationInfo {
-private:
 
-	using TextureFiles = Array<String>;
-
-public:
-
-	TextureType		type;
-	String			name;
-	String			directory;
-	TextureFiles	files;
+	String			Name;
+	TextureType		Type;
+	Array<String>	Path;
 
 	TextureCreationInfo();
 };
 
 
 /**
-* Generates generic cubemap creation info:
-* Alloc functions would override some formats specified by this function.
-*
-* TextureCreationInfo.target		= GL_TEXTURE_CUBE_MAP;
-* TextureCreationInfo.type			= GL_UNSIGNED_BYTE;
-* TextureCreationInfo.format		= GL_RGB;
-* TextureCreationInfo.parameters[0] = {GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
-* TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
-* TextureCreationInfo.parameters[1] = {GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE}
-* TextureCreationInfo.parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR}
-* TextureCreationInfo.parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+* Forward declaration of the struct.
 */
-//void GenerateGenericCubemapInfo(TextureCreationInfo &Info);
-
-
-// Forward declaration of the struct.
 struct TextureData;
 
 
@@ -103,21 +83,20 @@ struct TextureData;
 * NOTE(Afiq):
 * Would be nice if textures store their parameters but is it necessary?
 */
-class Texture {
+class TextureObj {
 public:
-	ObjHandle	handle;
-	TextureType type;
-	TextureData	*info;
 
-	Texture();
+	ObjHandle	Handle;
+	TextureType Type;
+	TextureData	*Info;
 
-	Texture(const Texture &Other)				= delete;
-	Texture& operator= (const Texture &Other)	= delete;
+	TextureObj();
+	~TextureObj();
+
+	TextureObj(const TextureObj &Other)				= delete;
+	TextureObj& operator= (const TextureObj &Other)	= delete;
 	
-	Texture(Texture &&Other);
-	Texture& operator= (Texture &&Other);
-	
-	~Texture();
+	TextureObj(TextureObj &&Other)					= delete;
+	TextureObj& operator= (TextureObj &&Other)		= delete;
 
-	void Free();
 };
