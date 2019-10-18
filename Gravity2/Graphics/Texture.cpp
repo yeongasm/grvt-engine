@@ -1,10 +1,17 @@
 #include "stdafx.h"
 
 
-TextureObj::TextureObj() : Handle(), Type(TEXTURE_TYPE_NONE), Info() {}
+TextureCreationInfo::TextureCreationInfo() : 
+	Name(), Path(), Type(TEXTURE_TYPE_NONE) {}
+
+
+TextureCreationInfo::~TextureCreationInfo() {
+	Name.Release();
+	Path.Release();
+}
+
+
+TextureObj::TextureObj() : Handle(), Type(TEXTURE_TYPE_NONE), Info(nullptr) {}
 
 
 TextureObj::~TextureObj() {}
-
-
-TextureCreationInfo::TextureCreationInfo() : Name(), Path(), Type(TEXTURE_TYPE_NONE) {}

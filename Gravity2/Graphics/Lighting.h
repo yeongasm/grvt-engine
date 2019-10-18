@@ -6,9 +6,11 @@
 * To be used upon creating a light light object onto the world.
 */
 enum LightType : uint {
+
 	LIGHT_TYPE_NONE			= 0x00,
 	LIGHT_TYPE_DIRECTIONAL	= 0x01,
 	LIGHT_TYPE_POINTLIGHT	= 0x02
+
 };
 
 
@@ -42,12 +44,6 @@ struct LightCreationInfo {
 	LightCreationInfo();
 	~LightCreationInfo();
 
-	LightCreationInfo(const LightCreationInfo &Other);
-	LightCreationInfo& operator= (const LightCreationInfo &Other);
-
-	LightCreationInfo(LightCreationInfo &&Other);
-	LightCreationInfo& operator= (LightCreationInfo &&Other);
-
 };
 
 
@@ -62,8 +58,7 @@ struct LightCreationInfo {
 * Add a function to generate debug sphere in wireframe mode.
 * Figure out a way to send lighting information over to the shader without using a uniform.
 */
-class LightSource {
-public:
+struct LightSource {
 
 	glm::vec3	Position;
 	glm::vec3	Colour;
@@ -94,8 +89,7 @@ public:
 * We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
 * Compute method computes information required for directional light.
 */
-class DirLight : public LightSource {
-public:
+struct DirLight : public LightSource {
 
 	DirLight();
 	~DirLight();
@@ -121,8 +115,7 @@ public:
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
-class PointLight : public LightSource {
-public:
+struct PointLight : public LightSource {
 
 	/**
 	* NOTE(Afiq):

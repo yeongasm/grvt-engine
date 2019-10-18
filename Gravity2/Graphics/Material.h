@@ -18,12 +18,6 @@ struct MaterialCreationInfo {
 
 	MaterialCreationInfo();
 	~MaterialCreationInfo();
-	
-	MaterialCreationInfo(const MaterialCreationInfo &Other);
-	MaterialCreationInfo& operator= (const MaterialCreationInfo &Other);
-
-	MaterialCreationInfo(MaterialCreationInfo &&Other);
-	MaterialCreationInfo& operator= (MaterialCreationInfo &&Other);
 
 };
 
@@ -39,8 +33,7 @@ struct MaterialData;
 * Filter out the uniforms to only contain uniforms that are relevant to materials.
 * One approach to this is to use a fix naming scheme for our materials in glsl.
 */
-class MaterialObj {
-public:
+struct MaterialObj {
 
 	String							Name;
 	ShaderObj						*Shader;
@@ -60,12 +53,12 @@ public:
 	/**
 	* Allocates a new material.
 	*/
-	void Alloc		(const MaterialCreationInfo &Info);
+	//void Alloc		(const MaterialCreationInfo &Info);
 
 	/**
 	* Released all data from the Material struct.
 	*/
-	void Free		();
+	//void Free		();
 
 	/**
 	* Sets a boolean value to the specified uniform.
@@ -136,4 +129,5 @@ public:
 	* Returns false if uniform with the specified name is not found.
 	*/
 	bool SetTexture	(const String &Uniform, TextureObj *Texture);
+
 };

@@ -21,12 +21,6 @@ struct SceneCreationInfo {
 	SceneCreationInfo();
 	~SceneCreationInfo();
 
-	SceneCreationInfo(const SceneCreationInfo &Other);
-	SceneCreationInfo& operator= (const SceneCreationInfo &Other);
-
-	SceneCreationInfo(SceneCreationInfo &&Other);
-	SceneCreationInfo& operator= (SceneCreationInfo &&Other);
-
 };
 
 
@@ -35,11 +29,9 @@ struct SceneCreationInfo {
 * Current implementation does not include bone data for animation. 
 * For the purpose of future proofing, we store every VBO sub data.
 *
-* TODO(Afiq): Implement CalculateNormals and CalculateTangentAndBiTangent function.
-* NOTE(Afiq): Thinking about removing the VBO and EBO and just have the VAO in a mesh. Should it be done?
+* Unless you know what you're doing, never raw allocate a MeshObj. Always use the helper function.
 */
-class MeshObj {
-public:
+struct MeshObj {
 
 	ObjHandle			Vao;
 	ObjHandle			Vbo;
@@ -61,34 +53,22 @@ public:
 	MeshObj(MeshObj &&Other);
 	MeshObj& operator= (MeshObj &&Other);
 
-
-	void	Free();
-	//void	CalculateTangentAndBitangent();
-	//void	CalculateNormals();
 };
 
 
-// Forward declaration of the struct.
+/**
+* Forward declaration of the struct.
+*/
 struct SceneData;
-struct SceneInstanceCreation;
-
-// Forward declaration of the class.
-class SceneInstance;
 
 
 /**
 * Gravity scene data structure.
-* A Scene contains all required data for rendering.
+* Stores vertex data for a single model.
 *
-* TODO(Afiq):
-* The concept of SceneInstance should be changed.
+* Unless you know what you're doing, never raw allocate a SceneObj. Always use the helper function.
 */
-class SceneObj {
-private:
-
-	Array<SceneInstance>	Instances;
-
-public:
+struct SceneObj {
 
 	Array<MeshObj>			Meshes;
 	SceneData				*Info;
@@ -101,11 +81,5 @@ public:
 
 	SceneObj(SceneObj &&Other)					= delete;
 	SceneObj& operator= (SceneObj &&Other)		= delete;
-
-	void			Free				();
-	SceneInstance*	CreateInstance		(const SceneInstanceCreation &Info);
-	SceneInstance*	CreateInstanceFrom	(const SceneInstance &Instance);
-	bool			RemoveInstance		(SceneInstance *Instance, bool Move = false);
-	void			ReleaseAllInstances	();
 
 };

@@ -7,6 +7,7 @@
 * Texture types are also used as texture sampling units to be used inside the shader.
 */
 enum TextureType : int {
+
 	TEXTURE_TYPE_NONE			= 0x00,	// On first initialisation only.
 	TEXTURE_TYPE_DIFFUSE		= 0x01,
 	TEXTURE_TYPE_ALBEDO			= 0x02,
@@ -24,6 +25,7 @@ enum TextureType : int {
 	TEXTURE_TYPE_FRAMEBFFR		= 0x0E,
 	TEXTURE_TYPE_SHADOWMAP		= 0x0F,
 	TEXTURE_TYPE_SHADOWCUBEMAP	= 0x10
+
 };
 
 
@@ -34,6 +36,7 @@ enum TextureType : int {
 * Right -> Left -> Top -> Bottom -> Front -> Back.
 */
 enum TextureFace {
+
 	TEXTURE_FACE_NONE = 0,
 	TEXTURE_FACE_RIGHT,
 	TEXTURE_FACE_LEFT,
@@ -41,6 +44,7 @@ enum TextureFace {
 	TEXTURE_FACE_BOTTOM,
 	TEXTURE_FACE_FRONT,
 	TEXTURE_FACE_BACK
+
 };
 
 
@@ -65,6 +69,8 @@ struct TextureCreationInfo {
 	Array<String>	Path;
 
 	TextureCreationInfo();
+	~TextureCreationInfo();
+
 };
 
 
@@ -80,11 +86,9 @@ struct TextureData;
 * When creating a cubemap texture, specify in the order of Right -> Left -> Top -> Bottom -> Front -> Back inside TextureCreationInfo struct.
 * Gravity does not take into account the order of faces that is specified in the struct and would always generate in that order.
 *
-* NOTE(Afiq):
-* Would be nice if textures store their parameters but is it necessary?
+* Unless you know what you're doing, never raw allocate a TextureObj. Always use the helper function.
 */
-class TextureObj {
-public:
+struct TextureObj {
 
 	ObjHandle	Handle;
 	TextureType Type;

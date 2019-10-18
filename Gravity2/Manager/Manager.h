@@ -90,13 +90,13 @@ struct SceneData {
 struct MaterialData {
 private:
 
-	using References = Array<Material**>;
+	using References = Array<MaterialObj**>;
 
 public:
 
 	uint		id;
 	String		name;
-	Material	*material;
+	MaterialObj	*material;
 	References	references;
 
 	MaterialData();
@@ -257,7 +257,7 @@ public:
 	Scene*			NewScene			(const SceneCreationInfo &Info);
 	ShaderObj*		NewShader			(const ShaderCreationInfo &Info);
 	TextureObj*		NewTexture			(const TextureCreationInfo &Info);
-	Material*		NewMaterial			(const MaterialCreationInfo &Info);
+	MaterialObj*	NewMaterial			(const MaterialCreationInfo &Info);
 	Scenery*		NewLevel			(const LevelCreationInfo &Info);
 	PostProcess*	NewPostProcess		(const PostProcessCreationInfo &Info);
 	RenderBuffer*	NewRenderBuffer		(const RenderBufferCreationInfo &Info);
@@ -265,7 +265,7 @@ public:
 	Scene*			GetScene			(const String &Name);
 	ShaderObj*		GetShader			(const String &Name);
 	TextureObj*		GetTexture			(const String &Name);
-	Material*		GetMaterial			(const String &Name);
+	MaterialObj*	GetMaterial			(const String &Name);
 	Scenery*		GetLevel			(const String &Name);
 	PostProcess*	GetPostProcess		(const String &Name);
 	RenderBuffer*	GetRenderBuffer		(const String &Name);

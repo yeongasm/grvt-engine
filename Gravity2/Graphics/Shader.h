@@ -16,10 +16,12 @@
 struct ShaderCreationInfo {
 
 	String Name;
-	String VertexShader;
-	String FragmentShader;
-	String GeometryShader;
-	String Directory;
+	String VertexPath;
+	String FragmentPath;
+	String GeometryPath;
+
+	ShaderCreationInfo();
+	~ShaderCreationInfo();
 
 };
 
@@ -28,6 +30,7 @@ struct ShaderCreationInfo {
 * Gravity engine's wrapper for OpenGL vertex attribute and shader uniform types.
 */
 enum AttrType {
+
 	ATTR_TYPE_NONE,
 	ATTR_TYPE_BOOL,
 	ATTR_TYPE_INT,
@@ -35,21 +38,24 @@ enum AttrType {
 	ATTR_TYPE_SAMPLER,
 	ATTR_TYPE_VECTOR,
 	ATTR_TYPE_MATRIX
+
 };
 
 
 enum AttrSubType {
-	ATTR_SUB_NONE,
-	ATTR_SUB_SAMPLER1D,
-	ATTR_SUB_SAMPLER2D,
-	ATTR_SUB_SAMPLER3D,
-	ATTR_SUB_SAMPLERCUBE,
-	ATTR_SUB_VEC2,
-	ATTR_SUB_VEC3,
-	ATTR_SUB_VEC4,
-	ATTR_SUB_MAT2,
-	ATTR_SUB_MAT3,
-	ATTR_SUB_MAT4
+
+	ATTR_SUBTYPE_NONE,
+	ATTR_SUBTYPE_SAMPLER1D,
+	ATTR_SUBTYPE_SAMPLER2D,
+	ATTR_SUBTYPE_SAMPLER3D,
+	ATTR_SUBTYPE_SAMPLERCUBE,
+	ATTR_SUBTYPE_VEC2,
+	ATTR_SUBTYPE_VEC3,
+	ATTR_SUBTYPE_VEC4,
+	ATTR_SUBTYPE_MAT2,
+	ATTR_SUBTYPE_MAT3,
+	ATTR_SUBTYPE_MAT4
+
 };
 
 
@@ -61,37 +67,36 @@ struct VertexAttr {
 	uint		Location;
 	int			Size;
 
-	VertexAttr() : size(-1), location(-1), type(ATTR_TYPE_NONE), subType(ATTR_SUB_NONE) {}
+	VertexAttr();
+	~VertexAttr();
+
 };
 
-struct UniformAttr {
-public:
-	bool		inUse;
-	int			size;
-	uint		location;
-	AttrType	type;
-	AttrSubType subType;
-	String		name;
+class UniformAttr : public VertexAttr {
+private:
 
 	union {
-		bool		boolean;
-		int			integer;
-		float		floating;
-		glm::vec2	vec2;
-		glm::vec3	vec3;
-		glm::vec4	vec4;
-		glm::mat2	mat2;
-		glm::mat3	mat3;
-		glm::mat4	mat4;
+		bool		Boolean;
+		int			Integer;
+		float		Float;
+		glm::vec2	Vec2;
+		glm::vec3	Vec3;
+		glm::vec4	Vec4;
+		glm::mat2	Mat2;
+		glm::mat3	Mat3;
+		glm::mat4	Mat4;
 	};
 
-	UniformAttr() : inUse(false), size(-1), location(-1), type(ATTR_TYPE_NONE), subType(ATTR_SUB_NONE) {}
+public:
+	
+	UniformAttr();
+	~UniformAttr();
 
 	/**
 	* Retrieve the value of the uniform by specifying it's type from the Shader.
 	*/
 	template <class T> inline T Cast() {
-		return *((T*)&boolean);
+		return *((T*)&Boolean);
 	}
 
 	/**
@@ -102,10 +107,7 @@ public:
 		if (Cast<T>() == Value)
 			return false;
 
-		//Cast<T>() = Value;
-		*((T*)&boolean) = Value;
-
-		//Changed = true;
+		*((T*)&Boolean) = Value;
 
 		return true;
 	}
@@ -121,19 +123,19 @@ public:
 * To update a value of a uniform, call UpdateValue() and specify the uniform's type inside the template specifier.
 * To use a value of a uniform, call Cast() and specify the uniform's type inside the template specifier.
 */
-struct ShaderAttr {
+struct ShaderVar {
 	
 	std::map<String, VertexAttr>	Attributes;
 	std::map<String, UniformAttr>	Uniforms;
 
-	ShaderAttr();
-	~ShaderAttr();
+	ShaderVar();
+	~ShaderVar();
 
-	ShaderAttr(const ShaderAttr &Other);
-	ShaderAttr& operator= (const ShaderAttr &Other);
+	ShaderVar(const ShaderVar &Other);
+	ShaderVar& operator= (const ShaderVar &Other);
 
-	ShaderAttr(ShaderAttr &&Other);
-	ShaderAttr& operator= (ShaderAttr &&Other);
+	ShaderVar(ShaderVar &&Other);
+	ShaderVar& operator= (ShaderVar &&Other);
 
 };
 
@@ -154,24 +156,15 @@ struct MaterialObj;
 class ShaderObj {
 private:
 
-	enum ShaderType {
-		SHADER_TYPE_VERTEX		= 0x8B31,
-		SHADER_TYPE_FRAGMENT	= 0x8B30,
-		SHADER_TYPE_GEOMETRY	= 0x8DD9
-	};
-
 	void		DeleteShader		(const std::initializer_list<uint> &IDs);
-	bool		CompileShader		(uint &ID, const char *Source, ShaderType Type);
+	bool		CompileShader		(uint &ID, const char *Source);
 	void		GetAttributeType	(uint Type, AttrType &Main, AttrSubType &Sub);
-
-	using UniformArr = Array<UniformAttr>;
-	using VertAttArr = Array<VertexAttr>;
 
 public:
 
 	uint		Id;
 	ShaderData	*Info;
-	ShaderAttr	Attributes;
+	ShaderVar	Variables;
 
 	ShaderObj();
 	~ShaderObj();
@@ -186,7 +179,6 @@ public:
 
 	bool		Alloc				(const ShaderCreationInfo &Info);
 	void		Free				();
-	void		RetrieveAttributes	(ShaderAttr *Buff);
 
 	bool		IsUniformAMaterial	(const UniformAttr &Uniform);
 
@@ -205,6 +197,5 @@ public:
 	void		SetMatrix			(const char *Uniform, glm::mat3 Value);
 	void		SetMatrix			(const char *Uniform, glm::mat4 Value);
 	void		SetMatrix			(const UniformAttr &Uniform);
-	//void		SetMaterial			(const Material *Material);
 	void		SetUniform			(const UniformAttr &Uniform);
 };

@@ -1,16 +1,41 @@
 #include "stdafx.h"
 
 
-ShaderAttr::ShaderAttr() : Attributes{}, Uniforms{} {}
+ShaderCreationInfo::ShaderCreationInfo() :
+	Name(), VertexPath(), FragmentPath(), GeometryPath() {}
 
 
-ShaderAttr::ShaderAttr(const ShaderAttr &Other) { *this = Other; }
+ShaderCreationInfo::~ShaderCreationInfo() {
+	Name.Release();
+	VertexPath.Release();
+	FragmentPath.Release();
+	GeometryPath.Release();
+}
 
 
-ShaderAttr::ShaderAttr(ShaderAttr &&Other) { *this = std::move(Other); }
+VertexAttr::VertexAttr() : 
+	Name(), Type(ATTR_TYPE_NONE), SubType(ATTR_SUBTYPE_NONE), Location(-1), Size(0) {}
 
 
-ShaderAttr& ShaderAttr::operator= (const ShaderAttr &Other) {
+VertexAttr::~VertexAttr() {}
+
+
+UniformAttr::UniformAttr() : VertexAttr() {}
+
+
+UniformAttr::~UniformAttr() {}
+
+
+ShaderVar::ShaderVar() : Attributes{}, Uniforms{} {}
+
+
+ShaderVar::ShaderVar(const ShaderVar &Other) { *this = Other; }
+
+
+ShaderVar::ShaderVar(ShaderVar &&Other) { *this = std::move(Other); }
+
+
+ShaderVar& ShaderVar::operator= (const ShaderVar &Other) {
 	if (this != &Other) {
 		Attributes	= Other.Attributes;
 		Uniforms	= Other.Uniforms;
@@ -20,19 +45,19 @@ ShaderAttr& ShaderAttr::operator= (const ShaderAttr &Other) {
 }
 
 
-ShaderAttr& ShaderAttr::operator= (ShaderAttr &&Other) {
+ShaderVar& ShaderVar::operator= (ShaderVar &&Other) {
 	if (this != &Other) {
 		Attributes	= Other.Attributes;
 		Uniforms	= Other.Uniforms;
 
-		Other.~ShaderAttr();
+		Other.~ShaderVar();
 	}
 
 	return *this;
 }
 
 
-ShaderAttr::~ShaderAttr() {
+ShaderVar::~ShaderVar() {
 	Attributes.clear();
 	Uniforms.clear();
 }

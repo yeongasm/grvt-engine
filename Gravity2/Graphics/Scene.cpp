@@ -1,35 +1,8 @@
 #include "stdafx.h"
 
 
-SceneCreationInfo::SceneCreationInfo() : Name(), Path(), FlipUVs() {}
-
-
-SceneCreationInfo::SceneCreationInfo(const SceneCreationInfo &Other) { *this = Other; }
-
-
-SceneCreationInfo::SceneCreationInfo(SceneCreationInfo &&Other) { *this = std::move(Other); }
-
-
-SceneCreationInfo& SceneCreationInfo::operator= (const SceneCreationInfo &Other) {
-	Name		= Other.Name;
-	Path		= Other.Path;
-	FlipUVs		= Other.FlipUVs;
-
-	return *this;
-}
-
-
-SceneCreationInfo& SceneCreationInfo::operator= (SceneCreationInfo &&Other) {
-	if (this != &Other) {
-		Name	= Other.Name;
-		Path	= Other.Path;
-		FlipUVs = Other.FlipUVs;
-
-		Other.~SceneCreationInfo();
-	}
-
-	return *this;
-}
+SceneCreationInfo::SceneCreationInfo() :
+	Name(), Path(), FlipUVs() {}
 
 
 SceneCreationInfo::~SceneCreationInfo() {
@@ -38,7 +11,9 @@ SceneCreationInfo::~SceneCreationInfo() {
 }
 
 
-MeshObj::MeshObj() : Vao(), Vbo(), Ebo(), Size(0) {}
+MeshObj::MeshObj() : 
+	Vao(), Vbo(), Ebo(), Size(0), Positions(), Uv(), 
+	Normals(), Tangents(), Bitangents(), Indices() {}
 
 
 MeshObj::MeshObj(MeshObj &&Other) { *this = std::move(Other); }
@@ -61,17 +36,14 @@ MeshObj& MeshObj::operator= (MeshObj &&Other) {
 		Bitangents	= Other.Bitangents;
 		Indices		= Other.Indices;
 
-		Other.Free();
+		Other.~MeshObj();
 	}
 
 	return *this;
 }
 
 
-MeshObj::~MeshObj() {}
-
-
-void MeshObj::Free() {
+MeshObj::~MeshObj() {
 	Size = 0;
 	Positions.Release();
 	Uv.Release();
@@ -80,18 +52,6 @@ void MeshObj::Free() {
 	Bitangents.Release();
 	Indices.Release();
 }
-
-
-//void Mesh::CalculateTangentAndBitangent() {
-//	// TODO(Afiq):
-//	// Once we have a basic renderer set up, research on methods to make solve calculating tangent and bitangents for mirrored uv coordinates.
-//}
-
-
-//void Mesh::CalculateNormals() {
-//	// TODO(Afiq):
-//	// Find the optimal way to calculate vertex normals of a mesh.
-//}
 
 
 //void Mesh::CreateInstanceBuffer() {
@@ -129,49 +89,10 @@ void MeshObj::Free() {
 //}
 
 
-SceneObj::SceneObj() : Meshes(), Instances(), Info(nullptr) {}
+SceneObj::SceneObj() : Meshes(), Info(nullptr) {}
 
 
-SceneObj::~SceneObj() {}
-
-void SceneObj::Free() {
+SceneObj::~SceneObj() {
 	Info = nullptr;
-
-	Instances.Release();
 	Meshes.Release();
-}
-
-
-SceneInstance* SceneObj::CreateInstance(const SceneInstanceCreation &Info) {
-	SceneInstance *instance = &Instances.Insert(SceneInstance());
-	instance->Alloc(Info, this);
-
-	return instance;
-}
-
-
-SceneInstance* SceneObj::CreateInstanceFrom(const SceneInstance &Instance) {
-	return &Instances.Insert(Instance);
-}
-
-
-bool SceneObj::RemoveInstance(SceneInstance *Instance, bool Move) {
-	size_t idx = -1;
-
-	for (SceneInstance &instance : Instances) {
-		if (Instance != &instance)
-			continue;
-
-		idx = Instances.IndexOf(instance);
-		break;
-	}
-
-	Instances.PopAt(idx, Move);
-
-	return (idx == -1) ? false : true;
-}
-
-
-void SceneObj::ReleaseAllInstances() {
-	Instances.Empty();
 }

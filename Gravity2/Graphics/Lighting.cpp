@@ -6,54 +6,6 @@ LightCreationInfo::LightCreationInfo() :
 	Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f) {}
 
 
-LightCreationInfo::LightCreationInfo(const LightCreationInfo &Other) { *this = Other; }
-
-
-LightCreationInfo::LightCreationInfo(LightCreationInfo &&Other) { *this = std::move(Other); }
-
-
-LightCreationInfo& LightCreationInfo::operator= (const LightCreationInfo &Other) {
-	// Throw an assertion when somebody is assigning the object to itself.
-	_ASSERTE(this != &Other);
-	
-	if (this != &Other) {
-		Position	= Other.Position;
-		Colour		= Other.Colour;
-		Name		= Other.Name;
-		Type		= Other.Type;
-		Brightness	= Other.Brightness;
-		Constant	= Other.Constant;
-		Linear		= Other.Linear;
-		Quadratic	= Other.Quadratic;
-		Radius		= Other.Radius;
-	}
-
-	return *this;
-}
-
-
-LightCreationInfo& LightCreationInfo::operator= (LightCreationInfo &&Other) {
-	// Throw an assertion when somebody is assigning the object to itself.
-	_ASSERTE(this != &Other);
-
-	if (this != &Other) {
-		Position	= Other.Position;
-		Colour		= Other.Colour;
-		Name		= Other.Name;
-		Type		= Other.Type;
-		Brightness	= Other.Brightness;
-		Constant	= Other.Constant;
-		Linear		= Other.Linear;
-		Quadratic	= Other.Quadratic;
-		Radius		= Other.Radius;
-
-		new (&Other) LightCreationInfo();
-	}
-
-	return *this;
-}
-
-
 LightCreationInfo::~LightCreationInfo() {}
 
 
