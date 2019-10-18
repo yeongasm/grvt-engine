@@ -11,8 +11,8 @@
 */
 class MeshNode {
 private:
-	uint		mode;
-	Mesh		*mesh;
+	uint		Mode;
+	MeshObj		*mesh;
 	Material	*material;
 
 	// TODO(Afiq): There should be a better solution than this.

@@ -1,7 +1,6 @@
 #pragma once
 
 
-class	PostProcess;
 struct	PostProcessData;
 struct	RenderBufferData;
 
@@ -26,24 +25,14 @@ enum RenderBufferType : uint {
 * @param [REQUIRED] (RenderBufferType) type - The to be constructed renderbuffer's type.
 *
 * Below specifies the default internal format when different types are specified:
-* [Type] RENDERBUFFER_TYPE_DEPTH_ATTACHMENT = GL_DEPTH_COMPONENT32F.
+* [Type] RENDERBUFFER_TYPE_DEPTH_ATTACHMENT			= GL_DEPTH_COMPONENT32F.
 * [Type] RENDERBUFFER_TYPE_DEPTH_STENCIL_ATTACHMENT = GL_DEPTH24_STENCIL8.
-* [Type] RENDERBUFFER_TYPE_COLOUR_ATTACHMENT = GL_RGBA8.
+* [Type] RENDERBUFFER_TYPE_COLOUR_ATTACHMENT		= GL_RGBA8.
 */
 struct RenderBufferCreationInfo {
 
-	String				name;
-	RenderBufferType	type;
-
-	RenderBufferCreationInfo();
-
-	RenderBufferCreationInfo(const RenderBufferCreationInfo &Other);
-	RenderBufferCreationInfo& operator= (const RenderBufferCreationInfo &Other);
-
-	RenderBufferCreationInfo(RenderBufferCreationInfo &&Other);
-	RenderBufferCreationInfo& operator= (RenderBufferCreationInfo &&Other);
-
-	~RenderBufferCreationInfo();
+	String				Name;
+	RenderBufferType	Type;
 
 };
 
@@ -53,22 +42,22 @@ struct RenderBufferCreationInfo {
 *
 * Allows users to construct a Renderbuffer to be attached onto Framebuffers.
 */
-class RenderBuffer {
+class RenderBufferObj {
 public:
 	
-	ObjHandle				handle;
-	RenderBufferType		type;
-	RenderBufferData		*info;
+	ObjHandle				Handle;
+	RenderBufferType		Type;
+	RenderBufferData		*Info;
 
-	RenderBuffer();
+	RenderBufferObj();
+	~RenderBufferObj();
 
-	RenderBuffer(const RenderBuffer &Other)				= delete;
-	RenderBuffer& operator= (const RenderBuffer &Other)	= delete;
+	RenderBufferObj(const RenderBufferObj &Other)				= delete;
+	RenderBufferObj& operator= (const RenderBufferObj &Other)	= delete;
 
-	RenderBuffer(RenderBuffer &&Other);
-	RenderBuffer& operator= (RenderBuffer &&Other);
+	RenderBufferObj(RenderBufferObj &&Other);
+	RenderBufferObj& operator= (RenderBufferObj &&Other);
 
-	~RenderBuffer();
 };
 
 
@@ -100,23 +89,22 @@ enum SubAttachmentType : uint32 {
 struct PostProcessAttachment {
 
 	union {
-		Texture			*texture;
-		RenderBuffer	*renderbuffer;
+		TextureObj			*Texture;
+		RenderBufferObj		*Renderbuffer;
 	};
 
-	AttachmentType		type;
-	SubAttachmentType	subType;
-	bool				draw;
+	AttachmentType		Type;
+	SubAttachmentType	SubType;
+	bool				Draw;
 
 	PostProcessAttachment();
+	~PostProcessAttachment();
 
 	PostProcessAttachment(const PostProcessAttachment &Other);
 	PostProcessAttachment& operator= (const PostProcessAttachment &Other);
 
 	PostProcessAttachment(PostProcessAttachment &&Other);
 	PostProcessAttachment& operator= (PostProcessAttachment &&Other);
-
-	~PostProcessAttachment();
 
 };
 
@@ -128,18 +116,14 @@ struct PostProcessAttachment {
 * In OpenGL 4.3, it is possible to create a framebuffer with no image attachment.
 */
 struct PostProcessCreationInfo {
-private:
 
-	using Attachments = Array<PostProcessAttachment>;
-
-public:
-
-	String		name;
-	Attachments attachment;
-	int			width;
-	int			height;
+	Array<PostProcessAttachment> Attachment;
+	String		Name;
+	int			Width;
+	int			Height;
 
 	PostProcessCreationInfo();
+	~PostProcessCreationInfo();
 
 	PostProcessCreationInfo(const PostProcessCreationInfo &Other);
 	PostProcessCreationInfo& operator= (const PostProcessCreationInfo &Other);
@@ -147,7 +131,6 @@ public:
 	PostProcessCreationInfo(PostProcessCreationInfo &&Other);
 	PostProcessCreationInfo& operator= (PostProcessCreationInfo &&Other);
 
-	~PostProcessCreationInfo();
 };
 
 
@@ -156,27 +139,26 @@ public:
 *
 * Allows users to construct a Framebuffer for post-processing effects.
 */
-class PostProcess {
+class PostProcessObj {
 private:
 
 	using Attachments = Array<PostProcessAttachment>;
 
 public:
 
-	ObjHandle		id;
-	int32			width;
-	int32			height;
-	PostProcessData *info;
-	Attachments		attachment;
+	Array<PostProcessAttachment> Attachment;
+	PostProcessData *Info;
+	ObjHandle		Handle;
+	int32			Width;
+	int32			Height;
 
-	PostProcess();
+	PostProcessObj();
+	~PostProcessObj();
 
-	PostProcess(const PostProcess &Other)				= delete;
-	PostProcess& operator= (const PostProcess &Other)	= delete;
+	PostProcessObj(const PostProcessObj &Other)				= delete;
+	PostProcessObj& operator= (const PostProcessObj &Other)	= delete;
 
-	PostProcess(PostProcess &&Other);
-	PostProcess& operator= (PostProcess &&Other);
-
-	~PostProcess();
+	PostProcessObj(PostProcessObj &&Other);
+	PostProcessObj& operator= (PostProcessObj &&Other);
 
 };

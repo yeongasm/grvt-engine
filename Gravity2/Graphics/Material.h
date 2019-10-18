@@ -11,19 +11,20 @@
 * @param [OPTIONAL] (TextureArr)	textures	- List of textures for this material. However, mapping textures to it's unit to the mesh needs to be done manually. 
 */
 struct MaterialCreationInfo {
-public:
+
 	String				Name;
 	ShaderObj			*Shader;
 	Array<TextureObj*>	Textures;
 
 	MaterialCreationInfo();
+	~MaterialCreationInfo();
+	
 	MaterialCreationInfo(const MaterialCreationInfo &Other);
-	MaterialCreationInfo(MaterialCreationInfo &&Other);
-
 	MaterialCreationInfo& operator= (const MaterialCreationInfo &Other);
+
+	MaterialCreationInfo(MaterialCreationInfo &&Other);
 	MaterialCreationInfo& operator= (MaterialCreationInfo &&Other);
 
-	~MaterialCreationInfo();
 };
 
 
@@ -36,30 +37,26 @@ struct MaterialData;
 * 
 * TODO(Afiq):
 * Filter out the uniforms to only contain uniforms that are relevant to materials.
+* One approach to this is to use a fix naming scheme for our materials in glsl.
 */
-struct Material {
-private:
-	using UniformArr = ShaderAttr::UniformArr;
-	using TextureArr = Array<TextureObj*>;
-
+class MaterialObj {
 public:
-	String			Name;
-	ShaderObj		*Shader;
-	MaterialData	*Info;
-	UniformArr		Uniforms;
-	TextureArr		Textures;
 
-	Material();
-	Material(const MaterialCreationInfo &Info);
+	String							Name;
+	ShaderObj						*Shader;
+	MaterialData					*Info;
+	Array<TextureObj*>				Textures;
+	std::map<String, UniformAttr>	Uniforms;
+
+	MaterialObj();
+	~MaterialObj();
 	
-	Material(const Material &Other);
-	Material(Material &&Other);
+	MaterialObj(const MaterialObj &Other);
+	MaterialObj& operator= (const MaterialObj &Other);
 
-	Material& operator= (const Material &Other);
-	Material& operator= (Material &&Other);
+	MaterialObj(MaterialObj &&Other);
+	MaterialObj& operator= (MaterialObj &&Other);
 
-	~Material();
-	
 	/**
 	* Allocates a new material.
 	*/

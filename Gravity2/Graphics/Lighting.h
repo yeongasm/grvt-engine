@@ -17,38 +17,37 @@ enum LightType : uint {
 * This struct currently cater towards the Phong/Blinn-Phong lighting model hence this is only temporary.
 * In the future, this would be altered for the PBR lighting model.
 *
-* @param [OPTIONAL] (bool)		Default = true						shadows		- Enable shadow mappign for this light source.
-* @param [OPTIONAL] (float)		Default = 0.5						brightness	- Light's brightness.
-* @param [OPTIONAL] (float)		Default = 1.0						constant	- Light's constant for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						linear		- Light's linear value for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						quadratic	- Light's quadratic value for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						radius		- Light's radius for calculating point light attenuation.
-* @param [REQUIRED] (LightType)										type		- Type of light being created.
-* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(1.0, 1.0, 1.0)	lightColour - Colour of light. Default colour is white if nothing is set.
-* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(0.0, 0.0, 0.0)	position	- Light's initial position.
-* @param [REQUIRED] (String)										name		- Light's identity.
+* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(0.0, 0.0, 0.0)	Position	- Light's initial position.
+* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(1.0, 1.0, 1.0)	Colour		- Colour of light. Default colour is white if nothing is set.
+* @param [REQUIRED] (String)										Name		- Light's identity.
+* @param [REQUIRED] (LightType)										Type		- Type of light being created.
+* @param [OPTIONAL] (float)		Default = 0.5						Brightness	- Light's brightness.
+* @param [OPTIONAL] (float)		Default = 1.0						Constant	- Light's constant for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						Linear		- Light's linear value for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						Quadratic	- Light's quadratic value for calculating point light attenuation.
+* @param [OPTIONAL] (float)		Default = 0.0						Radius		- Light's radius for calculating point light attenuation.
 */
 struct LightCreationInfo {
-	bool		shadows;
-	float		brightness;
-	float		constant;
-	float		linear;
-	float		quadratic;
-	float		radius;
-	LightType	type;
-	glm::vec3	position;
-	glm::vec3	lightColour;
-	String		name;
+
+	glm::vec3	Position;
+	glm::vec3	Colour;
+	String		Name;
+	LightType	Type;
+	float		Brightness;
+	float		Constant;
+	float		Linear;
+	float		Quadratic;
+	float		Radius;
 
 	LightCreationInfo();
+	~LightCreationInfo();
 
 	LightCreationInfo(const LightCreationInfo &Other);
-	LightCreationInfo(LightCreationInfo &&Other);
-
 	LightCreationInfo& operator= (const LightCreationInfo &Other);
+
+	LightCreationInfo(LightCreationInfo &&Other);
 	LightCreationInfo& operator= (LightCreationInfo &&Other);
 
-	~LightCreationInfo();
 };
 
 
@@ -63,30 +62,29 @@ struct LightCreationInfo {
 * Add a function to generate debug sphere in wireframe mode.
 * Figure out a way to send lighting information over to the shader without using a uniform.
 */
-class Light {
+class LightSource {
 public:
-	bool		enable;
-	bool		shadows;
-	float		brightness;
-	LightType	type;
-	glm::vec3	position;
-	glm::vec3	lightColour;
-	String		name;
 
-	Light();
+	glm::vec3	Position;
+	glm::vec3	Colour;
+	String		Name;
+	LightType	Type;
+	float		Brightness;
+	bool		Enable;
 
-	Light(const Light &Other);
-	Light(Light &&Other);
+	LightSource();
+	virtual ~LightSource();
 
-	Light& operator= (const Light &Other);
-	Light& operator= (Light &&Other);
+	LightSource(const LightSource &Other);
+	LightSource& operator= (const LightSource &Other);
 
-	virtual ~Light();
+	LightSource(LightSource &&Other);
+	LightSource& operator= (LightSource &&Other);
 
-	virtual void	Alloc	(const LightCreationInfo &Info);
-	void			Free	();
+	virtual void	Alloc	(const LightCreationInfo &Info) = 0;
+	virtual void	Free	()								= 0;
+	virtual void	Compute	(glm::mat4 &Buffer)				= 0;
 
-	virtual void	Compute	(glm::mat4 &Buffer);
 };
 
 
@@ -96,18 +94,22 @@ public:
 * We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
 * Compute method computes information required for directional light.
 */
-class DirLight : public Light {
+class DirLight : public LightSource {
 public:
 
 	DirLight();
+	~DirLight();
 
 	DirLight(const DirLight &Other);
-	DirLight(DirLight &&Other);
-
 	DirLight& operator= (const DirLight &Other);
+
+	DirLight(DirLight &&Other);
 	DirLight& operator= (DirLight &&Other);
 
-	~DirLight();
+	void	Alloc	(const LightCreationInfo &Info);
+	void	Free	();
+	void	Compute	(glm::mat4 &Buffer);
+
 };
 
 
@@ -119,89 +121,33 @@ public:
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
-class PointLight : public Light {
-private:
-
-	bool simplified;
-
+class PointLight : public LightSource {
 public:
+
 	/**
 	* NOTE(Afiq):
 	* For now we manually set in the values for the constants, linear and quadratic.
 	* In the future, we adjust these values base on the assigned radius.
 	*/
-	float constant;
-	float linear;
-	float quadratic;
-	float radius;
+	float	Constant;
+	float	Linear;
+	float	Quadratic;
+	float	Radius;
+	bool	Simplified;
 
 	PointLight();
-
-	PointLight(const PointLight &Other);
-	PointLight(PointLight &&Other);
-
-	PointLight& operator= (const PointLight &Other);
-	PointLight& operator= (PointLight &&Other);
-
 	~PointLight();
 
-	void		Alloc					(const LightCreationInfo &Info);
-	void		Free					();
-	void		UseRadiusForAttenuation	(bool Enable = true);
+	PointLight(const PointLight &Other);
+	PointLight& operator= (const PointLight &Other);
 
-	void		Compute					(glm::mat4 &Buffer);
-};
+	PointLight(PointLight &&Other);
+	PointLight& operator= (PointLight &&Other);
 
+	void	Alloc					(const LightCreationInfo &Info);
+	void	Free					();
+	void	UseRadiusForAttenuation	(bool Enable = true);
 
-/**
-* TODO(Afiq):
-* In the future when there will be shadow mapping, we'll need to think of a way to store the light space matrix and
-* the depth map inside of these Render(Directional/Point)Light objects.
-*/
+	void	Compute					(glm::mat4 &Buffer);
 
-
-/**
-* RenderDirectionalLight data structure.
-*
-* Only to be used inside the RenderBuffer object. Under no circumstances shall anyone make an instantiation of this object.
-*/
-struct RenderDirectionalLight {
-	float		brightness;
-	glm::vec3	position;
-	glm::vec3	colour;
-
-	RenderDirectionalLight();
-
-	RenderDirectionalLight(const RenderDirectionalLight &Other)				= delete;
-	RenderDirectionalLight(RenderDirectionalLight &&Other)					= delete;
-
-	RenderDirectionalLight& operator= (const RenderDirectionalLight &Other) = delete;
-	RenderDirectionalLight& operator= (RenderDirectionalLight &&Other)		= delete;
-
-	~RenderDirectionalLight();
-};
-
-
-/**
-* RenderPointLight data structure.
-*
-* Only to be used inside the RenderBuffer object. Under no circumstances shall anyone make an instantiation of this object.
-*/
-struct RenderPointLight {
-	Array<float>		brightness;
-	Array<float>		constant;
-	Array<float>		linear;
-	Array<float>		quadratic;
-	Array<glm::vec3>	position;
-	Array<glm::vec3>	colour;
-
-	RenderPointLight();
-
-	RenderPointLight(const RenderPointLight &Other)				= delete;
-	RenderPointLight(RenderPointLight &&Other)					= delete;
-
-	RenderPointLight& operator= (const RenderPointLight &Other) = delete;
-	RenderPointLight& operator= (RenderPointLight &&Other)		= delete;
-
-	~RenderPointLight();
 };

@@ -5,6 +5,7 @@
 <br/>
 
 > Note, `development` is being heavily updated with `master` getting updates from time to time.
+<p>development: Current state of the engine will not build</p>
 <br/>
 
 <h2>Specification</h2>

@@ -47,19 +47,16 @@ MaterialCreationInfo::~MaterialCreationInfo() {
 }
 
 
-Material::Material() : Name{}, Shader{}, Info{}, Uniforms{}, Textures{} {}
+MaterialObj::MaterialObj() : Name(), Shader(nullptr), Info(nullptr), Textures(), Uniforms() {}
 
 
-Material::Material(const MaterialCreationInfo &Info) { Alloc(Info); }
+MaterialObj::MaterialObj(const MaterialObj &Other) { *this = Other; }
 
 
-Material::Material(const Material &Other) { *this = Other; }
+MaterialObj::MaterialObj(MaterialObj &&Other) { *this = std::move(Other); }
 
 
-Material::Material(Material &&Other) { *this = std::move(Other); }
-
-
-Material& Material::operator= (const Material &Other) {
+MaterialObj& MaterialObj::operator= (const MaterialObj &Other) {
 	if (this != &Other) {
 		Name		= Other.Name;
 		Shader		= Other.Shader;
@@ -72,7 +69,7 @@ Material& Material::operator= (const Material &Other) {
 }
 
 
-Material& Material::operator= (Material &&Other) {
+MaterialObj& MaterialObj::operator= (MaterialObj &&Other) {
 	if (this != &Other) {
 		Free();
 
@@ -84,15 +81,14 @@ Material& Material::operator= (Material &&Other) {
 		Other.Free();
 	}
 
-
 	return *this;
 }
 
 
-Material::~Material() { Free(); }
+MaterialObj::~MaterialObj() {}
 
 
-void Material::Alloc(const MaterialCreationInfo &Info) {
+void MaterialObj::Alloc(const MaterialCreationInfo &Info) {
 	Name = Info.Name;
 	
 	if (Info.Shader) {
@@ -111,7 +107,7 @@ void Material::Alloc(const MaterialCreationInfo &Info) {
 }
 
 
-void Material::Free() {
+void MaterialObj::Free() {
 	Shader	= nullptr;
 	Info	= nullptr;
 
@@ -121,7 +117,7 @@ void Material::Free() {
 }
 
 
-bool Material::SetBool(const String &Uniform, bool Value) {
+bool MaterialObj::SetBool(const String &Uniform, bool Value) {
 	auto it = Uniforms.find(Uniform);
 
 	if (it == Uniforms.end())
@@ -137,7 +133,7 @@ bool Material::SetBool(const String &Uniform, bool Value) {
 }
 
 
-bool Material::SetInt(const String &Uniform, int Value) {
+bool MaterialObj::SetInt(const String &Uniform, int Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -153,7 +149,7 @@ bool Material::SetInt(const String &Uniform, int Value) {
 }
 
 
-bool Material::SetFloat(const String &Uniform, float Value) {
+bool MaterialObj::SetFloat(const String &Uniform, float Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -169,7 +165,7 @@ bool Material::SetFloat(const String &Uniform, float Value) {
 }
 
 
-bool Material::SetVector(const String &Uniform, glm::vec2 Value) {
+bool MaterialObj::SetVector(const String &Uniform, glm::vec2 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -185,7 +181,7 @@ bool Material::SetVector(const String &Uniform, glm::vec2 Value) {
 }
 
 
-bool Material::SetVector(const String &Uniform, glm::vec3 Value) {
+bool MaterialObj::SetVector(const String &Uniform, glm::vec3 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -201,7 +197,7 @@ bool Material::SetVector(const String &Uniform, glm::vec3 Value) {
 }
 
 
-bool Material::SetVector(const String &Uniform, glm::vec4 Value) {
+bool MaterialObj::SetVector(const String &Uniform, glm::vec4 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -217,7 +213,7 @@ bool Material::SetVector(const String &Uniform, glm::vec4 Value) {
 }
 
 
-bool Material::SetMatrix(const String &Uniform, glm::mat2 Value) {
+bool MaterialObj::SetMatrix(const String &Uniform, glm::mat2 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -233,7 +229,7 @@ bool Material::SetMatrix(const String &Uniform, glm::mat2 Value) {
 }
 
 
-bool Material::SetMatrix(const String &Uniform, glm::mat3 Value) {
+bool MaterialObj::SetMatrix(const String &Uniform, glm::mat3 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -249,7 +245,7 @@ bool Material::SetMatrix(const String &Uniform, glm::mat3 Value) {
 }
 
 
-bool Material::SetMatrix(const String &Uniform, glm::mat4 Value) {
+bool MaterialObj::SetMatrix(const String &Uniform, glm::mat4 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
@@ -265,7 +261,7 @@ bool Material::SetMatrix(const String &Uniform, glm::mat4 Value) {
 }
 
 
-bool Material::SetTexture(const String &Uniform, TextureObj *Texture) {
+bool MaterialObj::SetTexture(const String &Uniform, TextureObj *Texture) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())

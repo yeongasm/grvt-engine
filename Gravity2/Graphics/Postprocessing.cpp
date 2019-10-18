@@ -1,7 +1,14 @@
 #include "stdafx.h"
 
 
-RenderBufferCreationInfo::RenderBufferCreationInfo() : name() {}
+RenderBufferCreationInfo::RenderBufferCreationInfo() :
+	Name(), Type(RENDERBUFFER_TYPE_NONE) {}
+
+
+RenderBufferCreationInfo::~RenderBufferCreationInfo() {
+	Name.Release();
+	Type = RENDERBUFFER_TYPE_NONE;
+}
 
 
 RenderBufferCreationInfo::RenderBufferCreationInfo(const RenderBufferCreationInfo &Other) { *this = Other; }
@@ -11,8 +18,8 @@ RenderBufferCreationInfo& RenderBufferCreationInfo::operator= (const RenderBuffe
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		name = Other.name;
-		type = Other.type;
+		Name = Other.Name;
+		Type = Other.Type;
 	}
 
 	return *this;
@@ -26,8 +33,8 @@ RenderBufferCreationInfo& RenderBufferCreationInfo::operator= (RenderBufferCreat
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		name = Other.name;
-		type = Other.type;
+		Name = Other.Name;
+		Type = Other.Type;
 
 		new (&Other) RenderBufferCreationInfo();
 	}
@@ -36,37 +43,31 @@ RenderBufferCreationInfo& RenderBufferCreationInfo::operator= (RenderBufferCreat
 }
 
 
-RenderBufferCreationInfo::~RenderBufferCreationInfo() {
-	name.Release();
-	type = RENDERBUFFER_TYPE_NONE;
-}
+RenderBufferObj::RenderBufferObj() : Handle(), Type(RENDERBUFFER_TYPE_NONE), Info(nullptr) {}
 
 
-RenderBuffer::RenderBuffer() : handle(), type(RENDERBUFFER_TYPE_NONE), info(nullptr) {}
+RenderBufferObj::~RenderBufferObj() {}
 
 
-RenderBuffer::RenderBuffer(RenderBuffer &&Other) { *this = std::move(Other); }
+RenderBufferObj::RenderBufferObj(RenderBufferObj &&Other) { *this = std::move(Other); }
 
 
-RenderBuffer& RenderBuffer::operator= (RenderBuffer &&Other) {
+RenderBufferObj& RenderBufferObj::operator= (RenderBufferObj &&Other) {
 	_ASSERTE(this != &Other);
 	
 	if (this != &Other) {
-		handle	= std::move(Other.handle);
-		type	= Other.type;
-		info	= Other.info;
+		Handle	= std::move(Other.Handle);
+		Type	= Other.Type;
+		Info	= Other.Info;
 
-		new (&Other) RenderBuffer();
+		new (&Other) RenderBufferObj();
 	}
 
 	return *this;
 }
 
 
-RenderBuffer::~RenderBuffer() {}
-
-
-PostProcessAttachment::PostProcessAttachment() : texture(nullptr), type(FRAMEBUFFER_ATTACHMENT_NONE), subType(FRAMEBUFFER_SUBATTACH_NONE), draw(false) {}
+PostProcessAttachment::PostProcessAttachment() : Texture(nullptr), Type(FRAMEBUFFER_ATTACHMENT_NONE), SubType(FRAMEBUFFER_SUBATTACH_NONE), draw(false) {}
 
 
 PostProcessAttachment::PostProcessAttachment(const PostProcessAttachment &Other) { *this = Other; }
@@ -76,15 +77,15 @@ PostProcessAttachment& PostProcessAttachment::operator= (const PostProcessAttach
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		if (Other.type == FRAMEBUFFER_ATTACHMENT_TEXTURE)
-			texture = Other.texture;
+		if (Other.Type == FRAMEBUFFER_ATTACHMENT_TEXTURE)
+			Texture = Other.Texture;
 
-		if (Other.type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER)
-			renderbuffer = Other.renderbuffer;
+		if (Other.Type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER)
+			Renderbuffer = Other.Renderbuffer;
 
-		type	= Other.type;
-		subType = Other.subType;
-		draw	= Other.draw;
+		Type	= Other.type;
+		SubType = Other.subType;
+		Draw	= Other.draw;
 	}
 
 	return *this;

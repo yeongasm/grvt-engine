@@ -14,11 +14,13 @@
 * @param [REQUIRED] (String) directory		- Path to the files.
 */
 struct ShaderCreationInfo {
-	String name;
-	String vertexShader;
-	String fragmentShader;
-	String geometryShader;
-	String directory;
+
+	String Name;
+	String VertexShader;
+	String FragmentShader;
+	String GeometryShader;
+	String Directory;
+
 };
 
 
@@ -52,11 +54,12 @@ enum AttrSubType {
 
 
 struct VertexAttr {
-	int			size;
-	uint		location;
-	AttrType	type;
-	AttrSubType subType;
-	String		name;
+
+	String		Name;
+	AttrType	Type;
+	AttrSubType SubType;
+	uint		Location;
+	int			Size;
 
 	VertexAttr() : size(-1), location(-1), type(ATTR_TYPE_NONE), subType(ATTR_SUB_NONE) {}
 };
@@ -119,12 +122,9 @@ public:
 * To use a value of a uniform, call Cast() and specify the uniform's type inside the template specifier.
 */
 struct ShaderAttr {
-public:
-	using VertAttArr = std::map<String, VertexAttr>;
-	using UniformArr = std::map<String, UniformAttr>;
-
-	VertAttArr Attributes;
-	UniformArr Uniforms;
+	
+	std::map<String, VertexAttr>	Attributes;
+	std::map<String, UniformAttr>	Uniforms;
 
 	ShaderAttr();
 	~ShaderAttr();
@@ -139,7 +139,7 @@ public:
 
 // Forward declaration of the struct.
 struct ShaderData;
-struct Material;
+struct MaterialObj;
 
 /**
 * Gravity engine's shader data structure.

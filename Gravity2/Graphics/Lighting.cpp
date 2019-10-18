@@ -2,16 +2,8 @@
 
 
 LightCreationInfo::LightCreationInfo() :
-	shadows(true),
-	brightness(0.5f),
-	constant(1.0f),
-	linear(0.0f),
-	quadratic(0.0f),
-	radius(0.0f),
-	type(LIGHT_TYPE_NONE),
-	position(0.0f),
-	lightColour(1.0f),
-	name{} {}
+	Position(0.0f), Colour(1.0f), Name(), Type(LIGHT_TYPE_NONE), Brightness(0.5f), 
+	Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f) {}
 
 
 LightCreationInfo::LightCreationInfo(const LightCreationInfo &Other) { *this = Other; }
@@ -25,15 +17,15 @@ LightCreationInfo& LightCreationInfo::operator= (const LightCreationInfo &Other)
 	_ASSERTE(this != &Other);
 	
 	if (this != &Other) {
-		shadows		= Other.shadows;
-		brightness	= Other.brightness;
-		constant	= Other.constant;
-		linear		= Other.linear;
-		quadratic	= Other.quadratic;
-		type		= Other.type;
-		position	= Other.position;
-		lightColour = Other.lightColour;
-		name		= Other.name;
+		Position	= Other.Position;
+		Colour		= Other.Colour;
+		Name		= Other.Name;
+		Type		= Other.Type;
+		Brightness	= Other.Brightness;
+		Constant	= Other.Constant;
+		Linear		= Other.Linear;
+		Quadratic	= Other.Quadratic;
+		Radius		= Other.Radius;
 	}
 
 	return *this;
@@ -45,15 +37,15 @@ LightCreationInfo& LightCreationInfo::operator= (LightCreationInfo &&Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		shadows		= Other.shadows;
-		brightness	= Other.brightness;
-		constant	= Other.constant;
-		linear		= Other.linear;
-		quadratic	= Other.quadratic;
-		type		= Other.type;
-		position	= Other.position;
-		lightColour = Other.lightColour;
-		name		= Other.name;
+		Position	= Other.Position;
+		Colour		= Other.Colour;
+		Name		= Other.Name;
+		Type		= Other.Type;
+		Brightness	= Other.Brightness;
+		Constant	= Other.Constant;
+		Linear		= Other.Linear;
+		Quadratic	= Other.Quadratic;
+		Radius		= Other.Radius;
 
 		new (&Other) LightCreationInfo();
 	}
@@ -65,51 +57,45 @@ LightCreationInfo& LightCreationInfo::operator= (LightCreationInfo &&Other) {
 LightCreationInfo::~LightCreationInfo() {}
 
 
-Light::Light() :
-	enable(true),
-	shadows(true),
-	brightness(0.0f),
-	type(LIGHT_TYPE_NONE),
-	position(0.0f),
-	lightColour(0.0f) {}
+LightSource::LightSource() :
+	Position(0.0f), Colour(1.0f), Name(),
+	Type(LIGHT_TYPE_NONE), Brightness(0.0f), Enable(true) {}
 
 
-Light::Light(const Light &Other) { *this = Other; }
+LightSource::LightSource(const LightSource &Other) { *this = Other; }
 
 
-Light::Light(Light &&Other) { *this = std::move(Other); }
+LightSource::LightSource(LightSource &&Other) { *this = std::move(Other); }
 
 
-Light& Light::operator= (const Light &Other) {
+LightSource& LightSource::operator= (const LightSource &Other) {
 	// Ensures that the object is not being assigned to itself. Only in debug.
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		enable		= Other.enable;
-		shadows		= Other.shadows;
-		brightness	= Other.brightness;
-		type		= Other.type;
-		position	= Other.position;
-		lightColour = Other.lightColour;
-		name		= Other.name;
+		Position	= Other.Position;
+		Colour		= Other.Colour;
+		Name		= Other.Name;
+		Type		= Other.Type;
+		Brightness	= Other.Brightness;
+		Enable		= Other.Enable;
 	}
 
 	return *this;
 }
 
 
-Light& Light::operator= (Light &&Other) {
+LightSource& LightSource::operator= (LightSource &&Other) {
 	// Ensures that the object is not being assigned to itself. Only in debug.
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		enable		= Other.enable;
-		shadows		= Other.shadows;
-		brightness	= Other.brightness;
-		type		= Other.type;
-		position	= Other.position;
-		lightColour = Other.lightColour;
-		name		= Other.name;
+		Position	= Other.Position;
+		Colour		= Other.Colour;
+		Name		= Other.Name;
+		Type		= Other.Type;
+		Brightness	= Other.Brightness;
+		Enable		= Other.Enable;
 
 		Other.Free();
 	}
@@ -118,42 +104,13 @@ Light& Light::operator= (Light &&Other) {
 }
 
 
-Light::~Light() {
-	Free();
-}
+LightSource::~LightSource() {}
 
 
-void Light::Alloc(const LightCreationInfo &Info) {
-	brightness	= Info.brightness;
-	type		= Info.type;
-	position	= Info.position;
-	lightColour = Info.lightColour;
-	name		= Info.name;
-}
+DirLight::DirLight() : LightSource() {}
 
 
-void Light::Free() {
-	brightness	= 0.0f;
-	type		= LIGHT_TYPE_NONE;
-	position	= glm::vec3(0.0f);
-	lightColour = glm::vec3(0.0f);
-	name.Release();
-}
-
-
-void Light::Compute(glm::mat4 &Buffer) {
-	Buffer[0][0] = 0.0f;
-	Buffer[0][1] = brightness;
-	Buffer[1][0] = position.x;
-	Buffer[1][1] = position.y;
-	Buffer[1][2] = position.z;
-	Buffer[2][0] = lightColour.x;
-	Buffer[2][1] = lightColour.y;
-	Buffer[2][2] = lightColour.z;
-}
-
-
-DirLight::DirLight() : Light() {}
+DirLight::~DirLight() {}
 
 
 DirLight::DirLight(const DirLight &Other) { *this = Other; }
@@ -163,31 +120,55 @@ DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
 
 
 DirLight& DirLight::operator= (const DirLight &Other) {
-	Light::operator=(Other);
+	LightSource::operator=(Other);
 
 	return *this;
 }
 
 
 DirLight& DirLight::operator= (DirLight &&Other) {
-	Light::operator=(std::move(Other));
+	LightSource::operator=(std::move(Other));
 
 	return *this;
 }
 
 
-DirLight::~DirLight() {
-	Free();
+void DirLight::Alloc(const LightCreationInfo &Info) {
+	Position	= Info.Position;
+	Colour		= Info.Colour;
+	Brightness	= Info.Brightness;
+	Type		= Info.Type;
+	Name		= Info.Name;
+}
+
+
+void DirLight::Free() {
+	Brightness	= 0.0f;
+	Type		= LIGHT_TYPE_NONE;
+	Position	= glm::vec3(0.0f);
+	Colour		= glm::vec3(0.0f);
+	Name.Release();
+}
+
+
+void DirLight::Compute(glm::mat4 &Buffer) {
+	Buffer[0][0] = 0.0f;
+	Buffer[0][1] = Brightness;
+	Buffer[1][0] = Position.x;
+	Buffer[1][1] = Position.y;
+	Buffer[1][2] = Position.z;
+	Buffer[2][0] = Colour.x;
+	Buffer[2][1] = Colour.y;
+	Buffer[2][2] = Colour.z;
 }
 
 
 PointLight::PointLight() :
-	Light(),
-	simplified(false),
-	constant(1.0f),
-	linear(0.0f),
-	quadratic(0.0f),
-	radius(0.0f) {}
+	LightSource(), Constant(1.0f), Linear(0.0f),
+	Quadratic(0.0f), Radius(0.0f), Simplified(false) {}
+
+
+PointLight::~PointLight() {}
 
 
 PointLight::PointLight(const PointLight &Other) { *this = Other; }
@@ -201,13 +182,13 @@ PointLight& PointLight::operator= (const PointLight &Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		simplified	= Other.simplified;
-		constant	= Other.constant;
-		linear		= Other.linear;
-		quadratic	= Other.quadratic;
-		radius		= Other.radius;
+		Constant	= Other.Constant;
+		Linear		= Other.Linear;
+		Quadratic	= Other.Quadratic;
+		Radius		= Other.Radius;
+		Simplified	= Other.Simplified;
 
-		Light::operator=(Other);
+		LightSource::operator=(Other);
 	}
 
 	return *this;
@@ -219,13 +200,13 @@ PointLight& PointLight::operator= (PointLight &&Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
-		simplified	= Other.simplified;
-		constant	= Other.constant;
-		linear		= Other.linear;
-		quadratic	= Other.quadratic;
-		radius		= Other.radius;
+		Constant	= Other.Constant;
+		Linear		= Other.Linear;
+		Quadratic	= Other.Quadratic;
+		Radius		= Other.Radius;
+		Simplified	= Other.Simplified;
 		
-		Light::operator=(std::move(Other));
+		LightSource::operator=(std::move(Other));
 
 		new (&Other) PointLight();
 	}
@@ -234,83 +215,50 @@ PointLight& PointLight::operator= (PointLight &&Other) {
 }
 
 
-PointLight::~PointLight() {
-	Free();
-}
-
-
 void PointLight::Alloc(const LightCreationInfo &Info) {
-	Light::Alloc(Info);
+	LightSource::Alloc(Info);
 
-	if (Info.radius)
-		simplified = true;
+	if (Info.Radius)
+		Simplified = true;
 
-	constant	= Info.constant;
-	linear		= Info.linear;
-	quadratic	= Info.quadratic;
-	radius		= Info.radius;
+	Constant	= Info.Constant;
+	Linear		= Info.Linear;
+	Quadratic	= Info.Quadratic;
+	Radius		= Info.Radius;
 }
 
 
 void PointLight::Free() {
-	simplified	= false;
-	constant	= 0.0f;
-	linear		= 0.0f;
-	quadratic	= 0.0f;
-	radius		= 0.0f;
+	Simplified	= false;
+	Constant	= 0.0f;
+	Linear		= 0.0f;
+	Quadratic	= 0.0f;
+	Radius		= 0.0f;
 
-	Light::Free();
+	LightSource::Free();
 }
 
 
 void PointLight::UseRadiusForAttenuation(bool Enable) {
-	if (simplified != Enable)
-		simplified = Enable;
+	if (Simplified != Enable)
+		Simplified = Enable;
 }
 
 
 void PointLight::Compute(glm::mat4 &Buffer) {
-	Light::Compute(Buffer);
+	LightSource::Compute(Buffer);
 
-	float kC = constant;
-	float kL = linear;
-	float kQ = quadratic;
+	float kC = Constant;
+	float kL = Linear;
+	float kQ = Quadratic;
 
-	if (simplified) {
-		kL = 2 / radius;
-		kQ = 1 / (radius * radius);
+	if (Simplified) {
+		kL = 2 / Radius;
+		kQ = 1 / (Radius * Radius);
 	}
 
 	Buffer[0][0] = 1.0f;
 	Buffer[3][0] = kC;
 	Buffer[3][1] = kL;
 	Buffer[3][2] = kQ;
-}
-
-
-RenderDirectionalLight::RenderDirectionalLight() :
-	brightness(0.0f),
-	position(0.0f),
-	colour(0.0f) {}
-
-
-RenderDirectionalLight::~RenderDirectionalLight() {}
-
-
-RenderPointLight::RenderPointLight() :
-	brightness{},
-	constant{},
-	linear{},
-	quadratic{},
-	position{},
-	colour{} {}
-
-
-RenderPointLight::~RenderPointLight() {
-	brightness.Release();
-	constant.Release();
-	linear.Release();
-	quadratic.Release();
-	position.Release();
-	colour.Release();
 }
