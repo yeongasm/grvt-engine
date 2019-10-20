@@ -1,49 +1,42 @@
 #include "stdafx.h"
 
 
-SceneCreationInfo::SceneCreationInfo() :
-	Name(), Path(), FlipUVs() {}
-
-
-SceneCreationInfo::~SceneCreationInfo() {
-	Name.Release();
-	Path.Release();
-}
-
-
 MeshObj::MeshObj() : 
 	Vao(), Vbo(), Ebo(), Size(0), Positions(), Uv(), 
 	Normals(), Tangents(), Bitangents(), Indices() {}
 
 
-MeshObj::MeshObj(MeshObj &&Other) { *this = std::move(Other); }
+MeshObj::MeshObj(MeshObj&& Rhs) { *this = Move(Rhs); }
 
 
-MeshObj& MeshObj::operator= (MeshObj &&Other) {
-	_ASSERTE(this != &Other);
+MeshObj& MeshObj::operator= (MeshObj&& Rhs) {
+	_ASSERTE(this != &Rhs);
 
-	if (this != &Other) {
-		Vao = std::move(Other.Vao);
-		Vbo = std::move(Other.Vbo);
-		Ebo = std::move(Other.Ebo);
+	if (this != &Rhs) {
+		Vao = Move(Rhs.Vao);
+		Vbo = Move(Rhs.Vbo);
+		Ebo = Move(Rhs.Ebo);
 
-		Size = Other.Size;
+		Size = Rhs.Size;
 
-		Positions	= Other.Positions;
-		Uv			= Other.Uv;
-		Normals		= Other.Normals;
-		Tangents	= Other.Tangents;
-		Bitangents	= Other.Bitangents;
-		Indices		= Other.Indices;
+		Positions	= Rhs.Positions;
+		Uv			= Rhs.Uv;
+		Normals		= Rhs.Normals;
+		Tangents	= Rhs.Tangents;
+		Bitangents	= Rhs.Bitangents;
+		Indices		= Rhs.Indices;
 
-		Other.~MeshObj();
+		new (&Rhs) MeshObj();
 	}
 
 	return *this;
 }
 
 
-MeshObj::~MeshObj() {
+MeshObj::~MeshObj() { Free(); }
+
+
+void MeshObj::Free() {
 	Size = 0;
 	Positions.Release();
 	Uv.Release();
@@ -89,10 +82,25 @@ MeshObj::~MeshObj() {
 //}
 
 
-SceneObj::SceneObj() : Meshes(), Info(nullptr) {}
+GrvtModel::GrvtModel() : 
+	Name(), Path(), Meshes(), Type(GrvtModel_None) {}
 
 
-SceneObj::~SceneObj() {
-	Info = nullptr;
+GrvtModel::~GrvtModel() {}
+
+
+GrvtModel* GrvtModel::Alloc(const ModelImportInfo& Info, GrModelType ModelType) {
+	Name = Info.Name;
+	Path = Info.Path;
+	Type = ModelType;
+
+	return this;
+}
+
+
+void GrvtModel::Free() {
+	Name.Release();
+	Path.Release();
 	Meshes.Release();
+	Type = GrvtModel_None;
 }

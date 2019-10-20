@@ -2,32 +2,22 @@
 
 
 /**
+* Revamp Status: Completed?
+*/
+
+
+/**
 * Types of light.
 * To be used upon creating a light light object onto the world.
 */
-enum LightType : uint {
-
-	LIGHT_TYPE_NONE			= 0x00,
-	LIGHT_TYPE_DIRECTIONAL	= 0x01,
-	LIGHT_TYPE_POINTLIGHT	= 0x02
-
+enum LightType : uint32 {
+	GrvtLight_Type_None			= 0xFF,
+	GrvtLight_Type_Directional	= 0x00,
+	GrvtLight_Type_Pointlight	= 0x01
 };
 
 
 /**
-* Light creation data structure.
-* This struct currently cater towards the Phong/Blinn-Phong lighting model hence this is only temporary.
-* In the future, this would be altered for the PBR lighting model.
-*
-* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(0.0, 0.0, 0.0)	Position	- Light's initial position.
-* @param [OPTIONAL] (glm::vec3) Default = glm::vec3(1.0, 1.0, 1.0)	Colour		- Colour of light. Default colour is white if nothing is set.
-* @param [REQUIRED] (String)										Name		- Light's identity.
-* @param [REQUIRED] (LightType)										Type		- Type of light being created.
-* @param [OPTIONAL] (float)		Default = 0.5						Brightness	- Light's brightness.
-* @param [OPTIONAL] (float)		Default = 1.0						Constant	- Light's constant for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						Linear		- Light's linear value for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						Quadratic	- Light's quadratic value for calculating point light attenuation.
-* @param [OPTIONAL] (float)		Default = 0.0						Radius		- Light's radius for calculating point light attenuation.
 */
 struct LightCreationInfo {
 
@@ -41,25 +31,41 @@ struct LightCreationInfo {
 	float		Quadratic;
 	float		Radius;
 
-	LightCreationInfo();
-	~LightCreationInfo();
+};
+
+
+enum ShadowMapType : uint32 {
+	GrvtShadowMap_None				= 0xFF, /** On first init only */
+	GrvtShadowMap_Directional		= 0x00,
+	GrvtShadowMap_OmniDirectional	= 0x01
+};
+
+
+class ShadowMap {
+public:
+
+	ObjHandle		Handle;
+	ObjHandle		DepthTexture;
+	ShadowMapType	Type;
+	float			Bias;
+
+	ShadowMap();
+	~ShadowMap();
+
+private:
+
+	ShadowMap(const ShadowMap&)				= delete;
+	ShadowMap& operator= (const ShadowMap&) = delete;
 
 };
 
 
 /**
-* Light data structure.
-*
-* This is the BASE class for all light types.
-* NEVER create an object of this base light data structure.
-*
-* TODO(Afiq):
-* Add framebuffers to enable shadow mapping and include it as part of the structure.
-* Add a function to generate debug sphere in wireframe mode.
-* Figure out a way to send lighting information over to the shader without using a uniform.
 */
-struct LightSource {
+class LightSource {
+public:
 
+	ShadowMap	Shadow;
 	glm::vec3	Position;
 	glm::vec3	Colour;
 	String		Name;
@@ -70,15 +76,19 @@ struct LightSource {
 	LightSource();
 	virtual ~LightSource();
 
-	LightSource(const LightSource &Other);
-	LightSource& operator= (const LightSource &Other);
+private:
 
-	LightSource(LightSource &&Other);
-	LightSource& operator= (LightSource &&Other);
+	LightSource(const LightSource&)				= delete;
+	LightSource& operator= (const LightSource&) = delete;
 
-	virtual void	Alloc	(const LightCreationInfo &Info) = 0;
-	virtual void	Free	()								= 0;
-	virtual void	Compute	(glm::mat4 &Buffer)				= 0;
+	LightSource(LightSource&&)					= delete;
+	LightSource& operator= (LightSource&&)		= delete;
+
+public:
+
+	virtual void	Alloc(const LightCreationInfo&) = 0;
+	virtual void	Free()							= 0;
+	virtual void	Compute(glm::mat4&)				= 0;
 
 };
 
@@ -89,20 +99,27 @@ struct LightSource {
 * We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
 * Compute method computes information required for directional light.
 */
-struct DirLight : public LightSource {
+class DirLight : public LightSource {
+public:
+
+	glm::mat4 LightSpaceTransform;
 
 	DirLight();
 	~DirLight();
 
-	DirLight(const DirLight &Other);
-	DirLight& operator= (const DirLight &Other);
+private:
 
-	DirLight(DirLight &&Other);
-	DirLight& operator= (DirLight &&Other);
+	DirLight(const DirLight&)				= delete;
+	DirLight& operator= (const DirLight&)	= delete;
 
-	void	Alloc	(const LightCreationInfo &Info);
+	DirLight(DirLight&&)					= delete;
+	DirLight& operator= (DirLight&&)		= delete;
+
+public:
+
+	void	Alloc	(const LightCreationInfo&);
 	void	Free	();
-	void	Compute	(glm::mat4 &Buffer);
+	void	Compute	(glm::mat4&);
 
 };
 
@@ -115,13 +132,10 @@ struct DirLight : public LightSource {
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
-struct PointLight : public LightSource {
+class PointLight : public LightSource {
 
-	/**
-	* NOTE(Afiq):
-	* For now we manually set in the values for the constants, linear and quadratic.
-	* In the future, we adjust these values base on the assigned radius.
-	*/
+	Array<glm::mat4> LightSpaceTransforms;
+
 	float	Constant;
 	float	Linear;
 	float	Quadratic;
@@ -131,16 +145,15 @@ struct PointLight : public LightSource {
 	PointLight();
 	~PointLight();
 
-	PointLight(const PointLight &Other);
-	PointLight& operator= (const PointLight &Other);
+	PointLight(const PointLight&)				= delete;
+	PointLight& operator= (const PointLight&)	= delete;
 
-	PointLight(PointLight &&Other);
-	PointLight& operator= (PointLight &&Other);
+	PointLight(PointLight&&)					= delete;
+	PointLight& operator= (PointLight&&)		= delete;
 
-	void	Alloc					(const LightCreationInfo &Info);
-	void	Free					();
-	void	UseRadiusForAttenuation	(bool Enable = true);
-
-	void	Compute					(glm::mat4 &Buffer);
+	void	Alloc(const LightCreationInfo&);
+	void	Free();
+	void	UpdateRadius(bool, float);
+	void	Compute(glm::mat4&);
 
 };

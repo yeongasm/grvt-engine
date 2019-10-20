@@ -8,11 +8,13 @@
 */
 struct TextureData {
 
-	uint				Id;
+	Array<TextureObj**>	References;
 	String				Name;
 	String				Path;
 	TextureObj			*Texture;
-	Array<TextureObj**>	References;
+	uint32				Id;
+	int32				Width;
+	int32				Height;
 
 	TextureData();
 	~TextureData();
@@ -29,7 +31,7 @@ struct TextureData {
 	void Alloc(const TextureCreationInfo &Info);
 
 	/**
-	* Only de-allocates the memory and does now destroy the object in the GPU.
+	* Only de-allocates the memory and does not destroy the object in the GPU.
 	* Do not call this function before removing the object from the GPU.
 	*/
 	void Free();
@@ -42,62 +44,72 @@ struct TextureData {
 */
 struct ShaderData {
 
-	uint				Id;
+	Array<ShaderObj**>	References;
 	String				Name;
 	String				VertexPath;
 	String				FragmentPath;
 	String				GeometryPath;
 	ShaderObj			*Shader;
-	Array<ShaderObj**>	References;
+	uint				Id;
 
 	ShaderData();
-	ShaderData(const ShaderCreationInfo &Info);
-	ShaderData(const ShaderData &Data)				= delete;
-	ShaderData(ShaderData &&Data)					= delete;
-
-	ShaderData& operator= (const ShaderData &Data)	= delete;
-	ShaderData& operator= (ShaderData &&Data)		= delete;
-
 	~ShaderData();
 
+	ShaderData(const ShaderData &Data)				= delete;
+	ShaderData& operator= (const ShaderData &Data)	= delete;
+
+	ShaderData(ShaderData &&Data)					= delete;
+	ShaderData& operator= (ShaderData &&Data)		= delete;
+
+	/**
+	* Only allocates memory for a ShaderObj and does the construct a shader program in the GPU.
+	*/
 	void Alloc(const ShaderCreationInfo &Info);
+
+	/**
+	* Only de-allocates the memory and does not destroy the shader program in the GPU.
+	* Do not call this function before removing the object from the GPU.
+	*/
 	void Free();
 };
 
 
-struct SceneData {
+struct ModelData {
 
-	uint	Id;
-	String	Name;
-	String	Path;
-	Scene	*scene;
+	uint		Id;
+	String		Name;
+	String		Path;
+	ModelObj	*Model;
 
-	SceneData();
-	~SceneData();
+	ModelData();
+	~ModelData();
 
-	SceneData(const SceneData &Data)				= delete;
-	SceneData(SceneData &&Data)						= delete;
+	ModelData(const ModelData &Data)				= delete;
+	ModelData& operator= (const ModelData &Data)	= delete;
 
-	SceneData& operator= (const SceneData &Data)	= delete;
-	SceneData& operator= (SceneData &&Data)			= delete;
+	ModelData(ModelData &&Data)						= delete;
+	ModelData& operator= (ModelData &&Data)			= delete;
 
-	void Alloc(const SceneCreationInfo &Info);
+	/**
+	* Only allocates memory for a ModelObj and does not construct the mesh in the GPU.
+	*/
+	void Alloc(const ModelCreationInfo &Info);
+
+	/**
+	* Only de-allocate the memory and does not destroy the model in the GPU.
+	* Do not call this function before removing the object from the GPU.
+	*/
 	void Free();
 
 };
 
 
 struct MaterialData {
-private:
 
-	using References = Array<MaterialObj**>;
-
-public:
-
-	uint		id;
-	String		name;
-	MaterialObj	*material;
-	References	references;
+	Array<MaterialObj**> References;
+	String		Name;
+	MaterialObj	*Material;
+	uint		Id;
 
 	MaterialData();
 	~MaterialData();
@@ -108,72 +120,25 @@ public:
 	MaterialData(MaterialData &&Data)					= delete;
 	MaterialData& operator= (MaterialData &&Data)		= delete;
 
+	/**
+	* Allocates memory for a MaterialObj.
+	*/
 	void Alloc(const MaterialCreationInfo &Info);
+
+	/**
+	* De-allocates memory for a material.
+	*/
 	void Free();
 
-};
-
-
-struct SceneryData {
-
-	uint		id;
-	String		name;
-	String		directory;
-	String		filename;
-	Scenery		*level;
-
-	SceneryData();
-	~SceneryData();
-
-	SceneryData(const SceneryData &Data)				= delete;
-	SceneryData& operator= (const SceneryData &Data)	= delete;
-
-	SceneryData(SceneryData &&Data)						= delete;
-	SceneryData& operator= (SceneryData &&Data)			= delete;
-
-	void Alloc(const LevelCreationInfo &Info);
-	void Free();
-
-};
-
-
-struct RenderBufferData {
-private:
-
-	using References = Array<RenderBuffer**>;
-
-public:
-
-	uint			id;
-	String			name;
-	RenderBuffer	*renderbuffer;
-	References		references;
-
-	RenderBufferData();
-	~RenderBufferData();
-
-	RenderBufferData(const RenderBufferData &Data)				= delete;
-	RenderBufferData& operator= (const RenderBufferData &Data)	= delete;
-
-	RenderBufferData& operator= (RenderBufferData &&Data)		= delete;
-	RenderBufferData(RenderBufferData &&Data)					= delete;
-
-	void Alloc(const RenderBufferCreationInfo &Info);
-	void Free();
 };
 
 
 struct PostProcessData {
-private:
 
-	using References = Array<PostProcess**>;
-
-public:
-
-	uint		id;
-	String		name;
-	PostProcess *framebuffer;
-	References	references;
+	Array<PostProcessObj**>	References;
+	String			Name;
+	PostProcessObj	*Framebuffer;
+	uint32			Id;
 
 	PostProcessData();
 	~PostProcessData();
@@ -184,8 +149,15 @@ public:
 	PostProcessData(PostProcessData &&Data)						= delete;
 	PostProcessData& operator= (PostProcessData &&Data)			= delete;
 
-
+	/**
+	* Only allocates memory for a PostProcessObj and does not construct a framebuffer in the GPU.
+	*/
 	void Alloc(const PostProcessCreationInfo &Info);
+
+	/**
+	* Only de-allocate the memory and does not destroy the framebuffer in the GPU.
+	* Do not call this function before removing the framebuffer from the GPU.
+	*/
 	void Free();
 
 };
@@ -194,15 +166,6 @@ public:
 /**
 * The resource manager class acts as a database for all Gravity objects.
 * Every object has a database of it's own with a unique id assigned to it.
-*
-* TODO(Afiq):
-* Deleting a resource that's tied to an OpenGL object can no longer be done in the resource manager.
-* It needs to send the OpenGL object to the ResourceBuildQueue, when the build queue has finished deleting the object from the GPU,
-* only then do we delete the object from memory.
-*
-* TODO(Afiq):
-* Remove all logs from the ResourceManager. Make the UI handle the logic for the logs instead.
-* Replace logs with comments instead.
 */
 class ResourceManager {
 public:
@@ -218,11 +181,6 @@ public:
 	Array<ShaderData*>			ShaderStore;
 
 	/**
-	* Never call this to add new scenes into the engine. Call NewScene() instead.
-	*/
-	Array<SceneData*>			SceneStore;
-
-	/**
 	* Never call this to add new materials into the engine. Call NewMaterial() instead.
 	*/
 	Array<MaterialData*>		MaterialStore;
@@ -236,11 +194,6 @@ public:
 	* Never call this to add new framebuffers into the engine. Call NewPostProcess() instead.
 	*/
 	Array<PostProcessData*>		FramebufferStore;
-
-	/**
-	* Never call this to add new renderbuffers into the engine. Call NewRenderBuffer() instead.
-	*/
-	Array<RenderBufferData*>	RenderbufferStore;
 
 private:
 

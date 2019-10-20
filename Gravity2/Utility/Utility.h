@@ -152,20 +152,5 @@ struct Timer {
 	float Now();
 };
 
-template <class _Type>
-constexpr _Type&& Move(_Type &&Arg) {
-	return static_cast<_Type&&>(Arg);
-}
-
-template <class _Type>
-constexpr _Type&& Forward(_Type &Arg) {
-	return static_cast<_Type&&>(Arg);
-}
-
-template <class _Type>
-constexpr _Type&& Forward(_Type &&Arg) {
-	return static_cast<_Type&&>(Arg);
-}
-
 
 #endif // !GRAVITY_UTILITY

@@ -941,4 +941,29 @@ public:
 	}
 };
 
+
+template <class T> struct RemoveReference		{ using Type = T; };
+template <class T> struct RemoveReference<T& >	{ using Type = T; };
+template <class T> struct RemoveReference<T&&>	{ using Type = T; };
+
+
+template <class T> 
+T&& Forward(typename RemoveReference<T>::Type& Object) {
+	return static_cast<T&&>(Object);
+};
+
+
+template <class T>
+T&& Forward(typename RemoveReference<T>::Type&& Object) {
+	return static_cast<T&&>(Object);
+};
+
+
+template <class T>
+typename RemoveReference<T>::Type&& Move(T&& Object) {
+	using CastType = typename RemoveReference<T>::Type;
+	return static_cast<CastType&&>(Object);
+}
+
+
 #endif // !GRAVITY_STL

@@ -106,6 +106,49 @@ namespace BaseAPI {
 
 	/**
 	* [BASEAPI]
+	* Creates a new Shader ObjHandle.
+	*/
+	void GrCreateShader			(ObjHandle &Handle, uint32 Type);
+
+
+	/**
+	* [BASEAPI]
+	* Deletes the specified Shader ObjHandle from OpenGL.
+	*/
+	void GrDeleteShader			(ObjHandle &Handle);
+
+
+	/**
+	* [BASEAPI]
+	* Creates a new Shader Program ObjHandle.
+	*/
+	void GrCreateShaderProgram	(ObjHandle &Handle);
+
+
+	/**
+	* [BASEAPI]
+	* Binds the specified ObjHandle into OpenGL's context for an OpenGL Shader object.
+	* To unbind an OpenGL Shader object, call GrUnbindShader();
+	*/
+	void GrBindShaderProgram	(ObjHandle &Handle);
+
+
+	/**
+	* [BASEAPI]
+	* Unbinds the specified ObjHandle from OpenGL's context for an OpenGL Shader object.
+	* To bind an OpenGL Shader object, call GrBindShader();
+	*/
+	void GrUnbindShaderProgram	(ObjHandle &Handle);
+
+	
+	/**
+	* [BASEAPI]
+	* Deletes the specified Shader Program ObjHandle from OpenGL.
+	*/
+	void GrDeleteShaderProgram	(ObjHandle &Handle);
+
+	/**
+	* [BASEAPI]
 	* Creates a new Texture ObjHandle.
 	*/
 	void GrCreateTexture		(ObjHandle &Handle, uint32 Target);

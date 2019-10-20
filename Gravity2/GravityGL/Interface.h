@@ -2,19 +2,13 @@
 
 
 /**
-* TODO(Afiq):
-* Forward declare all of the high level API data structures.
-* 
-* Future tasks:
-* 1. Make a low level API for texture and shaders.
-* 2. Generate the shader in engine and modularize it.
-* 3. When framebuffers are implemented, do the same for it.
+* Forward declare all higher level graphic objects signature.
 */
-class Mesh;
-class Scene;
-class TextureObj;
-class RenderBuffer;
-class PostProcess;
+struct MeshObj;
+struct ModelObj;
+struct TextureObj;
+struct PostProcessObj;
+struct ShaderObj;
 
 
 /**
@@ -33,22 +27,23 @@ class PostProcess;
 * Low-level API can only process mesh data that is contained inside of this data structure.
 */
 struct MeshPacket {
-	Mesh			*MeshPtr;
+
+	MeshObj			*MeshPtr;
 	MeshBuildData	BuildData;
 
 	MeshPacket();
-	MeshPacket(Mesh *Resource, MeshBuildData Data);
+	~MeshPacket();
+
+	MeshPacket(MeshObj *Resource, MeshBuildData Data);
 
 	MeshPacket(const MeshPacket &Rhs);
-	MeshPacket(MeshPacket &&Rhs);
-
 	MeshPacket& operator= (const MeshPacket &Rhs);
+
+	MeshPacket(MeshPacket &&Rhs);
 	MeshPacket& operator= (MeshPacket &&Rhs);
 
-	~MeshPacket();
 };
 
-struct TextureCreationInfo;
 
 /**
 * [MIDDLEWARE]
@@ -58,44 +53,46 @@ struct TextureCreationInfo;
 * Low-level API can only process texture data that is contained inside of this data structure.
 */
 struct TexturePacket {
+
 	TextureObj			*TexturePtr;
 	TextureBuildData	BuildData;
 
 	TexturePacket();
+	~TexturePacket();
+	
 	TexturePacket(TextureObj *Resource, TextureBuildData Data);
 
 	TexturePacket(const TexturePacket &Rhs);
-	TexturePacket(TexturePacket &&Rhs);
-
 	TexturePacket& operator= (const TexturePacket &Rhs);
+
+	TexturePacket(TexturePacket &&Rhs);
 	TexturePacket& operator= (TexturePacket &&Rhs);
 
-	~TexturePacket();
 };
 
 
 /**
 * [MIDDLEWARE]
-* RenderbufferPacket data structure.
+* ShaderPacket data structure.
 *
-* A RenderbufferPacket is required to bridge the gap between the high-level abstraction API with the low level API.
-* Low-level API can only process framebuffer data that is contained inside of this data structure.
+* A ShaderPacket is required to bridge the gap between the high-level abstraction API with the low-level API.
+* Low-level API can only process string data that is contained indside of this data structure.
 */
-struct RenderbufferPacket {
+struct ShaderPacket {
 
-	RenderBuffer			*RenderBufferPtr;
-	RenderbufferBuildData	BuildData;
+	ShaderObj		*ShaderPtr;
+	ShaderBuildData BuildData;
 
-	RenderbufferPacket();
-	RenderbufferPacket(RenderBuffer *Resource, RenderbufferBuildData Data);
+	ShaderPacket();
+	~ShaderPacket();
 
-	RenderbufferPacket(const RenderbufferPacket &Rhs);
-	RenderbufferPacket& operator= (const RenderbufferPacket &Rhs);
+	ShaderPacket(ShaderObj *Resource, ShaderBuildData Data);
 
-	RenderbufferPacket(RenderbufferPacket &&Rhs);
-	RenderbufferPacket& operator= (RenderbufferPacket &&Rhs);
+	ShaderPacket(const ShaderPacket &Rhs);
+	ShaderPacket& operator= (const ShaderPacket &Rhs);
 
-	~RenderbufferPacket();
+	ShaderPacket(ShaderPacket &&Rhs);
+	ShaderPacket& operator= (ShaderPacket &&Rhs);
 
 };
 
@@ -109,19 +106,19 @@ struct RenderbufferPacket {
 */
 struct FramebufferPacket {
 
-	PostProcess				*PostProcessPtr;
+	PostProcessObj			*PostProcessPtr;
 	FramebufferBuildData	BuildData;
 
 	FramebufferPacket();
-	FramebufferPacket(PostProcess *Resource, FramebufferBuildData Data);
+	~FramebufferPacket();
+
+	FramebufferPacket(PostProcessObj *Resource, FramebufferBuildData Data);
 
 	FramebufferPacket(const FramebufferPacket &Rhs);
 	FramebufferPacket& operator= (const FramebufferPacket &Rhs);
 
 	FramebufferPacket(FramebufferPacket &&Rhs);
 	FramebufferPacket& operator= (FramebufferPacket &&Rhs);
-
-	~FramebufferPacket();
 
 };
 
@@ -134,6 +131,7 @@ struct FramebufferPacket {
 * Used for identifying the derived class of GraphicsObject.
 */
 enum GfxObjectType : uint32 {
+
 	GFX_TYPE_NONE			= 0x00,	// Used only for initialisation.
 	GFX_TYPE_MESHBUFFER		= 0x01,
 	GFX_TYPE_VERTEXARRAY	= 0x02,
@@ -141,6 +139,7 @@ enum GfxObjectType : uint32 {
 	GFX_TYPE_SHADERID		= 0x04,
 	GFX_TYPE_POSTPROCESS	= 0x05,
 	GFX_TYPE_RENDERBUFFER	= 0x06
+
 };
 
 
@@ -158,12 +157,13 @@ struct DeletePacket {
 	DeletePacket();
 	~DeletePacket();
 
+	DeletePacket(ObjHandle &&Resource, GfxObjectType Type);
+
 	DeletePacket(const DeletePacket &Rhs)				= delete;
 	DeletePacket& operator= (const DeletePacket &Rhs)	= delete;
 
 	DeletePacket(DeletePacket &&Rhs);
 	DeletePacket& operator= (DeletePacket &&Rhs);
-
 
 };
 
@@ -182,8 +182,8 @@ private:
 
 	std::deque<MeshPacket>			MeshQueue;
 	std::deque<TexturePacket>		TextureQueue;
+	std::deque<ShaderPacket>		ShaderQueue;
 	std::deque<FramebufferPacket>	FramebufferQueue;
-	std::deque<RenderbufferPacket>	RenderbufferQueue;
 	std::deque<DeletePacket>		DeleteQueue;
 
 public:
@@ -195,35 +195,35 @@ public:
 	* [MIDDLEWARE]
 	* Adds a mesh to be built by OpenGL. 
 	*/
-	void AddMeshForBuild(Mesh *Mesh, MeshBuildData Data);
+	void AddMeshForBuild			(MeshObj *Mesh, MeshBuildData Data);
 
 
 	/**
 	* [MIDDLEWARE]
 	* Adds a texture to be built by OpenGL.
 	*/
-	void AddTextureForBuild(TextureObj *Texture, TextureBuildData Data);
+	void AddTextureForBuild			(TextureObj *Texture, TextureBuildData Data);
+
+
+	/**
+	* [MIDDLEWARE]
+	* Adds a texture to be built by OpenGL.
+	*/
+	void AddShaderForBuild			(ShaderObj *Shader, ShaderBuildData Data);
 
 	
 	/**
 	* [MIDDLEWARE]
 	* Adds a framebuffer to be built by OpenGL.
 	*/
-	void AddPostprocessForBuild(PostProcess *Framebuffer, FramebufferBuildData Data);
-
-
-	/**
-	* [MIDDLEWARE]
-	* Adds a renderbuffer to be built by OpenGL.
-	*/
-	void AddRenderBufferForBuild(RenderBuffer *Renderbuffer, RenderbufferBuildData Data);
+	void AddPostprocessForBuild		(PostProcessObj *Framebuffer, FramebufferBuildData Data);
 
 
 	/**
 	* [MIDDLEWARE]
 	* Removes a GraphicsObject from the GPU.
 	*/
-	void AddHandleForDelete(ObjHandle &Handle, GfxObjectType Type);
+	void AddHandleForDelete			(ObjHandle &Handle, GfxObjectType Type);
 
 
 	/**
@@ -233,28 +233,31 @@ public:
 	* Listens for new packets in the different resource queues and tells OpenGL to build them.
 	*/
 	void Listen();
+
 };
 
 
 namespace Middleware {
 
-	/**
-	* [MIDDLEWARE]
-	* This sets the global ResourceBuildQueue variable to an instance of it.
-	*/
-	void				SetBuildQueue				(ResourceBuildQueue *BuildQueue);
 
 	/**
 	* [MIDDLEWARE]
 	* Simply returns the global ResourceBuildQueue variable.
 	*/
-	ResourceBuildQueue* GetBuildQueue				();
+	ResourceBuildQueue* GetBuildQueue		();
+
+
+	/**
+	* [MIDDLEWARE]
+	* This sets the global ResourceBuildQueue variable to an instance of it.
+	*/
+	ResourceBuildQueue*	InitialiseBuildQueue();
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API for processing data loading by Assimp and being passed into the engine.
 	*/
-	void				ParseMeshFromAssimp			(const String Path, bool FlipUV, Scene *Scene);
+	void	ParseMeshFromAssimp			(const String Path, bool FlipUV, ModelObj *Model);
 
 	/**
 	* [MIDDLEWARE]
@@ -263,25 +266,27 @@ namespace Middleware {
 	*
 	* WARNING: This function allocates temporary memory on the heap. It is deleted once the Mesh has been successfully built.
 	*/
-	void				PackageMeshForBuild			(Mesh *MeshSrc);
+	void	PackageMeshForBuild			(MeshObj *MeshSrc);
 
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API to load textures from file into engine.
 	*/
-	void				ParseTextureFromFile		(const String Path, TextureObj *Texture);
+	void	ParseTextureFromFile		(const String Path, TextureObj *Texture);
+
+
+	/**
+	* [MIDDLEWARE]
+	* A mid level API to build shaders from file into the engine.
+	*/		
 
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API to build framebuffers into the engine.
 	*/
-	void				PackageFramebufferForBuild	(PostProcess *FramebufferSrc);
+	void	PackageFramebufferForBuild	(PostProcessObj *FramebufferSrc);
 
-	/**
-	* [MIDDLEWARE]
-	* A mid level API to build renderbuffers into the engine.
-	*/
-	void				PackageRenderbufferForBuild	(RenderBuffer *RenderbufferSrc);
+
 }

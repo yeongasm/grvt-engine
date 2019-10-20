@@ -1,164 +1,102 @@
 #pragma once
 
 
-struct	PostProcessData;
-struct	RenderBufferData;
-
+/**
+* Revamp Status: Completed!
+*/
 
 /**
-* RenderBuffer's attachment type.
-* Only use RENDERBUFFER_TYPE_NONE on initialisation and reset only.
 */
-enum RenderBufferType : uint {
-	RENDERBUFFER_TYPE_NONE						= 0x00, // On initialisation only.
-	RENDERBUFFER_TYPE_DEPTH_ATTACHMENT			= 0x01,
-	RENDERBUFFER_TYPE_COLOUR_ATTACHMENT			= 0x02,
-	RENDERBUFFER_TYPE_DEPTH_STENCIL_ATTACHMENT	= 0x03
-};
-
-
-/**
-* RenderBufferCreationInfo data structure.
-* Specify the information required to generate a RenderBuffer in OpenGL.
-*
-* @param [REQUIRED] (String) name - Name to be given to this renderbuffer.
-* @param [REQUIRED] (RenderBufferType) type - The to be constructed renderbuffer's type.
-*
-* Below specifies the default internal format when different types are specified:
-* [Type] RENDERBUFFER_TYPE_DEPTH_ATTACHMENT			= GL_DEPTH_COMPONENT32F.
-* [Type] RENDERBUFFER_TYPE_DEPTH_STENCIL_ATTACHMENT = GL_DEPTH24_STENCIL8.
-* [Type] RENDERBUFFER_TYPE_COLOUR_ATTACHMENT		= GL_RGBA8.
-*/
-struct RenderBufferCreationInfo {
-
-	String				Name;
-	RenderBufferType	Type;
-
-};
-
-
-/**
-* Gravity's OffScreenBuffer data structure.
-*
-* Allows users to construct a Renderbuffer to be attached onto Framebuffers.
-*/
-class RenderBufferObj {
-public:
-	
-	ObjHandle				Handle;
-	RenderBufferType		Type;
-	RenderBufferData		*Info;
-
-	RenderBufferObj();
-	~RenderBufferObj();
-
-	RenderBufferObj(const RenderBufferObj &Other)				= delete;
-	RenderBufferObj& operator= (const RenderBufferObj &Other)	= delete;
-
-	RenderBufferObj(RenderBufferObj &&Other);
-	RenderBufferObj& operator= (RenderBufferObj &&Other);
-
-};
-
-
-/**
-* Specify the framebuffer's attachment type.
-*/
-enum AttachmentType : uint32 {
-	FRAMEBUFFER_ATTACHMENT_NONE			= 0x00, // On first init only.
-	FRAMEBUFFER_ATTACHMENT_TEXTURE		= 0x01,
-	FRAMEBUFFER_ATTACHMENT_RENDERBUFFER = 0x02
+enum AttachComponent : uint32 {
+	GrvtFramebuffer_AttachComponent_None			= 0xFF, /** On first init only */
+	GrvtFramebuffer_AttachComponent_Texture			= 0x00,
+	GrvtFramebuffer_AttachComponent_RenderBuffer	= 0x01
 };
 
 
 /**
 * Specify the framebuffer's sub attachment type.
 */
-enum SubAttachmentType : uint32 {
-	FRAMEBUFFER_SUBATTACH_NONE			= 0x00, // On first init only.
-	FRAMEBUFFER_SUBATTACH_COLOUR		= 0x01,
-	FRAMEBUFFER_SUBATTACH_DEPTH			= 0x02,
-	FRAMEBUFFER_SUBATTACH_STENCIL		= 0x03
+enum AttachmentType : uint32 {
+	GrvtFramebuffer_Attachment_None			= 0xFF, /** On first init only */
+	GrvtFramebuffer_Attachment_Colour		= 0x00,
+	GrvtFramebuffer_Attachment_Depth		= 0x01,
+	GrvtFramebuffer_Attachment_DepthStencil	= 0x02
 };
 
 
 /**
-* PostProcessAttachment data structure.
-* Specifies the Framebuffer's attachment.
 */
 struct PostProcessAttachment {
 
-	union {
-		TextureObj			*Texture;
-		RenderBufferObj		*Renderbuffer;
-	};
-
-	AttachmentType		Type;
-	SubAttachmentType	SubType;
-	bool				Draw;
+	AttachComponent	Component;
+	AttachmentType	Type;
+	bool			Draw;
 
 	PostProcessAttachment();
 	~PostProcessAttachment();
 
-	PostProcessAttachment(const PostProcessAttachment &Other);
-	PostProcessAttachment& operator= (const PostProcessAttachment &Other);
-
-	PostProcessAttachment(PostProcessAttachment &&Other);
-	PostProcessAttachment& operator= (PostProcessAttachment &&Other);
+	PostProcessAttachment(AttachComponent, AttachmentType, bool);
 
 };
 
 
+using PPAttachments = Array<PostProcessAttachment>;
+
+
 /**
-* PostProcessCreationInfo data structure.
-* Used to create a Framebuffer for Gravity.
-*
-* In OpenGL 4.3, it is possible to create a framebuffer with no image attachment.
 */
 struct PostProcessCreationInfo {
 
-	Array<PostProcessAttachment> Attachment;
-	String		Name;
-	int			Width;
-	int			Height;
+	PPAttachments	Attachments;
+	String			Name;
+	int32			Width;
+	int32			Height;
 
-	PostProcessCreationInfo();
-	~PostProcessCreationInfo();
+	/**
+	* Pushes a new attachment for the to be created framebuffer.
+	*/
+	PostProcessAttachment& AddAttachment(AttachComponent, AttachmentType, bool);
 
-	PostProcessCreationInfo(const PostProcessCreationInfo &Other);
-	PostProcessCreationInfo& operator= (const PostProcessCreationInfo &Other);
-
-	PostProcessCreationInfo(PostProcessCreationInfo &&Other);
-	PostProcessCreationInfo& operator= (PostProcessCreationInfo &&Other);
-
+	/**
+	* Pops a previously added attachment from the to be created framebuffer.
+	*/
+	void PopAttachment(PostProcessAttachment&);
 };
 
 
 /**
-* Gravity's Postprocess data structure.
-*
-* Allows users to construct a Framebuffer for post-processing effects.
+* Revamped GrvtPostProcess object.
 */
-class PostProcessObj {
+class GrvtPostProcess {
 private:
 
-	using Attachments = Array<PostProcessAttachment>;
+	struct AttachmentProperty {
+
+		ObjHandle		Handle;
+		AttachComponent Component;
+		AttachmentType	Type;
+		int32			Count;
+
+	};
 
 public:
 
-	Array<PostProcessAttachment> Attachment;
-	PostProcessData *Info;
+	Array<AttachmentProperty> Attachments;
+	String			Name;
 	ObjHandle		Handle;
 	int32			Width;
 	int32			Height;
 
-	PostProcessObj();
-	~PostProcessObj();
+	GrvtPostProcess();
+	~GrvtPostProcess();
 
-	PostProcessObj(const PostProcessObj &Other)				= delete;
-	PostProcessObj& operator= (const PostProcessObj &Other)	= delete;
+private:
 
-	PostProcessObj(PostProcessObj &&Other);
-	PostProcessObj& operator= (PostProcessObj &&Other);
+	GrvtPostProcess(const GrvtPostProcess&)				= delete;
+	GrvtPostProcess& operator= (const GrvtPostProcess&)	= delete;
+
+	GrvtPostProcess(GrvtPostProcess&&)					= delete;
+	GrvtPostProcess& operator= (GrvtPostProcess&&)		= delete;
 
 };

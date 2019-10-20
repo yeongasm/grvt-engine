@@ -27,6 +27,8 @@ struct VertexAttribPointer {
 	size_t	PtrOffset;
 
 	VertexAttribPointer();
+	~VertexAttribPointer();
+	
 	VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset);
 
 	VertexAttribPointer(const VertexAttribPointer &Rhs);
@@ -35,22 +37,20 @@ struct VertexAttribPointer {
 	VertexAttribPointer(VertexAttribPointer &&Rhs);
 	VertexAttribPointer& operator= (VertexAttribPointer &&Rhs);
 
-	~VertexAttribPointer();
 };
 
 
 struct MeshBuildData {
-private:
-	using VertexAttribsArr	= Array<VertexAttribPointer>;
 
-public:
 	float				*Data;
 	uint32				*Indices;
 	size_t				Size;
 	size_t				Length;
-	VertexAttribsArr	VertexAttribPointers;
+
+	Array<VertexAttribPointer>	VertexAttribPointers;
 
 	MeshBuildData();
+	~MeshBuildData();
 
 	MeshBuildData(const MeshBuildData &Rhs);
 	MeshBuildData& operator= (const MeshBuildData &Rhs);
@@ -58,7 +58,6 @@ public:
 	MeshBuildData(MeshBuildData &&Rhs);
 	MeshBuildData& operator= (MeshBuildData &&Rhs);
 
-	~MeshBuildData();
 };
 
 
@@ -82,11 +81,6 @@ public:
 * @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
 */
 struct TextureBuildData {
-private:
-
-	using Params = Pair<uint32, uint32>;
-
-public:
 
 	void			*DataPtr;
 	bool			Mipmap;
@@ -97,9 +91,11 @@ public:
 	uint32			Target;
 	uint32			Type;
 	uint32			Format;
-	Array<Params>	Parameters;
+
+	Array<Pair<uint32, uint32>>	Parameters;
 
 	TextureBuildData();
+	~TextureBuildData();
 
 	TextureBuildData(const TextureBuildData &Rhs);
 	TextureBuildData(TextureBuildData &&Rhs);
@@ -107,13 +103,48 @@ public:
 	TextureBuildData& operator= (const TextureBuildData &Rhs);
 	TextureBuildData& operator= (TextureBuildData &&Rhs);
 
-	~TextureBuildData();
+};
+
+
+/**
+* [BASEAPI]
+* ShaderBuildData data structure.
+*
+* IMPORTANT: When copying from another ShaderBuildData object, always ensure that each pointer to the source code is freed IF it is allocated dynamically.
+* ShaderBuildData does not perform a deep copy as it was never intended to be assigned from another instance of this object.
+*
+* @param (char*) VertexSrcCode		- Pointer to the vertex shader's source code.
+* @param (char*) FragmentSrcCode	- Pointer to the fragment shader's source code.
+* @param (char*) GeometrySrcCode	- Pointer to the geometry shader's source code.
+*
+* NOTE(Afiq):
+* Perhaps add support for compute shaders in the future?
+*/
+struct ShaderBuildData {
+
+	char *VertexSrcCode;
+	char *FragmentSrcCode;
+	char *GeometrySrcCode;
+
+	ShaderBuildData();
+	~ShaderBuildData();
+
+	ShaderBuildData(const ShaderBuildData &Rhs);
+	ShaderBuildData& operator= (const ShaderBuildData &Rhs);
+
+	ShaderBuildData(ShaderBuildData &&Rhs);
+	ShaderBuildData& operator= (ShaderBuildData &&Rhs);
+
 };
 
 
 /**
 * [BASEAPI]
 * RenderbufferBuildData data structure.
+*
+* @param (int32)	Width			- Renderbuffer's width.
+* @param (int32)	Height			- Renderbuffer's height.
+* @param (uint32)	InternalFormat	- Renderbuffer's internal format (GL_DEPTH_COMPONENT32F | GL_DEPTH24_STENCIL8 | GL_RGBA8).
 */
 struct RenderbufferBuildData {
 
@@ -122,6 +153,7 @@ struct RenderbufferBuildData {
 	uint32	InternalFormat;
 
 	RenderbufferBuildData();
+	~RenderbufferBuildData();
 
 	RenderbufferBuildData(const RenderbufferBuildData &Rhs);
 	RenderbufferBuildData& operator= (const RenderbufferBuildData &Rhs);
@@ -129,33 +161,36 @@ struct RenderbufferBuildData {
 	RenderbufferBuildData(RenderbufferBuildData &&Rhs);
 	RenderbufferBuildData& operator= (RenderbufferBuildData &&Rhs);
 
-	~RenderbufferBuildData();
-
 };
 
 
 /**
 * [BASEAPI]
 * FramebufferAttachment data structure.
-*
 * Specify the attachment that is to be attached onto a Framebuffer.
+*
+* @param (uint32)	HandleId	- A copy to the Framebuffer's ObjectHandle Id.
+* @param (uint32)	Target		- The attachment's Target type.
+* @param (uint32)	Attachment	- The attachment's format (GL_COLOR_ATTACHMENTn | GL_DEPTH_ATTACHMENT | GL_DEPTH_STENCIL_ATTACHMENT).
+* @param (bool)		Draw		- Specify if the attachment would be used for drawing. Only works for colour attachments.
 */
 struct FramebufferAttachment {
 
-	ObjHandle		*Handle;
+	uint32			HandleId;
+	uint32			Target;
 	uint32			Attachment;
 	bool			Draw;
 
 	FramebufferAttachment();
-	FramebufferAttachment(ObjHandle *SrcHandle, uint32 SourceAttachment, bool DrawBuffer);
+	~FramebufferAttachment();
+
+	FramebufferAttachment(uint32 SrcHandle, uint32 SrcTarget, uint32 SourceAttachment, bool DrawBuffer);
 
 	FramebufferAttachment(const FramebufferAttachment &Rhs);
 	FramebufferAttachment& operator= (const FramebufferAttachment &Rhs);
 
 	FramebufferAttachment(FramebufferAttachment &&Rhs);
 	FramebufferAttachment& operator= (FramebufferAttachment &&Rhs);
-
-	~FramebufferAttachment();
 
 };
 
@@ -164,17 +199,14 @@ struct FramebufferAttachment {
 * [BASEAPI]
 * FramebufferBuildData data structure.
 *
+* @param (Array<FramebufferAttachment>) Attachment - A list of attachment for the framebuffer.
 */
 struct FramebufferBuildData {
-private:
 
-	using Attachments = Array<FramebufferAttachment>;
-
-public:
-
-	Attachments Attachment;
+	Array<FramebufferAttachment> Attachment;
 
 	FramebufferBuildData();
+	~FramebufferBuildData();
 
 	FramebufferBuildData(const FramebufferBuildData &Rhs);
 	FramebufferBuildData& operator= (const FramebufferBuildData &Rhs);
@@ -182,7 +214,6 @@ public:
 	FramebufferBuildData(FramebufferBuildData &&Rhs);
 	FramebufferBuildData& operator= (FramebufferBuildData &&Rhs);
 
-	~FramebufferBuildData();
 };
 
 
@@ -192,14 +223,28 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* An OpenGL wrapper to create a mesh.
 	*/
-	void BuildMesh(ObjHandle &VAO, ObjHandle &VBO, ObjHandle &EBO, MeshBuildData &Data);
+	void BuildMesh			(ObjHandle &VAO, ObjHandle &VBO, ObjHandle &EBO, MeshBuildData &Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a texture.
 	*/
-	void BuildTexture(ObjHandle &Handle, TextureBuildData &Data);
+	void BuildTexture		(ObjHandle &Handle, TextureBuildData &Data);
+
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to compile a shader.
+	*/
+	bool CompileShader		(ObjHandle &Handle, uint32 Type, const char *SourceCode);
+
+
+	/**
+	* [BASEAPI]
+	* An OpenGL wrapper to create a shader program.
+	*/
+	void BuildShaderProgram	(ObjHandle &Handle, ShaderBuildData &Data);
 
 
 	/**
@@ -221,12 +266,12 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* An OpenGL wrapper to create a frambuffer.
 	*/
-	void BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data);
+	void BuildFramebuffer	(ObjHandle &Handle, FramebufferBuildData &Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a renderbuffer.
 	*/
-	void BuildRenderbuffer(ObjHandle &Handle, RenderbufferBuildData &Data);
+	void BuildRenderbuffer	(ObjHandle &Handle, RenderbufferBuildData &Data);
 }

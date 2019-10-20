@@ -1,7 +1,11 @@
 #include "stdafx.h"
 
 
-VertexAttribPointer::VertexAttribPointer() : Index(0), Size(0), Stride(0), PtrOffset(0) {}
+VertexAttribPointer::VertexAttribPointer() : 
+	Index(0), Size(0), Stride(0), PtrOffset(0) {}
+
+
+VertexAttribPointer::~VertexAttribPointer() { new (this) VertexAttribPointer(); }
 
 
 VertexAttribPointer::VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset) :
@@ -46,10 +50,11 @@ VertexAttribPointer& VertexAttribPointer::operator= (VertexAttribPointer &&Rhs) 
 }
 
 
-VertexAttribPointer::~VertexAttribPointer() { new (this) VertexAttribPointer(); }
+MeshBuildData::MeshBuildData() : 
+	Data(nullptr), Indices(nullptr), Size(0), Length(0), VertexAttribPointers() {}
 
 
-MeshBuildData::MeshBuildData() : Data(nullptr), Indices(nullptr), Size(0), Length(0), VertexAttribPointers() {}
+MeshBuildData::~MeshBuildData() { Data = nullptr, Indices = nullptr; Size = 0; Length = 0; VertexAttribPointers.Release(); }
 
 
 MeshBuildData::MeshBuildData(const MeshBuildData &Rhs) { *this = Rhs; }
@@ -92,11 +97,12 @@ MeshBuildData& MeshBuildData::operator= (MeshBuildData &&Rhs) {
 }
 
 
-MeshBuildData::~MeshBuildData() { Data = nullptr, Indices = nullptr; Size = 0; Length = 0; VertexAttribPointers.Release(); }
+TextureBuildData::TextureBuildData() : 
+	DataPtr(nullptr), Mipmap(1), Cubemap(0), Flip(1), Width(0), 
+	Height(0), Target(0), Type(0), Format(0), Parameters() {}
 
 
-TextureBuildData::TextureBuildData() : DataPtr(nullptr), Mipmap(1), Cubemap(0), Flip(1), 
-	Width(0), Height(0), Target(0), Type(0), Format(0), Parameters() {}
+TextureBuildData::~TextureBuildData() { Parameters.Release(); }
 
 
 TextureBuildData::TextureBuildData(const TextureBuildData &Rhs) { *this = Rhs; }
@@ -149,10 +155,52 @@ TextureBuildData& TextureBuildData::operator= (TextureBuildData &&Rhs) {
 }
 
 
-TextureBuildData::~TextureBuildData() { Parameters.Release(); }
+ShaderBuildData::ShaderBuildData() :
+	VertexSrcCode(nullptr), FragmentSrcCode(nullptr), GeometrySrcCode(nullptr) {}
+
+
+ShaderBuildData::~ShaderBuildData() {}
+
+
+ShaderBuildData::ShaderBuildData(const ShaderBuildData &Rhs) { *this = Rhs; }
+
+
+ShaderBuildData& ShaderBuildData::operator= (const ShaderBuildData &Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		VertexSrcCode	= Rhs.VertexSrcCode;
+		FragmentSrcCode = Rhs.FragmentSrcCode;
+		GeometrySrcCode = Rhs.GeometrySrcCode;
+	}
+
+	return *this;
+}
+
+
+ShaderBuildData::ShaderBuildData(ShaderBuildData &&Rhs) { *this = std::move(Rhs); }
+
+
+ShaderBuildData& ShaderBuildData::operator= (ShaderBuildData &&Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		VertexSrcCode	= Rhs.VertexSrcCode;
+		FragmentSrcCode = Rhs.FragmentSrcCode;
+		GeometrySrcCode = Rhs.GeometrySrcCode;
+
+		new (&Rhs) ShaderBuildData();
+	}
+
+	return *this;
+}
+
 
 
 RenderbufferBuildData::RenderbufferBuildData() : Width(0), Height(0), InternalFormat() {}
+
+
+RenderbufferBuildData::~RenderbufferBuildData() { Width = Height = InternalFormat = 0; }
 
 
 RenderbufferBuildData::RenderbufferBuildData(const RenderbufferBuildData &Rhs) { *this = Rhs; }
@@ -189,16 +237,14 @@ RenderbufferBuildData& RenderbufferBuildData::operator= (RenderbufferBuildData &
 }
 
 
-RenderbufferBuildData::~RenderbufferBuildData() {
-	Width = Height = InternalFormat = 0;
-}
+FramebufferAttachment::FramebufferAttachment() : Target(0), Attachment(0), Draw(false) {}
 
 
-FramebufferAttachment::FramebufferAttachment() : Handle(nullptr), Attachment(0), Draw(false) {}
+FramebufferAttachment::~FramebufferAttachment() { HandleId = Target = Attachment = Draw = 0; }
 
 
-FramebufferAttachment::FramebufferAttachment(ObjHandle *SrcHandle, uint32 SourceAttachment, bool DrawBuffer) :
-	Handle(SrcHandle), Attachment(SourceAttachment), Draw(DrawBuffer) {}
+FramebufferAttachment::FramebufferAttachment(uint32 SrcHandle, uint32 SrcTarget, uint32 SourceAttachment, bool DrawBuffer) :
+	HandleId(SrcHandle), Target(SrcTarget), Attachment(SourceAttachment), Draw(DrawBuffer) {}
 
 
 FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment &Rhs) { *this = Rhs; }
@@ -208,7 +254,8 @@ FramebufferAttachment& FramebufferAttachment::operator= (const FramebufferAttach
 	_ASSERTE(this != &Rhs);
 
 	if (this != &Rhs) {
-		Handle		= Rhs.Handle;
+		HandleId	= Rhs.HandleId;
+		Target		= Rhs.Target;
 		Attachment	= Rhs.Attachment;
 		Draw		= Rhs.Draw;
 	}
@@ -224,7 +271,8 @@ FramebufferAttachment& FramebufferAttachment::operator= (FramebufferAttachment &
 	_ASSERTE(this != &Rhs);
 
 	if (this != &Rhs) {
-		Handle		= Rhs.Handle;
+		HandleId	= Rhs.HandleId;
+		Target		= Rhs.Target;
 		Attachment	= Rhs.Attachment;
 		Draw		= Rhs.Draw;
 
@@ -235,14 +283,10 @@ FramebufferAttachment& FramebufferAttachment::operator= (FramebufferAttachment &
 }
 
 
-FramebufferAttachment::~FramebufferAttachment() {
-	Handle		= nullptr;
-	Attachment	= 0;
-	Draw		= false;
-}
-
-
 FramebufferBuildData::FramebufferBuildData() : Attachment() {}
+
+
+FramebufferBuildData::~FramebufferBuildData() { Attachment.Release(); }
 
 
 FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData &Rhs) { *this = Rhs; }
@@ -272,9 +316,6 @@ FramebufferBuildData& FramebufferBuildData::operator= (FramebufferBuildData &&Rh
 
 	return *this;
 }
-
-
-FramebufferBuildData::~FramebufferBuildData() { Attachment.Release(); }
 
 
 void BaseAPI::BuildMesh(ObjHandle &VAO, ObjHandle &VBO, ObjHandle &EBO, MeshBuildData &Data) {
@@ -337,6 +378,59 @@ void BaseAPI::BuildTexture(ObjHandle &Handle, TextureBuildData &Data) {
 }
 
 
+bool BaseAPI::CompileShader(ObjHandle &Handle, uint32 Type, const char *SourceCode) {
+	int32 compiled = 0;
+
+	GrCreateShader(Handle, Type);
+	glShaderSource(Handle.Id, 1, &SourceCode, nullptr);
+	glCompileShader(Handle.Id);
+	glGetShaderiv(Handle.Id, GL_COMPILE_STATUS, &compiled);
+
+	if (!compiled) {
+		glDeleteShader(Handle.Id);
+		return false;
+	}
+
+	return true;
+}
+
+
+void BaseAPI::BuildShaderProgram(ObjHandle &Handle, ShaderBuildData &Data) {
+	int32 compiled = 0;
+	ObjHandle vertex, fragment, geometry;
+
+	if (!CompileShader(vertex, GL_VERTEX_SHADER, Data.VertexSrcCode))
+		_ASSERTE(false); // Failed to compile vertex shader.
+
+	if (!CompileShader(fragment, GL_FRAGMENT_SHADER, Data.FragmentSrcCode))
+		_ASSERTE(false); // Failed to compile fragment shader.
+
+	if (Data.GeometrySrcCode)
+		if (!CompileShader(geometry, GL_GEOMETRY_SHADER, Data.GeometrySrcCode))
+			_ASSERTE(false); // Failed to compile geometry shader.
+
+	// Unlike other graphic objects, shaders are not allowed to be linked twice.
+	// Hence there is really no point use the same shader.
+	GrCreateShaderProgram(Handle);
+
+	glAttachShader(Handle.Id, vertex.Id);
+	glAttachShader(Handle.Id, fragment.Id);
+
+	if (geometry.Id)
+		glAttachShader(Handle.Id, geometry.Id);
+
+	glLinkProgram(Handle.Id);
+	glGetProgramiv(Handle.Id, GL_LINK_STATUS, &compiled);
+
+	if (!compiled)
+		_ASSERTE(false); // Failed to create a shader.
+
+	glDeleteShader(vertex.Id);
+	glDeleteShader(fragment.Id);
+	glDeleteShader(geometry.Id);
+}
+
+
 void BaseAPI::GenerateGenericTextureData(TextureBuildData &Data) {
 	Data.Target = GL_TEXTURE_2D;
 	Data.Type	= GL_UNSIGNED_BYTE;
@@ -358,9 +452,9 @@ void BaseAPI::BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data) {
 	GrBindFramebuffer(Handle);
 
 	for (FramebufferAttachment &Attachment : Data.Attachment) {
-		if (Attachment.Handle->Target != GL_RENDERBUFFER) {
+		if (Attachment.Target != GL_RENDERBUFFER) {
 			hasImage = true;
-			glFramebufferTexture2D(Handle.Target, Attachment.Attachment, Attachment.Handle->Target, Attachment.Handle->Id, 0);
+			glFramebufferTexture2D(Handle.Target, Attachment.Attachment, Attachment.Target, Attachment.HandleId, 0);
 
 			if (Attachment.Draw)
 				DrawBuffers.Push(Attachment.Attachment);
@@ -368,7 +462,7 @@ void BaseAPI::BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data) {
 			continue;
 		}
 
-		glFramebufferRenderbuffer(Handle.Target, Attachment.Attachment, Attachment.Handle->Target, Attachment.Handle->Id);
+		glFramebufferRenderbuffer(Handle.Target, Attachment.Attachment, Attachment.Target, Attachment.HandleId);
 	}
 
 	if (!hasImage) {
@@ -383,14 +477,4 @@ void BaseAPI::BuildFramebuffer(ObjHandle &Handle, FramebufferBuildData &Data) {
 		_ASSERTE(false);	// Building Framebuffer process failed.
 
 	GrUnbindFramebuffer(Handle);
-}
-
-
-void BaseAPI::BuildRenderbuffer(ObjHandle &Handle, RenderbufferBuildData &Data) {
-	if (!Handle.Id)
-		GrCreateRenderbuffer(Handle);
-
-	GrBindRenderbuffer(Handle);
-	glRenderbufferStorage(Handle.Target, Data.InternalFormat, Data.Width, Data.Height);
-	GrUnbindRenderbuffer(Handle);
 }

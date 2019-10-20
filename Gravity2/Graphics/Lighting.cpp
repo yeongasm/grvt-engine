@@ -2,87 +2,38 @@
 
 
 LightCreationInfo::LightCreationInfo() :
-	Position(0.0f), Colour(1.0f), Name(), Type(LIGHT_TYPE_NONE), Brightness(0.5f), 
+	Position(0.0f), Colour(1.0f), Name(), Type(GrvtLight_Type_None), Brightness(0.5f), 
 	Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f) {}
 
 
 LightCreationInfo::~LightCreationInfo() {}
 
 
+ShadowMap::ShadowMap() :
+	Handle(), DepthTexture(), Type(GrvtShadowMap_None), Bias(0.0f) {}
+
+
+ShadowMap::~ShadowMap() {}
+
+
 LightSource::LightSource() :
 	Position(0.0f), Colour(1.0f), Name(),
-	Type(LIGHT_TYPE_NONE), Brightness(0.0f), Enable(true) {}
-
-
-LightSource::LightSource(const LightSource &Other) { *this = Other; }
-
-
-LightSource::LightSource(LightSource &&Other) { *this = std::move(Other); }
-
-
-LightSource& LightSource::operator= (const LightSource &Other) {
-	// Ensures that the object is not being assigned to itself. Only in debug.
-	_ASSERTE(this != &Other);
-
-	if (this != &Other) {
-		Position	= Other.Position;
-		Colour		= Other.Colour;
-		Name		= Other.Name;
-		Type		= Other.Type;
-		Brightness	= Other.Brightness;
-		Enable		= Other.Enable;
-	}
-
-	return *this;
-}
-
-
-LightSource& LightSource::operator= (LightSource &&Other) {
-	// Ensures that the object is not being assigned to itself. Only in debug.
-	_ASSERTE(this != &Other);
-
-	if (this != &Other) {
-		Position	= Other.Position;
-		Colour		= Other.Colour;
-		Name		= Other.Name;
-		Type		= Other.Type;
-		Brightness	= Other.Brightness;
-		Enable		= Other.Enable;
-
-		Other.Free();
-	}
-
-	return *this;
-}
+	Type(GrvtLight_Type_None), Brightness(0.0f), Enable(true) {}
 
 
 LightSource::~LightSource() {}
 
 
-DirLight::DirLight() : LightSource() {}
+DirLight::DirLight() : LightSource(), LightSpaceTransform() {}
 
 
 DirLight::~DirLight() {}
 
 
-DirLight::DirLight(const DirLight &Other) { *this = Other; }
+//DirLight::DirLight(const DirLight &Other) { *this = Other; }
 
 
-DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
-
-
-DirLight& DirLight::operator= (const DirLight &Other) {
-	LightSource::operator=(Other);
-
-	return *this;
-}
-
-
-DirLight& DirLight::operator= (DirLight &&Other) {
-	LightSource::operator=(std::move(Other));
-
-	return *this;
-}
+//DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
 
 
 void DirLight::Alloc(const LightCreationInfo &Info) {
@@ -96,10 +47,11 @@ void DirLight::Alloc(const LightCreationInfo &Info) {
 
 void DirLight::Free() {
 	Brightness	= 0.0f;
-	Type		= LIGHT_TYPE_NONE;
+	Type		= GrvtLight_Type_None;
 	Position	= glm::vec3(0.0f);
 	Colour		= glm::vec3(0.0f);
 	Name.Release();
+	Shadow.Type = GrvtShadowMap_None;
 }
 
 
@@ -116,55 +68,54 @@ void DirLight::Compute(glm::mat4 &Buffer) {
 
 
 PointLight::PointLight() :
-	LightSource(), Constant(1.0f), Linear(0.0f),
-	Quadratic(0.0f), Radius(0.0f), Simplified(false) {}
+	LightSource(), LightSpaceTransforms(6), Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f), Simplified(false) {}
 
 
 PointLight::~PointLight() {}
 
 
-PointLight::PointLight(const PointLight &Other) { *this = Other; }
+//PointLight::PointLight(const PointLight &Other) { *this = Other; }
 
 
-PointLight::PointLight(PointLight &&Other) { *this = std::move(Other); }
+//PointLight::PointLight(PointLight &&Other) { *this = std::move(Other); }
 
 
-PointLight& PointLight::operator= (const PointLight &Other) {
-	// Ensures that the object is not being assigned to itself. Only in debug.
-	_ASSERTE(this != &Other);
+//PointLight& PointLight::operator= (const PointLight &Other) {
+//	// Ensures that the object is not being assigned to itself. Only in debug.
+//	_ASSERTE(this != &Other);
+//
+//	if (this != &Other) {
+//		Constant	= Other.Constant;
+//		Linear		= Other.Linear;
+//		Quadratic	= Other.Quadratic;
+//		Radius		= Other.Radius;
+//		Simplified	= Other.Simplified;
+//
+//		LightSource::operator=(Other);
+//	}
+//
+//	return *this;
+//}
 
-	if (this != &Other) {
-		Constant	= Other.Constant;
-		Linear		= Other.Linear;
-		Quadratic	= Other.Quadratic;
-		Radius		= Other.Radius;
-		Simplified	= Other.Simplified;
 
-		LightSource::operator=(Other);
-	}
-
-	return *this;
-}
-
-
-PointLight& PointLight::operator= (PointLight &&Other) {
-	// Ensures that the object is not being assigned to itself. Only in debug.
-	_ASSERTE(this != &Other);
-
-	if (this != &Other) {
-		Constant	= Other.Constant;
-		Linear		= Other.Linear;
-		Quadratic	= Other.Quadratic;
-		Radius		= Other.Radius;
-		Simplified	= Other.Simplified;
-		
-		LightSource::operator=(std::move(Other));
-
-		new (&Other) PointLight();
-	}
-
-	return *this;
-}
+//PointLight& PointLight::operator= (PointLight &&Other) {
+//	// Ensures that the object is not being assigned to itself. Only in debug.
+//	_ASSERTE(this != &Other);
+//
+//	if (this != &Other) {
+//		Constant	= Other.Constant;
+//		Linear		= Other.Linear;
+//		Quadratic	= Other.Quadratic;
+//		Radius		= Other.Radius;
+//		Simplified	= Other.Simplified;
+//		
+//		LightSource::operator=(std::move(Other));
+//
+//		new (&Other) PointLight();
+//	}
+//
+//	return *this;
+//}
 
 
 void PointLight::Alloc(const LightCreationInfo &Info) {
@@ -186,14 +137,18 @@ void PointLight::Free() {
 	Linear		= 0.0f;
 	Quadratic	= 0.0f;
 	Radius		= 0.0f;
+	
+	LightSpaceTransforms.Release();
 
 	LightSource::Free();
 }
 
 
-void PointLight::UseRadiusForAttenuation(bool Enable) {
-	if (Simplified != Enable)
-		Simplified = Enable;
+void PointLight::UpdateRadius(bool Simplify, float Value) {
+	if (Simplified != Simplify)
+		Simplified = Simplify;
+
+	Radius = Value;
 }
 
 

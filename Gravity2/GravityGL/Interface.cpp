@@ -7,7 +7,7 @@ ResourceBuildQueue *buildQueue = nullptr;
 MeshPacket::MeshPacket() : MeshPtr(nullptr), BuildData() {}
 
 
-MeshPacket::MeshPacket(Mesh *Resource, MeshBuildData Data) : 
+MeshPacket::MeshPacket(MeshObj *Resource, MeshBuildData Data) : 
 	MeshPtr(Resource), BuildData(std::move(Data)) {}
 
 
@@ -90,52 +90,53 @@ TexturePacket& TexturePacket::operator= (TexturePacket &&Rhs) {
 TexturePacket::~TexturePacket() { TexturePtr = nullptr; }
 
 
-RenderbufferPacket::RenderbufferPacket() : RenderBufferPtr(nullptr), BuildData() {}
+ShaderPacket::ShaderPacket() :
+	ShaderPtr(nullptr), BuildData() {}
 
 
-RenderbufferPacket::RenderbufferPacket(RenderBuffer *Resource, RenderbufferBuildData Data) :
-	RenderBufferPtr(Resource), BuildData(Data) {}
+ShaderPacket::ShaderPacket(ShaderObj *Resource, ShaderBuildData Data) :
+	ShaderPtr(Resource), BuildData(Data) {}
 
 
-RenderbufferPacket::RenderbufferPacket(const RenderbufferPacket &Rhs) { *this = Rhs; }
+ShaderPacket::~ShaderPacket() { ShaderPtr = nullptr; }
 
 
-RenderbufferPacket& RenderbufferPacket::operator= (const RenderbufferPacket &Rhs) {
+ShaderPacket::ShaderPacket(const ShaderPacket &Rhs) { *this = Rhs; }
+
+
+ShaderPacket& ShaderPacket::operator= (const ShaderPacket &Rhs) {
 	_ASSERTE(this != &Rhs);
 
 	if (this != &Rhs) {
-		RenderBufferPtr = Rhs.RenderBufferPtr;
-		BuildData		= Rhs.BuildData;
+		ShaderPtr = Rhs.ShaderPtr;
+		BuildData = Rhs.BuildData;
 	}
 
 	return *this;
 }
 
 
-RenderbufferPacket::RenderbufferPacket(RenderbufferPacket &&Rhs) { *this = std::move(Rhs); }
+ShaderPacket::ShaderPacket(ShaderPacket &&Rhs) { *this = std::move(Rhs); }
 
 
-RenderbufferPacket& RenderbufferPacket::operator= (RenderbufferPacket &&Rhs) {
+ShaderPacket& ShaderPacket::operator= (ShaderPacket &&Rhs) {
 	_ASSERTE(this != &Rhs);
 
 	if (this != &Rhs) {
-		RenderBufferPtr = Rhs.RenderBufferPtr;
-		BuildData		= Rhs.BuildData;
+		ShaderPtr = Rhs.ShaderPtr;
+		BuildData = Rhs.BuildData;
 
-		new (&Rhs) RenderbufferPacket();
+		new (&Rhs) ShaderPacket();
 	}
 
 	return *this;
 }
-
-
-RenderbufferPacket::~RenderbufferPacket() { RenderBufferPtr = nullptr; }
 
 
 FramebufferPacket::FramebufferPacket() : PostProcessPtr(nullptr), BuildData() {}
 
 
-FramebufferPacket::FramebufferPacket(PostProcess *Resource, FramebufferBuildData Data) :
+FramebufferPacket::FramebufferPacket(PostProcessObj *Resource, FramebufferBuildData Data) :
 	PostProcessPtr(Resource), BuildData(Data) {}
 
 
@@ -177,6 +178,10 @@ FramebufferPacket::~FramebufferPacket() { PostProcessPtr = nullptr; }
 DeletePacket::DeletePacket() : Handle(), Type(GFX_TYPE_NONE) {}
 
 
+DeletePacket::DeletePacket(ObjHandle &&Resource, GfxObjectType Type) :
+	Handle(Move(Resource)), Type(Type) {}
+
+
 DeletePacket::DeletePacket(DeletePacket &&Rhs) { *this = std::move(Rhs); }
 
 
@@ -197,13 +202,14 @@ DeletePacket& DeletePacket::operator= (DeletePacket &&Rhs) {
 DeletePacket::~DeletePacket() { Type = GFX_TYPE_NONE; }
 
 
-ResourceBuildQueue::ResourceBuildQueue() : MeshQueue(), TextureQueue(), FramebufferQueue(), DeleteQueue() {}
+ResourceBuildQueue::ResourceBuildQueue() 
+	: MeshQueue(), TextureQueue(), FramebufferQueue(), DeleteQueue() {}
 
 
 ResourceBuildQueue::~ResourceBuildQueue() {}
 
 
-void ResourceBuildQueue::AddMeshForBuild(Mesh *Mesh, MeshBuildData Data) {
+void ResourceBuildQueue::AddMeshForBuild(MeshObj *Mesh, MeshBuildData Data) {
 	MeshQueue.push_back(MeshPacket(Mesh, Data));
 }
 
@@ -213,13 +219,13 @@ void ResourceBuildQueue::AddTextureForBuild(TextureObj *Texture, TextureBuildDat
 }
 
 
-void ResourceBuildQueue::AddPostprocessForBuild(PostProcess *Framebuffer, FramebufferBuildData Data) {
-	FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
+void ResourceBuildQueue::AddShaderForBuild(ShaderObj *Shader, ShaderBuildData Data) {
+	ShaderQueue.push_back(ShaderPacket(Shader, Data));
 }
 
 
-void ResourceBuildQueue::AddRenderBufferForBuild(RenderBuffer *Renderbuffer, RenderbufferBuildData Data) {
-	RenderbufferQueue.push_back(RenderbufferPacket(Renderbuffer, Data));
+void ResourceBuildQueue::AddPostprocessForBuild(PostProcessObj *Framebuffer, FramebufferBuildData Data) {
+	FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
 }
 
 
@@ -235,8 +241,8 @@ void ResourceBuildQueue::AddHandleForDelete(ObjHandle &Handle, GfxObjectType Typ
 void ResourceBuildQueue::Listen() {
 	// Build meshes that are in the queue.
 	for (MeshPacket &Packet : MeshQueue) {
-		BaseAPI::BuildMesh(Packet.MeshPtr->vao, Packet.MeshPtr->vbo, Packet.MeshPtr->ebo, Packet.BuildData);
-		Packet.MeshPtr->size = (Packet.MeshPtr->ebo.Id) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
+		BaseAPI::BuildMesh(Packet.MeshPtr->Vao, Packet.MeshPtr->Vbo, Packet.MeshPtr->Ebo, Packet.BuildData);
+		Packet.MeshPtr->Size = (Packet.MeshPtr->Ebo.Id) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
 		free(Packet.BuildData.Data);
 		MeshQueue.pop_front();
 	}
@@ -248,9 +254,16 @@ void ResourceBuildQueue::Listen() {
 		TextureQueue.pop_front();
 	}
 
+	// Build shaders that are in the queue.
+	for (ShaderPacket &Packet : ShaderQueue) {
+		BaseAPI::BuildShaderProgram(Packet.ShaderPtr->Handle, Packet.BuildData);
+		ShaderQueue.pop_front();
+	}
+
+
 	// Build framebuffers that are in the queue.
 	for (FramebufferPacket &Packet : FramebufferQueue) {
-		BaseAPI::BuildFramebuffer(Packet.PostProcessPtr->id, Packet.BuildData);
+		BaseAPI::BuildFramebuffer(Packet.PostProcessPtr->Handle, Packet.BuildData);
 		FramebufferQueue.pop_front();
 	}
 
@@ -266,6 +279,9 @@ void ResourceBuildQueue::Listen() {
 		case GFX_TYPE_TEXTUREID:
 			BaseAPI::GrDeleteTexture(Packet.Handle);
 			break;
+		case GFX_TYPE_SHADERID:
+			BaseAPI::GrDeleteShader(Packet.Handle);
+			break;
 		case GFX_TYPE_POSTPROCESS:
 			BaseAPI::GrDeleteFramebuffer(Packet.Handle);
 			break;
@@ -280,9 +296,11 @@ void ResourceBuildQueue::Listen() {
 namespace Middleware {
 
 
-	void SetBuildQueue(ResourceBuildQueue *BuildQueue) {
+	ResourceBuildQueue* InitialiseBuildQueue() {
 		if (!buildQueue)
-			buildQueue = BuildQueue;
+			buildQueue = new ResourceBuildQueue();
+
+		return buildQueue;
 	}
 
 
@@ -291,11 +309,11 @@ namespace Middleware {
 	}
 
 
-	void ParseMeshFromAssimp(const String Path, bool FlipUV, Scene *Scene) {
+	void ParseMeshFromAssimp(const String Path, bool FlipUV, ModelObj *Model) {
 		Assimp::Importer	importFile;
 
 		float	*data		= nullptr;
-		Mesh	*mesh		= nullptr;
+		MeshObj	*mesh		= nullptr;
 		aiMesh	*assimpMesh = nullptr;
 
 		uint flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
@@ -306,15 +324,15 @@ namespace Middleware {
 
 		for (uint i = 0; i < assimpScene->mNumMeshes; i++) {
 			assimpMesh = assimpScene->mMeshes[i];
-			mesh = &Scene->meshes.Insert(Mesh());
+			mesh = &Model->Meshes.Insert(MeshObj());
 
-			mesh->positions.Reserve(assimpMesh->mNumVertices, false);
-			mesh->normals.Reserve(assimpMesh->mNumVertices, false);
+			mesh->Positions.Reserve(assimpMesh->mNumVertices, false);
+			mesh->Normals.Reserve(assimpMesh->mNumVertices, false);
 			
 			if (assimpMesh->mNumUVComponents) {
-				mesh->uv.Reserve(assimpMesh->mNumVertices,         false);
-				mesh->tangents.Reserve(assimpMesh->mNumVertices,   false);
-				mesh->bitangents.Reserve(assimpMesh->mNumVertices, false);
+				mesh->Uv.Reserve(assimpMesh->mNumVertices,         false);
+				mesh->Tangents.Reserve(assimpMesh->mNumVertices,   false);
+				mesh->Bitangents.Reserve(assimpMesh->mNumVertices, false);
 			}
 
 			glm::vec3	vector;
@@ -325,21 +343,21 @@ namespace Middleware {
 				vector.y = assimpMesh->mVertices[i].y;
 				vector.z = assimpMesh->mVertices[i].z;
 				
-				mesh->positions.Push(vector);
+				mesh->Positions.Push(vector);
 
 				if (assimpMesh->mNormals) {
 					vector.x = assimpMesh->mNormals[i].x;
 					vector.y = assimpMesh->mNormals[i].y;
 					vector.z = assimpMesh->mNormals[i].z;
 
-					mesh->normals.Push(vector);
+					mesh->Normals.Push(vector);
 				}
 
 				if (assimpMesh->mTextureCoords[0]) {
 					uv.x = assimpMesh->mTextureCoords[0][i].x;
 					uv.y = assimpMesh->mTextureCoords[0][i].y;
 
-					mesh->uv.Push(uv);
+					mesh->Uv.Push(uv);
 				}
 
 				if (assimpMesh->mTangents) {
@@ -347,13 +365,13 @@ namespace Middleware {
 					vector.y = assimpMesh->mTangents[i].y;
 					vector.z = assimpMesh->mTangents[i].z;
 
-					mesh->tangents.Push(vector);
+					mesh->Tangents.Push(vector);
 
 					vector.x = assimpMesh->mBitangents[i].x;
 					vector.y = assimpMesh->mBitangents[i].y;
 					vector.z = assimpMesh->mBitangents[i].z;
 
-					mesh->bitangents.Push(vector);
+					mesh->Bitangents.Push(vector);
 				}
 			}
 
@@ -361,11 +379,11 @@ namespace Middleware {
 				aiFace assimpFace = assimpMesh->mFaces[i];
 
 				for (uint j = 0; j < assimpFace.mNumIndices; j++)
-					mesh->indices.Push(assimpFace.mIndices[j]);
+					mesh->Indices.Push(assimpFace.mIndices[j]);
 			}
 		}
 
-		for (Mesh &mesh : Scene->meshes) {
+		for (MeshObj &mesh : Model->Meshes) {
 			PackageMeshForBuild(&mesh);
 		}
 	}
@@ -391,76 +409,76 @@ namespace Middleware {
 	}
 
 
-	void PackageMeshForBuild(Mesh *MeshSrc) {
+	void PackageMeshForBuild(MeshObj *MeshSrc) {
 		int32	stride	= 0;
 		size_t	idx		= 0;
 		size_t	total	= 0;
 		size_t	pointer = 0;
-		Mesh	&mesh	= *MeshSrc;
+		MeshObj	&mesh	= *MeshSrc;
 
 		MeshBuildData buildData;
 
-		total = mesh.positions.Length() * 3;
-		if (mesh.normals.Length())		total += mesh.normals.Length() * 3;
-		if (mesh.uv.Length())			total += mesh.uv.Length() * 2;
-		if (mesh.tangents.Length())		total += mesh.tangents.Length() * 3;
-		if (mesh.bitangents.Length())	total += mesh.bitangents.Length() * 3;
+		total = mesh.Positions.Length() * 3;
+		if (mesh.Normals.Length())		total += mesh.Normals.Length() * 3;
+		if (mesh.Uv.Length())			total += mesh.Uv.Length() * 2;
+		if (mesh.Tangents.Length())		total += mesh.Tangents.Length() * 3;
+		if (mesh.Bitangents.Length())	total += mesh.Bitangents.Length() * 3;
 
 		stride = 3 * sizeof(float);
-		if (mesh.normals.Length())		stride += 3 * sizeof(float);
-		if (mesh.uv.Length())			stride += 2 * sizeof(float);
-		if (mesh.tangents.Length())		stride += 3 * sizeof(float);
-		if (mesh.bitangents.Length())	stride += 3 * sizeof(float);
+		if (mesh.Normals.Length())		stride += 3 * sizeof(float);
+		if (mesh.Uv.Length())			stride += 2 * sizeof(float);
+		if (mesh.Tangents.Length())		stride += 3 * sizeof(float);
+		if (mesh.Bitangents.Length())	stride += 3 * sizeof(float);
 
 		buildData.Data = (float*)malloc(total * sizeof(float));
 		buildData.Size = total;
-		buildData.Indices = &mesh.indices.Front();
-		buildData.Length = mesh.indices.Length();
+		buildData.Indices = &mesh.Indices.Front();
+		buildData.Length = mesh.Indices.Length();
 
 		buildData.VertexAttribPointers.Push(VertexAttribPointer(0, 3, stride, pointer));
 		pointer += 3 * sizeof(float);
 
-		if (mesh.normals.Length()) {
+		if (mesh.Normals.Length()) {
 			buildData.VertexAttribPointers.Push(VertexAttribPointer(1, 3, stride, pointer));
 			pointer += 3 * sizeof(float);
 		}
 
-		if (mesh.uv.Length()) {
+		if (mesh.Uv.Length()) {
 			buildData.VertexAttribPointers.Push(VertexAttribPointer(2, 2, stride, pointer));
 			pointer += 2 * sizeof(float);
 		}
 
-		if (mesh.tangents.Length()) {
+		if (mesh.Tangents.Length()) {
 			buildData.VertexAttribPointers.Push(VertexAttribPointer(3, 3, stride, pointer));
 			pointer += 3 * sizeof(float);
 
 			buildData.VertexAttribPointers.Push(VertexAttribPointer(4, 3, stride, pointer));
 		}
 
-		for (uint i = 0; i < mesh.positions.Length(); i++) {
-			buildData.Data[idx++] = mesh.positions[i].x;
-			buildData.Data[idx++] = mesh.positions[i].y;
-			buildData.Data[idx++] = mesh.positions[i].z;
+		for (uint i = 0; i < mesh.Positions.Length(); i++) {
+			buildData.Data[idx++] = mesh.Positions[i].x;
+			buildData.Data[idx++] = mesh.Positions[i].y;
+			buildData.Data[idx++] = mesh.Positions[i].z;
 
-			if (mesh.normals.Length()) {
-				buildData.Data[idx++] = mesh.normals[i].x;
-				buildData.Data[idx++] = mesh.normals[i].y;
-				buildData.Data[idx++] = mesh.normals[i].z;
+			if (mesh.Normals.Length()) {
+				buildData.Data[idx++] = mesh.Normals[i].x;
+				buildData.Data[idx++] = mesh.Normals[i].y;
+				buildData.Data[idx++] = mesh.Normals[i].z;
 			}
 
-			if (mesh.uv.Length()) {
-				buildData.Data[idx++] = mesh.uv[i].x;
-				buildData.Data[idx++] = mesh.uv[i].y;
+			if (mesh.Uv.Length()) {
+				buildData.Data[idx++] = mesh.Uv[i].x;
+				buildData.Data[idx++] = mesh.Uv[i].y;
 			}
 
-			if (mesh.tangents.Length()) {
-				buildData.Data[idx++] = mesh.tangents[i].x;
-				buildData.Data[idx++] = mesh.tangents[i].y;
-				buildData.Data[idx++] = mesh.tangents[i].z;
+			if (mesh.Tangents.Length()) {
+				buildData.Data[idx++] = mesh.Tangents[i].x;
+				buildData.Data[idx++] = mesh.Tangents[i].y;
+				buildData.Data[idx++] = mesh.Tangents[i].z;
 
-				buildData.Data[idx++] = mesh.bitangents[i].x;
-				buildData.Data[idx++] = mesh.bitangents[i].y;
-				buildData.Data[idx++] = mesh.bitangents[i].z;
+				buildData.Data[idx++] = mesh.Bitangents[i].x;
+				buildData.Data[idx++] = mesh.Bitangents[i].y;
+				buildData.Data[idx++] = mesh.Bitangents[i].z;
 
 			}
 		}
@@ -470,36 +488,36 @@ namespace Middleware {
 	}
 
 
-	void PackageFramebufferForBuild(PostProcess *FramebufferSrc) {
+	void PackageFramebufferForBuild(PostProcessObj *FramebufferSrc) {
 		uint32 imgCount = 0;
 		uint32 rbCount = 0;
 		FramebufferBuildData buildData;
 
-		for (PostProcessAttachment &attachment : FramebufferSrc->attachment) {
-			if (attachment.type == FRAMEBUFFER_ATTACHMENT_TEXTURE) {
-				switch (attachment.subType) {
+		for (PostProcessAttachment &attachment : FramebufferSrc->Attachment) {
+			if (attachment.Type == FRAMEBUFFER_ATTACHMENT_TEXTURE) {
+				switch (attachment.SubType) {
 				case FRAMEBUFFER_SUBATTACH_COLOUR:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_COLOR_ATTACHMENT0 + imgCount++, attachment.draw));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Texture->Handle.Id, attachment.Texture->Handle.Target, GL_COLOR_ATTACHMENT0 + imgCount++, attachment.Draw));
 					break;
 				case FRAMEBUFFER_SUBATTACH_DEPTH:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_DEPTH_ATTACHMENT, false));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Texture->Handle.Id, attachment.Texture->Handle.Target, GL_DEPTH_ATTACHMENT, false));
 					break;
 				case FRAMEBUFFER_SUBATTACH_STENCIL:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.texture->handle, GL_DEPTH_STENCIL_ATTACHMENT, false));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Texture->Handle.Id, attachment.Texture->Handle.Target, GL_DEPTH_STENCIL_ATTACHMENT, false));
 					break;
 				}
 			}
 
-			if (attachment.type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER) {
-				switch (attachment.subType) {
+			if (attachment.Type == FRAMEBUFFER_ATTACHMENT_RENDERBUFFER) {
+				switch (attachment.SubType) {
 				case FRAMEBUFFER_SUBATTACH_COLOUR:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_COLOR_ATTACHMENT0 + rbCount++, false));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Renderbuffer->Handle.Id, attachment.Renderbuffer->Handle.Target, GL_COLOR_ATTACHMENT0 + rbCount++, false));
 					break;
 				case FRAMEBUFFER_SUBATTACH_DEPTH:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_DEPTH_ATTACHMENT, false));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Renderbuffer->Handle.Id, attachment.Renderbuffer->Handle.Target, GL_DEPTH_ATTACHMENT, false));
 					break;
 				case FRAMEBUFFER_SUBATTACH_STENCIL:
-					buildData.Attachment.Push(FramebufferAttachment(&attachment.renderbuffer->handle, GL_DEPTH_STENCIL_ATTACHMENT, false));
+					buildData.Attachment.Push(FramebufferAttachment(attachment.Renderbuffer->Handle.Id, attachment.Renderbuffer->Handle.Target, GL_DEPTH_STENCIL_ATTACHMENT, false));
 					break;
 				}
 			}

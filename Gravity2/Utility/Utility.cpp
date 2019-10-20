@@ -2,17 +2,13 @@
 
 
 bool OpenFile(String &Buffer, const String &Path) {
-	String	msg;
 	FILE	*stream	= nullptr;
 	fpos_t	pos;
 
 	stream = fopen(~Path, "rb");
 
-	if (!stream) {
-		msg.Write("Unable to open file at path: %s", ~Path);
-		Logger::Log(LOG_ERR, LOG_OPENFILE, msg);
+	if (!stream)
 		return false;
-	}
 
 	fseek(stream, 0, SEEK_END);
 	fgetpos(stream, &pos);

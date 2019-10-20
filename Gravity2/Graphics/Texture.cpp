@@ -1,17 +1,8 @@
 #include "stdafx.h"
 
 
-TextureCreationInfo::TextureCreationInfo() : 
-	Name(), Path(), Type(TEXTURE_TYPE_NONE) {}
+GrvtTexture::GrvtTexture() : 
+	Properties(), Name(), Handle(), Type(GrvtTexture_Type_None) {}
 
 
-TextureCreationInfo::~TextureCreationInfo() {
-	Name.Release();
-	Path.Release();
-}
-
-
-TextureObj::TextureObj() : Handle(), Type(TEXTURE_TYPE_NONE), Info(nullptr) {}
-
-
-TextureObj::~TextureObj() {}
+GrvtTexture::~GrvtTexture() {}

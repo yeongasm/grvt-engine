@@ -78,7 +78,7 @@
 #include "Graphics/Shader.h"
 #include "Graphics/Texture.h"
 #include "Graphics/Postprocessing.h"
-#include "Graphics/Scene.h"
+#include "Graphics/Model.h"
 #include "Graphics/Material.h"
 #include "Graphics/SceneInstace.h"
 #include "Graphics/Lighting.h"

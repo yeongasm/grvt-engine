@@ -2,63 +2,33 @@
 
 
 /**
-* Material creation data structure.
-* All materials created required a name for identification. Failing to provide a name would cause Gravity to abort it's material generation process.
-* If no shader is specified into the struct, Gravity simply does not retrieve uniforms associated with the shader. This however can be done manually later.
-* 
-* @param [REQUIRED] (String)		name		- Identification of the specified material.
-* @param [OPTIONAL] (Shader*)		shader		- Shader associated with this material. Gravity automatically retrieves uniforms associated with this shader when specified.
-* @param [OPTIONAL] (TextureArr)	textures	- List of textures for this material. However, mapping textures to it's unit to the mesh needs to be done manually. 
 */
 struct MaterialCreationInfo {
 
 	String				Name;
-	ShaderObj			*Shader;
-	Array<TextureObj*>	Textures;
-
-	MaterialCreationInfo();
-	~MaterialCreationInfo();
+	GrvtShader*			Shader;
+	Array<GrvtTexture*>	Textures;
 
 };
 
 
-// Forward declare data struct.
-struct MaterialData;
-
-
 /**
-* Material data structure.
-* 
-* TODO(Afiq):
-* Filter out the uniforms to only contain uniforms that are relevant to materials.
-* One approach to this is to use a fix naming scheme for our materials in glsl.
 */
-struct MaterialObj {
+struct GrvtMaterial {
 
 	String							Name;
-	ShaderObj						*Shader;
-	MaterialData					*Info;
-	Array<TextureObj*>				Textures;
+	GrvtShader*						Shader;
+	Array<GrvtTexture*>				Textures;
 	std::map<String, UniformAttr>	Uniforms;
 
-	MaterialObj();
-	~MaterialObj();
+	GrvtMaterial();
+	~GrvtMaterial();
 	
-	MaterialObj(const MaterialObj &Other);
-	MaterialObj& operator= (const MaterialObj &Other);
+	GrvtMaterial(const GrvtMaterial &Other);
+	GrvtMaterial& operator= (const GrvtMaterial &Other);
 
-	MaterialObj(MaterialObj &&Other);
-	MaterialObj& operator= (MaterialObj &&Other);
-
-	/**
-	* Allocates a new material.
-	*/
-	//void Alloc		(const MaterialCreationInfo &Info);
-
-	/**
-	* Released all data from the Material struct.
-	*/
-	//void Free		();
+	GrvtMaterial(GrvtMaterial &&Other);
+	GrvtMaterial& operator= (GrvtMaterial &&Other);
 
 	/**
 	* Sets a boolean value to the specified uniform.
@@ -128,6 +98,6 @@ struct MaterialObj {
 	* Does not update the value that's in the shader.
 	* Returns false if uniform with the specified name is not found.
 	*/
-	bool SetTexture	(const String &Uniform, TextureObj *Texture);
+	bool SetTexture	(const String &Uniform, GrvtTexture *Texture);
 
 };

@@ -75,6 +75,38 @@ void BaseAPI::GrDeleteBufferObject(ObjHandle &Handle) {
 }
 
 
+void BaseAPI::GrCreateShader(ObjHandle &Handle, uint32 Type) {
+	Handle.Target = Type;
+	Handle.Id = glCreateShader(Handle.Target);
+}
+
+
+void BaseAPI::GrDeleteShader(ObjHandle &Handle) {
+	glDeleteShader(Handle.Id);
+}
+
+
+void BaseAPI::GrCreateShaderProgram(ObjHandle &Handle) {
+	Handle.Id = glCreateProgram();
+}
+
+
+void BaseAPI::GrBindShaderProgram(ObjHandle &Handle) {
+	glUseProgram(Handle.Id);
+}
+
+
+void BaseAPI::GrUnbindShaderProgram(ObjHandle &Handle) {
+	glUseProgram(0);
+}
+
+
+void BaseAPI::GrDeleteShaderProgram(ObjHandle &Handle) {
+	glDeleteProgram(Handle.Id);
+}
+
+
+
 void BaseAPI::GrCreateTexture(ObjHandle &Handle, uint32 Target) {
 	Handle.Target = Target;
 	glGenTextures(1, &Handle.Id);
