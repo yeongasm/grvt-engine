@@ -72,28 +72,28 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\gravitylib\;$(SolutionDir)\Gravity2\;$(SolutionDir)\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\Grvtlib\;$(SolutionDir)\Gravity2\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\gravitylib\;$(SolutionDir)\Gravity2\;$(SolutionDir)\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\Grvtlib\;$(SolutionDir)\Gravity2\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\gravitylib\;$(SolutionDir)\Gravity2\;$(SolutionDir)\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\Grvtlib\;$(SolutionDir)\Gravity2\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\gravitylib\;$(SolutionDir)\Gravity2\;$(SolutionDir)\imgui\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\include;$(SolutionDir)\Grvtlib\;$(SolutionDir)\Gravity2\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)\lib;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\$(Configuration)\</IntDir>
@@ -192,48 +192,45 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\Application.cpp" />
-    <ClCompile Include="Graphics\Model.cpp" />
-    <ClCompile Include="Graphics\Postprocessing.cpp" />
-    <ClCompile Include="GravityGL\Foundations.cpp" />
+    <ClCompile Include="Framework\Abstractions\Model.cpp" />
+    <ClCompile Include="Framework\Abstractions\Postprocessing.cpp" />
+    <ClCompile Include="Framework\Foundations\Foundations.cpp" />
     <ClCompile Include="IO\InputHandler.cpp" />
     <ClCompile Include="IO\IO.cpp" />
     <ClCompile Include="Application\Project.cpp" />
     <ClCompile Include="Application\Statistics.cpp" />
-    <ClCompile Include="nfd_common.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="nfd_win.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui_demo.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui_widgets.cpp" />
+    <ClCompile Include="ThirdParty\glad\glad.c" />
+    <ClCompile Include="ThirdParty\nfd\nfd_common.c" />
+    <ClCompile Include="ThirdParty\nfd\nfd_win.cpp" />
     <ClCompile Include="UI\UI.cpp" />
     <ClCompile Include="UI\UIHandler.cpp" />
-    <ClCompile Include="Camera\Camera.cpp" />
-    <ClCompile Include="Graphics\Lighting.cpp" />
-    <ClCompile Include="Graphics\Material.cpp" />
-    <ClCompile Include="Graphics\SceneInstace.cpp" />
-    <ClCompile Include="GravityGL\Interface.cpp" />
-    <ClCompile Include="Level\Scenery.cpp" />
-    <ClCompile Include="ResourceManager\Manager.cpp" />
+    <ClCompile Include="Framework\Camera\Camera.cpp" />
+    <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
+    <ClCompile Include="Framework\Abstractions\Material.cpp" />
+    <ClCompile Include="Framework\Abstractions\SceneInstace.cpp" />
+    <ClCompile Include="Framework\Foundations\Interface.cpp" />
+    <ClCompile Include="Framework\Level\Scenery.cpp" />
+    <ClCompile Include="Manager\Manager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
-    <ClCompile Include="Graphics\Shader.cpp" />
-    <ClCompile Include="Graphics\Texture.cpp" />
-    <ClCompile Include="GravityGL\LowLevelAPI.cpp">
+    <ClCompile Include="Framework\Abstractions\Shader.cpp" />
+    <ClCompile Include="Framework\Abstractions\Texture.cpp" />
+    <ClCompile Include="Framework\Foundations\LowLevelAPI.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderInstance.cpp" />
-    <ClCompile Include="Renderer\RenderCommand.cpp" />
-    <ClCompile Include="Renderer\Renderer.cpp" />
-    <ClCompile Include="Renderer\RenderNode.cpp" />
-    <ClCompile Include="stb\stb_image.cpp">
+    <ClCompile Include="Framework\Renderer\RenderInstance.cpp" />
+    <ClCompile Include="Framework\Renderer\RenderCommand.cpp" />
+    <ClCompile Include="Framework\Renderer\Renderer.cpp" />
+    <ClCompile Include="Framework\Renderer\RenderNode.cpp" />
+    <ClCompile Include="ThirdParty\stb\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
@@ -247,42 +244,44 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="glad.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
-    <ClInclude Include="Graphics\Model.h" />
-    <ClInclude Include="Graphics\Postprocessing.h" />
-    <ClInclude Include="GravityGL\Foundations.h" />
-    <ClInclude Include="IconsFontAwesome5.h" />
+    <ClInclude Include="Framework\Abstractions\Model.h" />
+    <ClInclude Include="Framework\Abstractions\Postprocessing.h" />
+    <ClInclude Include="Framework\Foundations\Foundations.h" />
     <ClInclude Include="IO\InputHandler.h" />
     <ClInclude Include="IO\IO.h" />
     <ClInclude Include="Application\Project.h" />
     <ClInclude Include="Application\Statistics.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imgui.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imgui_impl_glfw.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imgui_impl_opengl3.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imgui_internal.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imstb_rectpack.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imstb_textedit.h" />
+    <ClInclude Include="ThirdParty\DearImGui\imstb_truetype.h" />
+    <ClInclude Include="ThirdParty\FontAwesome\IconsFontAwesome5.h" />
     <ClInclude Include="UI\UI.h" />
     <ClInclude Include="UI\UIHandler.h" />
-    <ClInclude Include="Camera\Camera.h" />
-    <ClInclude Include="Graphics\Lighting.h" />
-    <ClInclude Include="Graphics\Material.h" />
-    <ClInclude Include="Graphics\SceneInstace.h" />
-    <ClInclude Include="GravityGL\Interface.h" />
-    <ClInclude Include="Level\Scenery.h" />
-    <ClInclude Include="ResourceManager\Manager.h" />
+    <ClInclude Include="Framework\Camera\Camera.h" />
+    <ClInclude Include="Framework\Abstractions\Lighting.h" />
+    <ClInclude Include="Framework\Abstractions\Material.h" />
+    <ClInclude Include="Framework\Abstractions\SceneInstace.h" />
+    <ClInclude Include="Framework\Foundations\Interface.h" />
+    <ClInclude Include="Framework\Level\Scenery.h" />
+    <ClInclude Include="Manager\Manager.h" />
     <ClInclude Include="Graphics\Scene.h" />
-    <ClInclude Include="Graphics\Shader.h" />
-    <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="GravityGL\LowLevelAPI.h" />
-    <ClInclude Include="Renderer\RenderInstance.h" />
-    <ClInclude Include="Renderer\RenderCommand.h" />
-    <ClInclude Include="Renderer\Renderer.h" />
-    <ClInclude Include="Renderer\RenderNode.h" />
-    <ClInclude Include="stb\stb_image.h" />
+    <ClInclude Include="Framework\Abstractions\Shader.h" />
+    <ClInclude Include="Framework\Abstractions\Texture.h" />
+    <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
+    <ClInclude Include="Framework\Renderer\RenderInstance.h" />
+    <ClInclude Include="Framework\Renderer\RenderCommand.h" />
+    <ClInclude Include="Framework\Renderer\Renderer.h" />
+    <ClInclude Include="Framework\Renderer\RenderNode.h" />
+    <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="UI\WindowFunctions.h" />
     <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="stdafx.h" />
@@ -293,9 +292,6 @@
   <ItemGroup>
     <ProjectReference Include="..\gravitylib\gravitylib.vcxproj">
       <Project>{31e1253a-189d-49de-b5e2-ad1d1fb9411f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\imgui\imgui.vcxproj">
-      <Project>{e5b7779d-2fd3-4056-91cb-93ac15dce526}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

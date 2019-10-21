@@ -134,21 +134,3 @@ void ImGuiCustomColumnPairToolTip(Pair<const char*, const char*> *Params, size_t
 	}
 	//ImGui::NewLine();
 }
-
-
-ImGuiWindow *WindowDebugger::window = nullptr;
-ImVec4 WindowDebugger::colour = {};
-
-
-void WindowDebugger::RenderDebugger() {
-	static float refColour[4];
-	ImGui::Begin("ImGui Debugger");
-	if (window) {
-		ImGui::Text("Name: %s", window->Name);
-		ImGui::Text("ID: %d", window->ID);
-		ImGui::Text("Size X: %.2f", window->Size.x);
-		ImGui::Text("Size Y: %.2f", window->Size.y);
-	}
-	ImGui::ColorPicker4("##", (float*)&colour, ImGuiColorEditFlags_Float, refColour);
-	ImGui::End();
-}

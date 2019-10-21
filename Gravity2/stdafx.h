@@ -13,11 +13,9 @@
 #include <sys/stat.h>
 
 #include <map>
-#include <queue>
 #include <deque>
 #include <thread>
 #include <chrono>
-#include <functional>
 
 //#if defined(_DEBUG)
 //#define _CRTDBG_MAP_ALLOC		// Enable heap memory leak detection
@@ -45,56 +43,44 @@
 // Custom array and string class.
 #include <gravitystl.h>
 
-// Include ImGui headers.
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
 // Assimp library header files.
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "stb/stb_image.h"
-#include "IconsFontAwesome5.h"
+#include "ThirdParty/stb/stb_image.h"
+#include "ThirdParty/FontAwesome/IconsFontAwesome5.h"
+#include "ThirdParty/DearImGui/imgui.h"
+#include "ThirdParty/DearImGui/imgui_internal.h"
+#include "ThirdParty/DearImGui/imgui_impl_glfw.h"
+#include "ThirdParty/DearImGui/imgui_impl_opengl3.h"
 
-//#define _CRTDBG_MAP_ALLOC
-//#include <stdlib.h>
-//#include <crtdbg.h>
-//#ifdef _DEBUG
-//#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-//#define new DEBUG_NEW
-//#endif
+#include "Framework/Foundations/Foundations.h"
+#include "Framework/Foundations/LowLevelAPI.h"
+#include "Framework/Foundations/Interface.h"
+ 
+#include "Framework/Abstractions/Shader.h"
+#include "Framework/Abstractions/Texture.h"
+#include "Framework/Abstractions/Postprocessing.h"
+#include "Framework/Abstractions/Model.h"
+#include "Framework/Abstractions/Material.h"
+#include "Framework/Abstractions/SceneInstace.h"
+#include "Framework/Abstractions/Lighting.h"
+#include "Framework/Camera/Camera.h"
+#include "Framework/Level/Scenery.h"
+#include "Framework/Renderer/RenderNode.h"
+#include "Framework/Renderer/RenderCommand.h"
+#include "Framework/Renderer/RenderInstance.h"
+#include "Framework/Renderer/Renderer.h"
 
-// Utility header file.
-#include "Utility/Utility.h"
-
-// Gravity's GL Interface
-#include "GravityGL/Foundations.h"
-#include "GravityGL/LowLevelAPI.h"
-#include "GravityGL/Interface.h"
-
-#include "Graphics/Shader.h"
-#include "Graphics/Texture.h"
-#include "Graphics/Postprocessing.h"
-#include "Graphics/Model.h"
-#include "Graphics/Material.h"
-#include "Graphics/SceneInstace.h"
-#include "Graphics/Lighting.h"
-
-#include "Camera/Camera.h"
-
-#include "Level/Scenery.h"
 #include "Manager/Manager.h"
 
-#include "Renderer/RenderNode.h"
-#include "Renderer/RenderCommand.h"
-#include "Renderer/RenderInstance.h"
-#include "Renderer/Renderer.h"
 
 #include "IO/InputHandler.h"
 #include "IO/IO.h"
+
+// Utility header file.
+#include "Utility/Utility.h"
 
 #include "UI/UI.h"
 #include "UI/WindowFunctions.h"

@@ -11,7 +11,7 @@ class GravityApp;
 /**
 * WindowIOFlags enum.
 */
-enum WindowIOFlags : uint {
+enum WindowIOFlags : uint32 {
 	WINDOW_ON_SUBMIT	= 0x00,
 	WINDOW_ON_RGTCLK	= 0x01,
 	WINDOW_ON_LFTCLK	= 0x02,
