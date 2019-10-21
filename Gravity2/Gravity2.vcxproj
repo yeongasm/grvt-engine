@@ -192,6 +192,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application\Application.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Postprocessing.cpp" />
     <ClCompile Include="GravityGL\Foundations.cpp" />
     <ClCompile Include="IO\InputHandler.cpp" />
@@ -218,7 +219,7 @@
     <ClCompile Include="Graphics\SceneInstace.cpp" />
     <ClCompile Include="GravityGL\Interface.cpp" />
     <ClCompile Include="Level\Scenery.cpp" />
-    <ClCompile Include="Manager\Manager.cpp" />
+    <ClCompile Include="ResourceManager\Manager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
@@ -256,6 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Postprocessing.h" />
     <ClInclude Include="GravityGL\Foundations.h" />
     <ClInclude Include="IconsFontAwesome5.h" />
@@ -271,7 +273,7 @@
     <ClInclude Include="Graphics\SceneInstace.h" />
     <ClInclude Include="GravityGL\Interface.h" />
     <ClInclude Include="Level\Scenery.h" />
-    <ClInclude Include="Manager\Manager.h" />
+    <ClInclude Include="ResourceManager\Manager.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Graphics\Shader.h" />
     <ClInclude Include="Graphics\Texture.h" />
