@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 
 #include <map>
+#include <unordered_map>
 #include <deque>
 #include <thread>
 #include <chrono>
@@ -58,7 +59,6 @@
 #include "Framework/Foundations/Foundations.h"
 #include "Framework/Foundations/LowLevelAPI.h"
 #include "Framework/Foundations/Interface.h"
- 
 #include "Framework/Abstractions/Shader.h"
 #include "Framework/Abstractions/Texture.h"
 #include "Framework/Abstractions/Postprocessing.h"
@@ -73,21 +73,15 @@
 #include "Framework/Renderer/RenderInstance.h"
 #include "Framework/Renderer/Renderer.h"
 
-#include "Manager/Manager.h"
-
-
-#include "IO/InputHandler.h"
-#include "IO/IO.h"
-
-// Utility header file.
-#include "Utility/Utility.h"
-
-#include "UI/UI.h"
-#include "UI/WindowFunctions.h"
-#include "UI/UIHandler.h"
-
-#include "Application/Statistics.h"
-#include "Application/Project.h"
-#include "Application/Application.h"
+#include "Engine/Utility/Utility.h"
+#include "Engine/Manager/Manager.h"
+#include "Engine/IO/InputHandler.h"
+#include "Engine/IO/IO.h"
+#include "Engine/UI/UI.h"
+#include "Engine/UI/WindowFunctions.h"
+#include "Engine/UI/UIHandler.h"
+#include "Engine/Profiling/Statistics.h"
+#include "Engine/Project/Project.h"
+#include "Engine/Application/Application.h"
 
 #endif // !PRECOMPILE_HEADER

@@ -191,14 +191,14 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application\Application.cpp" />
+    <ClCompile Include="Engine\Application\Application.cpp" />
     <ClCompile Include="Framework\Abstractions\Model.cpp" />
     <ClCompile Include="Framework\Abstractions\Postprocessing.cpp" />
     <ClCompile Include="Framework\Foundations\Foundations.cpp" />
-    <ClCompile Include="IO\InputHandler.cpp" />
-    <ClCompile Include="IO\IO.cpp" />
-    <ClCompile Include="Application\Project.cpp" />
-    <ClCompile Include="Application\Statistics.cpp" />
+    <ClCompile Include="Engine\IO\InputHandler.cpp" />
+    <ClCompile Include="Engine\IO\IO.cpp" />
+    <ClCompile Include="Engine\Project\Project.cpp" />
+    <ClCompile Include="Engine\Profiling\Statistics.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui_demo.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui_draw.cpp" />
@@ -208,15 +208,15 @@
     <ClCompile Include="ThirdParty\glad\glad.c" />
     <ClCompile Include="ThirdParty\nfd\nfd_common.c" />
     <ClCompile Include="ThirdParty\nfd\nfd_win.cpp" />
-    <ClCompile Include="UI\UI.cpp" />
-    <ClCompile Include="UI\UIHandler.cpp" />
+    <ClCompile Include="Engine\UI\UI.cpp" />
+    <ClCompile Include="Engine\UI\UIHandler.cpp" />
     <ClCompile Include="Framework\Camera\Camera.cpp" />
     <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
     <ClCompile Include="Framework\Abstractions\Material.cpp" />
     <ClCompile Include="Framework\Abstractions\SceneInstace.cpp" />
     <ClCompile Include="Framework\Foundations\Interface.cpp" />
     <ClCompile Include="Framework\Level\Scenery.cpp" />
-    <ClCompile Include="Manager\Manager.cpp" />
+    <ClCompile Include="Engine\Manager\Manager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Framework\Abstractions\Shader.cpp" />
     <ClCompile Include="Framework\Abstractions\Texture.cpp" />
@@ -236,8 +236,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="UI\WindowFunctions.cpp" />
-    <ClCompile Include="Utility\Utility.cpp" />
+    <ClCompile Include="Engine\UI\WindowFunctions.cpp" />
+    <ClCompile Include="Engine\Utility\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -247,14 +247,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="Engine\Application\Application.h" />
     <ClInclude Include="Framework\Abstractions\Model.h" />
     <ClInclude Include="Framework\Abstractions\Postprocessing.h" />
     <ClInclude Include="Framework\Foundations\Foundations.h" />
-    <ClInclude Include="IO\InputHandler.h" />
-    <ClInclude Include="IO\IO.h" />
-    <ClInclude Include="Application\Project.h" />
-    <ClInclude Include="Application\Statistics.h" />
+    <ClInclude Include="Engine\IO\InputHandler.h" />
+    <ClInclude Include="Engine\IO\IO.h" />
+    <ClInclude Include="Engine\Project\Project.h" />
+    <ClInclude Include="Engine\Profiling\Statistics.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui_impl_glfw.h" />
@@ -264,15 +264,15 @@
     <ClInclude Include="ThirdParty\DearImGui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\DearImGui\imstb_truetype.h" />
     <ClInclude Include="ThirdParty\FontAwesome\IconsFontAwesome5.h" />
-    <ClInclude Include="UI\UI.h" />
-    <ClInclude Include="UI\UIHandler.h" />
+    <ClInclude Include="Engine\UI\UI.h" />
+    <ClInclude Include="Engine\UI\UIHandler.h" />
     <ClInclude Include="Framework\Camera\Camera.h" />
     <ClInclude Include="Framework\Abstractions\Lighting.h" />
     <ClInclude Include="Framework\Abstractions\Material.h" />
     <ClInclude Include="Framework\Abstractions\SceneInstace.h" />
     <ClInclude Include="Framework\Foundations\Interface.h" />
     <ClInclude Include="Framework\Level\Scenery.h" />
-    <ClInclude Include="Manager\Manager.h" />
+    <ClInclude Include="Engine\Manager\Manager.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
@@ -282,8 +282,8 @@
     <ClInclude Include="Framework\Renderer\Renderer.h" />
     <ClInclude Include="Framework\Renderer\RenderNode.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
-    <ClInclude Include="UI\WindowFunctions.h" />
-    <ClInclude Include="Utility\Utility.h" />
+    <ClInclude Include="Engine\UI\WindowFunctions.h" />
+    <ClInclude Include="Engine\Utility\Utility.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

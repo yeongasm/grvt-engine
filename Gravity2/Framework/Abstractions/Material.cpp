@@ -2,58 +2,77 @@
 
 
 MaterialCreationInfo::MaterialCreationInfo() :
-	Name(), Shader(nullptr), Textures() {}
+	Name(), ShaderHandle(nullptr), Textures() {}
 
 
 MaterialCreationInfo::~MaterialCreationInfo() {
 	Name.Release();
 	Textures.Release();
-	Shader = nullptr;
+	ShaderHandle = nullptr;
 }
 
 
-MaterialObj::MaterialObj() : 
-	Name(), Shader(nullptr), Info(nullptr), Textures(), Uniforms() {}
+void MaterialCreationInfo::PushTexture(GrvtTexture* Texture) {
+	Textures.Push({Texture->Type, &Texture->Handle});
+}
 
 
-MaterialObj::~MaterialObj() {
-	Shader = nullptr;
-	Info = nullptr;
+void MaterialCreationInfo::PopTexture(GrvtTexture* Texture) {
+	size_t idx = Textures.IndexOf({Texture->Type, &Texture->Handle});
+	Textures.PopAt(idx);
+}
 
+
+void MaterialCreationInfo::SetShader(GrvtShader* Shader) {
+	if (ShaderHandle != &Shader->Handle)
+		ShaderHandle = &Shader->Handle;
+}
+
+
+void MaterialCreationInfo::RemoveShader() {
+	ShaderHandle = nullptr;
+}
+
+
+GrvtMaterial::GrvtMaterial() :
+	Name(), ShaderHandle(nullptr), Textures(), Uniforms() {}
+
+
+GrvtMaterial::~GrvtMaterial() {
+	ShaderHandle = nullptr;
 	Name.Release();
 	Uniforms.clear();
 	Textures.Release();
 }
 
 
-MaterialObj::MaterialObj(const MaterialObj &Other) { *this = Other; }
+GrvtMaterial::GrvtMaterial(const GrvtMaterial& Other) { *this = Other; }
 
 
-MaterialObj::MaterialObj(MaterialObj &&Other) { *this = std::move(Other); }
+GrvtMaterial::GrvtMaterial(GrvtMaterial&& Other) { *this = std::move(Other); }
 
 
-MaterialObj& MaterialObj::operator= (const MaterialObj &Other) {
+GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) {
 	if (this != &Other) {
 		Name		= Other.Name;
-		Shader		= Other.Shader;
-		Info		= Other.Info;
 		Uniforms	= Other.Uniforms;
 		Textures	= Other.Textures;
+		ShaderHandle = Other.ShaderHandle;
 	}
 
 	return *this;
 }
 
 
-MaterialObj& MaterialObj::operator= (MaterialObj &&Other) {
+GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
 	if (this != &Other) {
 
-		Shader		= Other.Shader;
-		Info		= Other.Info;
-		Uniforms	= Other.Uniforms;
-		Textures	= Other.Textures;
+		Name = Other.Name;
+		Uniforms = Other.Uniforms;
+		Textures = Other.Textures;
+		ShaderHandle = Other.ShaderHandle;
 
-		Other.~MaterialObj();
+		new (&Other) GrvtMaterial();
 	}
 
 	return *this;
@@ -77,8 +96,8 @@ MaterialObj& MaterialObj::operator= (MaterialObj &&Other) {
 //		}
 //	}
 //}
-//
-//
+
+
 //void MaterialObj::Free() {
 //	Shader	= nullptr;
 //	Info	= nullptr;
@@ -89,13 +108,13 @@ MaterialObj& MaterialObj::operator= (MaterialObj &&Other) {
 //}
 
 
-bool MaterialObj::SetBool(const String &Uniform, bool Value) {
+bool GrvtMaterial::SetBool(const String& Uniform, bool Value) {
 	auto it = Uniforms.find(Uniform);
 
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.Type != ATTR_TYPE_BOOL)
+	if (it->second.Type != GrvtShader_AttrType_Boolean)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -104,13 +123,13 @@ bool MaterialObj::SetBool(const String &Uniform, bool Value) {
 }
 
 
-bool MaterialObj::SetInt(const String &Uniform, int Value) {
+bool GrvtMaterial::SetInt(const String& Uniform, int Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.Type != ATTR_TYPE_INT)
+	if (it->second.Type != GrvtShader_AttrType_Integer)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -119,13 +138,13 @@ bool MaterialObj::SetInt(const String &Uniform, int Value) {
 }
 
 
-bool MaterialObj::SetFloat(const String &Uniform, float Value) {
+bool GrvtMaterial::SetFloat(const String& Uniform, float Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.Type != ATTR_TYPE_FLOAT)
+	if (it->second.Type != GrvtShader_AttrType_Float)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -134,13 +153,13 @@ bool MaterialObj::SetFloat(const String &Uniform, float Value) {
 }
 
 
-bool MaterialObj::SetVector(const String &Uniform, glm::vec2 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec2 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_VEC2)
+	if (it->second.SubType != GrvtShader_AttrSubType_Vector2)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -149,13 +168,13 @@ bool MaterialObj::SetVector(const String &Uniform, glm::vec2 Value) {
 }
 
 
-bool MaterialObj::SetVector(const String &Uniform, glm::vec3 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec3 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_VEC3)
+	if (it->second.SubType != GrvtShader_AttrSubType_Vector3)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -164,13 +183,13 @@ bool MaterialObj::SetVector(const String &Uniform, glm::vec3 Value) {
 }
 
 
-bool MaterialObj::SetVector(const String &Uniform, glm::vec4 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec4 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_VEC4)
+	if (it->second.SubType != GrvtShader_AttrSubType_Vector4)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -179,13 +198,13 @@ bool MaterialObj::SetVector(const String &Uniform, glm::vec4 Value) {
 }
 
 
-bool MaterialObj::SetMatrix(const String &Uniform, glm::mat2 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat2 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_MAT2)
+	if (it->second.SubType != GrvtShader_AttrSubType_Matrix2)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -194,13 +213,13 @@ bool MaterialObj::SetMatrix(const String &Uniform, glm::mat2 Value) {
 }
 
 
-bool MaterialObj::SetMatrix(const String &Uniform, glm::mat3 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat3 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_MAT3)
+	if (it->second.SubType != GrvtShader_AttrSubType_Matrix3)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -209,13 +228,13 @@ bool MaterialObj::SetMatrix(const String &Uniform, glm::mat3 Value) {
 }
 
 
-bool MaterialObj::SetMatrix(const String &Uniform, glm::mat4 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat4 Value) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
 		return false;
 
-	if (it->second.SubType != ATTR_SUBTYPE_MAT4)
+	if (it->second.SubType != GrvtShader_AttrSubType_Matrix4)
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Value);
@@ -224,13 +243,10 @@ bool MaterialObj::SetMatrix(const String &Uniform, glm::mat4 Value) {
 }
 
 
-bool MaterialObj::SetTexture(const String &Uniform, TextureObj *Texture) {
+bool GrvtMaterial::SetTexture(const String& Uniform, GrvtTexture* Texture) {
 	auto it = Uniforms.find(Uniform);
 	
 	if (it == Uniforms.end())
-		return false;
-
-	if (!Shader->IsUniformAMaterial(it->second))
 		return false;
 
 	Uniforms[Uniform].UpdateValue(Texture->Type);
