@@ -24,7 +24,7 @@ void PostProcessCreationInfo::PopAttachment(PostProcessAttachment& Attachment) {
 
 
 GrvtPostProcess::GrvtPostProcess() :
-	Attachments(), Name(), Handle(), Width(), Height() {}
+	Attachments(), Handle(), Width(), Height() {}
 
 
 GrvtPostProcess::~GrvtPostProcess() {}

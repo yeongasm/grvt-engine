@@ -4,11 +4,11 @@
 /**
 * Forward declare all higher level graphic objects signature.
 */
-struct MeshObj;
-struct ModelObj;
-struct TextureObj;
-struct PostProcessObj;
-struct ShaderObj;
+class GrvtMesh;
+class GrvtModel;
+class GrvtTexture;
+class GrvtShader;
+class GrvtPostProcess;
 
 
 /**
@@ -28,13 +28,13 @@ struct ShaderObj;
 */
 struct MeshPacket {
 
-	MeshObj			*MeshPtr;
+	GrvtMesh*		MeshPtr;
 	MeshBuildData	BuildData;
 
 	MeshPacket();
 	~MeshPacket();
 
-	MeshPacket(MeshObj *Resource, MeshBuildData Data);
+	MeshPacket(GrvtMesh* ResourcePtr, MeshBuildData BuildData);
 
 	MeshPacket(const MeshPacket &Rhs);
 	MeshPacket& operator= (const MeshPacket &Rhs);

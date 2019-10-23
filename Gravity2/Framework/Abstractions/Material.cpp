@@ -35,14 +35,13 @@ void MaterialCreationInfo::RemoveShader() {
 
 
 GrvtMaterial::GrvtMaterial() :
-	Name(), ShaderHandle(nullptr), Textures(), Uniforms() {}
+	Uniforms(), Textures(), ShaderHandle(nullptr) {}
 
 
 GrvtMaterial::~GrvtMaterial() {
-	ShaderHandle = nullptr;
-	Name.Release();
 	Uniforms.clear();
 	Textures.Release();
+	ShaderHandle = nullptr;
 }
 
 
@@ -54,7 +53,6 @@ GrvtMaterial::GrvtMaterial(GrvtMaterial&& Other) { *this = std::move(Other); }
 
 GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) {
 	if (this != &Other) {
-		Name		= Other.Name;
 		Uniforms	= Other.Uniforms;
 		Textures	= Other.Textures;
 		ShaderHandle = Other.ShaderHandle;
@@ -66,8 +64,6 @@ GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) {
 
 GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
 	if (this != &Other) {
-
-		Name = Other.Name;
 		Uniforms = Other.Uniforms;
 		Textures = Other.Textures;
 		ShaderHandle = Other.ShaderHandle;

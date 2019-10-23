@@ -167,7 +167,7 @@ ShaderVar::~ShaderVar() {
 //}
 
 GrvtShader::GrvtShader() :
-	Properties(), Variables(), Name(), Handle() {}
+	Properties(), Variables(), Handle() {}
 
 
 GrvtShader::~GrvtShader() {}
@@ -175,13 +175,11 @@ GrvtShader::~GrvtShader() {}
 
 void GrvtShader::Alloc(const ShaderImportInfo& Import) {
 	Properties	= Import.Properties;
-	Name		= Import.Name;
 }
 
 
 void GrvtShader::Free() {
 	Properties.Release();
-	Name.Release();
 }
 
 

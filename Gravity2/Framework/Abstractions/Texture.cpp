@@ -2,7 +2,7 @@
 
 
 GrvtTexture::GrvtTexture() : 
-	Properties(), Name(), Handle(), Type(GrvtTexture_Type_None) {}
+	Properties(), Handle(), Type(GrvtTexture_Type_None) {}
 
 
 GrvtTexture::~GrvtTexture() {}

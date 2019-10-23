@@ -57,7 +57,6 @@ class GrvtTexture {
 public:
 
 	Array<TextureProps> Properties;
-	String		Name;
 	ObjHandle	Handle;
 	TextureType Type;
 

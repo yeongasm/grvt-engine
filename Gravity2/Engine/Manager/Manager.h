@@ -3,7 +3,7 @@
 
 /**
 */
-enum ResourceType : uint32 {
+enum ResourceType : size_t {
 	GrvtResource_Type_None			= 0xFF, /** On first init only. */
 	GrvtResource_Type_Model			= 0x00,
 	GrvtResource_Type_Texture		= 0x01,
@@ -15,48 +15,70 @@ enum ResourceType : uint32 {
 
 /**
 */
-struct ResId {
-	size_t Id;
-
-	ResId();
-	~ResId();
-
-	ResId(size_t Id);
-
-	operator size_t();
-};
-
-
-/**
-*/
+template <class Type>
 struct EngineResource {
-	Array<void**>	References;
-	void*			ResourcePtr;
-	ResourceType	Type;
+	Array<Type**>	References;
+	Type*			ResourcePtr;
+	String			Name;
 	uint32			RefCount;
 
-	EngineResource();
-	~EngineResource();
+	EngineResource() :
+		References(), ResourcePtr(nullptr), Name(), RefCount(0) {}
+
+	~EngineResource() {}
+};
+
+
+/**
+* Manages a single type of resource.
+*/
+template <class Type>
+class ResourceManager {
+private:
+
+	friend class ResourceHandler;
+
+	std::unordered_map<size_t, EngineResource<Type>> Store;
+	ResourceType Type;
+
+public:
+
+	ResourceManager() :
+		Store(), Type(GrvtResource_Type_None) {}
+
+	~ResourceManager() {}
+
+	void Alloc(ResourceType Type, size_t Reserve);
+	void Free();
 };
 
 
 /**
 */
-class ResourceManager {
+class ResourceHandler {
 private:
-	
-	std::unordered_map<ResId, EngineResource> Store;
+
+	std::unordered_map<String, size_t> Resources;
 
 	template <typename T>
 	size_t GenerateResourceId(ResourceType Type) {
 		static size_t id = 0;
-		return (Type << (sizeof(size_t) * 8 - 2)) | id++;
+		return (Type << (sizeof(size_t) * 8 - 4)) | id++;
 	}
+
+	ResourceType GetResourceType(const String& Identifier);
 
 public:
 
-	ResourceManager();
-	~ResourceManager();
+	ResourceHandler();
+	~ResourceHandler();
 
+	GrvtModel* NewImportModel(const ModelImportInfo& Import);
+	
+	GrvtModel* GetModel(const String& Model);
+
+	void DeleteModel(const String& Identifier);
+	void DeleteModel(GrvtModel* Model);
+	void DeleteModel(size_t Id);
 
 };

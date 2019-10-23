@@ -23,7 +23,7 @@ struct ModelImportInfo {
 
 /**
 */
-class MeshObj {
+class GrvtMesh {
 public:
 
 	ObjHandle			Vao;
@@ -39,14 +39,14 @@ public:
 	Array<glm::vec3>	Bitangents;
 	Array<uint32>		Indices;
 
-	MeshObj();
-	~MeshObj();
+	GrvtMesh();
+	~GrvtMesh();
 
-	MeshObj(const MeshObj&)				= delete;
-	MeshObj& operator= (const MeshObj&)	= delete;
+	GrvtMesh(const GrvtMesh&)				= delete;
+	GrvtMesh& operator= (const GrvtMesh&)	= delete;
 
-	MeshObj(MeshObj&&);
-	MeshObj& operator= (MeshObj&&);
+	GrvtMesh(GrvtMesh&&);
+	GrvtMesh& operator= (GrvtMesh&&);
 
 private:
 
@@ -78,7 +78,6 @@ enum GrModelType : uint32 {
 class GrvtModel {
 public:
 
-	String			Name;
 	String			Path;
 	Array<MeshObj>	Meshes;
 	GrModelType		Type;

@@ -34,8 +34,7 @@ public:
 class GrvtMaterial {
 public:
 
-	String							Name;
-	ObjHandle*						ShaderHandle;
+	std::unordered_map<String, UniformAttr>	Uniforms;
 	
 private:
 
@@ -43,7 +42,7 @@ private:
 	
 public:
 
-	std::map<String, UniformAttr>	Uniforms;
+	ObjHandle*						ShaderHandle;
 
 	GrvtMaterial();
 	~GrvtMaterial();

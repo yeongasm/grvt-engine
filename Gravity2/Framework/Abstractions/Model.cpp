@@ -1,15 +1,15 @@
 #include "stdafx.h"
 
 
-MeshObj::MeshObj() : 
+GrvtMesh::GrvtMesh() :
 	Vao(), Vbo(), Ebo(), Size(0), Positions(), Uv(), 
 	Normals(), Tangents(), Bitangents(), Indices() {}
 
 
-MeshObj::MeshObj(MeshObj&& Rhs) { *this = Move(Rhs); }
+GrvtMesh::GrvtMesh(GrvtMesh&& Rhs) { *this = Move(Rhs); }
 
 
-MeshObj& MeshObj::operator= (MeshObj&& Rhs) {
+GrvtMesh& GrvtMesh::operator= (GrvtMesh&& Rhs) {
 	_ASSERTE(this != &Rhs);
 
 	if (this != &Rhs) {
@@ -26,17 +26,17 @@ MeshObj& MeshObj::operator= (MeshObj&& Rhs) {
 		Bitangents	= Rhs.Bitangents;
 		Indices		= Rhs.Indices;
 
-		new (&Rhs) MeshObj();
+		new (&Rhs) GrvtMesh();
 	}
 
 	return *this;
 }
 
 
-MeshObj::~MeshObj() { Free(); }
+GrvtMesh::~GrvtMesh() { Free(); }
 
 
-void MeshObj::Free() {
+void GrvtMesh::Free() {
 	Size = 0;
 	Positions.Release();
 	Uv.Release();
@@ -83,14 +83,13 @@ void MeshObj::Free() {
 
 
 GrvtModel::GrvtModel() : 
-	Name(), Path(), Meshes(), Type(GrvtModel_None) {}
+	Path(), Meshes(), Type(GrvtModel_None) {}
 
 
 GrvtModel::~GrvtModel() {}
 
 
 GrvtModel* GrvtModel::Alloc(const ModelImportInfo& Info, GrModelType ModelType) {
-	Name = Info.Name;
 	Path = Info.Path;
 	Type = ModelType;
 
@@ -99,7 +98,6 @@ GrvtModel* GrvtModel::Alloc(const ModelImportInfo& Info, GrModelType ModelType) 
 
 
 void GrvtModel::Free() {
-	Name.Release();
 	Path.Release();
 	Meshes.Release();
 	Type = GrvtModel_None;

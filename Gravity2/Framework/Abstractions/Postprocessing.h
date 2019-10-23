@@ -83,7 +83,6 @@ private:
 public:
 
 	Array<AttachmentProperty> Attachments;
-	String			Name;
 	ObjHandle		Handle;
 	int32			Width;
 	int32			Height;

@@ -185,7 +185,6 @@ public:
 
 	Array<ShaderProps>	Properties;
 	ShaderVar			Variables;
-	String				Name;
 	ObjHandle			Handle;
 
 	GrvtShader();
