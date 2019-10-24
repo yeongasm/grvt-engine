@@ -86,9 +86,9 @@ private:
 
 public:
 
-	virtual void	Alloc(const LightCreationInfo&) = 0;
-	virtual void	Free()							= 0;
-	virtual void	Compute(glm::mat4&)				= 0;
+	virtual void	Alloc(const LightCreationInfo& Info)	= 0;
+	virtual void	Free()									= 0;
+	virtual void	Compute(glm::mat4& Buffer)				= 0;
 
 };
 
@@ -117,9 +117,9 @@ private:
 
 public:
 
-	void	Alloc	(const LightCreationInfo&);
+	void	Alloc	(const LightCreationInfo& Info);
 	void	Free	();
-	void	Compute	(glm::mat4&);
+	void	Compute	(glm::mat4& Buffer);
 
 };
 
@@ -151,9 +151,9 @@ class PointLight : public LightSource {
 	PointLight(PointLight&&)					= delete;
 	PointLight& operator= (PointLight&&)		= delete;
 
-	void	Alloc(const LightCreationInfo&);
+	void	Alloc(const LightCreationInfo& Info);
 	void	Free();
-	void	UpdateRadius(bool, float);
-	void	Compute(glm::mat4&);
+	void	UpdateRadius(bool Simplify, float Value);
+	void	Compute(glm::mat4& Buffer);
 
 };

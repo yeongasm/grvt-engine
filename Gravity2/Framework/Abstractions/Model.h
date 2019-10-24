@@ -79,7 +79,7 @@ class GrvtModel {
 public:
 
 	String			Path;
-	Array<MeshObj>	Meshes;
+	Array<GrvtMesh>	Meshes;
 	GrModelType		Type;
 
 	GrvtModel();
@@ -99,7 +99,7 @@ public:
 	* Appends the information supplied in ModelImportInfo into it.
 	* Does not however create the model in the GPU.
 	*/
-	GrvtModel*	Alloc(const ModelImportInfo&, GrModelType);
+	GrvtModel*	Alloc(const ModelImportInfo& Info, GrModelType ModelType);
 
 	/**
 	* Releases the information supplied into this GrvtModel object.

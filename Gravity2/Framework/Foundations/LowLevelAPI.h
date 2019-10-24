@@ -249,6 +249,12 @@ namespace BaseAPI {
 
 	/**
 	* [BASEAPI]
+	* An OpenGL wrapper to retrieve shader 
+	*/
+
+
+	/**
+	* [BASEAPI]
 	* An OpenGL wrapper to set generic texture building data.
 	*
 	* TextureBuildData.Target		= GL_TEXTURE_2D;
@@ -269,9 +275,4 @@ namespace BaseAPI {
 	void BuildFramebuffer	(ObjHandle &Handle, FramebufferBuildData &Data);
 
 
-	/**
-	* [BASEAPI]
-	* An OpenGL wrapper to create a renderbuffer.
-	*/
-	void BuildRenderbuffer	(ObjHandle &Handle, RenderbufferBuildData &Data);
 }

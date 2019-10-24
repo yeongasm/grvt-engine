@@ -56,12 +56,12 @@ struct PostProcessCreationInfo {
 	/**
 	* Pushes a new attachment for the to be created framebuffer.
 	*/
-	PostProcessAttachment& AddAttachment(AttachComponent, AttachmentType, bool);
+	PostProcessAttachment& AddAttachment(AttachComponent Component, AttachmentType Type, bool Draw);
 
 	/**
 	* Pops a previously added attachment from the to be created framebuffer.
 	*/
-	void PopAttachment(PostProcessAttachment&);
+	void PopAttachment(PostProcessAttachment& Attachment);
 };
 
 
@@ -77,6 +77,7 @@ private:
 		AttachComponent Component;
 		AttachmentType	Type;
 		int32			Count;
+		bool			Draw;
 
 	};
 
@@ -91,6 +92,9 @@ public:
 	~GrvtPostProcess();
 
 private:
+
+	GrvtPostProcess* Alloc(const PostProcessCreationInfo& Info);
+	void Free();
 
 	GrvtPostProcess(const GrvtPostProcess&)				= delete;
 	GrvtPostProcess& operator= (const GrvtPostProcess&)	= delete;

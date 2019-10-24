@@ -36,7 +36,7 @@ DirLight::~DirLight() {}
 //DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
 
 
-void DirLight::Alloc(const LightCreationInfo &Info) {
+void DirLight::Alloc(const LightCreationInfo& Info) {
 	Position	= Info.Position;
 	Colour		= Info.Colour;
 	Brightness	= Info.Brightness;
@@ -55,7 +55,7 @@ void DirLight::Free() {
 }
 
 
-void DirLight::Compute(glm::mat4 &Buffer) {
+void DirLight::Compute(glm::mat4& Buffer) {
 	Buffer[0][0] = 0.0f;
 	Buffer[0][1] = Brightness;
 	Buffer[1][0] = Position.x;
@@ -152,7 +152,7 @@ void PointLight::UpdateRadius(bool Simplify, float Value) {
 }
 
 
-void PointLight::Compute(glm::mat4 &Buffer) {
+void PointLight::Compute(glm::mat4& Buffer) {
 	LightSource::Compute(Buffer);
 
 	float kC = Constant;

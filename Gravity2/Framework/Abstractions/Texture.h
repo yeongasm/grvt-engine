@@ -65,6 +65,9 @@ public:
 
 private:
 
+	GrvtTexture* Alloc(const TextureImportInfo& Info);
+	void Free();
+
 	GrvtTexture(const GrvtTexture&)				= delete;
 	GrvtTexture& operator= (const GrvtTexture&)	= delete;
 	
