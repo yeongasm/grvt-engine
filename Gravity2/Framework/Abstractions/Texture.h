@@ -44,9 +44,10 @@ struct TextureImportInfo {
 struct TextureProps {
 
 	String			Path;
-	Array<uint8*>	Data;
+	Array<uint8*>	DataPtr;
 	int32			Width;
 	int32			Height;
+	int32			Channel;
 
 };
 

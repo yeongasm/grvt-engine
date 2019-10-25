@@ -18,85 +18,27 @@ class GrvtTexture;
 class GrvtShader;
 class GrvtPostProcess;
 
+
 namespace Middleware {
 
 
 	/**
 	* [MIDDLEWARE]
-	* MeshPacket data structure.
-	*
-	* A MeshPacket is required to bridge the gap between the high-level abstraction API with the low-level API.
-	* Low-level API can only process mesh data that is contained inside of this data structure.
+	* ResourcePacket data structure.
 	*/
-	struct MeshPacket {
+	template <class ResourceType, class BuildDataType>
+	struct ResourcePacket {
 
-		GrvtMesh*		MeshPtr;
-		MeshBuildData	BuildData;
+		ResourceType* ResourcePtr;
+		BuildDataType BuildData;
 
-		MeshPacket();
-		~MeshPacket();
+		ResourcePacket() : 
+			ResourcePtr(nullptr), BuildData() {}
 
-		MeshPacket(GrvtMesh* ResourcePtr, MeshBuildData BuildData);
+		~ResourcePacket() {}
 
-	};
-
-
-	/**
-	* [MIDDLEWARE]
-	* TexturePacket data structure.
-	*
-	* A TexturePacket is required to bridge the gap between the high-level abstraction API with the low-level API.
-	* Low-level API can only process texture data that is contained inside of this data structure.
-	*/
-	struct TexturePacket {
-
-		GrvtTexture*		TexturePtr;
-		TextureBuildData	BuildData;
-
-		TexturePacket();
-		~TexturePacket();
-	
-		TexturePacket(GrvtTexture* Resource, TextureBuildData Data);
-
-	};
-
-
-	/**
-	* [MIDDLEWARE]
-	* ShaderPacket data structure.
-	*
-	* A ShaderPacket is required to bridge the gap between the high-level abstraction API with the low-level API.
-	* Low-level API can only process string data that is contained indside of this data structure.
-	*/
-	struct ShaderPacket {
-
-		GrvtShader*		ShaderPtr;
-		ShaderBuildData BuildData;
-
-		ShaderPacket();
-		~ShaderPacket();
-
-		ShaderPacket(GrvtShader* Resource, ShaderBuildData Data);
-
-	};
-
-
-	/**
-	* [MIDDLEWARE]
-	* FramebufferPacket data structure.
-	*
-	* A FramebufferPacket is required to bridge the gap between the high-level abstraction API with the low level API.
-	* Low-level API can only process framebuffer data that is contained inside of this data structure.
-	*/
-	struct FramebufferPacket {
-
-		GrvtPostProcess*		PostProcessPtr;
-		FramebufferBuildData	BuildData;
-
-		FramebufferPacket();
-		~FramebufferPacket();
-
-		FramebufferPacket(GrvtPostProcess* Resource, FramebufferBuildData Data);
+		ResourcePacket(ResourceType* Pointer, BuildDataType Data) :
+			ResourcePtr(Pointer), BuildData(Data) {}
 
 	};
 
@@ -146,6 +88,12 @@ namespace Middleware {
 	};
 
 
+	using MeshPacket		= ResourcePacket<GrvtMesh,			BaseAPI::MeshBuildData>;
+	using TexturePacket		= ResourcePacket<GrvtTexture,		BaseAPI::TextureBuildData>;
+	using ShaderPacket		= ResourcePacket<GrvtShader,		BaseAPI::ShaderBuildData>;
+	using FramebufferPacket = ResourcePacket<GrvtPostProcess,	BaseAPI::FramebufferBuildData>;
+
+
 	/**
 	*/
 	class ResourceBuildQueue {
@@ -166,28 +114,28 @@ namespace Middleware {
 		* [MIDDLEWARE]
 		* Adds a mesh to be built by OpenGL. 
 		*/
-		void QueueMeshForBuild(GrvtMesh* Mesh, MeshBuildData Data);
+		void QueueMeshForBuild(GrvtMesh* Mesh, BaseAPI::MeshBuildData Data);
 
 
 		/**
 		* [MIDDLEWARE]
 		* Adds a texture to be built by OpenGL.
 		*/
-		void QueueTextureForBuild(GrvtTexture* Texture, TextureBuildData Data);
+		void QueueTextureForBuild(GrvtTexture* Texture, BaseAPI::TextureBuildData Data);
 
 
 		/**
 		* [MIDDLEWARE]
 		* Adds a texture to be built by OpenGL.
 		*/
-		void QueueShaderForBuild(GrvtShader* Shader, ShaderBuildData Data);
+		void QueueShaderForBuild(GrvtShader* Shader, BaseAPI::ShaderBuildData Data);
 
 	
 		/**
 		* [MIDDLEWARE]
 		* Adds a framebuffer to be built by OpenGL.
 		*/
-		void QueuePostProcessForBuild(GrvtPostProcess* Framebuffer, FramebufferBuildData Data);
+		void QueuePostProcessForBuild(GrvtPostProcess* Framebuffer, BaseAPI::FramebufferBuildData Data);
 
 
 		/**
@@ -210,6 +158,13 @@ namespace Middleware {
 
 	/**
 	* [MIDDLEWARE]
+	* This sets the global ResourceBuildQueue variable to an instance of it.
+	*/
+	ResourceBuildQueue* InitialiseBuildQueue();
+
+
+	/**
+	* [MIDDLEWARE]
 	* Simply returns the global ResourceBuildQueue variable.
 	*/
 	ResourceBuildQueue* GetBuildQueue();
@@ -217,15 +172,12 @@ namespace Middleware {
 
 	/**
 	* [MIDDLEWARE]
-	* This sets the global ResourceBuildQueue variable to an instance of it.
+	* Releases the ResourceBuildQueue.
+	*
+	* WARNING: Only call this function your program is shutting down. Make sure there are no more resource packets in it.
 	*/
-	ResourceBuildQueue*	InitialiseBuildQueue();
+	void ReleaseBuildQueue();
 
-	/**
-	* [MIDDLEWARE]
-	* A mid level API for processing data loading by Assimp and being passed into the engine.
-	*/
-	//void	ParseMeshFromAssimp(const String Path, bool FlipUV, ModelObj *Model);
 
 	/**
 	* [MIDDLEWARE]
@@ -241,14 +193,14 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* A mid level API to load textures from file into engine.
 	*/
-	void ParseTextureFromFile(const String Path, GrvtTexture* Texture);
+	void PackageTextureForBuild(GrvtTexture* TextureSrc);
 
 
 	/**
 	* [MIDDLEWARE]
 	* A mid level API to build shaders from file into the engine.
 	*/
-	void Par
+	void PackageShaderForBuild(GrvtShader* ShaderSrc);
 
 
 	/**
