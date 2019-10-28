@@ -14,16 +14,27 @@ enum ResourceType : size_t {
 
 
 /**
+* Specifies how a resource has been allocated.
+*/
+enum GrvtAllocType : uint32 {
+	GrvtResourceAlloc_Type_None		= 0xFF,		/** On first init only */
+	GrvtResourceAlloc_Type_Import	= 0x00,
+	GrvtResourceAlloc_Type_Custom	= 0x01
+};
+
+
+/**
 */
 template <class Type>
 struct EngineResource {
-	Array<Type**>	References;
 	Type*			ResourcePtr;
 	String			Name;
+	String			Path;
 	uint32			RefCount;
+	GrvtAllocType	Type;
 
 	EngineResource() :
-		References(), ResourcePtr(nullptr), Name(), RefCount(0) {}
+		ResourcePtr(nullptr), Name(), Path(), RefCount(0), Type(GrvtResourceAlloc_Type_None) {}
 
 	~EngineResource() {}
 };
@@ -39,17 +50,64 @@ private:
 	friend class ResourceHandler;
 
 	std::unordered_map<size_t, EngineResource<Type>> Store;
-	ResourceType Type;
 
 public:
 
-	ResourceManager() :
-		Store(), Type(GrvtResource_Type_None) {}
+	size_t Total;
+
+	ResourceManager() : Store(), Total(0) {}
 
 	~ResourceManager() {}
 
-	void Alloc(ResourceType Type, size_t Reserve);
-	void Free();
+	/**
+	* Reserves the specified of space in memory to be used.
+	*/
+	void Alloc(size_t Reserve) { Store.reserve(Reserve); }
+
+	/**
+	* Releases all resource from the manager.
+	* Note, this does not remove the resource from the GPU if it is a graphics object.
+	* Only call this function on shutdown.
+	*/
+	void Free() {
+		for (auto& [key, value] : Store)
+			DeleteResource(key, true);
+
+		Store.clear();
+	}
+
+	/**
+	* Allocates a new resource into the manager.
+	* Note, this does not create the resource in the GPU if it is a graphics object.
+	*/
+	Type* NewResource(size_t Id, const String& Name) {
+		EngineResource<Type> resource;
+
+		resource.Name = Name;
+		resource.ResourcePtr = new Type();
+		Store.insert({id, resource});
+		Total++;
+
+		return resource.ResourcePtr;
+	}
+
+	/**
+	* Releases the resource with the specified Id from the manager.
+	* Note, this does not remove the resource from the GPU.
+	*/
+	bool DeleteResource(size_t Id) {
+		EngineResource<Type>& resource = Store[Id];
+
+		resource.Name.Release();
+		resource.Path.Release();
+
+		delete resource.ResourcePtr;
+
+		Store.erase(Id);
+		Total--;
+
+		return true;
+	}
 };
 
 
@@ -66,19 +124,191 @@ private:
 		return (Type << (sizeof(size_t) * 8 - 4)) | id++;
 	}
 
-	ResourceType GetResourceType(const String& Identifier);
+	/**
+	* Checks if a model with the specified path already exist in the engine.
+	*/
+	bool CheckIfModelExist(const String& Path);
+
+	/**
+	* Checks if a texture with the specified path already exist in the engine.
+	*/
+	bool CheckIfTextureExist(const String& Path);
 
 public:
 
 	ResourceHandler();
 	~ResourceHandler();
+	
+	/**
+	* Reserve the amount of spaces for each type of asset.
+	*/
+	void Alloc(size_t Reserve);
 
+	/**
+	* Releases all resources from the handler.
+	*/
+	void Free();
+
+	/**
+	* Determine the resources type from the specified identifier.
+	*/
+	ResourceType GetResourceType(const String& Identifier);
+
+	/**
+	* Import a new model into the engine.
+	*/
 	GrvtModel* NewImportModel(const ModelImportInfo& Import);
 	
-	GrvtModel* GetModel(const String& Model);
+	/**
+	* Retrieves the model specified by the identifier.
+	* Safe mode will check if the specified identifier exist and only return if it does.
+	*/
+	GrvtModel* GetModel(const String& Identifier, bool Safe = true);
 
-	void DeleteModel(const String& Identifier);
-	void DeleteModel(GrvtModel* Model);
-	void DeleteModel(size_t Id);
+	/**
+	* Retrieves the model specified by the Id.
+	* Safe mode will check if the specified Id exist and only return if it does.
+	*/
+	GrvtModel* GetModel(size_t Id, bool Safe = true);
 
+	/**
+	* Retrieves the model's handler.
+	* Safe mode will check if the specified identifier provided exists and only return if it does.
+	*/
+	EngineResource<GrvtModel>* GetModelHandle(const String& Identifier, bool Safe = true);
+
+	/**
+	* Deletes a model with the specified identifier from the engine.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteModel(const String& Identifier, bool Force = false);
+
+	/**
+	* Deletes a model with the specified Id from the engine.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteModel(size_t Id, bool Force = false);
+
+	/**
+	* Import a new texture into the engine.
+	*/
+	GrvtTexture* NewImportTexture(const TextureImportInfo& Import);
+
+	/**
+	* Retrieves the texture specified by the identifier.
+	* Safe mode will check if the specified identifier exist and only return if it does.
+	*/
+	GrvtTexture* GetTexture(const String& Identifier, bool Safe = true);
+
+	/**
+	* Retrieves the texture specified by the Id.
+	* Safe mode will check if the specified identifier exist and only return if it does.
+	*/
+	GrvtTexture* GetTexture(size_t Id, bool Safe = true);
+
+	/**
+	* Retrieve's the texture's handler.
+	* Safe mode will check if the specified identifier provided exists and only return if it does.
+	*/
+	EngineResource<GrvtTexture>* GetTextureHandle(const String& Identifier, bool Safe = true);
+
+	/**
+	* Deletes a texture with the specified identifier.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteTexture(const String& Identifier, bool Force = false);
+
+	/**
+	* Deletes a texture with the specified Id.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteTexture(size_t Id, bool Force = false);
+
+	/**
+	* Creates a new shader and stores it into the engine.
+	*/
+	GrvtShader* NewShaderProgram(const ShaderImportInfo& Import);
+
+	/**
+	* Retrieves the shader specified by the identifier from the engine.
+	* Safe mode will check if the specified identifier exist and only return if it does.
+	*/
+	GrvtShader* GetShader(const String& Identifier, bool Safe = true);
+	
+	/**
+	* Retrieves the shader specified by the Id from the engine.
+	* Safe mode will check if the specified identifier exist and only return if it does.
+	*/
+	GrvtShader* GetShader(size_t Id, bool Safe = true);
+
+	/**
+	* Retrieve's the shader's handler.
+	* Safe mode will check if the specified identifier provided exists and only return if it does.
+	*/
+	EngineResource<GrvtShader>* GetShaderHandle(const String& Name, bool Safe = true);
+
+	/**
+	* Delete a shader program with the specified identifier.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteShader(const String& Identifier, bool Force = false);
+	
+	/**
+	* Deletes a shader program with the specified Id.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteShader(size_t Id, bool Force = false);
+
+
+	//GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
+
+	//GrvtMaterial* GetMaterial(const String& Identifier, bool Safe = true);
+	//GrvtMaterial* GetMaterial(size_t Id, bool Safe = true);
+
+	//bool DeleteMaterial(const String& Identifier);
+	//bool DeleteMaterial(size_t Id);
+
+	/**
+	* Creates a new framebuffer and stores it in the engine.
+	* Resource is also allocated on the GPU.
+	*/
+	GrvtPostProcess* NewPostProcessing(const PostProcessCreationInfo& Info);
+
+	/**
+	* Retrieves the framebuffer specified by the identifier from the engine.
+	* Safe mode will check if the resource with such identifier exist and only return if it does.
+	*/
+	GrvtPostProcess* GetPostProcessing(const String& Identifier, bool Safe = true);
+
+	/**
+	* Retrieves the framebuffer specified by the id from the engine.
+	* Safe mode will check if the resource with such identifier exist and only return if it does.
+	*/
+	GrvtPostProcess* GetPostProcessing(size_t Id, bool Safe = true);
+
+	/**
+	* Retrieve's the post processing's handler.
+	* Safe mode will check if the specified identifier provided exists and only return if it does.
+	*/
+	EngineResource<GrvtPostProcess>* GetPostProcessingHandle(const String& Identifier, bool Safe = true);
+
+	/**
+	* Deletes a framebuffer with the specified identifier.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeletePostProcessing(const String& Identifier, bool Force = false);
+	
+	/**
+	* Deletes a framebuffer with the specified id.
+	* Deletes the object from the GPU as well.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeletePostProcessing(size_t Id, bool Force = false);
 };

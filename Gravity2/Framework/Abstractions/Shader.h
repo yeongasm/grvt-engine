@@ -14,13 +14,6 @@ enum ShaderComponent : uint32 {
 };
 
 
-enum GrShaderType : uint32 {
-	GrvtShader_None		= 0xFF, /** On first init only */
-	GrvtShader_Import	= 0x01,
-	GrvtShader_Custom	= 0x02
-};
-
-
 /**
 * ShaderProps object.
 * Stores information about a specific type of shader.
@@ -30,10 +23,9 @@ struct ShaderProps {
 	String			Code;
 	String			Path;
 	ShaderComponent	Component;
-	GrShaderType	Type;
 
-	ShaderProps(const String&, ShaderComponent);
-	ShaderProps(const String&, const String&, ShaderComponent);
+	ShaderProps(const String& Code, ShaderComponent Component);
+	ShaderProps(const String& Code, const String& Path, ShaderComponent Component);
 
 };
 
@@ -48,8 +40,8 @@ struct ShaderImportInfo {
 	ShaderImportInfo();
 	~ShaderImportInfo();
 
-	ShaderProps& AddShaderToProgram(const String&, ShaderComponent);
-	ShaderProps& AddShaderToProgram(const String&, const String&, ShaderComponent);
+	ShaderProps& AddShaderToProgram(const String& SourceCode, ShaderComponent Component);
+	ShaderProps& AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component);
 
 	void PopShaderProperty(ShaderProps&);
 };
@@ -149,32 +141,6 @@ public:
 
 
 /**
-* Gravity engine's wrapper for OpenGL vertex attributes and shader uniforms.
-* Vertex attributes from shader are not meant to be changed but is available for references.
-* Shader uniforms are stored as a single union with types bool, int, float, vec2, vec3, vec4, mat2, mat3 and mat4.
-* NOTE: Uniform types must be known!
-*
-* To update a value of a uniform, call UpdateValue() and specify the uniform's type inside the template specifier.
-* To use a value of a uniform, call Cast() and specify the uniform's type inside the template specifier.
-*/
-struct ShaderVar {
-	
-	std::map<String, VertexAttr>	Attributes;
-	std::map<String, UniformAttr>	Uniforms;
-
-	ShaderVar();
-	~ShaderVar();
-
-	ShaderVar(const ShaderVar &Other);
-	ShaderVar& operator= (const ShaderVar &Other);
-
-	ShaderVar(ShaderVar &&Other);
-	ShaderVar& operator= (ShaderVar &&Other);
-
-};
-
-
-/**
 * Revamped GrvtShader object.
 * 
 * A layer of abstraction is removed to let GrvtShader object itself contain all information.
@@ -183,24 +149,24 @@ struct ShaderVar {
 class GrvtShader {
 public:
 
+	std::unordered_map<String, UniformAttr> Uniforms;
 	Array<ShaderProps>	Properties;
-	ShaderVar			Variables;
 	ObjHandle			Handle;
 
 	GrvtShader();
 	~GrvtShader();
 
-	void Alloc(const ShaderImportInfo&);
+	void Alloc(const ShaderImportInfo& Import);
 	void Free();
 
 private:
 
-	GrvtShader(const GrvtShader&)				= delete;
-	GrvtShader& operator= (const GrvtShader&)	= delete;
+	GrvtShader(const GrvtShader& Rhs)				= delete;
+	GrvtShader& operator= (const GrvtShader& Rhs)	= delete;
 	
 
-	GrvtShader(GrvtShader&&)					= delete;
-	GrvtShader& operator= (GrvtShader&&)		= delete;
+	GrvtShader(GrvtShader&& Rhs)					= delete;
+	GrvtShader& operator= (GrvtShader&& Rhs)		= delete;
 
 	//void Use();
 	//void SetInt(const char*, int);

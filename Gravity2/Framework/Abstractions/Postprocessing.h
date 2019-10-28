@@ -69,7 +69,7 @@ struct PostProcessCreationInfo {
 * Revamped GrvtPostProcess object.
 */
 class GrvtPostProcess {
-private:
+public:
 
 	struct AttachmentProperty {
 
@@ -79,9 +79,10 @@ private:
 		int32			Count;
 		bool			Draw;
 
-	};
+		AttachmentProperty();
+		~AttachmentProperty();
 
-public:
+	};
 
 	Array<AttachmentProperty> Attachments;
 	ObjHandle		Handle;
@@ -91,10 +92,10 @@ public:
 	GrvtPostProcess();
 	~GrvtPostProcess();
 
-private:
-
 	GrvtPostProcess* Alloc(const PostProcessCreationInfo& Info);
 	void Free();
+
+private:
 
 	GrvtPostProcess(const GrvtPostProcess&)				= delete;
 	GrvtPostProcess& operator= (const GrvtPostProcess&)	= delete;

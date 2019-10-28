@@ -10,13 +10,8 @@ class MaterialCreationInfo {
 public:
 
 	String				Name;
-	
-private:
-
-	ObjHandle*			ShaderHandle;
+	GrvtShader*			Shader;
 	Array<TexturePair>	Textures;
-
-public:
 
 	MaterialCreationInfo();
 	~MaterialCreationInfo();
@@ -30,6 +25,9 @@ public:
 
 
 /**
+* TODO(Afiq):
+* Materials CANNOT be part of the foundation layer and needs to be revamped yet again.
+* It needs to be on a higher level abtraction than the foundation layers.
 */
 class GrvtMaterial {
 public:
@@ -52,6 +50,20 @@ public:
 
 	GrvtMaterial(GrvtMaterial&&);
 	GrvtMaterial& operator= (GrvtMaterial&&);
+
+
+	/**
+	* Assigns the shaders and textures for this material.
+	* TODO(Afiq):
+	* Only accept material shaders.
+	*/
+	void Alloc(const MaterialCreationInfo& Info);
+
+	/**
+	* Releases all the textures and the shader that is assigned to this material.
+	*/
+	void Free();
+
 
 	/**
 	* Sets a boolean value to the specified uniform.

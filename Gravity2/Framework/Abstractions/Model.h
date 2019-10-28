@@ -56,16 +56,6 @@ private:
 
 
 /**
-* Specifies a GrvtModel object's type.
-*/
-enum GrModelType : uint32 {
-	GrvtModel_None		= 0xFF,		/** On first init only */
-	GrvtModel_Custom	= 0x00,
-	GrvtModel_Import	= 0x01
-};
-
-
-/**
 * Revamped Model object.
 *
 * Stores the raw data of a model that can be processed for dynamic usage.
@@ -78,9 +68,7 @@ enum GrModelType : uint32 {
 class GrvtModel {
 public:
 
-	String			Path;
 	Array<GrvtMesh>	Meshes;
-	GrModelType		Type;
 
 	GrvtModel();
 	~GrvtModel();
@@ -99,7 +87,7 @@ public:
 	* Appends the information supplied in ModelImportInfo into it.
 	* Does not however create the model in the GPU.
 	*/
-	GrvtModel*	Alloc(const ModelImportInfo& Info, GrModelType ModelType);
+	GrvtModel*	Alloc(const ModelImportInfo& Info);
 
 	/**
 	* Releases the information supplied into this GrvtModel object.

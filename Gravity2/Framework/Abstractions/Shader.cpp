@@ -2,11 +2,11 @@
 
 
 ShaderProps::ShaderProps(const String& Code, ShaderComponent Component) :
-	Code(Code), Path(), Component(Component), Type(GrvtShader_Custom) {}
+	Code(Code), Path(), Component(Component) {}
 
 
 ShaderProps::ShaderProps(const String& Code, const String& Path, ShaderComponent Component) :
-	Code(Code), Path(Path), Component(Component), Type(GrvtShader_Import) {}
+	Code(Code), Path(Path), Component(Component) {}
 
 
 ShaderImportInfo::ShaderImportInfo() :
@@ -43,43 +43,6 @@ UniformAttr::UniformAttr() : VertexAttr() {}
 
 
 UniformAttr::~UniformAttr() {}
-
-
-ShaderVar::ShaderVar() : Attributes{}, Uniforms{} {}
-
-
-ShaderVar::ShaderVar(const ShaderVar &Other) { *this = Other; }
-
-
-ShaderVar::ShaderVar(ShaderVar &&Other) { *this = Move(Other); }
-
-
-ShaderVar& ShaderVar::operator= (const ShaderVar &Other) {
-	if (this != &Other) {
-		Attributes	= Other.Attributes;
-		Uniforms	= Other.Uniforms;
-	}
-
-	return *this;
-}
-
-
-ShaderVar& ShaderVar::operator= (ShaderVar &&Other) {
-	if (this != &Other) {
-		Attributes	= Other.Attributes;
-		Uniforms	= Other.Uniforms;
-
-		Other.~ShaderVar();
-	}
-
-	return *this;
-}
-
-
-ShaderVar::~ShaderVar() {
-	Attributes.clear();
-	Uniforms.clear();
-}
 
 
 //void ShaderObj::DeleteShader(const std::initializer_list<uint> &IDs) {
@@ -167,7 +130,7 @@ ShaderVar::~ShaderVar() {
 //}
 
 GrvtShader::GrvtShader() :
-	Properties(), Variables(), Handle() {}
+	Properties(), Uniforms(), Handle() {}
 
 
 GrvtShader::~GrvtShader() {}
@@ -180,6 +143,7 @@ void GrvtShader::Alloc(const ShaderImportInfo& Import) {
 
 void GrvtShader::Free() {
 	Properties.Release();
+	Uniforms.clear();
 }
 
 

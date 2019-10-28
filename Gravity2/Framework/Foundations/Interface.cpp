@@ -7,7 +7,7 @@ namespace Middleware {
 	static ResourceBuildQueue* GlobalBuildQueue = nullptr;
 
 
-	DeletePacket::DeletePacket() : Handle(), Type(GFX_TYPE_NONE) {}
+	DeletePacket::DeletePacket() : Handle(), Type(GrvtGfx_Type_None) {}
 
 
 	DeletePacket::DeletePacket(ObjHandle &&Resource, GfxObjectType Type) :
@@ -31,7 +31,7 @@ namespace Middleware {
 	}
 
 
-	DeletePacket::~DeletePacket() { Type = GFX_TYPE_NONE; }
+	DeletePacket::~DeletePacket() { Type = GrvtGfx_Type_None; }
 
 
 	ResourceBuildQueue::ResourceBuildQueue() 
@@ -89,6 +89,24 @@ namespace Middleware {
 		// Build shaders that are in the queue.
 		for (ShaderPacket &Packet : ShaderQueue) {
 			BaseAPI::BuildShaderProgram(Packet.ResourcePtr->Handle, Packet.BuildData);
+			char buffer[128];
+			uint32	type	= 0;
+			int32	total	= 0;
+			int32	size	= 0;
+			UniformAttr uniform;
+
+			glGetProgramiv(Packet.ResourcePtr->Handle.Id, GL_ACTIVE_UNIFORMS, &total);
+			Packet.ResourcePtr->Uniforms.reserve(*(size_t*)&total);
+			for (uint32 i = 0; i < *(uint32*)&total; i++) {
+				glGetActiveUniform(Packet.ResourcePtr->Handle.Id, i, sizeof(buffer), 0, &size, &type, buffer);
+				GetUniformType(type, uniform.Type, uniform.SubType);
+				uniform.Name	 = buffer;
+				uniform.Location = glGetUniformLocation(Packet.ResourcePtr->Handle.Id, buffer);
+				uniform.Size	 = size;
+
+				Packet.ResourcePtr->Uniforms.insert({buffer, uniform});
+			}
+
 			ShaderQueue.pop_front();
 		}
 
@@ -102,22 +120,22 @@ namespace Middleware {
 		// Listen to delete packets.
 		for (DeletePacket &Packet : DeleteQueue) {
 			switch (Packet.Type) {
-			case GFX_TYPE_MESHBUFFER:
+			case GrvtGfx_Type_MeshBuffer:
 				BaseAPI::GrDeleteBufferObject(Packet.Handle);
 				break;
-			case GFX_TYPE_VERTEXARRAY:
+			case GrvtGfx_Type_VertexArray:
 				BaseAPI::GrDeleteVertexArray(Packet.Handle);
 				break;
-			case GFX_TYPE_TEXTUREID:
+			case GrvtGfx_Type_Texture:
 				BaseAPI::GrDeleteTexture(Packet.Handle);
 				break;
-			case GFX_TYPE_SHADERID:
+			case GrvtGfx_Type_Shader:
 				BaseAPI::GrDeleteShader(Packet.Handle);
 				break;
-			case GFX_TYPE_POSTPROCESS:
+			case GrvtGfx_Type_PostProcess:
 				BaseAPI::GrDeleteFramebuffer(Packet.Handle);
 				break;
-			case GFX_TYPE_RENDERBUFFER:
+			case GrvtGfx_Type_RenderBuffer:
 				BaseAPI::GrDeleteRenderbuffer(Packet.Handle);
 				break;
 			}
@@ -310,7 +328,7 @@ namespace Middleware {
 		BaseAPI::TextureBuildData buildData;
 		BaseAPI::GenerateGenericTextureData(buildData);
 		buildData.Flip = true;
-		buildData.DataPtr	= TextureSrc->Properties[0].DataPtr.First();
+		buildData.DataPtr	= TextureSrc->Properties[0].DataPtr;
 		buildData.Width		= TextureSrc->Properties[0].Width;
 		buildData.Height	= TextureSrc->Properties[0].Height;
 
@@ -386,6 +404,66 @@ namespace Middleware {
 		}
 
 		GetBuildQueue()->QueuePostProcessForBuild(FramebufferSrc, buildData);
+	}
+
+
+	void GetUniformType(uint Type, AttrType& Main, AttrSubType& Sub) {
+		switch (Type) {
+		case GL_BOOL:
+			Main = GrvtShader_AttrType_Boolean;
+			Sub = GrvtShader_AttrSubType_None;
+			break;
+		case GL_INT:
+			Main = GrvtShader_AttrType_Integer;
+			Sub = GrvtShader_AttrSubType_None;
+			break;
+		case GL_FLOAT:
+			Main = GrvtShader_AttrType_Float;
+			Sub = GrvtShader_AttrSubType_None;
+			break;
+		case GL_SAMPLER_1D:
+			Main = GrvtShader_AttrType_Sampler;
+			Sub = GrvtShader_AttrSubType_Sampler1D;
+			break;
+		case GL_SAMPLER_2D:
+			Main = GrvtShader_AttrType_Sampler;
+			Sub = GrvtShader_AttrSubType_Sampler2D;
+			break;
+		case GL_SAMPLER_3D:
+			Main = GrvtShader_AttrType_Sampler;
+			Sub = GrvtShader_AttrSubType_Sampler3D;
+			break;
+		case GL_SAMPLER_CUBE:
+			Main = GrvtShader_AttrType_Sampler;
+			Sub = GrvtShader_AttrSubType_SamplerCube;
+			break;
+		case GL_FLOAT_VEC2:
+			Main = GrvtShader_AttrType_Vector;
+			Sub = GrvtShader_AttrSubType_Vector2;
+			break;
+		case GL_FLOAT_VEC3:
+			Main = GrvtShader_AttrType_Vector;
+			Sub = GrvtShader_AttrSubType_Vector3;
+			break;
+		case GL_FLOAT_VEC4:
+			Main = GrvtShader_AttrType_Vector;
+			Sub = GrvtShader_AttrSubType_Vector4;
+			break;
+		case GL_FLOAT_MAT2:
+			Main = GrvtShader_AttrType_Matrix;
+			Sub = GrvtShader_AttrSubType_Matrix2;
+			break;
+		case GL_FLOAT_MAT3:
+			Main = GrvtShader_AttrType_Matrix;
+			Sub = GrvtShader_AttrSubType_Matrix3;
+			break;
+		case GL_FLOAT_MAT4:
+			Main = GrvtShader_AttrType_Matrix;
+			Sub = GrvtShader_AttrSubType_Matrix4;
+			break;
+		default:
+			break;
+		}
 	}
 
 

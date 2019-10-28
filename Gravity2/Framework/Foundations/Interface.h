@@ -52,13 +52,13 @@ namespace Middleware {
 	*/
 	enum GfxObjectType : uint32 {
 
-		GFX_TYPE_NONE			= 0x00,	// Used only for initialisation.
-		GFX_TYPE_MESHBUFFER		= 0x01,
-		GFX_TYPE_VERTEXARRAY	= 0x02,
-		GFX_TYPE_TEXTUREID		= 0x03,
-		GFX_TYPE_SHADERID		= 0x04,
-		GFX_TYPE_POSTPROCESS	= 0x05,
-		GFX_TYPE_RENDERBUFFER	= 0x06
+		GrvtGfx_Type_None			= 0x00,	// Used only for initialisation.
+		GrvtGfx_Type_MeshBuffer		= 0x01,
+		GrvtGfx_Type_VertexArray	= 0x02,
+		GrvtGfx_Type_Texture		= 0x03,
+		GrvtGfx_Type_Shader			= 0x04,
+		GrvtGfx_Type_PostProcess	= 0x05,
+		GrvtGfx_Type_RenderBuffer	= 0x06
 
 	};
 
@@ -209,5 +209,10 @@ namespace Middleware {
 	*/
 	void PackageFramebufferForBuild(GrvtPostProcess* FramebufferSrc);
 
+	/**
+	* [MIDDLEWARE]
+	* A mid level API to retrieve shader program's uniform types.
+	*/
+	void GetUniformType(uint32 Type, AttrType& Main, AttrSubType& Sub);
 
 }

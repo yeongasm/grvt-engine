@@ -332,7 +332,7 @@ public:
 	size_t Push(ElementType &&Element) {
 		_StoreIntoBuffer(std::move(Element));
 
-		return  curPos++;
+		return curPos++;
 	}
 
 	/**

@@ -17,8 +17,7 @@ ShadowMap::~ShadowMap() {}
 
 
 LightSource::LightSource() :
-	Position(0.0f), Colour(1.0f), Name(),
-	Type(GrvtLight_Type_None), Brightness(0.0f), Enable(true) {}
+	Position(0.0f), Colour(1.0f), Type(GrvtLight_Type_None), Brightness(0.0f), Enable(true) {}
 
 
 LightSource::~LightSource() {}
@@ -41,7 +40,6 @@ void DirLight::Alloc(const LightCreationInfo& Info) {
 	Colour		= Info.Colour;
 	Brightness	= Info.Brightness;
 	Type		= Info.Type;
-	Name		= Info.Name;
 }
 
 
@@ -50,7 +48,6 @@ void DirLight::Free() {
 	Type		= GrvtLight_Type_None;
 	Position	= glm::vec3(0.0f);
 	Colour		= glm::vec3(0.0f);
-	Name.Release();
 	Shadow.Type = GrvtShadowMap_None;
 }
 

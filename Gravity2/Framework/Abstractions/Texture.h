@@ -43,11 +43,14 @@ struct TextureImportInfo {
 */
 struct TextureProps {
 
-	String			Path;
-	Array<uint8*>	DataPtr;
-	int32			Width;
-	int32			Height;
-	int32			Channel;
+	String	Path;
+	uint8*	DataPtr;
+	int32	Width;
+	int32	Height;
+	int32	Channel;
+
+	TextureProps();
+	~TextureProps();
 
 };
 
@@ -64,10 +67,11 @@ public:
 	GrvtTexture();
 	~GrvtTexture();
 
-private:
-
 	GrvtTexture* Alloc(const TextureImportInfo& Info);
 	void Free();
+
+private:
+
 
 	GrvtTexture(const GrvtTexture&)				= delete;
 	GrvtTexture& operator= (const GrvtTexture&)	= delete;

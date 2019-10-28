@@ -83,22 +83,13 @@ void GrvtMesh::Free() {
 
 
 GrvtModel::GrvtModel() : 
-	Path(), Meshes(), Type(GrvtModel_None) {}
+	Meshes() {}
 
 
 GrvtModel::~GrvtModel() {}
 
 
-GrvtModel* GrvtModel::Alloc(const ModelImportInfo& Info, GrModelType ModelType) {
-	Path = Info.Path;
-	Type = ModelType;
-
-	return this;
-}
+GrvtModel* GrvtModel::Alloc(const ModelImportInfo& Info) { return this; }
 
 
-void GrvtModel::Free() {
-	Path.Release();
-	Meshes.Release();
-	Type = GrvtModel_None;
-}
+void GrvtModel::Free() { Meshes.Release(); }

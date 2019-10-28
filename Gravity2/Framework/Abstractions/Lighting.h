@@ -68,7 +68,6 @@ public:
 	ShadowMap	Shadow;
 	glm::vec3	Position;
 	glm::vec3	Colour;
-	String		Name;
 	LightType	Type;
 	float		Brightness;
 	bool		Enable;

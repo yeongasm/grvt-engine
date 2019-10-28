@@ -2,13 +2,13 @@
 
 
 MaterialCreationInfo::MaterialCreationInfo() :
-	Name(), ShaderHandle(nullptr), Textures() {}
+	Name(), Shader(nullptr), Textures() {}
 
 
 MaterialCreationInfo::~MaterialCreationInfo() {
 	Name.Release();
 	Textures.Release();
-	ShaderHandle = nullptr;
+	Shader = nullptr;
 }
 
 
@@ -24,13 +24,13 @@ void MaterialCreationInfo::PopTexture(GrvtTexture* Texture) {
 
 
 void MaterialCreationInfo::SetShader(GrvtShader* Shader) {
-	if (ShaderHandle != &Shader->Handle)
-		ShaderHandle = &Shader->Handle;
+	if (Shader != Shader)
+		Shader = Shader;
 }
 
 
 void MaterialCreationInfo::RemoveShader() {
-	ShaderHandle = nullptr;
+	Shader = nullptr;
 }
 
 
@@ -38,11 +38,7 @@ GrvtMaterial::GrvtMaterial() :
 	Uniforms(), Textures(), ShaderHandle(nullptr) {}
 
 
-GrvtMaterial::~GrvtMaterial() {
-	Uniforms.clear();
-	Textures.Release();
-	ShaderHandle = nullptr;
-}
+GrvtMaterial::~GrvtMaterial() { Free(); }
 
 
 GrvtMaterial::GrvtMaterial(const GrvtMaterial& Other) { *this = Other; }
@@ -75,33 +71,18 @@ GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
 }
 
 
-//void MaterialObj::Alloc(const MaterialCreationInfo &Info) {
-//	Name = Info.Name;
-//	
-//	if (Info.Shader) {
-//		Shader = Info.Shader;
-//		Uniforms = Shader->Attributes.Uniforms;
-//		Info.Shader->Info->References.Push(&Shader);
-//	}
-//	
-//	if (Info.Textures.Length()) {
-//		// The downside of creating references to a texture is we can not just copy the array.
-//		for (size_t i = 0; i < Info.Textures.Length(); i++) {
-//			Textures.Push(Info.Textures[i]);
-//			Info.Textures[i]->Info->References.Push(&Textures[i]);
-//		}
-//	}
-//}
+void GrvtMaterial::Alloc(const MaterialCreationInfo &Info) {
+	ShaderHandle = &Info.Shader->Handle;
+	Textures = Info.Textures;
+	Uniforms = Info.Shader->Uniforms;
+}
 
 
-//void MaterialObj::Free() {
-//	Shader	= nullptr;
-//	Info	= nullptr;
-//
-//	Name.Release();
-//	Uniforms.clear();
-//	Textures.Release();
-//}
+void GrvtMaterial::Free() {
+	ShaderHandle = nullptr;
+	Uniforms.clear();
+	Textures.Release();
+}
 
 
 bool GrvtMaterial::SetBool(const String& Uniform, bool Value) {
