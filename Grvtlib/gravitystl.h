@@ -728,6 +728,10 @@ public:
 		*this = std::move(Other);
 	}
 
+	size_t operator() (const String& Other) {
+		return UpdateHash();
+	}
+
 	String& operator= (const String &Other) {
 		// Ensures the other string is properly null terminated.
 		//_ASSERTE(Other.pArr[Other.Length()] == '\0');

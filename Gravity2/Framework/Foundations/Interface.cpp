@@ -366,7 +366,7 @@ namespace Middleware {
 				break;
 			}
 			
-			info.SourceCode = ShaderSrc->Properties[i].Code.First();
+			info.SourceCode = ShaderSrc->Properties[i].Code.data();
 			info.Type = type;
 			buildData.BuildInfo.Push(info);
 		}
@@ -407,59 +407,59 @@ namespace Middleware {
 	}
 
 
-	void GetUniformType(uint Type, AttrType& Main, AttrSubType& Sub) {
+	void GetUniformType(uint32 Type, uint32& AttributeType, uint32& AttributeSubType) {
 		switch (Type) {
 		case GL_BOOL:
-			Main = GrvtShader_AttrType_Boolean;
-			Sub = GrvtShader_AttrSubType_None;
+			AttributeType = GrvtShader_AttrType_Boolean;
+			AttributeSubType = GrvtShader_AttrSubType_None;
 			break;
 		case GL_INT:
-			Main = GrvtShader_AttrType_Integer;
-			Sub = GrvtShader_AttrSubType_None;
+			AttributeType = GrvtShader_AttrType_Integer;
+			AttributeSubType = GrvtShader_AttrSubType_None;
 			break;
 		case GL_FLOAT:
-			Main = GrvtShader_AttrType_Float;
-			Sub = GrvtShader_AttrSubType_None;
+			AttributeType = GrvtShader_AttrType_Float;
+			AttributeSubType = GrvtShader_AttrSubType_None;
 			break;
 		case GL_SAMPLER_1D:
-			Main = GrvtShader_AttrType_Sampler;
-			Sub = GrvtShader_AttrSubType_Sampler1D;
+			AttributeType = GrvtShader_AttrType_Sampler;
+			AttributeSubType = GrvtShader_AttrSubType_Sampler1D;
 			break;
 		case GL_SAMPLER_2D:
-			Main = GrvtShader_AttrType_Sampler;
-			Sub = GrvtShader_AttrSubType_Sampler2D;
+			AttributeType = GrvtShader_AttrType_Sampler;
+			AttributeSubType = GrvtShader_AttrSubType_Sampler2D;
 			break;
 		case GL_SAMPLER_3D:
-			Main = GrvtShader_AttrType_Sampler;
-			Sub = GrvtShader_AttrSubType_Sampler3D;
+			AttributeType = GrvtShader_AttrType_Sampler;
+			AttributeSubType = GrvtShader_AttrSubType_Sampler3D;
 			break;
 		case GL_SAMPLER_CUBE:
-			Main = GrvtShader_AttrType_Sampler;
-			Sub = GrvtShader_AttrSubType_SamplerCube;
+			AttributeType = GrvtShader_AttrType_Sampler;
+			AttributeSubType = GrvtShader_AttrSubType_SamplerCube;
 			break;
 		case GL_FLOAT_VEC2:
-			Main = GrvtShader_AttrType_Vector;
-			Sub = GrvtShader_AttrSubType_Vector2;
+			AttributeType = GrvtShader_AttrType_Vector;
+			AttributeSubType = GrvtShader_AttrSubType_Vector2;
 			break;
 		case GL_FLOAT_VEC3:
-			Main = GrvtShader_AttrType_Vector;
-			Sub = GrvtShader_AttrSubType_Vector3;
+			AttributeType = GrvtShader_AttrType_Vector;
+			AttributeSubType = GrvtShader_AttrSubType_Vector3;
 			break;
 		case GL_FLOAT_VEC4:
-			Main = GrvtShader_AttrType_Vector;
-			Sub = GrvtShader_AttrSubType_Vector4;
+			AttributeType = GrvtShader_AttrType_Vector;
+			AttributeSubType = GrvtShader_AttrSubType_Vector4;
 			break;
 		case GL_FLOAT_MAT2:
-			Main = GrvtShader_AttrType_Matrix;
-			Sub = GrvtShader_AttrSubType_Matrix2;
+			AttributeType = GrvtShader_AttrType_Matrix;
+			AttributeSubType = GrvtShader_AttrSubType_Matrix2;
 			break;
 		case GL_FLOAT_MAT3:
-			Main = GrvtShader_AttrType_Matrix;
-			Sub = GrvtShader_AttrSubType_Matrix3;
+			AttributeType = GrvtShader_AttrType_Matrix;
+			AttributeSubType = GrvtShader_AttrSubType_Matrix3;
 			break;
 		case GL_FLOAT_MAT4:
-			Main = GrvtShader_AttrType_Matrix;
-			Sub = GrvtShader_AttrSubType_Matrix4;
+			AttributeType = GrvtShader_AttrType_Matrix;
+			AttributeSubType = GrvtShader_AttrSubType_Matrix4;
 			break;
 		default:
 			break;

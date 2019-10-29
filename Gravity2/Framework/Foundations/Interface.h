@@ -213,6 +213,6 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* A mid level API to retrieve shader program's uniform types.
 	*/
-	void GetUniformType(uint32 Type, AttrType& Main, AttrSubType& Sub);
+	void GetUniformType(uint32 Type, uint32& AttributeType, uint32& AttributeSubType);
 
 }

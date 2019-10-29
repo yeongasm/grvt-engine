@@ -117,7 +117,7 @@ DeclNewWindow(NewSceneInstance)
 class WindowProjectExplorerTemplate : public GravityWindow {
 private:
 
-	enum ExplorerActions : uint {
+	enum ExplorerActions : uint32 {
 		EXPLORER_ACTION_NONE			= 0x00,
 		EXPLORER_SCENE_CONTEXT_MENU		= 0x01,
 		EXPLORER_MATERIAL_CONTEXT_MENU	= 0x02,

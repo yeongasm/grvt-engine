@@ -108,6 +108,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,6 +130,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +154,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -177,6 +180,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -191,31 +195,69 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Engine\Application\Application.cpp" />
     <ClCompile Include="Framework\Abstractions\Model.cpp" />
     <ClCompile Include="Framework\Abstractions\Postprocessing.cpp" />
     <ClCompile Include="Framework\Foundations\Foundations.cpp" />
     <ClCompile Include="Engine\IO\InputHandler.cpp" />
     <ClCompile Include="Engine\IO\IO.cpp" />
-    <ClCompile Include="Engine\Project\Project.cpp" />
     <ClCompile Include="Engine\Profiling\Statistics.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui_demo.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui_draw.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="ThirdParty\DearImGui\imgui_widgets.cpp" />
-    <ClCompile Include="ThirdParty\glad\glad.c" />
-    <ClCompile Include="ThirdParty\nfd\nfd_common.c" />
-    <ClCompile Include="ThirdParty\nfd\nfd_win.cpp" />
-    <ClCompile Include="Engine\UI\UI.cpp" />
-    <ClCompile Include="Engine\UI\UIHandler.cpp" />
+    <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_glfw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui_impl_opengl3.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\DearImGui\imgui_widgets.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\glad\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\nfd\nfd_common.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\nfd\nfd_win.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Framework\Camera\Camera.cpp" />
     <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
-    <ClCompile Include="Framework\Abstractions\Material.cpp" />
-    <ClCompile Include="Framework\Abstractions\SceneInstace.cpp" />
     <ClCompile Include="Framework\Foundations\Interface.cpp" />
-    <ClCompile Include="Framework\Level\Scenery.cpp" />
     <ClCompile Include="Engine\Manager\Manager.cpp" />
     <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Framework\Abstractions\Shader.cpp" />
@@ -226,17 +268,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Framework\Renderer\RenderInstance.cpp" />
-    <ClCompile Include="Framework\Renderer\RenderCommand.cpp" />
-    <ClCompile Include="Framework\Renderer\Renderer.cpp" />
-    <ClCompile Include="Framework\Renderer\RenderNode.cpp" />
     <ClCompile Include="ThirdParty\stb\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Engine\UI\WindowFunctions.cpp" />
     <ClCompile Include="Engine\Utility\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -247,13 +284,11 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine\Application\Application.h" />
     <ClInclude Include="Framework\Abstractions\Model.h" />
     <ClInclude Include="Framework\Abstractions\Postprocessing.h" />
     <ClInclude Include="Framework\Foundations\Foundations.h" />
     <ClInclude Include="Engine\IO\InputHandler.h" />
     <ClInclude Include="Engine\IO\IO.h" />
-    <ClInclude Include="Engine\Project\Project.h" />
     <ClInclude Include="Engine\Profiling\Statistics.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui.h" />
@@ -264,25 +299,15 @@
     <ClInclude Include="ThirdParty\DearImGui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\DearImGui\imstb_truetype.h" />
     <ClInclude Include="ThirdParty\FontAwesome\IconsFontAwesome5.h" />
-    <ClInclude Include="Engine\UI\UI.h" />
-    <ClInclude Include="Engine\UI\UIHandler.h" />
     <ClInclude Include="Framework\Camera\Camera.h" />
     <ClInclude Include="Framework\Abstractions\Lighting.h" />
-    <ClInclude Include="Framework\Abstractions\Material.h" />
-    <ClInclude Include="Framework\Abstractions\SceneInstace.h" />
     <ClInclude Include="Framework\Foundations\Interface.h" />
-    <ClInclude Include="Framework\Level\Scenery.h" />
     <ClInclude Include="Engine\Manager\Manager.h" />
     <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
     <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
-    <ClInclude Include="Framework\Renderer\RenderInstance.h" />
-    <ClInclude Include="Framework\Renderer\RenderCommand.h" />
-    <ClInclude Include="Framework\Renderer\Renderer.h" />
-    <ClInclude Include="Framework\Renderer\RenderNode.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
-    <ClInclude Include="Engine\UI\WindowFunctions.h" />
     <ClInclude Include="Engine\Utility\Utility.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -290,7 +315,7 @@
     <Natvis Include="Orion.natvis" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\gravitylib\gravitylib.vcxproj">
+    <ProjectReference Include="..\Grvtlib\Grvtlib.vcxproj">
       <Project>{31e1253a-189d-49de-b5e2-ad1d1fb9411f}</Project>
     </ProjectReference>
   </ItemGroup>

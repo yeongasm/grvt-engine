@@ -20,12 +20,15 @@ enum ShaderComponent : uint32 {
 */
 struct ShaderProps {
 
-	String			Code;
-	String			Path;
+	std::string		Code;
+	std::string		Path;
 	ShaderComponent	Component;
+	
+	ShaderProps();
+	~ShaderProps();
 
-	ShaderProps(const String& Code, ShaderComponent Component);
-	ShaderProps(const String& Code, const String& Path, ShaderComponent Component);
+	ShaderProps(const std::string& Code, ShaderComponent Component);
+	ShaderProps(const std::string& Code, const std::string& Path, ShaderComponent Component);
 
 };
 
@@ -35,13 +38,13 @@ struct ShaderProps {
 struct ShaderImportInfo {
 
 	Array<ShaderProps>	Properties;
-	String				Name;
+	std::string			Name;
 
 	ShaderImportInfo();
 	~ShaderImportInfo();
 
-	ShaderProps& AddShaderToProgram(const String& SourceCode, ShaderComponent Component);
-	ShaderProps& AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component);
+	ShaderProps& AddShaderToProgram(const std::string& SourceCode, ShaderComponent Component);
+	ShaderProps& AddShaderToProgram(const std::string& SourceCode, const std::string& PathToFile, ShaderComponent Component);
 
 	void PopShaderProperty(ShaderProps&);
 };
@@ -84,9 +87,9 @@ enum AttrSubType : uint32 {
 */
 struct VertexAttr {
 
-	String		Name;
-	AttrType	Type;
-	AttrSubType SubType;
+	std::string	Name;
+	uint32		Type;
+	uint32		SubType;
 	uint32		Location;
 	int32		Size;
 
@@ -149,7 +152,7 @@ public:
 class GrvtShader {
 public:
 
-	std::unordered_map<String, UniformAttr> Uniforms;
+	std::unordered_map<std::string, UniformAttr> Uniforms;
 	Array<ShaderProps>	Properties;
 	ObjHandle			Handle;
 
@@ -168,20 +171,4 @@ private:
 	GrvtShader(GrvtShader&& Rhs)					= delete;
 	GrvtShader& operator= (GrvtShader&& Rhs)		= delete;
 
-	//void Use();
-	//void SetInt(const char*, int);
-	//void SetInt(const UniformAttr&);
-	//void SetBool(const char*, bool);
-	//void SetBool(const UniformAttr&);
-	//void SetFloat(const char*, float);
-	//void SetFloat(const UniformAttr&);
-	//void SetVector(const char*, glm::vec2);
-	//void SetVector(const char*, glm::vec3);
-	//void SetVector(const char*, glm::vec4);
-	//void SetVector(const UniformAttr &Uniform);
-	//void SetMatrix(const char*, glm::mat2);
-	//void SetMatrix(const char*, glm::mat3);
-	//void SetMatrix(const char*, glm::mat4);
-	//void SetMatrix(const UniformAttr&);
-	//void SetUniform(const UniformAttr&);
 };

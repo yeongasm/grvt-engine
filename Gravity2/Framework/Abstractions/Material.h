@@ -32,7 +32,7 @@ public:
 class GrvtMaterial {
 public:
 
-	std::unordered_map<String, UniformAttr>	Uniforms;
+	std::unordered_map<std::string, UniformAttr>	Uniforms;
 	
 private:
 

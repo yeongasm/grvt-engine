@@ -1,11 +1,17 @@
 #include "stdafx.h"
 
 
-ShaderProps::ShaderProps(const String& Code, ShaderComponent Component) :
+ShaderProps::ShaderProps() : Code(), Path(), Component(GrvtShader_SourceType_None) {}
+
+
+ShaderProps::~ShaderProps() {}
+
+
+ShaderProps::ShaderProps(const std::string& Code, ShaderComponent Component) :
 	Code(Code), Path(), Component(Component) {}
 
 
-ShaderProps::ShaderProps(const String& Code, const String& Path, ShaderComponent Component) :
+ShaderProps::ShaderProps(const std::string& Code, const std::string& Path, ShaderComponent Component) :
 	Code(Code), Path(Path), Component(Component) {}
 
 
@@ -16,12 +22,12 @@ ShaderImportInfo::ShaderImportInfo() :
 ShaderImportInfo::~ShaderImportInfo() {}
 
 
-ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, ShaderComponent Component) {
+ShaderProps& ShaderImportInfo::AddShaderToProgram(const std::string& SourceCode, ShaderComponent Component) {
 	return Properties.Insert(ShaderProps(SourceCode, Component));
 }
 
 
-ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component) {
+ShaderProps& ShaderImportInfo::AddShaderToProgram(const std::string& SourceCode, const std::string& PathToFile, ShaderComponent Component) {
 	return Properties.Insert(ShaderProps(SourceCode, PathToFile, Component));
 }
 

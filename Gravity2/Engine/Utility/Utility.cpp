@@ -4,11 +4,11 @@
 namespace Util {
 
 
-	bool OpenFile(String& Buffer, const String& Path) {
+	bool OpenFile(std::string& Buffer, const std::string& Path) {
 		FILE* stream = nullptr;
 		fpos_t	pos;
 
-		stream = fopen(~Path, "rb");
+		stream = fopen(Path.c_str(), "rb");
 
 		if (!stream)
 			return false;
@@ -17,36 +17,38 @@ namespace Util {
 		fgetpos(stream, &pos);
 
 		rewind(stream);
-		Buffer.Reserve((size_t)(pos + 1), false);
-		fread(Buffer.First(), sizeof(char), pos, stream);
+		Buffer.reserve((size_t)(pos + 1));
+		fread(Buffer.data(), sizeof(char), pos, stream);
 		fclose(stream);
 
 		Buffer[pos] = '\0';
-		Buffer.UpdateHash();
+		//Buffer.UpdateHash();
 
 		return true;
 	}
 
 
-	String RootDir(const String& Path) {
-		String path;
-		path.Write("%s/%s", __ROOT__, ~Path);
+	std::string RootDir(const std::string& Path) {
+		std::string path;
+		char buf[1024];
+		sprintf_s(buf, sizeof(char) * 1024, "%s/%s", __ROOT__, Path.c_str());
+		path = buf;
 
 		return path;
 	}
 
-	bool DoesFileExist(const String& Path) {
+	bool DoesFileExist(const std::string& Path) {
 		struct stat buffer;
 		return (stat(Path.c_str(), &buffer) == 0);
 	}
 
 
-	bool GetFileNameFromPath(String& Path, String& File, String& Directory) {
+	bool GetFileNameFromPath(std::string& Path, std::string& File, std::string& Directory) {
 		const char backSlash = '\\';
 		const char forwardSlash = '/';
 		size_t lastIdx = -1;
 
-		for (size_t i = Path.Length() - 1; i >= 0; i--) {
+		for (size_t i = Path.length() - 1; i >= 0; i--) {
 			// Get first back slash or forward slash.
 			if (Path[i] == backSlash || Path[i] == forwardSlash) {
 				lastIdx = i;
@@ -54,7 +56,7 @@ namespace Util {
 			}
 		}
 
-		if (lastIdx == -1 || lastIdx == Path.Length() - 1)
+		if (lastIdx == -1 || lastIdx == Path.length() - 1)
 			return false;
 
 		Iterator<char> it = Iterator<char>(&Path[0]);
@@ -65,7 +67,7 @@ namespace Util {
 
 		// Set the file name.
 		it = it + lastIdx + 1;
-		size_t length = Path.Length() - lastIdx;
+		size_t length = Path.length() - lastIdx;
 		File.Append(it, length);
 		File[length - 1] = '\0';
 
@@ -73,7 +75,7 @@ namespace Util {
 	}
 
 
-	bool OpenNativeFileDialog(WindowNativeDialogMode Mode, String& Buffer, const char* Format) {
+	bool OpenNativeFileDialog(WindowNativeDialogMode Mode, std::string& Buffer, const char* Format) {
 		nfdchar_t* outPath = NULL;
 		nfdresult_t result;
 
@@ -86,7 +88,7 @@ namespace Util {
 		}
 
 		if (result == NFD_OKAY) {
-			Buffer.SetString(outPath);
+			Buffer = outPath;
 			puts("Success!");
 			puts(outPath);
 			free(outPath);
@@ -100,7 +102,7 @@ namespace Util {
 	}
 
 
-	bool OpenNativeFileDialog(Array<String>& Buffer, const char* Format) {
+	bool OpenNativeFileDialog(Array<std::string>& Buffer, const char* Format) {
 		nfdpathset_t pathSet;
 		nfdresult_t result = NFD_OpenDialogMultiple(Format, __ROOT__, &pathSet);
 
@@ -121,7 +123,7 @@ namespace Util {
 	}
 
 	
-	void AssimpImportModelFromPath(const String& Path, GrvtModel* Model) {
+	void AssimpImportModelFromPath(const std::string& Path, GrvtModel* Model) {
 		Assimp::Importer importFile;
 
 		GrvtMesh* mesh = nullptr;
@@ -131,7 +133,7 @@ namespace Util {
 		//if (FlipUV)
 		//	flags |= aiProcess_FlipUVs;
 
-		const aiScene* assimpScene = importFile.ReadFile(~Path, flags);
+		const aiScene* assimpScene = importFile.ReadFile(Path.c_str(), flags);
 
 		for (uint i = 0; i < assimpScene->mNumMeshes; i++) {
 			assimpMesh = assimpScene->mMeshes[i];

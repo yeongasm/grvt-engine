@@ -19,6 +19,9 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 
+#define GRVT_ARRAY_LENGTH(Arr) ((size_t)(sizeof(Arr) / sizeof(*Arr)))
+
+
 enum WindowNativeDialogMode : uint32 {
 	GrvtNativeFileDialog_OpenFile	= 0x00,
 	GrvtNativeFileDialog_OpenPath	= 0x01

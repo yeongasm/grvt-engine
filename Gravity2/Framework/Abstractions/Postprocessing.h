@@ -82,6 +82,12 @@ public:
 		AttachmentProperty();
 		~AttachmentProperty();
 
+		AttachmentProperty(const AttachmentProperty& Rhs)				= delete;
+		AttachmentProperty& operator= (const AttachmentProperty& Rhs)	= delete;
+
+		AttachmentProperty(AttachmentProperty&& Rhs);
+		AttachmentProperty& operator= (AttachmentProperty&& Rhs);
+
 	};
 
 	Array<AttachmentProperty> Attachments;
@@ -92,7 +98,7 @@ public:
 	GrvtPostProcess();
 	~GrvtPostProcess();
 
-	GrvtPostProcess* Alloc(const PostProcessCreationInfo& Info);
+	void Alloc(const PostProcessCreationInfo& Info);
 	void Free();
 
 private:

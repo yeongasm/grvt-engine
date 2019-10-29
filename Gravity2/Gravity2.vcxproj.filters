@@ -36,31 +36,13 @@
     <ClCompile Include="ThirdParty\stb\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Renderer\RenderCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Renderer\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Renderer\RenderInstance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Renderer\RenderNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Framework\Abstractions\Lighting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Abstractions\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Abstractions\Postprocessing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Abstractions\SceneInstace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Abstractions\Shader.cpp">
@@ -79,9 +61,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Framework\Camera\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Framework\Level\Scenery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
@@ -111,22 +90,7 @@
     <ClCompile Include="Engine\Manager\Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\UI\UI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\UI\UIHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\UI\WindowFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\Utility\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Application\Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Project\Project.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Profiling\Statistics.cpp">
@@ -146,31 +110,13 @@
     <ClInclude Include="ThirdParty\stb\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Renderer\RenderCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Renderer\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Renderer\RenderInstance.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Renderer\RenderNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Framework\Abstractions\Lighting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Abstractions\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Abstractions\Postprocessing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Abstractions\SceneInstace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Abstractions\Shader.h">
@@ -189,9 +135,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Camera\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Framework\Level\Scenery.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h">
@@ -227,22 +170,7 @@
     <ClInclude Include="Engine\Manager\Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\UI\UI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\UI\UIHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\UI\WindowFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\Utility\Utility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Application\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Project\Project.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Profiling\Statistics.h">

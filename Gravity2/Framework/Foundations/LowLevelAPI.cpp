@@ -362,7 +362,7 @@ namespace BaseAPI {
 	void BuildShaderProgram(ObjHandle& Handle, ShaderBuildData& Data) {
 		int32 link = 0;
 		size_t index = 0;
-		ObjHandle handle[Data.BuildInfo.Length];
+		Array<ObjHandle> handle(Data.BuildInfo.Length());
 
 		GrCreateShaderProgram(Handle);
 

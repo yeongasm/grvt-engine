@@ -12,7 +12,7 @@
 
 #include <sys/stat.h>
 
-#include <map>
+#include <string>
 #include <unordered_map>
 #include <deque>
 #include <thread>
@@ -64,24 +64,24 @@
 #include "Framework/Abstractions/Postprocessing.h"
 #include "Framework/Abstractions/Model.h"
 #include "Framework/Abstractions/Material.h"
-#include "Framework/Abstractions/SceneInstace.h"
+//#include "Framework/Abstractions/SceneInstace.h"
 #include "Framework/Abstractions/Lighting.h"
 #include "Framework/Camera/Camera.h"
-#include "Framework/Level/Scenery.h"
-#include "Framework/Renderer/RenderNode.h"
-#include "Framework/Renderer/RenderCommand.h"
-#include "Framework/Renderer/RenderInstance.h"
-#include "Framework/Renderer/Renderer.h"
+//#include "Framework/Level/Scenery.h"
+//#include "Framework/Renderer/RenderNode.h"
+//#include "Framework/Renderer/RenderCommand.h"
+//#include "Framework/Renderer/RenderInstance.h"
+//#include "Framework/Renderer/Renderer.h"
 
 #include "Engine/Utility/Utility.h"
 #include "Engine/Manager/Manager.h"
 #include "Engine/IO/InputHandler.h"
 #include "Engine/IO/IO.h"
-#include "Engine/UI/UI.h"
-#include "Engine/UI/WindowFunctions.h"
-#include "Engine/UI/UIHandler.h"
+//#include "Engine/UI/UI.h"
+//#include "Engine/UI/WindowFunctions.h"
+//#include "Engine/UI/UIHandler.h"
 #include "Engine/Profiling/Statistics.h"
-#include "Engine/Project/Project.h"
-#include "Engine/Application/Application.h"
+//#include "Engine/Project/Project.h"
+//#include "Engine/Application/Application.h"
 
 #endif // !PRECOMPILE_HEADER

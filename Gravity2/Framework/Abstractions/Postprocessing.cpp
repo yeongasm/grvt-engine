@@ -30,6 +30,26 @@ GrvtPostProcess::AttachmentProperty::AttachmentProperty() :
 GrvtPostProcess::AttachmentProperty::~AttachmentProperty() {}
 
 
+GrvtPostProcess::AttachmentProperty::AttachmentProperty(GrvtPostProcess::AttachmentProperty&& Rhs) { *this = Move(Rhs); }
+
+
+GrvtPostProcess::AttachmentProperty& GrvtPostProcess::AttachmentProperty::operator= (GrvtPostProcess::AttachmentProperty&& Rhs) {
+	_ASSERTE(this != &Rhs);
+
+	if (this != &Rhs) {
+		Handle = Move(Rhs.Handle);
+		Component = Rhs.Component;
+		Type = Rhs.Type;
+		Count = Rhs.Count;
+		Draw = Rhs.Draw;
+
+		new (&Rhs) GrvtPostProcess::AttachmentProperty();
+	}
+
+	return *this;
+}
+
+
 GrvtPostProcess::GrvtPostProcess() :
 	Attachments(), Handle(), Width(), Height() {}
 
@@ -37,7 +57,7 @@ GrvtPostProcess::GrvtPostProcess() :
 GrvtPostProcess::~GrvtPostProcess() {}
 
 
-GrvtPostProcess* GrvtPostProcess::Alloc(const PostProcessCreationInfo& Info) {
+void GrvtPostProcess::Alloc(const PostProcessCreationInfo& Info) {
 	Width = Info.Width;
 	Height = Info.Height;
 

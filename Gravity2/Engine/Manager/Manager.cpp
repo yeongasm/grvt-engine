@@ -7,7 +7,7 @@ static ResourceManager<GrvtShader>		ShaderManager;
 static ResourceManager<GrvtPostProcess> PostProcessManager;
 
 
-bool ResourceHandler::CheckIfModelExist(const String& Path) {
+bool ResourceHandler::CheckIfModelExist(const std::string& Path) {
 	for (auto& [key, value] : ModelManager.Store)
 		if (value.Path == Path)
 			return true;
@@ -16,7 +16,7 @@ bool ResourceHandler::CheckIfModelExist(const String& Path) {
 }
 
 
-bool ResourceHandler::CheckIfTextureExist(const String& Path) {
+bool ResourceHandler::CheckIfTextureExist(const std::string& Path) {
 	for (auto& [key, value] : TextureManager.Store)
 		if (value.Path == Path)
 			return true;
@@ -73,7 +73,7 @@ void ResourceHandler::Free() {
 }
 
 
-ResourceType ResourceHandler::GetResourceType(const String& Identifier) {
+ResourceType ResourceHandler::GetResourceType(const std::string& Identifier) {
 	auto it = Resources.find(Identifier);
 	if (it == Resources.end())
 		return GrvtResource_Type_None;
@@ -85,10 +85,10 @@ ResourceType ResourceHandler::GetResourceType(const String& Identifier) {
 
 GrvtModel* ResourceHandler::NewImportModel(const ModelImportInfo& Import) {
 	if (CheckIfModelExist(Import.Path))
-		return GetModel(Import.Name);
+		return GetModel(Import.Name.c_str());
 
 	size_t id = GenerateResourceId<GrvtModel>(GrvtResource_Type_Model);
-	Resources.insert({Import.Name, id});
+	Resources.insert({Import.Name.c_str(), id});
 	
 	GrvtModel* model = ModelManager.NewResource(id, Import.Name);
 	model->Alloc(Import);
@@ -103,7 +103,7 @@ GrvtModel* ResourceHandler::NewImportModel(const ModelImportInfo& Import) {
 }
 
 
-GrvtModel* ResourceHandler::GetModel(const String& Identifier, bool Safe) {
+GrvtModel* ResourceHandler::GetModel(const std::string& Identifier, bool Safe) {
 	if (!Safe) {
 		size_t id = Resources[Identifier];
 		return ModelManager.Store[id].ResourcePtr;
@@ -129,7 +129,7 @@ GrvtModel* ResourceHandler::GetModel(size_t Id, bool Safe) {
 }
 
 
-EngineResource<GrvtModel>* ResourceHandler::GetModelHandle(const String& Identifier, bool Safe) {
+EngineResource<GrvtModel>* ResourceHandler::GetModelHandle(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		return &ModelManager.Store[Resources[Identifier]];
 
@@ -141,7 +141,7 @@ EngineResource<GrvtModel>* ResourceHandler::GetModelHandle(const String& Identif
 }
 
 
-bool ResourceHandler::DeleteModel(const String& Identifier, bool Force) {
+bool ResourceHandler::DeleteModel(const std::string& Identifier, bool Force) {
 	EngineResource<GrvtModel>* handle = GetModelHandle(Identifier);
 	if (!handle)
 		return false;
@@ -168,7 +168,7 @@ bool ResourceHandler::DeleteModel(size_t Id, bool Force) {
 	if (!model)
 		return false;
 
-	return DeleteModel(ModelManager.Store[Id].Name, Force);
+	return DeleteModel(ModelManager.Store[Id].Name.c_str(), Force);
 }
 
 
@@ -177,10 +177,10 @@ GrvtTexture* ResourceHandler::NewImportTexture(const TextureImportInfo& Import) 
 		return nullptr;
 
 	if (CheckIfTextureExist(Import.Path[0]))
-		return GetTexture(Import.Name);
+		return GetTexture(Import.Name.c_str());
 
 	size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-	Resources.insert({Import.Name, id});
+	Resources.insert({Import.Name.c_str(), id});
 
 	GrvtTexture* texture = TextureManager.NewResource(id, Import.Name);
 	texture->Alloc(Import);
@@ -195,7 +195,7 @@ GrvtTexture* ResourceHandler::NewImportTexture(const TextureImportInfo& Import) 
 }
 
 
-GrvtTexture* ResourceHandler::GetTexture(const String& Identifier, bool Safe) {
+GrvtTexture* ResourceHandler::GetTexture(const std::string& Identifier, bool Safe) {
 	if (!Safe) {
 		size_t id = Resources[Identifier];
 		return TextureManager.Store[id].ResourcePtr;
@@ -221,7 +221,7 @@ GrvtTexture* ResourceHandler::GetTexture(size_t Id, bool Safe) {
 }
 
 
-EngineResource<GrvtTexture>* ResourceHandler::GetTextureHandle(const String& Identifier, bool Safe) {
+EngineResource<GrvtTexture>* ResourceHandler::GetTextureHandle(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		return &TextureManager.Store[Resources[Identifier]];
 
@@ -233,7 +233,7 @@ EngineResource<GrvtTexture>* ResourceHandler::GetTextureHandle(const String& Ide
 }
 
 
-bool ResourceHandler::DeleteTexture(const String& Identifier, bool Force) {
+bool ResourceHandler::DeleteTexture(const std::string& Identifier, bool Force) {
 	EngineResource<GrvtTexture>* handle = GetTextureHandle(Identifier);
 	if (!handle)
 		return false;
@@ -256,7 +256,7 @@ bool ResourceHandler::DeleteTexture(size_t Id, bool Force) {
 	if (!texture)
 		return false;
 
-	return DeleteTexture(TextureManager.Store[Id].Name, Force);
+	return DeleteTexture(TextureManager.Store[Id].Name.c_str(), Force);
 }
 
 
@@ -276,7 +276,7 @@ GrvtShader* ResourceHandler::NewShaderProgram(const ShaderImportInfo& Import) {
 
 	// Create the resource id.
 	size_t id = GenerateResourceId<GrvtShader>(GrvtResource_Type_Shader);
-	Resources.insert({Import.Name, id});
+	Resources.insert({Import.Name.c_str(), id});
 
 	GrvtShader* shader = ShaderManager.NewResource(id, Import.Name);
 	shader->Alloc(Import);
@@ -288,7 +288,7 @@ GrvtShader* ResourceHandler::NewShaderProgram(const ShaderImportInfo& Import) {
 }
 
 
-GrvtShader* ResourceHandler::GetShader(const String& Identifier, bool Safe) {
+GrvtShader* ResourceHandler::GetShader(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		return ShaderManager.Store[Resources[Identifier]].ResourcePtr;
 
@@ -312,7 +312,7 @@ GrvtShader* ResourceHandler::GetShader(size_t Id, bool Safe) {
 }
 
 
-EngineResource<GrvtShader>* ResourceHandler::GetShaderHandle(const String& Identifier, bool Safe) {
+EngineResource<GrvtShader>* ResourceHandler::GetShaderHandle(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		return &ShaderManager.Store[Resources[Identifier]];
 
@@ -324,7 +324,7 @@ EngineResource<GrvtShader>* ResourceHandler::GetShaderHandle(const String& Ident
 }
 
 
-bool ResourceHandler::DeleteShader(const String& Identifier, bool Force) {
+bool ResourceHandler::DeleteShader(const std::string& Identifier, bool Force) {
 	EngineResource<GrvtShader>* handle = GetShaderHandle(Identifier);
 	if (!handle)
 		return false;
@@ -347,7 +347,7 @@ bool ResourceHandler::DeleteShader(size_t Id, bool Force) {
 	if (!shader)
 		return false;
 
-	return DeleteShader(ShaderManager.Store[Id].Name, Force);
+	return DeleteShader(ShaderManager.Store[Id].Name.c_str(), Force);
 }
 
 
@@ -409,7 +409,7 @@ bool ResourceHandler::DeleteShader(size_t Id, bool Force) {
 
 GrvtPostProcess* ResourceHandler::NewPostProcessing(const PostProcessCreationInfo& Info) {
 	size_t id = GenerateResourceId<GrvtPostProcess>(GrvtResource_Type_Framebuffer);
-	Resources.insert({Info.Name, id});
+	Resources.insert({Info.Name.c_str(), id});
 
 	GrvtPostProcess* framebuffer = PostProcessManager.NewResource(id, Info.Name);
 	framebuffer->Alloc(Info);
@@ -423,7 +423,7 @@ GrvtPostProcess* ResourceHandler::NewPostProcessing(const PostProcessCreationInf
 }
 
 
-GrvtPostProcess* ResourceHandler::GetPostProcessing(const String& Identifier, bool Safe) {
+GrvtPostProcess* ResourceHandler::GetPostProcessing(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		PostProcessManager.Store[Resources[Identifier]].ResourcePtr;
 
@@ -447,7 +447,7 @@ GrvtPostProcess* ResourceHandler::GetPostProcessing(size_t Id, bool Safe) {
 }
 
 
-EngineResource<GrvtPostProcess>* ResourceHandler::GetPostProcessingHandle(const String& Identifier, bool Safe) {
+EngineResource<GrvtPostProcess>* ResourceHandler::GetPostProcessingHandle(const std::string& Identifier, bool Safe) {
 	if (!Safe)
 		return &PostProcessManager.Store[Resources[Identifier]];
 
@@ -459,7 +459,7 @@ EngineResource<GrvtPostProcess>* ResourceHandler::GetPostProcessingHandle(const 
 }
 
 
-bool ResourceHandler::DeletePostProcessing(const String& Identifier, bool Force) {
+bool ResourceHandler::DeletePostProcessing(const std::string& Identifier, bool Force) {
 	EngineResource<GrvtPostProcess>* handle = GetPostProcessingHandle(Identifier);
 	if (!handle)
 		return false;
@@ -489,5 +489,5 @@ bool ResourceHandler::DeletePostProcessing(size_t Id, bool Force) {
 	if (!framebuffer)
 		return false;
 
-	return DeletePostProcessing(PostProcessManager.Store[Id].Name, Force);
+	return DeletePostProcessing(PostProcessManager.Store[Id].Name.c_str(), Force);
 }

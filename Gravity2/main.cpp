@@ -17,22 +17,22 @@
 
 int main() {
 
-	GravityApp *app = NewApplication("Gravity Engine", 1366, 768, 4, 5);
+	//GravityApp *app = NewApplication("Gravity Engine", 1366, 768, 4, 5);
 
-	app->Init();
-	app->EnableVSync(1);
+	//app->Init();
+	//app->EnableVSync(1);
 
-	while (!app->CloseAplication()) {
-		app->NewFrame();
-		app->Tick();
+	//while (!app->CloseAplication()) {
+	//	app->NewFrame();
+	//	app->Tick();
 
-		app->ui.Tick();
-		app->SwapBuffer();
-	}
+	//	app->ui.Tick();
+	//	app->SwapBuffer();
+	//}
 
-	TerminateApplication(app);
+	//TerminateApplication(app);
 
-	Logger::Free();
+	//Logger::Free();
 
 #if 0
 	_CrtDumpMemoryLeaks();

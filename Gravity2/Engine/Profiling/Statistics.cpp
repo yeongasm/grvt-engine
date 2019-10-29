@@ -21,7 +21,7 @@ FrameStatistics& FrameStatistics::operator= (const FrameStatistics &Other) {
 	if (this != &Other) {
 		framerateSecPerFrameIdx		= Other.framerateSecPerFrameIdx;
 		framerateSecPerFrameAccum	= Other.framerateSecPerFrameAccum;
-		CopyRawArray(framerateSecPerFrame, Other.framerateSecPerFrame);
+		memcpy(framerateSecPerFrame, Other.framerateSecPerFrame, GRVT_ARRAY_LENGTH(framerateSecPerFrame));
 	}
 
 	return *this;
@@ -36,7 +36,8 @@ FrameStatistics& FrameStatistics::operator= (FrameStatistics &&Other) {
 	if (this != &Other) {
 		framerateSecPerFrameIdx		= Other.framerateSecPerFrameIdx;
 		framerateSecPerFrameAccum	= Other.framerateSecPerFrameAccum;
-		CopyRawArray(framerateSecPerFrame, Other.framerateSecPerFrame);
+		memcpy(framerateSecPerFrame, Other.framerateSecPerFrame, GRVT_ARRAY_LENGTH(framerateSecPerFrame));
+		//CopyRawArray(framerateSecPerFrame, Other.framerateSecPerFrame);
 
 		new (&Other) FrameStatistics();
 	}
@@ -58,12 +59,12 @@ FrameStatistics::~FrameStatistics() {
 void FrameStatistics::Tick(float DeltaTime) {
 	framerateSecPerFrameAccum += DeltaTime - framerateSecPerFrame[framerateSecPerFrameIdx];
 	framerateSecPerFrame[framerateSecPerFrameIdx] = DeltaTime;
-	framerateSecPerFrameIdx = (framerateSecPerFrameIdx + 1) % ArrayLen(framerateSecPerFrame);
+	framerateSecPerFrameIdx = (framerateSecPerFrameIdx + 1) % GRVT_ARRAY_LENGTH(framerateSecPerFrame);
 }
 
 
 float FrameStatistics::Framerate() const {
-	return (framerateSecPerFrameAccum > 0.0f) ? (1.0f / (framerateSecPerFrameAccum / (float)ArrayLen(framerateSecPerFrame))) : FLT_MAX;
+	return (framerateSecPerFrameAccum > 0.0f) ? (1.0f / (framerateSecPerFrameAccum / (float)GRVT_ARRAY_LENGTH(framerateSecPerFrame))) : FLT_MAX;
 }
 
 

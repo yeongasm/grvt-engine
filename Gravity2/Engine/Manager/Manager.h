@@ -28,8 +28,8 @@ enum GrvtAllocType : uint32 {
 template <class Type>
 struct EngineResource {
 	Type*			ResourcePtr;
-	String			Name;
-	String			Path;
+	std::string		Name;
+	std::string		Path;
 	uint32			RefCount;
 	GrvtAllocType	Type;
 
@@ -85,7 +85,7 @@ public:
 
 		resource.Name = Name;
 		resource.ResourcePtr = new Type();
-		Store.insert({id, resource});
+		Store.insert({Id, resource});
 		Total++;
 
 		return resource.ResourcePtr;
@@ -116,7 +116,7 @@ public:
 class ResourceHandler {
 private:
 
-	std::unordered_map<String, size_t> Resources;
+	std::unordered_map<std::string, size_t> Resources;
 
 	template <typename T>
 	size_t GenerateResourceId(ResourceType Type) {
@@ -152,7 +152,7 @@ public:
 	/**
 	* Determine the resources type from the specified identifier.
 	*/
-	ResourceType GetResourceType(const String& Identifier);
+	ResourceType GetResourceType(const std::string& Identifier);
 
 	/**
 	* Import a new model into the engine.
@@ -163,7 +163,7 @@ public:
 	* Retrieves the model specified by the identifier.
 	* Safe mode will check if the specified identifier exist and only return if it does.
 	*/
-	GrvtModel* GetModel(const String& Identifier, bool Safe = true);
+	GrvtModel* GetModel(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Retrieves the model specified by the Id.
@@ -175,14 +175,14 @@ public:
 	* Retrieves the model's handler.
 	* Safe mode will check if the specified identifier provided exists and only return if it does.
 	*/
-	EngineResource<GrvtModel>* GetModelHandle(const String& Identifier, bool Safe = true);
+	EngineResource<GrvtModel>* GetModelHandle(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Deletes a model with the specified identifier from the engine.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeleteModel(const String& Identifier, bool Force = false);
+	bool DeleteModel(const std::string& Identifier, bool Force = false);
 
 	/**
 	* Deletes a model with the specified Id from the engine.
@@ -200,7 +200,7 @@ public:
 	* Retrieves the texture specified by the identifier.
 	* Safe mode will check if the specified identifier exist and only return if it does.
 	*/
-	GrvtTexture* GetTexture(const String& Identifier, bool Safe = true);
+	GrvtTexture* GetTexture(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Retrieves the texture specified by the Id.
@@ -212,14 +212,14 @@ public:
 	* Retrieve's the texture's handler.
 	* Safe mode will check if the specified identifier provided exists and only return if it does.
 	*/
-	EngineResource<GrvtTexture>* GetTextureHandle(const String& Identifier, bool Safe = true);
+	EngineResource<GrvtTexture>* GetTextureHandle(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Deletes a texture with the specified identifier.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeleteTexture(const String& Identifier, bool Force = false);
+	bool DeleteTexture(const std::string& Identifier, bool Force = false);
 
 	/**
 	* Deletes a texture with the specified Id.
@@ -237,7 +237,7 @@ public:
 	* Retrieves the shader specified by the identifier from the engine.
 	* Safe mode will check if the specified identifier exist and only return if it does.
 	*/
-	GrvtShader* GetShader(const String& Identifier, bool Safe = true);
+	GrvtShader* GetShader(const std::string& Identifier, bool Safe = true);
 	
 	/**
 	* Retrieves the shader specified by the Id from the engine.
@@ -249,14 +249,14 @@ public:
 	* Retrieve's the shader's handler.
 	* Safe mode will check if the specified identifier provided exists and only return if it does.
 	*/
-	EngineResource<GrvtShader>* GetShaderHandle(const String& Name, bool Safe = true);
+	EngineResource<GrvtShader>* GetShaderHandle(const std::string& Name, bool Safe = true);
 
 	/**
 	* Delete a shader program with the specified identifier.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeleteShader(const String& Identifier, bool Force = false);
+	bool DeleteShader(const std::string& Identifier, bool Force = false);
 	
 	/**
 	* Deletes a shader program with the specified Id.
@@ -284,7 +284,7 @@ public:
 	* Retrieves the framebuffer specified by the identifier from the engine.
 	* Safe mode will check if the resource with such identifier exist and only return if it does.
 	*/
-	GrvtPostProcess* GetPostProcessing(const String& Identifier, bool Safe = true);
+	GrvtPostProcess* GetPostProcessing(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Retrieves the framebuffer specified by the id from the engine.
@@ -296,14 +296,14 @@ public:
 	* Retrieve's the post processing's handler.
 	* Safe mode will check if the specified identifier provided exists and only return if it does.
 	*/
-	EngineResource<GrvtPostProcess>* GetPostProcessingHandle(const String& Identifier, bool Safe = true);
+	EngineResource<GrvtPostProcess>* GetPostProcessingHandle(const std::string& Identifier, bool Safe = true);
 
 	/**
 	* Deletes a framebuffer with the specified identifier.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeletePostProcessing(const String& Identifier, bool Force = false);
+	bool DeletePostProcessing(const std::string& Identifier, bool Force = false);
 	
 	/**
 	* Deletes a framebuffer with the specified id.

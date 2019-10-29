@@ -21,6 +21,8 @@ GrvtTexture* GrvtTexture::Alloc(const TextureImportInfo& Info) {
 		TextureProps& prop = Properties.Insert(TextureProps());
 		prop.Path = path;
 	}
+
+	return this;
 }
 
 

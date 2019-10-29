@@ -45,7 +45,7 @@ AppIO& AppIO::operator= (const AppIO &Other) {
 			mouseHoldDuration[i] = Other.mouseHoldDuration[i];
 		}
 
-		for (uint i = 0; i < ArrayLen(keys); i++) {
+		for (uint i = 0; i < GRVT_ARRAY_LENGTH(keys); i++) {
 			keys[i] = Other.keys[i];
 			keyState[i] = Other.keyState[i];
 			keyHoldDuration[i] = Other.keyHoldDuration[i];

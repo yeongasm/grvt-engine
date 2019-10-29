@@ -31,6 +31,9 @@ struct LightCreationInfo {
 	float		Quadratic;
 	float		Radius;
 
+	LightCreationInfo();
+	~LightCreationInfo();
+
 };
 
 
