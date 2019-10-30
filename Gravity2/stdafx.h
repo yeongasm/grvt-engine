@@ -42,7 +42,10 @@
 #include <nativefiledialog/nfd.h>
 
 // Custom array and string class.
-#include <gravitystl.h>
+#include <GrvtArray.h>
+#include <GrvtPair.h>
+
+using namespace Gfl;
 
 // Assimp library header files.
 #include <assimp/Importer.hpp>

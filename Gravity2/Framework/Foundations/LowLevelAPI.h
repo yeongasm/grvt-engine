@@ -50,7 +50,7 @@ namespace BaseAPI {
 		size_t				Size;
 		size_t				Length;
 
-		Array<VertexAttribPointer>	VertexAttribPointers;
+		Gfl::Array<VertexAttribPointer>	VertexAttribPointers;
 
 		MeshBuildData();
 		~MeshBuildData();

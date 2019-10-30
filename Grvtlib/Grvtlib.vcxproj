@@ -124,10 +124,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="gravitystl.h" />
+    <ClInclude Include="GrvtFoundation.h" />
+    <ClInclude Include="GrvtArray.h" />
+    <ClInclude Include="GrvtIterator.h" />
+    <ClInclude Include="GrvtPair.h" />
+    <ClInclude Include="GrvtString.h" />
+    <ClInclude Include="GrvtTemplates.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="gravitystl.cpp" />
+    <ClCompile Include="GrvtArray.cpp" />
+    <ClCompile Include="GrvtIterator.cpp" />
+    <ClCompile Include="GrvtPair.cpp" />
+    <ClCompile Include="GrvtString.cpp" />
+    <ClCompile Include="GrvtTemplates.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
