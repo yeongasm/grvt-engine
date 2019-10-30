@@ -51,12 +51,12 @@ UniformAttr::UniformAttr() : VertexAttr() {}
 UniformAttr::~UniformAttr() {}
 
 
-//void ShaderObj::DeleteShader(const std::initializer_list<uint> &IDs) {
+//void ShaderObj::DeleteShader(const std::initializer_list<uint32> &IDs) {
 //	for (auto id : IDs)
 //		glDeleteShader(id);
 //}
 //
-//bool ShaderObj::CompileShader(uint &ID, const char *Source, ShaderType Type) {
+//bool ShaderObj::CompileShader(uint32 &ID, const char *Source, ShaderType Type) {
 //	int		compiled;
 //	char	infoLog[1024];
 //
@@ -76,7 +76,7 @@ UniformAttr::~UniformAttr() {}
 //	return true;
 //}
 //
-//void ShaderObj::GetAttributeType(uint Type, AttrType &Main, AttrSubType &Sub) {
+//void ShaderObj::GetAttributeType(uint32 Type, AttrType &Main, AttrSubType &Sub) {
 //	switch (Type) {
 //	case GL_BOOL:
 //		Main = ATTR_TYPE_BOOL;
@@ -171,7 +171,7 @@ void GrvtShader::Free() {
 //	GLenum glType;
 //	int	size;
 //
-//	for (uint i = 0; i < (uint)numAttributes; i++) {
+//	for (uint32 i = 0; i < (uint32)numAttributes; i++) {
 //		glGetActiveAttrib(Id, i, sizeof(buffer), 0, &size, &glType, buffer);
 //
 //		GetAttributeType(glType, vertexAttr.type, vertexAttr.subType);
@@ -184,7 +184,7 @@ void GrvtShader::Free() {
 //
 //	UniformAttr uniformAttr;
 //
-//	for (uint i = 0; i < (uint)numUniforms; i++) {
+//	for (uint32 i = 0; i < (uint32)numUniforms; i++) {
 //		glGetActiveUniform(Id, i, sizeof(buffer), 0, &size, &glType, buffer);
 //		
 //		GetAttributeType(glType, uniformAttr.type, uniformAttr.subType);

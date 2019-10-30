@@ -2,7 +2,7 @@
 
 
 LightCreationInfo::LightCreationInfo() :
-	Position(0.0f), Colour(1.0f), Name(), Type(GrvtLight_Type_None), Brightness(0.5f), 
+	Position(0.0f), Colour(1.0f), Type(GrvtLight_Type_None), Brightness(0.5f), 
 	Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f) {}
 
 

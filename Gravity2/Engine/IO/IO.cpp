@@ -37,7 +37,7 @@ AppIO& AppIO::operator= (const AppIO &Other) {
 		mousePos				= Other.mousePos;
 		mouseClickPos			= Other.mouseClickPos;
 
-		for (uint i = 0; i < MOUSE_BUTTON_MAX; i++) {
+		for (uint32 i = 0; i < MOUSE_BUTTON_MAX; i++) {
 			clickTime[i]		= Other.clickTime[i];
 			keyPressTime[i]		= Other.keyPressTime[i];
 			mouseState[i]		= Other.mouseState[i];
@@ -45,7 +45,7 @@ AppIO& AppIO::operator= (const AppIO &Other) {
 			mouseHoldDuration[i] = Other.mouseHoldDuration[i];
 		}
 
-		for (uint i = 0; i < GRVT_ARRAY_LENGTH(keys); i++) {
+		for (uint32 i = 0; i < GRVT_ARRAY_LENGTH(keys); i++) {
 			keys[i] = Other.keys[i];
 			keyState[i] = Other.keyState[i];
 			keyHoldDuration[i] = Other.keyHoldDuration[i];
@@ -59,27 +59,27 @@ AppIO& AppIO::operator= (const AppIO &Other) {
 AppIO::~AppIO() {}
 
 
-bool AppIO::IsKeyPressed(int Key) {
+bool AppIO::IsKeyPressed(int32 Key) {
 	return keyState[Key] == IO_INPUT_PRESSED;
 }
 
 
-bool AppIO::IsKeyHeld(int Key) {
+bool AppIO::IsKeyHeld(int32 Key) {
 	return keyState[Key] == IO_INPUT_HELD;
 }
 
 
-bool AppIO::IsKeyDoubleTapped(int Key) {
+bool AppIO::IsKeyDoubleTapped(int32 Key) {
 	return keyState[Key] == IO_INPUT_REPEAT;
 }
 
 
-bool AppIO::IsKeyReleased(int Key) {
+bool AppIO::IsKeyReleased(int32 Key) {
 	return keyState[Key] == IO_INPUT_RELEASED;
 }
 
 
-bool AppIO::IsMouseClicked(uint Button) {
+bool AppIO::IsMouseClicked(uint32 Button) {
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
@@ -87,7 +87,7 @@ bool AppIO::IsMouseClicked(uint Button) {
 }
 
 
-bool AppIO::IsMouseDoubleClicked(uint Button) {
+bool AppIO::IsMouseDoubleClicked(uint32 Button) {
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
@@ -95,7 +95,7 @@ bool AppIO::IsMouseDoubleClicked(uint Button) {
 }
 
 
-bool AppIO::IsMouseHeld(uint Button) {
+bool AppIO::IsMouseHeld(uint32 Button) {
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
@@ -103,7 +103,7 @@ bool AppIO::IsMouseHeld(uint Button) {
 }
 
 
-bool AppIO::IsMouseReleased(uint Button) {
+bool AppIO::IsMouseReleased(uint32 Button) {
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
@@ -111,7 +111,7 @@ bool AppIO::IsMouseReleased(uint Button) {
 }
 
 
-bool AppIO::MouseDragDelta(uint Button, glm::vec2 *Buf) {
+bool AppIO::MouseDragDelta(uint32 Button, glm::vec2 *Buf) {
 	if (!IsMouseHeld(Button))
 		return false;
 
@@ -122,7 +122,7 @@ bool AppIO::MouseDragDelta(uint Button, glm::vec2 *Buf) {
 }
 
 
-bool AppIO::IsMouseDragging(uint Button) {
+bool AppIO::IsMouseDragging(uint32 Button) {
 	glm::vec2 dragDelta(0.0f);
 
 	if (MouseDragDelta(Button, &dragDelta))

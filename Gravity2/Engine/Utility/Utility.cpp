@@ -130,13 +130,13 @@ namespace Util {
 		GrvtMesh* mesh = nullptr;
 		aiMesh* assimpMesh = nullptr;
 
-		uint flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+		uint32 flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 		//if (FlipUV)
 		//	flags |= aiProcess_FlipUVs;
 
 		const aiScene* assimpScene = importFile.ReadFile(Path.c_str(), flags);
 
-		for (uint i = 0; i < assimpScene->mNumMeshes; i++) {
+		for (uint32 i = 0; i < assimpScene->mNumMeshes; i++) {
 			assimpMesh = assimpScene->mMeshes[i];
 			mesh = &Model->Meshes.Insert(GrvtMesh());
 
@@ -152,7 +152,7 @@ namespace Util {
 			glm::vec3 vector;
 			glm::vec2 uv;
 
-			for (uint i = 0; i < assimpMesh->mNumVertices; i++) {
+			for (uint32 i = 0; i < assimpMesh->mNumVertices; i++) {
 				vector.x = assimpMesh->mVertices[i].x;
 				vector.y = assimpMesh->mVertices[i].y;
 				vector.z = assimpMesh->mVertices[i].z;
@@ -189,10 +189,10 @@ namespace Util {
 				}
 			}
 
-			for (uint i = 0; i < assimpMesh->mNumFaces; i++) {
+			for (uint32 i = 0; i < assimpMesh->mNumFaces; i++) {
 				aiFace assimpFace = assimpMesh->mFaces[i];
 
-				for (uint j = 0; j < assimpFace.mNumIndices; j++)
+				for (uint32 j = 0; j < assimpFace.mNumIndices; j++)
 					mesh->Indices.Push(assimpFace.mIndices[j]);
 			}
 		}

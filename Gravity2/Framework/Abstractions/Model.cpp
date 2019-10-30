@@ -74,7 +74,7 @@ void GrvtMesh::Free() {
 //}
 //
 //
-//void Mesh::UpdateInstanceBufferData(uint Amount, const glm::mat4 *MatrixArray) {
+//void Mesh::UpdateInstanceBufferData(uint32 Amount, const glm::mat4 *MatrixArray) {
 //	glBindVertexArray(vao);
 //	glBindBuffer(GL_ARRAY_BUFFER, ibo);
 //	glBufferData(GL_ARRAY_BUFFER, Amount * sizeof(glm::mat4), MatrixArray, GL_STATIC_DRAW);

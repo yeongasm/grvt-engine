@@ -74,7 +74,7 @@ namespace Middleware {
 		// Build meshes that are in the queue.
 		for (MeshPacket &Packet : MeshQueue) {
 			BaseAPI::BuildMesh(Packet.ResourcePtr->Vao, Packet.ResourcePtr->Vbo, Packet.ResourcePtr->Ebo, Packet.BuildData);
-			Packet.ResourcePtr->Size = (Packet.ResourcePtr->Ebo.Id) ? (uint)Packet.BuildData.Length : (uint)Packet.BuildData.Size;
+			Packet.ResourcePtr->Size = (Packet.ResourcePtr->Ebo.Id) ? (uint32)Packet.BuildData.Length : (uint32)Packet.BuildData.Size;
 			free(Packet.BuildData.Data);
 			MeshQueue.pop_front();
 		}
@@ -172,13 +172,13 @@ namespace Middleware {
 	//	MeshObj	*mesh		= nullptr;
 	//	aiMesh	*assimpMesh = nullptr;
 
-	//	uint flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
+	//	uint32 flags = aiProcess_Triangulate | aiProcess_CalcTangentSpace;
 	//	if (FlipUV)
 	//		flags |= aiProcess_FlipUVs;
 
 	//	const aiScene *assimpScene = importFile.ReadFile(~Path, flags);
 
-	//	for (uint i = 0; i < assimpScene->mNumMeshes; i++) {
+	//	for (uint32 i = 0; i < assimpScene->mNumMeshes; i++) {
 	//		assimpMesh = assimpScene->mMeshes[i];
 	//		mesh = &Model->Meshes.Insert(MeshObj());
 
@@ -194,7 +194,7 @@ namespace Middleware {
 	//		glm::vec3	vector;
 	//		glm::vec2	uv;
 
-	//		for (uint i = 0; i < assimpMesh->mNumVertices; i++) {
+	//		for (uint32 i = 0; i < assimpMesh->mNumVertices; i++) {
 	//			vector.x = assimpMesh->mVertices[i].x;
 	//			vector.y = assimpMesh->mVertices[i].y;
 	//			vector.z = assimpMesh->mVertices[i].z;
@@ -231,10 +231,10 @@ namespace Middleware {
 	//			}
 	//		}
 
-	//		for (uint i = 0; i < assimpMesh->mNumFaces; i++) {
+	//		for (uint32 i = 0; i < assimpMesh->mNumFaces; i++) {
 	//			aiFace assimpFace = assimpMesh->mFaces[i];
 
-	//			for (uint j = 0; j < assimpFace.mNumIndices; j++)
+	//			for (uint32 j = 0; j < assimpFace.mNumIndices; j++)
 	//				mesh->Indices.Push(assimpFace.mIndices[j]);
 	//		}
 	//	}
@@ -291,7 +291,7 @@ namespace Middleware {
 			buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(4, 3, stride, pointer));
 		}
 
-		for (uint i = 0; i < mesh.Positions.Length(); i++) {
+		for (uint32 i = 0; i < mesh.Positions.Length(); i++) {
 			buildData.Data[idx++] = mesh.Positions[i].x;
 			buildData.Data[idx++] = mesh.Positions[i].y;
 			buildData.Data[idx++] = mesh.Positions[i].z;

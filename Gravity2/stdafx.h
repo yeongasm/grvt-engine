@@ -66,7 +66,7 @@ using namespace Gfl;
 #include "Framework/Abstractions/Texture.h"
 #include "Framework/Abstractions/Postprocessing.h"
 #include "Framework/Abstractions/Model.h"
-#include "Framework/Abstractions/Material.h"
+//#include "Framework/Abstractions/Material.h"
 //#include "Framework/Abstractions/SceneInstace.h"
 #include "Framework/Abstractions/Lighting.h"
 #include "Framework/Camera/Camera.h"

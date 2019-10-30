@@ -23,7 +23,6 @@ struct LightCreationInfo {
 
 	glm::vec3	Position;
 	glm::vec3	Colour;
-	String		Name;
 	LightType	Type;
 	float		Brightness;
 	float		Constant;
