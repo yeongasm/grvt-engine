@@ -80,7 +80,7 @@ public:
 	* Allocates a new resource into the manager.
 	* Note, this does not create the resource in the GPU if it is a graphics object.
 	*/
-	Type* NewResource(size_t Id, const String& Name) {
+	Type* NewResource(size_t Id, const std::string& Name) {
 		EngineResource<Type> resource;
 
 		resource.Name = Name;
@@ -98,8 +98,8 @@ public:
 	bool DeleteResource(size_t Id) {
 		EngineResource<Type>& resource = Store[Id];
 
-		resource.Name.Release();
-		resource.Path.Release();
+		resource.Name.clear();
+		resource.Path.clear();
 
 		delete resource.ResourcePtr;
 
@@ -127,12 +127,12 @@ private:
 	/**
 	* Checks if a model with the specified path already exist in the engine.
 	*/
-	bool CheckIfModelExist(const String& Path);
+	bool CheckIfModelExist(const std::string& Path);
 
 	/**
 	* Checks if a texture with the specified path already exist in the engine.
 	*/
-	bool CheckIfTextureExist(const String& Path);
+	bool CheckIfTextureExist(const std::string& Path);
 
 public:
 

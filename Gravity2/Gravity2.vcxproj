@@ -259,7 +259,6 @@
     <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
     <ClCompile Include="Framework\Foundations\Interface.cpp" />
     <ClCompile Include="Engine\Manager\Manager.cpp" />
-    <ClCompile Include="Graphics\Scene.cpp" />
     <ClCompile Include="Framework\Abstractions\Shader.cpp" />
     <ClCompile Include="Framework\Abstractions\Texture.cpp" />
     <ClCompile Include="Framework\Foundations\LowLevelAPI.cpp">
@@ -303,7 +302,6 @@
     <ClInclude Include="Framework\Abstractions\Lighting.h" />
     <ClInclude Include="Framework\Foundations\Interface.h" />
     <ClInclude Include="Engine\Manager\Manager.h" />
-    <ClInclude Include="Graphics\Scene.h" />
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
     <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />

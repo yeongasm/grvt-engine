@@ -17,7 +17,7 @@ GrvtTexture::~GrvtTexture() {}
 
 GrvtTexture* GrvtTexture::Alloc(const TextureImportInfo& Info) {
 	Type = Info.Type;
-	for (const String& path : Info.Path) {
+	for (const std::string& path : Info.Path) {
 		TextureProps& prop = Properties.Insert(TextureProps());
 		prop.Path = path;
 	}
@@ -28,7 +28,7 @@ GrvtTexture* GrvtTexture::Alloc(const TextureImportInfo& Info) {
 
 void GrvtTexture::Free() {
 	for (TextureProps& prop : Properties) {
-		prop.Path.Release();
+		prop.Path.clear();
 		delete prop.DataPtr;
 	}
 }

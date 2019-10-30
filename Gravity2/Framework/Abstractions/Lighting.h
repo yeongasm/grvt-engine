@@ -88,9 +88,9 @@ private:
 
 public:
 
-	virtual void	Alloc(const LightCreationInfo& Info)	= 0;
-	virtual void	Free()									= 0;
-	virtual void	Compute(glm::mat4& Buffer)				= 0;
+	virtual void	Alloc(const LightCreationInfo& Info);
+	virtual void	Free();
+	virtual void	Compute(glm::mat4& Buffer);
 
 };
 
@@ -135,6 +135,7 @@ public:
 * Add a function to generate debug sphere in wireframe mode.
 */
 class PointLight : public LightSource {
+public:
 
 	Array<glm::mat4> LightSpaceTransforms;
 
@@ -147,15 +148,19 @@ class PointLight : public LightSource {
 	PointLight();
 	~PointLight();
 
+private:
+
 	PointLight(const PointLight&)				= delete;
 	PointLight& operator= (const PointLight&)	= delete;
 
 	PointLight(PointLight&&)					= delete;
 	PointLight& operator= (PointLight&&)		= delete;
 
-	void	Alloc(const LightCreationInfo& Info);
-	void	Free();
+public:
+
+	void	Alloc(const LightCreationInfo& Info) override;
+	void	Free() override;
 	void	UpdateRadius(bool Simplify, float Value);
-	void	Compute(glm::mat4& Buffer);
+	void	Compute(glm::mat4& Buffer) override;
 
 };

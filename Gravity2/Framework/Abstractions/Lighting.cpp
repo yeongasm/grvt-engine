@@ -23,6 +23,35 @@ LightSource::LightSource() :
 LightSource::~LightSource() {}
 
 
+void LightSource::Alloc(const LightCreationInfo& Info) {
+	Brightness	= Info.Brightness;
+	Type		= Info.Type;
+	Position	= Info.Position;
+	Colour		= Info.Colour;
+}
+
+
+void LightSource::Free() {
+	Brightness	= 0.0f;
+	Type		= GrvtLight_Type_None;
+	Position	= glm::vec3(0.0f);
+	Colour		= glm::vec3(0.0f);
+	Shadow.Type = GrvtShadowMap_None;
+}
+
+
+void LightSource::Compute(glm::mat4& Buffer) {
+	Buffer[0][0] = 0.0f;
+	Buffer[0][1] = Brightness;
+	Buffer[1][0] = Position.x;
+	Buffer[1][1] = Position.y;
+	Buffer[1][2] = Position.z;
+	Buffer[2][0] = Colour.x;
+	Buffer[2][1] = Colour.y;
+	Buffer[2][2] = Colour.z;
+}
+
+
 DirLight::DirLight() : LightSource(), LightSpaceTransform() {}
 
 
@@ -36,31 +65,34 @@ DirLight::~DirLight() {}
 
 
 void DirLight::Alloc(const LightCreationInfo& Info) {
-	Position	= Info.Position;
-	Colour		= Info.Colour;
-	Brightness	= Info.Brightness;
-	Type		= Info.Type;
+	LightSource::Alloc(Info);
+	//Position	= Info.Position;
+	//Colour		= Info.Colour;
+	//Brightness	= Info.Brightness;
+	//Type		= Info.Type;
 }
 
 
 void DirLight::Free() {
-	Brightness	= 0.0f;
-	Type		= GrvtLight_Type_None;
-	Position	= glm::vec3(0.0f);
-	Colour		= glm::vec3(0.0f);
-	Shadow.Type = GrvtShadowMap_None;
+	LightSource::Free();
+	//Brightness	= 0.0f;
+	//Type		= GrvtLight_Type_None;
+	//Position	= glm::vec3(0.0f);
+	//Colour		= glm::vec3(0.0f);
+	//Shadow.Type = GrvtShadowMap_None;
 }
 
 
 void DirLight::Compute(glm::mat4& Buffer) {
-	Buffer[0][0] = 0.0f;
-	Buffer[0][1] = Brightness;
-	Buffer[1][0] = Position.x;
-	Buffer[1][1] = Position.y;
-	Buffer[1][2] = Position.z;
-	Buffer[2][0] = Colour.x;
-	Buffer[2][1] = Colour.y;
-	Buffer[2][2] = Colour.z;
+	LightSource::Compute(Buffer);
+	//Buffer[0][0] = 0.0f;
+	//Buffer[0][1] = Brightness;
+	//Buffer[1][0] = Position.x;
+	//Buffer[1][1] = Position.y;
+	//Buffer[1][2] = Position.z;
+	//Buffer[2][0] = Colour.x;
+	//Buffer[2][1] = Colour.y;
+	//Buffer[2][2] = Colour.z;
 }
 
 

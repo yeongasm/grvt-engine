@@ -4,11 +4,11 @@
 namespace Util {
 
 
-	bool OpenFile(std::string& Buffer, const std::string& Path) {
+	bool OpenFile(std::string& Buffer, const char* Path) {
 		FILE* stream = nullptr;
 		fpos_t	pos;
 
-		stream = fopen(Path.c_str(), "rb");
+		stream = fopen(Path, "rb");
 
 		if (!stream)
 			return false;
@@ -28,10 +28,10 @@ namespace Util {
 	}
 
 
-	std::string RootDir(const std::string& Path) {
+	std::string RootDir(const char* Path) {
 		std::string path;
 		char buf[1024];
-		sprintf_s(buf, sizeof(char) * 1024, "%s/%s", __ROOT__, Path.c_str());
+		sprintf_s(buf, sizeof(char) * 1024, "%s/%s", __ROOT__, Path);
 		path = buf;
 
 		return path;
@@ -43,36 +43,37 @@ namespace Util {
 	}
 
 
-	bool GetFileNameFromPath(std::string& Path, std::string& File, std::string& Directory) {
-		const char backSlash = '\\';
-		const char forwardSlash = '/';
-		size_t lastIdx = -1;
+	//bool GetFileNameFromPath(const char* Path, std::string& File, std::string& Directory) {
+	//	const char backSlash = '\\';
+	//	const char forwardSlash = '/';
+	//	size_t lastIdx = -1;
+	//	size_t length = strlen(Path);
 
-		for (size_t i = Path.length() - 1; i >= 0; i--) {
-			// Get first back slash or forward slash.
-			if (Path[i] == backSlash || Path[i] == forwardSlash) {
-				lastIdx = i;
-				break;
-			}
-		}
+	//	for (size_t i = length - 1; i >= 0; i--) {
+	//		// Get first back slash or forward slash.
+	//		if (Path[i] == backSlash || Path[i] == forwardSlash) {
+	//			lastIdx = i;
+	//			break;
+	//		}
+	//	}
 
-		if (lastIdx == -1 || lastIdx == Path.length() - 1)
-			return false;
+	//	if (lastIdx == -1 || lastIdx == length - 1)
+	//		return false;
 
-		Iterator<char> it = Iterator<char>(&Path[0]);
+	//	Iterator<char> it = Iterator<char>(&Path[0]);
 
-		// Set the directory name.
-		Directory.Append(it, lastIdx + 1);
-		Directory[lastIdx + 1] = '\0';
+	//	// Set the directory name.
+	//	Directory.Append(it, lastIdx + 1);
+	//	Directory[lastIdx + 1] = '\0';
 
-		// Set the file name.
-		it = it + lastIdx + 1;
-		size_t length = Path.length() - lastIdx;
-		File.Append(it, length);
-		File[length - 1] = '\0';
+	//	// Set the file name.
+	//	it = it + lastIdx + 1;
+	//	size_t length = Path.length() - lastIdx;
+	//	File.Append(it, length);
+	//	File[length - 1] = '\0';
 
-		return true;
-	}
+	//	return true;
+	//}
 
 
 	bool OpenNativeFileDialog(WindowNativeDialogMode Mode, std::string& Buffer, const char* Format) {

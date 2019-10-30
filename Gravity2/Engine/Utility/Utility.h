@@ -36,13 +36,13 @@ namespace Util {
 	* @param [REQUIRED] (String) Buffer - Buffer to stream in file contents.
 	* @param [REQUIRED] (String) Path   - Path to file.
 	*/
-	bool OpenFile(String& Buffer, const String& Path);
+	bool OpenFile(std::string& Buffer, const char* Path);
 
 	/**
 	* Checks if a file at the specified path exist or not.
 	* @param [REQUIRED] (String) Path - Path to file.
 	*/
-	bool DoesFileExist(const String& Path);
+	bool DoesFileExist(const char* Path);
 
 
 	/**
@@ -52,7 +52,7 @@ namespace Util {
 	* @param [REQUIRED] (String) File - Buffer to place file.
 	* @param [OPTIONAL] (String) Directory - Buffer to place directory.
 	*/
-	bool GetFileNameFromPath(String& Path, String& File, String& Directory);
+	//bool GetFileNameFromPath(const char* Path, std::string& File, std::string& Directory);
 
 
 	/**
@@ -61,7 +61,7 @@ namespace Util {
 	* @param [REQUIRED] (String)					Buffer - Buffer to place resulting path.
 	* @param [OPTIONAL] (const char*)				Format - Accepted file format WindowNativeDialogMode is set to NATIVE_DIALOG_OPEN_FILE.
 	*/
-	bool OpenNativeFileDialog(WindowNativeDialogMode Mode, String& Buffer, const char* Format = nullptr);
+	bool OpenNativeFileDialog(WindowNativeDialogMode Mode, std::string& Buffer, const char* Format = nullptr);
 
 
 	/**
@@ -70,14 +70,14 @@ namespace Util {
 	* @param [REQUIRED] (String)					Buffer - Buffer to place resulting path.
 	* @param [OPTIONAL] (const char*)				Format - Accepted file format WindowNativeDialogMode is set to NATIVE_DIALOG_OPEN_FILE.
 	*/
-	bool OpenNativeFileDialog(Array<String>& Buffer, const char* Format = nullptr);
+	bool OpenNativeFileDialog(Array<std::string>& Buffer, const char* Format = nullptr);
 
 
 	/**
 	* Root directory is the path to the solution's directory.
 	* @param [REQUIRED] Path - A buffer to place the path.
 	*/
-	String RootDir(const String& Path);
+	std::string RootDir(const char* Path);
 
 
 	/**
@@ -85,7 +85,7 @@ namespace Util {
 	* @param [REQUIRED] (String)		Path - Path to the model's location.
 	* @param [REQUIRED] (GrvtModel*)	Model - Model object.
 	*/
-	void AssimpImportModelFromPath(const String& Path, GrvtModel* Model);
+	void AssimpImportModelFromPath(const std::string& Path, GrvtModel* Model);
 
 
 }

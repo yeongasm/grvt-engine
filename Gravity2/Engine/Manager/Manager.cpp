@@ -271,7 +271,7 @@ GrvtShader* ResourceHandler::NewShaderProgram(const ShaderImportInfo& Import) {
 			return nullptr;
 
 		comp = prop.Component;
-		imported = (prop.Path.Length()) ? true : false;
+		imported = (prop.Path.length()) ? true : false;
 	}
 
 	// Create the resource id.
