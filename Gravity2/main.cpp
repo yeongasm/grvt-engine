@@ -40,12 +40,12 @@ struct Timer {
 
 
 int main() {
-	
-	//{
-		//Timer timer;
+
+	{
+		Timer timer;
 		String gfl;
 		gfl.Write("Hello World!");
-	//}
+	}
 
 	{
 		Timer timer;

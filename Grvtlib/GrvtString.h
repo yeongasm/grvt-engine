@@ -15,7 +15,7 @@ namespace Gfl
 
 #define BITS_IN_A_BYTE 8
 
-	template <typename Type>
+	template <typename Type, size_t SlackMultiplier = 5>
 	class BasicString
 	{
 	public:
@@ -29,12 +29,39 @@ namespace Gfl
 
 		union
 		{
-			Type* Ptr;
+			Type* Data;
 			Type  Buffer[SSO_MAX];
 		};
 
 		size_t Capacity;
 		size_t Len;
+
+
+		bool IsSmallString()
+		{
+			return Capacity <= SSO_MAX;
+		}
+
+
+		Type* PointerToString()
+		{
+			Type* Ptr = Buffer;
+			if (!IsSmallString())
+				Ptr = Data;
+
+			return Ptr;
+		}
+
+
+		const Type* PointerToString() const
+		{
+			const Type* Ptr = Buffer;
+			if (!IsSmallString())
+				Ptr = Data;
+
+			return Ptr;
+		}
+
 
 		/**
 		* Stores the string literal into the buffer.
@@ -44,20 +71,15 @@ namespace Gfl
 		*/
 		void StoreInBuffer(const char* Literal, size_t Length)
 		{
-			Type* Pointer = IsSmallString() ? Buffer : Ptr;
-			memcpy(Pointer, Literal, Length + 1);
-			Pointer[Length] = '\0';
-		}
-
-
-		bool IsSmallString()
-		{
-			return !(Capacity > SSO_MAX);
+			Type* Ptr = IsSmallString() ? Buffer : Data;
+			memcpy(Ptr, Literal, Length + 1);
+			Ptr[Length] = '\0';
 		}
 
 
 		void Destruct(size_t From = 0, size_t To = Len, bool Reconstruct = false)
 		{
+			Type* Ptr = PointerToString();
 			for (size_t i = From; i < To; i++)
 			{
 				Ptr[i].~Type();
@@ -75,7 +97,7 @@ namespace Gfl
 				Destruct(Length, Capacity);
 
 			Capacity = Append ? Capacity + Length : Length;
-			TempPtr = (Type*)realloc(Ptr, Capacity);
+			TempPtr = (Type*)realloc(Data, Capacity);
 			
 			if (!TempPtr)
 				return false;
@@ -85,7 +107,7 @@ namespace Gfl
 				new (TempPtr + i) Type();
 			}
 
-			Ptr = TempPtr;
+			Data = TempPtr;
 			
 			return true;
 		}
@@ -114,13 +136,16 @@ namespace Gfl
 		{
 			Destruct(0, Capacity);
 			if (!IsSmallString())
-				free(Ptr);
+				free(Data);
 
 			new (this) BasicString();
 		}
 
 		bool Reserve(size_t Length, bool Append = true)
 		{
+			if (Length <= SSO_MAX)
+				return false;
+
 			return Alloc(Length, Append);
 		}
 
@@ -137,6 +162,12 @@ namespace Gfl
 		size_t Write(const char* Literal)
 		{
 			size_t Length = strlen(Literal);
+			
+			if (Length > SSO_MAX)
+			{
+				Alloc(Length + (1 << SlackMultiplier), false);
+			}
+			
 			StoreInBuffer(Literal, Length);
 			Len = Length;
 			return Len;
@@ -144,7 +175,7 @@ namespace Gfl
 
 		const char* C_Str() const
 		{
-			return Ptr;
+			return PointerToString();
 		}
 		
 		size_t Length() const
@@ -157,14 +188,24 @@ namespace Gfl
 			return Capacity;
 		}
 
-		Iterator begin() const
+		Type* First()
 		{
-			return Iterator(Ptr);
+			return PointerToString();
 		}
 
-		Iterator end() const
+		Type* Last()
 		{
-			return Iterator(Ptr + Len);
+			return PointerToString() + Len;
+		}
+
+		Type& Front()
+		{
+			return *PointerToString();
+		}
+
+		Type& Back()
+		{
+			return *(PointerToString() + Len);
 		}
 
 	};
