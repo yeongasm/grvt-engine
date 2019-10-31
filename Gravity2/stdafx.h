@@ -44,6 +44,7 @@
 // Custom array and string class.
 #include <GrvtArray.h>
 #include <GrvtPair.h>
+#include <GrvtString.h>
 
 using namespace Gfl;
 
