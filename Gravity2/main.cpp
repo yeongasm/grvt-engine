@@ -41,18 +41,26 @@ struct Timer {
 
 int main() {
 
+
+	{
+		Timer timer;
+		std::string std = "The quick brown fox jumps over the lazy dog!";
+	}
+
 	{
 		Timer timer;
 		String gfl;
-		gfl.Write("Hello World!");
+		gfl.Write("The quick brown fox jumps over the lazy dog!");
+
+		for (auto &c : gfl)
+		{
+			printf("C: %c\n", c);
+		}
 	}
 
-	{
-		Timer timer;
-		std::string std = "Hello World!";
-	}
 
-	printf("%zd\n", sizeof(WString));
+
+	//printf("Contents of Gfl::String: %s\n", gfl.C_Str());
 	//GravityApp *app = NewApplication("Gravity Engine", 1366, 768, 4, 5);
 
 	//app->Init();

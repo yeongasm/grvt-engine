@@ -15,7 +15,7 @@ namespace Gfl
 
 #define BITS_IN_A_BYTE 8
 
-	template <typename Type, size_t SlackMultiplier = 5>
+	template <typename Type, size_t SlackMultiplier = 1>
 	class BasicString
 	{
 	public:
@@ -37,7 +37,7 @@ namespace Gfl
 		size_t Len;
 
 
-		bool IsSmallString()
+		bool IsSmallString() const
 		{
 			return Capacity <= SSO_MAX;
 		}
@@ -53,7 +53,7 @@ namespace Gfl
 		}
 
 
-		const Type* PointerToString() const
+		const Type* PointerToString() const 
 		{
 			const Type* Ptr = Buffer;
 			if (!IsSmallString())
@@ -63,17 +63,11 @@ namespace Gfl
 		}
 
 
-		/**
-		* Stores the string literal into the buffer.
-		*
-		* @param Literal - The string literal that is to be stored.
-		* @param Length - Length of the new string excluding the null terminator.
-		*/
-		void StoreInBuffer(const char* Literal, size_t Length)
+		template <typename... ForwardType>
+		void StoreInBuffer(size_t Index, ForwardType&&... Char)
 		{
-			Type* Ptr = IsSmallString() ? Buffer : Data;
-			memcpy(Ptr, Literal, Length + 1);
-			Ptr[Length] = '\0';
+			Type* Ptr = PointerToString();
+			Ptr[Index] = Type(Forward<ForwardType>(Char)...);
 		}
 
 
@@ -102,23 +96,50 @@ namespace Gfl
 			if (!TempPtr)
 				return false;
 
-			for (size_t i = Len; i < Capacity; i++)
-			{
-				new (TempPtr + i) Type();
-			}
-
 			Data = TempPtr;
 			
 			return true;
 		}
 
 
+		size_t WriteFv(const char* Literal)
+		{
+			Len = 0;
+			size_t Length = strlen(Literal);
+
+			if (Length >= Capacity) 
+			{
+				Alloc(Length + (1 << SlackMultiplier), false);
+			}
+
+			while (Len != Length) 
+			{
+				StoreInBuffer(Len++, Literal[Len]);
+			}
+
+			Type* Ptr = PointerToString();
+			Ptr[Len] = '\0';
+
+			return Len;
+		}
+
+
+
 		size_t WriteFv(const char* Format, va_list Arguments)
 		{
-			//size_t Length = -1;
+			size_t Length = -1;
 
-			//Length = vsnprintf(nullptr, 0, Format, Arguments);
+			// No one should ever need more than 256 Bytes of memory to write a formatted string.
+			// NOTE(Afiq):
+			// The size of this temporary buffer will change over time.
+			char Buf[256];
 
+			Length = vsnprintf(Buf, 256, Format, Arguments);
+
+			// Encoding error!
+			_ASSERTE(Length >= 0);
+
+			return WriteFv(Buf);
 		}
 
 
@@ -131,6 +152,103 @@ namespace Gfl
 		{
 			Release();
 		}
+
+
+		BasicString(size_t Size) : BasicString()
+		{
+			Alloc(Size, false);
+		}
+
+
+		BasicString(const BasicString& Rhs)
+		{
+			*this = Rhs;
+		}
+
+
+		BasicString& operator= (const BasicString& Rhs)
+		{
+			_ASSERTE(this != &Rhs);
+
+			if (this != &Rhs)
+			{
+				Type* Ptr = Buffer;
+				Type* RhsPtr = Rhs.PointerToString();
+
+				// Perform a deep copy if the copied string is not a small string.
+				if (!Rhs.IsSmallString())
+				{
+					Ptr = Data;
+					Alloc(Rhs.Capacity, false);
+				}
+
+				Capacity = Rhs.Capacity;
+				Len		 = Rhs.Len;
+
+				//memcpy(Ptr, RhsPtr, Rhs.Capacity);
+				for (size_t i = 0; i < Len; i++)
+				{
+					Ptr[i] = RhsPtr[i];
+				}
+			}
+
+			return *this;
+		}
+
+
+		BasicString(BasicString&& Rhs)
+		{
+			*this = Move(Rhs);
+		}
+
+
+		BasicString& operator= (BasicString&& Rhs)
+		{
+			_ASSERTE(this != &Rhs);
+
+			if (this != Rhs)
+			{
+				Type* Ptr = Buffer;
+				Type* RhsPtr = Rhs.PointerToString();
+
+				// Perform a deep copy if the copied string is not a small string.
+				if (!Rhs.IsSmallString()) 
+				{
+					Ptr = Data;
+				}
+
+				Capacity = Rhs.Capacity;
+				Len		 = Rhs.Len;
+
+				for (size_t i = 0; i < Len; i++) 
+				{
+					Ptr[i] = RhsPtr[i];
+				}
+
+				new (&Rhs) BasicString();
+			}
+
+			return *this;
+		}
+
+
+		Type& operator[] (size_t Index)
+		{
+			if (Index >= Capacity)
+				Alloc(Index + (1 << SlackMultiplier), true);
+
+			Type* Ptr = PointerToString();
+			return Ptr[Index];
+		}
+
+
+		const Type& operator[] (size_t Index) const
+		{
+			_ASSERTE(Index < Len);
+			Type* Ptr = PointerToString();
+			return Ptr[Index];
+		}
+
 
 		void Release()
 		{
@@ -161,19 +279,33 @@ namespace Gfl
 
 		size_t Write(const char* Literal)
 		{
-			size_t Length = strlen(Literal);
-			
-			if (Length > SSO_MAX)
-			{
-				Alloc(Length + (1 << SlackMultiplier), false);
-			}
-			
-			StoreInBuffer(Literal, Length);
-			Len = Length;
-			return Len;
+			return WriteFv(Literal);
 		}
 
-		const char* C_Str() const
+		void Empty()
+		{
+			Destruct(0, Len, true);
+		}
+
+		size_t Push(const Type& Char)
+		{
+			StoreInBuffer(Len++, Char);
+			Type* Ptr = PointerToString();
+			Ptr[Len] = '\0';
+
+			return Len++;
+		}
+
+		size_t Push(Type&& Char)
+		{
+			StoreInBuffer(Len++, Move(Char));
+			Type* Ptr = PointerToString();
+			Ptr[Len] = '\0';
+
+			return Len++;
+		}
+
+		const Type* C_Str() const
 		{
 			return PointerToString();
 		}

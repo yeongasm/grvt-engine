@@ -84,7 +84,7 @@ namespace Gfl
 		* This solves the problem of custom data types deleting copy assignment operator or move assignment operator.
 		*/
 		template <class... ForwardType>
-		void StoreObject(ForwardType&&...Element)
+		void StoreObject(ForwardType&&... Element)
 		{
 			if (Len == Capacity)
 			{
