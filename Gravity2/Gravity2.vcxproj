@@ -267,6 +267,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ThirdParty\smhasher\MurmurHash3.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ThirdParty\stb\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -305,6 +311,7 @@
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
     <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
+    <ClInclude Include="ThirdParty\smhasher\MurmurHash3.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="Engine\Utility\Utility.h" />
     <ClInclude Include="stdafx.h" />

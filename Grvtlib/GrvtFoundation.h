@@ -11,6 +11,10 @@
 namespace Gfl 
 {
 
+
+#define BITS_IN_A_BYTE 8
+
+
 #ifdef _WIN32
 
 	using uint8		= unsigned __int8;

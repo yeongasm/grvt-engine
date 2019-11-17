@@ -42,7 +42,7 @@ namespace Util {
 	* Checks if a file at the specified path exist or not.
 	* @param [REQUIRED] (String) Path - Path to file.
 	*/
-	bool DoesFileExist(const char* Path);
+	//bool DoesFileExist(const char* Path);
 
 
 	/**
@@ -88,4 +88,19 @@ namespace Util {
 	void AssimpImportModelFromPath(const std::string& Path, GrvtModel* Model);
 
 
+	/**
+	* Creates a hash using MurmurHash3_x86_32
+	*/
+	uint32 MurmurHash32(const void* Data, size_t Length);
+
 }
+
+
+/**
+* Hash functor to be used with Gfl::HashString and std::unordered_map
+*/
+struct MurmurStringHash {
+	
+	size_t operator() (const String& Source);
+
+};

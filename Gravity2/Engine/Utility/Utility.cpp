@@ -37,10 +37,10 @@ namespace Util {
 		return path;
 	}
 
-	bool DoesFileExist(const std::string& Path) {
-		struct stat buffer;
-		return (stat(Path.c_str(), &buffer) == 0);
-	}
+	//bool DoesFileExist(const std::string& Path) {
+	//	struct stat buffer;
+	//	return (stat(Path.c_str(), &buffer) == 0);
+	//}
 
 
 	//bool GetFileNameFromPath(const char* Path, std::string& File, std::string& Directory) {
@@ -197,4 +197,18 @@ namespace Util {
 			}
 		}
 	}
+
+
+	uint32 MurmurHash32(const void* Data, size_t Length) {
+		uint32 Hash = 0;
+		MurmurHash3_x86_32(Data, (int)Length, 0, &Hash);
+
+		return Hash;
+	}
+
+}
+
+
+size_t MurmurStringHash::operator() (const String& Source) {
+	return Util::MurmurHash32(Source.First(), Source.Length());
 }

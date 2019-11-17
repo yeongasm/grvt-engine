@@ -59,6 +59,7 @@ using namespace Gfl;
 #include "ThirdParty/DearImGui/imgui_internal.h"
 #include "ThirdParty/DearImGui/imgui_impl_glfw.h"
 #include "ThirdParty/DearImGui/imgui_impl_opengl3.h"
+#include "ThirdParty/smhasher/MurmurHash3.h"
 
 #include "Framework/Foundations/Foundations.h"
 #include "Framework/Foundations/LowLevelAPI.h"

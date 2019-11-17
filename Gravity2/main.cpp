@@ -14,69 +14,13 @@
 * Roughness - RGBA(57, 57, 57, 255)
 */
 
-struct Timer {
-	std::chrono::time_point<std::chrono::steady_clock> start, end;
-	std::chrono::duration<float> duration;
-
-	Timer()
-	{
-		start = std::chrono::high_resolution_clock::now();
-	}
-
-	~Timer()
-	{
-		printf("Time: %.6f ms\n\n", Now());
-	}
-
-
-	float Now()
-	{
-		end = std::chrono::high_resolution_clock::now();
-		duration = end - start;
-
-		return duration.count() * 1000.0f;
-	}
-};
-
 
 int main() {
 
+	HashString<MurmurStringHash> testing;
+	String testing2 = "Hello World!";
 
-	{
-		Timer timer;
-		std::string std = "The quick brown fox jumps over the lazy dog!";
-	}
-
-	{
-		Timer timer;
-		String gfl;
-		gfl.Write("The quick brown fox jumps over the lazy dog!");
-
-		for (auto &c : gfl)
-		{
-			printf("C: %c\n", c);
-		}
-	}
-
-
-
-	//printf("Contents of Gfl::String: %s\n", gfl.C_Str());
-	//GravityApp *app = NewApplication("Gravity Engine", 1366, 768, 4, 5);
-
-	//app->Init();
-	//app->EnableVSync(1);
-
-	//while (!app->CloseAplication()) {
-	//	app->NewFrame();
-	//	app->Tick();
-
-	//	app->ui.Tick();
-	//	app->SwapBuffer();
-	//}
-
-	//TerminateApplication(app);
-
-	//Logger::Free();
+	testing = testing2;
 
 #if 0
 	_CrtDumpMemoryLeaks();
