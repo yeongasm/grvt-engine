@@ -352,60 +352,96 @@ bool ResourceHandler::DeleteShader(size_t Id, bool Force) {
 }
 
 
-//GrvtMaterial* ResourceHandler::NewMaterial(const MaterialCreationInfo& Info) {
-//	// To accommodate shader graphs in the future, there is no method we can check if the same material exist in the system.
-//
-//	size_t id = GenerateResourceId<GrvtMaterial>(GrvtResource_Type_Material);
-//	Resources.insert({Info.Name, id});
-//	
-//	GrvtMaterial* material = MaterialManager.NewResource(id, Info.Name);
-//	material->Alloc(Info);
-//	MaterialManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
-//
-//	// Increase the shader  ref count by 1.
-//	for (auto& [key, value] : ShaderManager.Store) {
-//		if (Info.Shader != value.ResourcePtr)
-//			continue;
-//
-//		value.RefCount++;
-//		break;
-//	}
-//
-//	// Increase the textures used ref counts by 1.
-//	for (auto& [key, value] : TextureManager.Store) {
-//		for (TexturePair& pair : Info.Textures) {
-//			if (pair.Value == &value.ResourcePtr->Handle)
-//				value.RefCount++;
-//		}
-//	}
-//
-//
-//	return material;
-//}
-//
-//
-//GrvtMaterial* ResourceHandler::GetMaterial(const String& Identifier, bool Safe) {
-//	if (!Safe)
-//		return MaterialManager.Store[Resources[Identifier]].ResourcePtr;
-//
-//	auto it = Resources.find(Identifier);
-//	if (it != Resources.end())
-//		return MaterialManager.Store[Resources[Identifier]].ResourcePtr;
-//
-//	return nullptr;
-//}
-//
-//
-//GrvtMaterial* ResourceHandler::GetMaterial(size_t Id, bool Safe) {
-//	if (!Safe)
-//		return MaterialManager.Store[Id].ResourcePtr;
-//
-//	auto it = MaterialManager.Store.find(Id);
-//	if (it != MaterialManager.Store.end())
-//		return MaterialManager.Store[Id].ResourcePtr;
-//
-//	return nullptr;
-//}
+GrvtMaterial* ResourceHandler::NewMaterial(const MaterialCreationInfo& Info) {
+	// To accommodate shader graphs in the future, there is no method we can check if the same material exist in the system.
+
+	size_t id = GenerateResourceId<GrvtMaterial>(GrvtResource_Type_Material);
+	Resources.insert({Info.Name, id});
+	
+	GrvtMaterial* material = MaterialManager.NewResource(id, Info.Name);
+	material->Alloc(Info);
+	MaterialManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
+
+	// Increase the shader  ref count by 1.
+	for (auto& [key, value] : ShaderManager.Store) {
+		if (Info.Shader != value.ResourcePtr)
+			continue;
+
+		value.RefCount++;
+		break;
+	}
+
+	// Increase the textures used ref counts by 1.
+	for (auto& [key, value] : TextureManager.Store) {
+		for (TexturePair& pair : Info.Textures) {
+			if (pair.Value == &value.ResourcePtr->Handle)
+				value.RefCount++;
+		}
+	}
+
+
+	return material;
+}
+
+
+GrvtMaterial* ResourceHandler::GetMaterial(const String& Identifier, bool Safe) {
+	if (!Safe)
+		return MaterialManager.Store[Resources[Identifier]].ResourcePtr;
+
+	auto it = Resources.find(Identifier);
+	if (it != Resources.end())
+		return MaterialManager.Store[Resources[Identifier]].ResourcePtr;
+
+	return nullptr;
+}
+
+
+GrvtMaterial* ResourceHandler::GetMaterial(size_t Id, bool Safe) {
+	if (!Safe)
+		return MaterialManager.Store[Id].ResourcePtr;
+
+	auto it = MaterialManager.Store.find(Id);
+	if (it != MaterialManager.Store.end())
+		return MaterialManager.Store[Id].ResourcePtr;
+
+	return nullptr;
+}
+
+
+EngineResource<GrvtMaterial>* ResourceHandler::GetMaterialHandle(const String& Identifier, bool Safe) {
+	if (!Safe)
+		return &MaterialManager.Store[Resources[Identifier]];
+
+	auto it = Resources.find(Identifier);
+	if (it != Resources.end())
+		return &MaterialManager.Store[Resources[Identifier]];
+
+	return nullptr;
+}
+
+
+bool ResourceHandler::DeleteMaterial(const String& Identifier, bool Force) {
+	EngineResource<GrvtMaterial>* handle = GetMaterialHandle(Identifier);
+	if (!handle)
+		return false;
+
+	if (!Force && handle->RefCount)
+		return false;
+
+	MaterialManager.DeleteResource(Resources[Identifier]);
+	Resources.erase(Identifier);
+
+	return true;
+}
+
+
+bool ResourceHandler::DeleteMaterial(size_t Id, bool Force) {
+	GrvtMaterial* material = GetMaterial(Id);
+	if (!material)
+		return false;
+
+	return DeleteMaterial(MaterialManager.Store[Id].Name.C_Str(), Force);
+}
 
 
 GrvtPostProcess* ResourceHandler::NewPostProcessing(const PostProcessCreationInfo& Info) {

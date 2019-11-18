@@ -71,7 +71,7 @@ using namespace Gfl;
 #include "Framework/Abstractions/Material.h"
 #include "Framework/Abstractions/Lighting.h"
 #include "Framework/Camera/Camera.h"
-//#include "Framework/Renderer/RenderNode.h"
+#include "Framework/Renderer/RenderFoundation.h"
 //#include "Framework/Renderer/RenderCommand.h"
 //#include "Framework/Renderer/RenderInstance.h"
 //#include "Framework/Renderer/Renderer.h"

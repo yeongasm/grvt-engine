@@ -112,6 +112,8 @@ public:
 
 
 /**
+* NOTE(Afiq):
+* Should deleting a material delete the shader and material as well?
 */
 class ResourceHandler {
 private:
@@ -267,14 +269,40 @@ public:
 	*/
 	bool DeleteShader(size_t Id, bool Force = false);
 
+	/**
+	* Creates a new material and stores it in the engine.
+	*/
+	GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
 
-	//GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
+	/**
+	* Retrieves the material specified by the identifier from the engine.
+	* Safe mode will check if the resource with such identifier exist and only return if it does.
+	*/
+	GrvtMaterial* GetMaterial(const String& Identifier, bool Safe = true);
+	
+	/**
+	* Retrieves the material specified by the id from the engine.
+	* Safe mode will check if the resource with such identifier exist and only return if it does.
+	*/
+	GrvtMaterial* GetMaterial(size_t Id, bool Safe = true);
 
-	//GrvtMaterial* GetMaterial(const String& Identifier, bool Safe = true);
-	//GrvtMaterial* GetMaterial(size_t Id, bool Safe = true);
+	/**
+	* Retrieve's the material's handler.
+	* Safe mode will check if the specified identifier provided exists and only return if it does.
+	*/
+	EngineResource<GrvtMaterial>* GetMaterialHandle(const String& Identifier, bool Safe = true);
 
-	//bool DeleteMaterial(const String& Identifier);
-	//bool DeleteMaterial(size_t Id);
+	/**
+	* Deletes a material with the specified identifier.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteMaterial(const String& Identifier, bool Force = false);
+	
+	/**
+	* Deletes a material with the specified id.
+	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+	*/
+	bool DeleteMaterial(size_t Id, bool Force = false);
 
 	/**
 	* Creates a new framebuffer and stores it in the engine.

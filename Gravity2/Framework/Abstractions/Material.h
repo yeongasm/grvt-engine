@@ -40,8 +40,6 @@ public:
 
 	/**
 	* Assigns the shaders and textures for this material.
-	* TODO(Afiq):
-	* Only accept material shaders.
 	*/
 	void Alloc(const MaterialCreationInfo& Info);
 

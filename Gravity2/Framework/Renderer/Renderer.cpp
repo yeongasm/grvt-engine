@@ -134,7 +134,6 @@ void Renderer::RenderMesh(RenderNode *Node) {
 
 void Renderer::RenderPushedCommand(RenderCommand *Command) {
 
-
 	for (RenderNode &node : Command->nodes) {
 		// Update shader uniforms here and bind texture units to it's respective slots.
 		UniformAttr *pUniform = nullptr;
