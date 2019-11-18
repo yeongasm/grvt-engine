@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include "GrvtFoundation.h"
 #include "GrvtIterator.h"
+#include "GrvtHash.h"
 
 
 namespace Gfl
@@ -172,7 +173,7 @@ namespace Gfl
 		* Compares to see if the strings are the same.
 		* Returns true if they are the same.
 		*/
-		bool Compare(const BasicString& Rhs)
+		bool Compare(const BasicString& Rhs) const
 		{
 			// If the object is being compared with itself, then it definitely will always be the same.
 			if (this != &Rhs) {
@@ -180,7 +181,7 @@ namespace Gfl
 				if (Len != Rhs.Len)
 					return false;
 
-				Type* Ptr = PointerToString();
+				const Type* Ptr = PointerToString();
 				const Type* RhsPtr = Rhs.PointerToString();
 
 				// If the length are the same, we have to check if the contents of the string matches one another.
@@ -195,14 +196,14 @@ namespace Gfl
 		}
 
 
-		bool Compare(const char* Literal)
+		bool Compare(const char* Literal) const
 		{
 			size_t Length = strlen(Literal);
 
 			if (Len != Length)
 				return false;
 
-			Type* Ptr = PointerToString();
+			const Type* Ptr = PointerToString();
 
 			for (size_t i = 0; i < Len; i++)
 			{
@@ -348,25 +349,25 @@ namespace Gfl
 		}
 
 
-		bool operator== (const BasicString& Rhs)
+		bool operator== (const BasicString& Rhs) const
 		{
 			return Compare(Rhs);
 		}
 
 
-		bool operator!= (const BasicString& Rhs)
+		bool operator!= (const BasicString& Rhs) const
 		{
 			return !(*this == Rhs);
 		}
 
 
-		bool operator== (const char* Literal)
+		bool operator== (const char* Literal) const
 		{
 			return Compare(Literal);
 		}
 
 
-		bool operator!= (const char* Literal)
+		bool operator!= (const char* Literal) const
 		{
 			return !(*this == Literal);
 		}
@@ -632,7 +633,7 @@ namespace Gfl
 	* HashAlgorithm needs to be a functor object that accepts a const reference String or WString (depending on what was specified in the template argument) as an argument.
 	* The functor would then need to return the hash.
 	*/
-	template <typename Type, typename HashAlgorithm, size_t SlackMultiplier = 2>
+	template <typename Type, typename HashAlgorithm = MurmurHash<BasicString<Type>>, size_t SlackMultiplier = 2>
 	class BasicHashString : public BasicString<Type, SlackMultiplier>
 	{
 	private:
@@ -756,7 +757,7 @@ namespace Gfl
 		/**
 		* Overloaded equality operator.
 		*/
-		bool operator== (const BasicHashString& Rhs)
+		bool operator== (const BasicHashString& Rhs) const
 		{
 			if (Hash != Rhs.Hash)
 			{
@@ -770,7 +771,7 @@ namespace Gfl
 		/**
 		* Overloaded inequality operator.
 		*/
-		bool operator!= (const BasicHashString& Rhs)
+		bool operator!= (const BasicHashString& Rhs) const
 		{
 			return !(*this == Rhs);
 		}
@@ -968,11 +969,14 @@ namespace Gfl
 	using StringView	= BasicStringView<char>;
 	using WStringView	= BasicStringView<wchar_t>;
 
-	template <typename HashAlgorithm>
-	using HashString	= BasicHashString<char, HashAlgorithm>;
+	using HashString	= BasicHashString<char>;
+	using HashWString	= BasicHashString<wchar_t>;
 
 	template <typename HashAlgorithm>
-	using HashWString	= BasicHashString<wchar_t, HashAlgorithm>;
+	using THashString	= BasicHashString<char, HashAlgorithm>;
+
+	template <typename HashAlgorithm>
+	using THashWString	= BasicHashString<wchar_t, HashAlgorithm>;
 
 }
 

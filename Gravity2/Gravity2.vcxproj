@@ -195,12 +195,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Framework\Abstractions\Material.cpp" />
     <ClCompile Include="Framework\Abstractions\Model.cpp" />
     <ClCompile Include="Framework\Abstractions\Postprocessing.cpp" />
     <ClCompile Include="Framework\Foundations\Foundations.cpp" />
     <ClCompile Include="Engine\IO\InputHandler.cpp" />
     <ClCompile Include="Engine\IO\IO.cpp" />
-    <ClCompile Include="Engine\Profiling\Statistics.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -267,12 +267,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ThirdParty\smhasher\MurmurHash3.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="ThirdParty\stb\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -289,12 +283,13 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Framework\Abstractions\Material.h" />
     <ClInclude Include="Framework\Abstractions\Model.h" />
     <ClInclude Include="Framework\Abstractions\Postprocessing.h" />
     <ClInclude Include="Framework\Foundations\Foundations.h" />
     <ClInclude Include="Engine\IO\InputHandler.h" />
     <ClInclude Include="Engine\IO\IO.h" />
-    <ClInclude Include="Engine\Profiling\Statistics.h" />
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui_impl_glfw.h" />
@@ -311,10 +306,8 @@
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
     <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
-    <ClInclude Include="ThirdParty\smhasher\MurmurHash3.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
     <ClInclude Include="Engine\Utility\Utility.h" />
-    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Orion.natvis" />

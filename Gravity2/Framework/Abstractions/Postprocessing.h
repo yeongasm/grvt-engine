@@ -49,7 +49,7 @@ using PPAttachments = Array<PostProcessAttachment>;
 struct PostProcessCreationInfo {
 
 	PPAttachments	Attachments;
-	std::string		Name;
+	String			Name;
 	int32			Width;
 	int32			Height;
 

@@ -96,7 +96,7 @@ namespace Middleware {
 			UniformAttr uniform;
 
 			glGetProgramiv(Packet.ResourcePtr->Handle.Id, GL_ACTIVE_UNIFORMS, &total);
-			Packet.ResourcePtr->Uniforms.reserve(*(size_t*)&total);
+			Packet.ResourcePtr->Uniforms.Reserve(*(size_t*)&total);
 			for (uint32 i = 0; i < *(uint32*)&total; i++) {
 				glGetActiveUniform(Packet.ResourcePtr->Handle.Id, i, sizeof(buffer), 0, &size, &type, buffer);
 				GetUniformType(type, uniform.Type, uniform.SubType);
@@ -104,7 +104,7 @@ namespace Middleware {
 				uniform.Location = glGetUniformLocation(Packet.ResourcePtr->Handle.Id, buffer);
 				uniform.Size	 = size;
 
-				Packet.ResourcePtr->Uniforms.insert({buffer, uniform});
+				Packet.ResourcePtr->Uniforms.Insert(uniform);
 			}
 
 			ShaderQueue.pop_front();
@@ -366,7 +366,7 @@ namespace Middleware {
 				break;
 			}
 			
-			info.SourceCode = ShaderSrc->Properties[i].Code.data();
+			info.SourceCode = ShaderSrc->Properties[i].Code.First();
 			info.Type = type;
 			buildData.BuildInfo.Push(info);
 		}

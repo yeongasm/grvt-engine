@@ -103,7 +103,7 @@ namespace Util {
 	}
 
 
-	bool OpenNativeFileDialog(Array<std::string>& Buffer, const char* Format) {
+	bool OpenNativeFileDialog(Array<String>& Buffer, const char* Format) {
 		nfdpathset_t pathSet;
 		nfdresult_t result = NFD_OpenDialogMultiple(Format, __ROOT__, &pathSet);
 
@@ -124,7 +124,7 @@ namespace Util {
 	}
 
 	
-	void AssimpImportModelFromPath(const std::string& Path, GrvtModel* Model) {
+	void AssimpImportModelFromPath(const String& Path, GrvtModel* Model) {
 		Assimp::Importer importFile;
 
 		GrvtMesh* mesh = nullptr;
@@ -134,7 +134,7 @@ namespace Util {
 		//if (FlipUV)
 		//	flags |= aiProcess_FlipUVs;
 
-		const aiScene* assimpScene = importFile.ReadFile(Path.c_str(), flags);
+		const aiScene* assimpScene = importFile.ReadFile(Path.C_Str(), flags);
 
 		for (uint32 i = 0; i < assimpScene->mNumMeshes; i++) {
 			assimpMesh = assimpScene->mMeshes[i];
@@ -198,17 +198,4 @@ namespace Util {
 		}
 	}
 
-
-	uint32 MurmurHash32(const void* Data, size_t Length) {
-		uint32 Hash = 0;
-		MurmurHash3_x86_32(Data, (int)Length, 0, &Hash);
-
-		return Hash;
-	}
-
-}
-
-
-size_t MurmurStringHash::operator() (const String& Source) {
-	return Util::MurmurHash32(Source.First(), Source.Length());
 }

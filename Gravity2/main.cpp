@@ -17,10 +17,6 @@
 
 int main() {
 
-	HashString<MurmurStringHash> testing;
-	String testing2 = "Hello World!";
-
-	testing = testing2;
 
 #if 0
 	_CrtDumpMemoryLeaks();

@@ -70,7 +70,7 @@ namespace Util {
 	* @param [REQUIRED] (String)					Buffer - Buffer to place resulting path.
 	* @param [OPTIONAL] (const char*)				Format - Accepted file format WindowNativeDialogMode is set to NATIVE_DIALOG_OPEN_FILE.
 	*/
-	bool OpenNativeFileDialog(Array<std::string>& Buffer, const char* Format = nullptr);
+	bool OpenNativeFileDialog(Array<String>& Buffer, const char* Format = nullptr);
 
 
 	/**
@@ -85,22 +85,6 @@ namespace Util {
 	* @param [REQUIRED] (String)		Path - Path to the model's location.
 	* @param [REQUIRED] (GrvtModel*)	Model - Model object.
 	*/
-	void AssimpImportModelFromPath(const std::string& Path, GrvtModel* Model);
-
-
-	/**
-	* Creates a hash using MurmurHash3_x86_32
-	*/
-	uint32 MurmurHash32(const void* Data, size_t Length);
+	void AssimpImportModelFromPath(const String& Path, GrvtModel* Model);
 
 }
-
-
-/**
-* Hash functor to be used with Gfl::HashString and std::unordered_map
-*/
-struct MurmurStringHash {
-	
-	size_t operator() (const String& Source);
-
-};

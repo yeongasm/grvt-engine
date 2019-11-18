@@ -15,8 +15,8 @@
 */
 struct ModelImportInfo {
 
-	std::string	Name;
-	std::string	Path;
+	String	Name;
+	String	Path;
 
 };
 

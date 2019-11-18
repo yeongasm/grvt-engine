@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClInclude Include="GrvtFoundation.h" />
     <ClInclude Include="GrvtArray.h" />
+    <ClInclude Include="GrvtHash.h" />
     <ClInclude Include="GrvtIterator.h" />
     <ClInclude Include="GrvtMap.h" />
     <ClInclude Include="GrvtPair.h" />
@@ -134,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GrvtArray.cpp" />
+    <ClCompile Include="GrvtHash.cpp" />
     <ClCompile Include="GrvtIterator.cpp" />
     <ClCompile Include="GrvtMap.cpp" />
     <ClCompile Include="GrvtPair.cpp" />

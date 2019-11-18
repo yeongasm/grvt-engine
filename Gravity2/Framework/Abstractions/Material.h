@@ -6,41 +6,27 @@ using TexturePair = Pair<TextureType, ObjHandle*>;
 
 /**
 */
-class MaterialCreationInfo {
-public:
+struct MaterialCreationInfo {
 
 	String				Name;
 	GrvtShader*			Shader;
 	Array<TexturePair>	Textures;
 
-	MaterialCreationInfo();
-	~MaterialCreationInfo();
-
-	void PushTexture(GrvtTexture* Texture);
-	void PopTexture(GrvtTexture* Texture);
-	void SetShader(GrvtShader* Shader);
-	void RemoveShader();
-
 };
 
 
 /**
-* TODO(Afiq):
-* Materials CANNOT be part of the foundation layer and needs to be revamped yet again.
-* It needs to be on a higher level abtraction than the foundation layers.
 */
 class GrvtMaterial {
-public:
-
-	std::unordered_map<std::string, UniformAttr>	Uniforms;
-	
 private:
 
-	Array<TexturePair>				Textures;
-	
+	size_t FindUniform(const String& Identifier);
+
 public:
 
-	ObjHandle*						ShaderHandle;
+	Array<UniformAttr>		Uniforms;
+	Array<TexturePair>		Textures;
+	ObjHandle*				ShaderHandle;
 
 	GrvtMaterial();
 	~GrvtMaterial();

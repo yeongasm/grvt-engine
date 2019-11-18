@@ -1,14 +1,6 @@
 #pragma once
 
 
-struct GLAPIVersion {
-	int major;
-	int minor;
-
-	GLAPIVersion();
-	GLAPIVersion(int VersionMajor, int VersionMinor);
-};
-
 /**
 * TODO(Afiq):
 * The main application class should be cleaned up.

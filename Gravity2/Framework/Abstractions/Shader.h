@@ -20,15 +20,15 @@ enum ShaderComponent : uint32 {
 */
 struct ShaderProps {
 
-	std::string		Code;
-	std::string		Path;
+	String			Code;
+	String			Path;
 	ShaderComponent	Component;
 	
 	ShaderProps();
 	~ShaderProps();
 
-	ShaderProps(const std::string& Code, ShaderComponent Component);
-	ShaderProps(const std::string& Code, const std::string& Path, ShaderComponent Component);
+	ShaderProps(const String& Code, ShaderComponent Component);
+	ShaderProps(const String& Code, const String& Path, ShaderComponent Component);
 
 };
 
@@ -38,13 +38,13 @@ struct ShaderProps {
 struct ShaderImportInfo {
 
 	Array<ShaderProps>	Properties;
-	std::string			Name;
+	String				Name;
 
 	ShaderImportInfo();
 	~ShaderImportInfo();
 
-	ShaderProps& AddShaderToProgram(const std::string& SourceCode, ShaderComponent Component);
-	ShaderProps& AddShaderToProgram(const std::string& SourceCode, const std::string& PathToFile, ShaderComponent Component);
+	ShaderProps& AddShaderToProgram(const String& SourceCode, ShaderComponent Component);
+	ShaderProps& AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component);
 
 	void PopShaderProperty(ShaderProps&);
 };
@@ -87,7 +87,7 @@ enum AttrSubType : uint32 {
 */
 struct VertexAttr {
 
-	std::string	Name;
+	String		Name;
 	uint32		Type;
 	uint32		SubType;
 	uint32		Location;
@@ -152,7 +152,7 @@ public:
 class GrvtShader {
 public:
 
-	std::unordered_map<std::string, UniformAttr> Uniforms;
+	Array<UniformAttr>	Uniforms;
 	Array<ShaderProps>	Properties;
 	ObjHandle			Handle;
 

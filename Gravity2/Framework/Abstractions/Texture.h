@@ -32,9 +32,9 @@ enum TextureType : int32 {
 */
 struct TextureImportInfo {
 
-	Array<std::string>	Path;
-	std::string			Name;
-	TextureType			Type;
+	Array<String>	Path;
+	String			Name;
+	TextureType		Type;
 
 };
 
@@ -43,7 +43,7 @@ struct TextureImportInfo {
 */
 struct TextureProps {
 
-	std::string	Path;
+	String	Path;
 	uint8*	DataPtr;
 	int32	Width;
 	int32	Height;

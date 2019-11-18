@@ -4,12 +4,6 @@
 GravityApp *grApp = nullptr;
 
 
-GLAPIVersion::GLAPIVersion() : major{}, minor{} {}
-
-
-GLAPIVersion::GLAPIVersion(int VersionMajor, int VersionMinor) : major(VersionMajor), minor(VersionMinor) {}
-
-
 void GravityApp::GravtiyScrollCallback(GLFWwindow *Window, double OffsetX, double OffsetY) {
 	ImGui_ImplGlfw_ScrollCallback(Window, OffsetX, OffsetY);
 
@@ -19,7 +13,7 @@ void GravityApp::GravtiyScrollCallback(GLFWwindow *Window, double OffsetX, doubl
 
 
 void GravityApp::GravityMouseButtonCallback(GLFWwindow *Window, int Button, int Action, int Mods) {
-	if (Action == GLFW_PRESS && Button >= 0 && Button <= ArrayLen(grApp->io.mouseButton))
+	if (Action == GLFW_PRESS && Button >= 0 && Button <= GRVT_ARRAY_LENGTH(grApp->io.mouseButton))
 		grApp->io.mouseButton[Button].currState = true;
 	
 	ImGui_ImplGlfw_MouseButtonCallback(Window, Button, Action, Mods);

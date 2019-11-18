@@ -1,39 +1,6 @@
 #include "stdafx.h"
 
 
-MaterialCreationInfo::MaterialCreationInfo() :
-	Name(), Shader(nullptr), Textures() {}
-
-
-MaterialCreationInfo::~MaterialCreationInfo() {
-	Name.Release();
-	Textures.Release();
-	Shader = nullptr;
-}
-
-
-void MaterialCreationInfo::PushTexture(GrvtTexture* Texture) {
-	Textures.Push({Texture->Type, &Texture->Handle});
-}
-
-
-void MaterialCreationInfo::PopTexture(GrvtTexture* Texture) {
-	size_t idx = Textures.IndexOf({Texture->Type, &Texture->Handle});
-	Textures.PopAt(idx);
-}
-
-
-void MaterialCreationInfo::SetShader(GrvtShader* Shader) {
-	if (Shader != Shader)
-		Shader = Shader;
-}
-
-
-void MaterialCreationInfo::RemoveShader() {
-	Shader = nullptr;
-}
-
-
 GrvtMaterial::GrvtMaterial() :
 	Uniforms(), Textures(), ShaderHandle(nullptr) {}
 
@@ -71,6 +38,16 @@ GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
 }
 
 
+size_t GrvtMaterial::FindUniform(const String& Identifier) {
+	for (UniformAttr& Uniform : Uniforms) {
+		if (Uniform.Name == Identifier)
+			return Uniforms.IndexOf(Uniform);
+	}
+
+	return -1;
+}
+
+
 void GrvtMaterial::Alloc(const MaterialCreationInfo &Info) {
 	ShaderHandle = &Info.Shader->Handle;
 	Textures = Info.Textures;
@@ -80,153 +57,156 @@ void GrvtMaterial::Alloc(const MaterialCreationInfo &Info) {
 
 void GrvtMaterial::Free() {
 	ShaderHandle = nullptr;
-	Uniforms.clear();
+	Uniforms.Release();
 	Textures.Release();
 }
 
 
 bool GrvtMaterial::SetBool(const String& Uniform, bool Value) {
-	auto it = Uniforms.find(Uniform);
+	size_t Index = FindUniform(Uniform);
 
-	if (it == Uniforms.end())
+	if (Index == -1)
 		return false;
 
-	if (it->second.Type != GrvtShader_AttrType_Boolean)
+	if (Uniforms[Index].Type != GrvtShader_AttrType_Boolean)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetInt(const String& Uniform, int Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.Type != GrvtShader_AttrType_Integer)
+	if (Uniforms[Index].Type != GrvtShader_AttrType_Integer)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetFloat(const String& Uniform, float Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.Type != GrvtShader_AttrType_Float)
+	if (Uniforms[Index].Type != GrvtShader_AttrType_Float)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetVector(const String& Uniform, glm::vec2 Value) {
-	auto it = Uniforms.find(Uniform);
+	size_t Index = FindUniform(Uniform);
 	
-	if (it == Uniforms.end())
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Vector2)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Vector2)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetVector(const String& Uniform, glm::vec3 Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Vector3)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Vector3)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetVector(const String& Uniform, glm::vec4 Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Vector4)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Vector4)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat2 Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Matrix2)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Matrix2)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat3 Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Matrix3)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Matrix3)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat4 Value) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	if (it->second.SubType != GrvtShader_AttrSubType_Matrix4)
+	if (Uniforms[Index].SubType != GrvtShader_AttrSubType_Matrix4)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Value);
+	Uniforms[Index].UpdateValue(Value);
 
 	return true;
 }
 
 
 bool GrvtMaterial::SetTexture(const String& Uniform, GrvtTexture* Texture) {
-	auto it = Uniforms.find(Uniform);
-	
-	if (it == Uniforms.end())
+	size_t Index = FindUniform(Uniform);
+
+	if (Index == -1)
 		return false;
 
-	Uniforms[Uniform].UpdateValue(Texture->Type);
+	if (Uniforms[Index].Type != GrvtShader_AttrType_Sampler)
+		return false;
+
+	Uniforms[Index].UpdateValue(Texture->Type);
 
 	return true;
 }
