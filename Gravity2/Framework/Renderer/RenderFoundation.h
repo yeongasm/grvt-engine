@@ -72,25 +72,22 @@ struct GrvtRenderTarget {
 /**
 * GrvtRenderBuffer data structure.
 * 
-* TODO(Afiq):
-* 1. Add Camera into the Render Buffer.
-* 2. Add PostProcessing into the Render Buffer.
 */
-struct GrvtRenderBuffer {
+struct GrvtCommandBuffer {
 
 	glm::mat4					CompositeMatrix;
 	Array<glm::mat4>			Lights;
 	Array<GrvtRenderCommand>	RenderCommands;
 	Array<GrvtRenderCommand>	InstanceCommands;
 
-	GrvtRenderBuffer();
+	GrvtCommandBuffer();
 
-	GrvtRenderBuffer(const GrvtRenderBuffer& Other);
-	GrvtRenderBuffer& operator= (const GrvtRenderBuffer& Other);
+	GrvtCommandBuffer(const GrvtCommandBuffer& Other);
+	GrvtCommandBuffer& operator= (const GrvtCommandBuffer& Other);
 
-	GrvtRenderBuffer(GrvtRenderBuffer&& Other);
-	GrvtRenderBuffer& operator= (GrvtRenderBuffer&& Other);
+	GrvtCommandBuffer(GrvtCommandBuffer&& Other);
+	GrvtCommandBuffer& operator= (GrvtCommandBuffer&& Other);
 
-	~GrvtRenderBuffer();
+	~GrvtCommandBuffer();
 
 };

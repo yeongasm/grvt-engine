@@ -201,6 +201,7 @@
     <ClCompile Include="Framework\Foundations\Foundations.cpp" />
     <ClCompile Include="Engine\IO\InputHandler.cpp" />
     <ClCompile Include="Engine\IO\IO.cpp" />
+    <ClCompile Include="Framework\Renderer\RenderFoundation.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -289,6 +290,7 @@
     <ClInclude Include="Framework\Foundations\Foundations.h" />
     <ClInclude Include="Engine\IO\InputHandler.h" />
     <ClInclude Include="Engine\IO\IO.h" />
+    <ClInclude Include="Framework\Renderer\RenderFoundation.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui.h" />

@@ -94,14 +94,14 @@ GrvtRenderCommand::~GrvtRenderCommand() {
 }
 
 
-GrvtRenderBuffer::GrvtRenderBuffer() :
+GrvtCommandBuffer::GrvtCommandBuffer() :
 	CompositeMatrix(), Lights(), RenderCommands(), InstanceCommands() {}
 
 
-GrvtRenderBuffer::GrvtRenderBuffer(const GrvtRenderBuffer& Other) { *this = Other; }
+GrvtCommandBuffer::GrvtCommandBuffer(const GrvtCommandBuffer& Other) { *this = Other; }
 
 
-GrvtRenderBuffer& GrvtRenderBuffer::operator= (const GrvtRenderBuffer& Other) {
+GrvtCommandBuffer& GrvtCommandBuffer::operator= (const GrvtCommandBuffer& Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
@@ -115,10 +115,10 @@ GrvtRenderBuffer& GrvtRenderBuffer::operator= (const GrvtRenderBuffer& Other) {
 }
 
 
-GrvtRenderBuffer::GrvtRenderBuffer(GrvtRenderBuffer&& Other) { *this = Move(Other); }
+GrvtCommandBuffer::GrvtCommandBuffer(GrvtCommandBuffer&& Other) { *this = Move(Other); }
 
 
-GrvtRenderBuffer& GrvtRenderBuffer::operator= (GrvtRenderBuffer&& Other) {
+GrvtCommandBuffer& GrvtCommandBuffer::operator= (GrvtCommandBuffer&& Other) {
 	_ASSERTE(this != &Other);
 
 	if (this != &Other) {
@@ -127,14 +127,14 @@ GrvtRenderBuffer& GrvtRenderBuffer::operator= (GrvtRenderBuffer&& Other) {
 		RenderCommands		= Other.RenderCommands;
 		InstanceCommands	= Other.InstanceCommands;
 
-		new (&Other) GrvtRenderBuffer();
+		new (&Other) GrvtCommandBuffer();
 	}
 
 	return *this;
 }
 
 
-GrvtRenderBuffer::~GrvtRenderBuffer() {
+GrvtCommandBuffer::~GrvtCommandBuffer() {
 	CompositeMatrix = glm::mat4();
 	Lights.Release();
 	RenderCommands.Release();

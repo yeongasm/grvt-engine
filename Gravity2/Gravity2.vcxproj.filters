@@ -93,6 +93,9 @@
     <ClCompile Include="Framework\Abstractions\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Framework\Renderer\RenderFoundation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ThirdParty\FontAwesome\IconsFontAwesome5.h">
@@ -168,6 +171,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Framework\Abstractions\Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Renderer\RenderFoundation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
