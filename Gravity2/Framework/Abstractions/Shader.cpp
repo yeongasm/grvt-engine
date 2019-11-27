@@ -22,17 +22,20 @@ ShaderImportInfo::ShaderImportInfo() :
 ShaderImportInfo::~ShaderImportInfo() {}
 
 
-ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, ShaderComponent Component) {
+ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, ShaderComponent Component) 
+{
 	return Properties.Insert(ShaderProps(SourceCode, Component));
 }
 
 
-ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component) {
+ShaderProps& ShaderImportInfo::AddShaderToProgram(const String& SourceCode, const String& PathToFile, ShaderComponent Component) 
+{
 	return Properties.Insert(ShaderProps(SourceCode, PathToFile, Component));
 }
 
 
-void ShaderImportInfo::PopShaderProperty(ShaderProps& Property) {
+void ShaderImportInfo::PopShaderProperty(ShaderProps& Property)
+{
 	size_t idx = Properties.IndexOf(Property);
 	Properties.PopAt(idx);
 }
@@ -142,12 +145,14 @@ GrvtShader::GrvtShader() :
 GrvtShader::~GrvtShader() {}
 
 
-void GrvtShader::Alloc(const ShaderImportInfo& Import) {
+void GrvtShader::Alloc(const ShaderImportInfo& Import) 
+{
 	Properties	= Import.Properties;
 }
 
 
-void GrvtShader::Free() {
+void GrvtShader::Free() 
+{
 	Properties.Release();
 	Uniforms.Release();
 }

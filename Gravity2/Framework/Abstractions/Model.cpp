@@ -6,16 +6,18 @@ GrvtMesh::GrvtMesh() :
 	Normals(), Tangents(), Bitangents(), Indices() {}
 
 
-GrvtMesh::GrvtMesh(GrvtMesh&& Rhs) { *this = Move(Rhs); }
+GrvtMesh::GrvtMesh(GrvtMesh&& Rhs) { *this = Gfl::Move(Rhs); }
 
 
-GrvtMesh& GrvtMesh::operator= (GrvtMesh&& Rhs) {
+GrvtMesh& GrvtMesh::operator= (GrvtMesh&& Rhs) 
+{
 	_ASSERTE(this != &Rhs);
 
-	if (this != &Rhs) {
-		Vao = Move(Rhs.Vao);
-		Vbo = Move(Rhs.Vbo);
-		Ebo = Move(Rhs.Ebo);
+	if (this != &Rhs) 
+	{
+		Vao = Gfl::Move(Rhs.Vao);
+		Vbo = Gfl::Move(Rhs.Vbo);
+		Ebo = Gfl::Move(Rhs.Ebo);
 
 		Size = Rhs.Size;
 
@@ -36,7 +38,8 @@ GrvtMesh& GrvtMesh::operator= (GrvtMesh&& Rhs) {
 GrvtMesh::~GrvtMesh() { Free(); }
 
 
-void GrvtMesh::Free() {
+void GrvtMesh::Free() 
+{
 	Size = 0;
 	Positions.Release();
 	Uv.Release();

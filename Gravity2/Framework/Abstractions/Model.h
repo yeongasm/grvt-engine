@@ -13,17 +13,17 @@
 * @param Name - Model's identity.
 * @param Path - Path to model's file.
 */
-struct ModelImportInfo {
-
+struct ModelImportInfo 
+{
 	String	Name;
 	String	Path;
-
 };
 
 
 /**
 */
-class GrvtMesh {
+class GrvtMesh 
+{
 public:
 
 	ObjHandle			Vao;
@@ -65,7 +65,8 @@ private:
 * We removed the ModelData abstraction layer as it was redundant and make it contain all the raw information instead.
 * The reason for doing this was because this raw Model object should only be a placeholder for the data and do nothing else.
 */
-class GrvtModel {
+class GrvtModel 
+{
 public:
 
 	Array<GrvtMesh>	Meshes;

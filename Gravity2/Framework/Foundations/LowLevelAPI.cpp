@@ -102,7 +102,7 @@ namespace BaseAPI {
 
 	TextureBuildData::TextureBuildData() :
 		DataPtr(nullptr), Mipmap(1), Cubemap(0), Flip(1), Width(0),
-		Height(0), Target(0), Type(0), Format(0), Parameters() {}
+		Height(0), Target(0), Type(0), Format(0), InternalFormat(0), Parameters() {}
 
 
 	TextureBuildData::~TextureBuildData() { Parameters.Release(); }
@@ -124,6 +124,7 @@ namespace BaseAPI {
 			Target = Rhs.Target;
 			Type = Rhs.Type;
 			Format = Rhs.Format;
+			InternalFormat = Rhs.InternalFormat;
 			Parameters = Rhs.Parameters;
 		}
 
@@ -149,6 +150,7 @@ namespace BaseAPI {
 			Target = Rhs.Target;
 			Type = Rhs.Type;
 			Format = Rhs.Format;
+			InternalFormat = Rhs.InternalFormat;
 			Parameters = Rhs.Parameters;
 
 			new (&Rhs) TextureBuildData();
@@ -201,14 +203,14 @@ namespace BaseAPI {
 	}
 
 
-	FramebufferAttachment::FramebufferAttachment() : Target(0), Attachment(0), Draw(false) {}
+	FramebufferAttachment::FramebufferAttachment() : Handle(), Type(0), Count(0) {}
 
 
-	FramebufferAttachment::~FramebufferAttachment() { HandleId = Target = Attachment = Draw = 0; }
+	FramebufferAttachment::~FramebufferAttachment() { Type = Count = 0; }
 
 
-	FramebufferAttachment::FramebufferAttachment(uint32 SrcHandle, uint32 SrcTarget, uint32 SourceAttachment, bool DrawBuffer) :
-		HandleId(SrcHandle), Target(SrcTarget), Attachment(SourceAttachment), Draw(DrawBuffer) {}
+	FramebufferAttachment::FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Index) :
+		Handle(SrcHandle), Type(SourceAttachment), Count(Index) {}
 
 
 	FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment& Rhs) { *this = Rhs; }
@@ -218,10 +220,9 @@ namespace BaseAPI {
 		_ASSERTE(this != &Rhs);
 
 		if (this != &Rhs) {
-			HandleId = Rhs.HandleId;
-			Target = Rhs.Target;
-			Attachment = Rhs.Attachment;
-			Draw = Rhs.Draw;
+			Handle = Rhs.Handle;
+			Type = Rhs.Type;
+			Count = Rhs.Count;
 		}
 
 		return *this;
@@ -235,10 +236,9 @@ namespace BaseAPI {
 		_ASSERTE(this != &Rhs);
 
 		if (this != &Rhs) {
-			HandleId = Rhs.HandleId;
-			Target = Rhs.Target;
-			Attachment = Rhs.Attachment;
-			Draw = Rhs.Draw;
+			Handle = Rhs.Handle;
+			Type = Rhs.Type;
+			Count = Rhs.Count;
 
 			new (&Rhs) FramebufferAttachment();
 		}
@@ -247,10 +247,15 @@ namespace BaseAPI {
 	}
 
 
-	FramebufferBuildData::FramebufferBuildData() : Attachment() {}
+	FramebufferBuildData::FramebufferBuildData() : 
+		Attachments(), Width(0), Height(0) {}
 
 
-	FramebufferBuildData::~FramebufferBuildData() { Attachment.Release(); }
+	FramebufferBuildData::~FramebufferBuildData() 
+	{ 
+		Attachments.Release();
+		Width = Height = 0;
+	}
 
 
 	FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData& Rhs) { *this = Rhs; }
@@ -260,7 +265,9 @@ namespace BaseAPI {
 		_ASSERTE(this != &Rhs);
 
 		if (this != &Rhs)
-			Attachment = Rhs.Attachment;
+		{
+			Attachments = Rhs.Attachments;
+		}
 
 		return *this;
 	}
@@ -272,8 +279,9 @@ namespace BaseAPI {
 	FramebufferBuildData& FramebufferBuildData::operator= (FramebufferBuildData&& Rhs) {
 		_ASSERTE(this != &Rhs);
 
-		if (this != &Rhs) {
-			Attachment = Rhs.Attachment;
+		if (this != &Rhs) 
+		{
+			Attachments = Rhs.Attachments;
 
 			new (&Rhs) FramebufferBuildData();
 		}
@@ -318,19 +326,7 @@ namespace BaseAPI {
 
 		GrBindTexture(Handle);
 
-		switch (Data.Type) {
-		case GL_UNSIGNED_BYTE:
-			glTexImage2D(Handle.Target, 0, Data.Format, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint8*)Data.DataPtr);
-			break;
-		case GL_UNSIGNED_SHORT:
-			glTexImage2D(Handle.Target, 0, Data.Format, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint16*)Data.DataPtr);
-			break;
-		case GL_UNSIGNED_INT:
-			glTexImage2D(Handle.Target, 0, Data.Format, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint32*)Data.DataPtr);
-			break;
-		default:
-			break;
-		}
+		glTexImage2D(Handle.Target, 0, Data.InternalFormat, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint32*)Data.DataPtr);
 
 		if (Data.Mipmap)
 			glGenerateMipmap(Handle.Target);
@@ -405,6 +401,7 @@ namespace BaseAPI {
 	void GenerateGenericTextureData(TextureBuildData& Data) {
 		Data.Target = GL_TEXTURE_2D;
 		Data.Type = GL_UNSIGNED_BYTE;
+		Data.InternalFormat = GL_RGBA;
 		Data.Format = GL_RGBA;
 		Data.Parameters = {{GL_TEXTURE_WRAP_S,		GL_REPEAT},
 						   {GL_TEXTURE_WRAP_T,		GL_REPEAT},
@@ -413,27 +410,55 @@ namespace BaseAPI {
 	}
 
 
-	void BuildFramebuffer(ObjHandle& Handle, FramebufferBuildData& Data) {
+	void BuildFramebuffer(ObjHandle& Handle, FramebufferBuildData& Data) 
+	{
 		if (!Handle.Id)
 			GrCreateFramebuffer(Handle);
 
 		bool			hasImage = false;
-		Array<uint32>	DrawBuffers;
+		Array<uint32>	drawBuffers;
 
 		GrBindFramebuffer(Handle);
 
-		for (FramebufferAttachment& Attachment : Data.Attachment) {
-			if (Attachment.Target != GL_RENDERBUFFER) {
-				hasImage = true;
-				glFramebufferTexture2D(Handle.Target, Attachment.Attachment, Attachment.Target, Attachment.HandleId, 0);
+		TextureBuildData buildData;
+		buildData.DataPtr	= 0;
+		buildData.Mipmap	= false;
+		buildData.Width		= Data.Width;
+		buildData.Height	= Data.Height;
+		buildData.Target	= GL_TEXTURE_2D;
+		buildData.Parameters = {{GL_TEXTURE_MIN_FILTER, GL_LINEAR},
+								{GL_TEXTURE_MAG_FILTER, GL_LINEAR},
+								{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE},
+								{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}};
 
-				if (Attachment.Draw)
-					DrawBuffers.Push(Attachment.Attachment);
-
-				continue;
+		for (FramebufferAttachment& Attachment : Data.Attachments)
+		{
+			if (Attachment.Type == GL_DEPTH_ATTACHMENT) 
+			{
+				buildData.Type	= GL_FLOAT;
+				buildData.InternalFormat = GL_DEPTH_COMPONENT;
+				buildData.Format = GL_DEPTH_COMPONENT;
 			}
 
-			glFramebufferRenderbuffer(Handle.Target, Attachment.Attachment, Attachment.Target, Attachment.HandleId);
+			if (Attachment.Type == GL_DEPTH_STENCIL_ATTACHMENT)
+			{
+				buildData.Type = GL_UNSIGNED_INT_24_8;
+				buildData.InternalFormat = GL_DEPTH_STENCIL;
+				buildData.Format = GL_DEPTH_STENCIL;
+			}
+
+			if (Attachment.Type == GL_COLOR_ATTACHMENT0 + Attachment.Count)
+			{
+				hasImage = true;
+				buildData.Type = GL_UNSIGNED_BYTE;
+				buildData.InternalFormat = GL_RGBA;
+				buildData.Format = GL_RGBA;
+				drawBuffers.Insert(Attachment.Type);
+			}
+
+			BuildTexture(*Attachment.Handle, buildData);
+			GrBindTexture(Handle);
+			glFramebufferTexture2D(Handle.Target, Attachment.Type, Attachment.Handle->Target, Attachment.Handle->Id, 0);
 		}
 
 		if (!hasImage) {
@@ -441,8 +466,8 @@ namespace BaseAPI {
 			glReadBuffer(GL_NONE);
 		}
 
-		if (DrawBuffers.Length())
-			glDrawBuffers((GLsizei)DrawBuffers.Length(), DrawBuffers.First());
+		if (drawBuffers.Length())
+			glDrawBuffers((GLsizei)drawBuffers.Length(), drawBuffers.First());
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			_ASSERTE(false);	// Building Framebuffer process failed.

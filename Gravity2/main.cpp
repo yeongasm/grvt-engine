@@ -18,7 +18,6 @@
 
 int main() {
 
-
 #if 0
 	_CrtDumpMemoryLeaks();
 #endif

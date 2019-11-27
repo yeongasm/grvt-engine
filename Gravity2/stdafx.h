@@ -15,8 +15,6 @@
 #include <string>
 #include <unordered_map>
 #include <deque>
-#include <thread>
-#include <chrono>
 
 //#if defined(_DEBUG)
 //#define _CRTDBG_MAP_ALLOC		// Enable heap memory leak detection
@@ -59,30 +57,26 @@ using namespace Gfl;
 #include "ThirdParty/DearImGui/imgui_internal.h"
 #include "ThirdParty/DearImGui/imgui_impl_glfw.h"
 #include "ThirdParty/DearImGui/imgui_impl_opengl3.h"
-#include "ThirdParty/smhasher/MurmurHash3.h"
 
 #include "Framework/Foundations/Foundations.h"
 #include "Framework/Foundations/LowLevelAPI.h"
 #include "Framework/Foundations/Interface.h"
+
 #include "Framework/Abstractions/Shader.h"
 #include "Framework/Abstractions/Texture.h"
-#include "Framework/Abstractions/Postprocessing.h"
+#include "Framework/Abstractions/Framebuffer.h"
 #include "Framework/Abstractions/Model.h"
 #include "Framework/Abstractions/Material.h"
 #include "Framework/Abstractions/Lighting.h"
-#include "Framework/Camera/Camera.h"
-#include "Framework/Renderer/RenderFoundation.h"
-//#include "Framework/Renderer/Renderer.h"
 
-#include "Engine/Utility/Utility.h"
-#include "Engine/Manager/Manager.h"
-#include "Engine/IO/InputHandler.h"
-#include "Engine/IO/IO.h"
-//#include "Engine/UI/UI.h"
-//#include "Engine/UI/WindowFunctions.h"
-//#include "Engine/UI/UIHandler.h"
-//#include "Engine/Profiling/Statistics.h"
-//#include "Engine/Project/Project.h"
-//#include "Engine/Application/Application.h"
+#include "Camera/Camera.h"
+
+#include "Renderer/RenderFoundation.h"
+//#include "Renderer/Renderer.h"
+
+#include "Utility/Utility.h"
+#include "Manager/Manager.h"
+#include "IO/InputHandler.h"
+#include "IO/IO.h"
 
 #endif // !PRECOMPILE_HEADER

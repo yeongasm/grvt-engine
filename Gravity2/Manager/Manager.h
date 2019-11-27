@@ -3,7 +3,8 @@
 
 /**
 */
-enum ResourceType : size_t {
+enum ResourceType : size_t 
+{
 	GrvtResource_Type_None			= 0xFF, /** On first init only. */
 	GrvtResource_Type_Model			= 0x00,
 	GrvtResource_Type_Texture		= 0x01,
@@ -16,7 +17,8 @@ enum ResourceType : size_t {
 /**
 * Specifies how a resource has been allocated.
 */
-enum GrvtAllocType : uint32 {
+enum GrvtAllocType : uint32 
+{
 	GrvtResourceAlloc_Type_None		= 0xFF,		/** On first init only */
 	GrvtResourceAlloc_Type_Import	= 0x00,
 	GrvtResourceAlloc_Type_Custom	= 0x01
@@ -26,7 +28,8 @@ enum GrvtAllocType : uint32 {
 /**
 */
 template <class Type>
-struct EngineResource {
+struct EngineResource 
+{
 	Type*			ResourcePtr;
 	String			Name;
 	String			Path;
@@ -44,7 +47,8 @@ struct EngineResource {
 * Manages a single type of resource.
 */
 template <class Type>
-class ResourceManager {
+class ResourceManager 
+{
 private:
 
 	friend class ResourceHandler;
@@ -69,7 +73,8 @@ public:
 	* Note, this does not remove the resource from the GPU if it is a graphics object.
 	* Only call this function on shutdown.
 	*/
-	void Free() {
+	void Free() 
+	{
 		for (auto& [key, value] : Store)
 			DeleteResource(key, true);
 
@@ -80,7 +85,8 @@ public:
 	* Allocates a new resource into the manager.
 	* Note, this does not create the resource in the GPU if it is a graphics object.
 	*/
-	Type* NewResource(size_t Id, const String& Name) {
+	Type* NewResource(size_t Id, const String& Name) 
+	{
 		EngineResource<Type> resource;
 
 		resource.Name = Name;
@@ -95,7 +101,8 @@ public:
 	* Releases the resource with the specified Id from the manager.
 	* Note, this does not remove the resource from the GPU.
 	*/
-	bool DeleteResource(size_t Id) {
+	bool DeleteResource(size_t Id) 
+	{
 		EngineResource<Type>& resource = Store[Id];
 
 		resource.Name.Release();
@@ -115,7 +122,8 @@ public:
 * NOTE(Afiq):
 * Should deleting a material delete the shader and material as well?
 */
-class ResourceHandler {
+class ResourceHandler 
+{
 private:
 
 	using ResourceHandlerMap = std::unordered_map<HashString, size_t, MurmurHash<String>>;
@@ -123,7 +131,8 @@ private:
 	ResourceHandlerMap Resources;
 
 	template <typename T>
-	size_t GenerateResourceId(ResourceType Type) {
+	size_t GenerateResourceId(ResourceType Type) 
+	{
 		static size_t id = 0;
 		return (Type << (sizeof(size_t) * 8 - 4)) | id++;
 	}
@@ -308,37 +317,38 @@ public:
 	* Creates a new framebuffer and stores it in the engine.
 	* Resource is also allocated on the GPU.
 	*/
-	GrvtPostProcess* NewPostProcessing(const PostProcessCreationInfo& Info);
+	GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
 
 	/**
 	* Retrieves the framebuffer specified by the identifier from the engine.
 	* Safe mode will check if the resource with such identifier exist and only return if it does.
 	*/
-	GrvtPostProcess* GetPostProcessing(const String& Identifier, bool Safe = true);
+	GrvtFramebuffer* GetFramebuffer(const String& Identifier, bool Safe = true);
 
 	/**
 	* Retrieves the framebuffer specified by the id from the engine.
 	* Safe mode will check if the resource with such identifier exist and only return if it does.
 	*/
-	GrvtPostProcess* GetPostProcessing(size_t Id, bool Safe = true);
+	GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
 
 	/**
 	* Retrieve's the post processing's handler.
 	* Safe mode will check if the specified identifier provided exists and only return if it does.
 	*/
-	EngineResource<GrvtPostProcess>* GetPostProcessingHandle(const String& Identifier, bool Safe = true);
+	EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const String& Identifier, bool Safe = true);
 
 	/**
 	* Deletes a framebuffer with the specified identifier.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeletePostProcessing(const String& Identifier, bool Force = false);
+	bool DeleteFramebuffer(const String& Identifier, bool Force = false);
 	
 	/**
 	* Deletes a framebuffer with the specified id.
 	* Deletes the object from the GPU as well.
 	* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 	*/
-	bool DeletePostProcessing(size_t Id, bool Force = false);
+	bool DeleteFramebuffer(size_t Id, bool Force = false);
+
 };

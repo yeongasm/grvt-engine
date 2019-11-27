@@ -56,7 +56,7 @@ namespace Middleware {
 	}
 
 
-	void ResourceBuildQueue::QueuePostProcessForBuild(GrvtPostProcess* Framebuffer, BaseAPI::FramebufferBuildData Data) {
+	void ResourceBuildQueue::QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data) {
 		FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
 	}
 
@@ -132,7 +132,7 @@ namespace Middleware {
 			case GrvtGfx_Type_Shader:
 				BaseAPI::GrDeleteShader(Packet.Handle);
 				break;
-			case GrvtGfx_Type_PostProcess:
+			case GrvtGfx_Type_Framebuffer:
 				BaseAPI::GrDeleteFramebuffer(Packet.Handle);
 				break;
 			case GrvtGfx_Type_RenderBuffer:
@@ -328,11 +328,11 @@ namespace Middleware {
 		BaseAPI::TextureBuildData buildData;
 		BaseAPI::GenerateGenericTextureData(buildData);
 		buildData.Flip = true;
-		buildData.DataPtr	= TextureSrc->Properties[0].DataPtr;
-		buildData.Width		= TextureSrc->Properties[0].Width;
-		buildData.Height	= TextureSrc->Properties[0].Height;
+		buildData.DataPtr	= TextureSrc->DataPtr;
+		buildData.Width		= TextureSrc->Width;
+		buildData.Height	= TextureSrc->Height;
 
-		switch (TextureSrc->Properties[0].Channel) {
+		switch (TextureSrc->Channel) {
 		case 1:
 			buildData.Format = GL_RED;
 			break;
@@ -375,35 +375,33 @@ namespace Middleware {
 	}
 
 
-	void PackageFramebufferForBuild(GrvtPostProcess* FramebufferSrc) {
-		uint32 imgCount = 0;
-		uint32 rbCount = 0;
+	void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc) 
+	{
+		uint32 Component = GL_NONE;
 		BaseAPI::FramebufferBuildData buildData;
+		buildData.Width = FramebufferSrc->Width;
+		buildData.Height = FramebufferSrc->Height;
 
-		for (size_t i = 0; i < FramebufferSrc->Attachments.Length(); i++) {
-			uint32* count = nullptr;
-			if (FramebufferSrc->Attachments[i].Component == GrvtFramebuffer_AttachComponent_Texture)
-				count = &imgCount;
+		for (auto& Attachment : FramebufferSrc->Attachments)
+		{
 
-			if (FramebufferSrc->Attachments[i].Component == GrvtFramebuffer_AttachComponent_RenderBuffer)
-				count = &rbCount;
-
-			switch (FramebufferSrc->Attachments[i].Type) {
-			case GrvtFramebuffer_Attachment_Colour:
-				buildData.Attachment.Push(BaseAPI::FramebufferAttachment(FramebufferSrc->Attachments[i].Handle.Id, FramebufferSrc->Attachments[i].Handle.Target, GL_COLOR_ATTACHMENT0 + *count++, FramebufferSrc->Attachments[i].Draw));
-				break;
+			switch (Attachment.Type) 
+			{
 			case GrvtFramebuffer_Attachment_Depth:
-				buildData.Attachment.Push(BaseAPI::FramebufferAttachment(FramebufferSrc->Attachments[i].Handle.Id, FramebufferSrc->Attachments[i].Handle.Target, GL_DEPTH_ATTACHMENT, false));
+				Component = GL_DEPTH_ATTACHMENT;
 				break;
 			case GrvtFramebuffer_Attachment_DepthStencil:
-				buildData.Attachment.Push(BaseAPI::FramebufferAttachment(FramebufferSrc->Attachments[i].Handle.Id, FramebufferSrc->Attachments[i].Handle.Target, GL_DEPTH_STENCIL_ATTACHMENT, false));
+				Component = GL_DEPTH_STENCIL_ATTACHMENT;
+				break;
+			case GrvtFramebuffer_Attachment_Colour:
+				Component = GL_COLOR_ATTACHMENT0 + Attachment.Count;
 				break;
 			}
 
-			FramebufferSrc->Attachments[i].Count = *count;
+			buildData.Attachments.Push(BaseAPI::FramebufferAttachment(&Attachment.Handle, Component, Attachment.Count));
 		}
 
-		GetBuildQueue()->QueuePostProcessForBuild(FramebufferSrc, buildData);
+		GetBuildQueue()->QueueFramebufferForBuild(FramebufferSrc, buildData);
 	}
 
 

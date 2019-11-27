@@ -24,6 +24,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Gravity2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Engine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -107,8 +108,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,8 +131,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -153,8 +156,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -179,8 +183,9 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <ObjectFileName>$(IntDir)/%(RelativeDir)/</ObjectFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -195,13 +200,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Framework\Abstractions\Material.cpp" />
     <ClCompile Include="Framework\Abstractions\Model.cpp" />
-    <ClCompile Include="Framework\Abstractions\Postprocessing.cpp" />
+    <ClCompile Include="Framework\Abstractions\Framebuffer.cpp" />
     <ClCompile Include="Framework\Foundations\Foundations.cpp" />
-    <ClCompile Include="Engine\IO\InputHandler.cpp" />
-    <ClCompile Include="Engine\IO\IO.cpp" />
-    <ClCompile Include="Framework\Renderer\RenderFoundation.cpp" />
+    <ClCompile Include="IO\InputHandler.cpp" />
+    <ClCompile Include="IO\IO.cpp" />
+    <ClCompile Include="Manager\Manager.cpp" />
+    <ClCompile Include="Renderer\RenderFoundation.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -256,10 +263,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Framework\Camera\Camera.cpp" />
     <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
     <ClCompile Include="Framework\Foundations\Interface.cpp" />
-    <ClCompile Include="Engine\Manager\Manager.cpp" />
     <ClCompile Include="Framework\Abstractions\Shader.cpp" />
     <ClCompile Include="Framework\Abstractions\Texture.cpp" />
     <ClCompile Include="Framework\Foundations\LowLevelAPI.cpp">
@@ -274,7 +279,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Engine\Utility\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -282,15 +286,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Framework\Abstractions\Material.h" />
     <ClInclude Include="Framework\Abstractions\Model.h" />
-    <ClInclude Include="Framework\Abstractions\Postprocessing.h" />
+    <ClInclude Include="Framework\Abstractions\Framebuffer.h" />
     <ClInclude Include="Framework\Foundations\Foundations.h" />
-    <ClInclude Include="Engine\IO\InputHandler.h" />
-    <ClInclude Include="Engine\IO\IO.h" />
+    <ClInclude Include="Framework\Renderer\Renderer.h" />
     <ClInclude Include="Framework\Renderer\RenderFoundation.h" />
+    <ClInclude Include="IO\InputHandler.h" />
+    <ClInclude Include="IO\IO.h" />
+    <ClInclude Include="Manager\Manager.h" />
+    <ClInclude Include="Renderer\RenderFoundation.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />
     <ClInclude Include="ThirdParty\DearImGui\imgui.h" />
@@ -301,23 +310,21 @@
     <ClInclude Include="ThirdParty\DearImGui\imstb_textedit.h" />
     <ClInclude Include="ThirdParty\DearImGui\imstb_truetype.h" />
     <ClInclude Include="ThirdParty\FontAwesome\IconsFontAwesome5.h" />
-    <ClInclude Include="Framework\Camera\Camera.h" />
     <ClInclude Include="Framework\Abstractions\Lighting.h" />
     <ClInclude Include="Framework\Foundations\Interface.h" />
-    <ClInclude Include="Engine\Manager\Manager.h" />
     <ClInclude Include="Framework\Abstractions\Shader.h" />
     <ClInclude Include="Framework\Abstractions\Texture.h" />
     <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
     <ClInclude Include="ThirdParty\stb\stb_image.h" />
-    <ClInclude Include="Engine\Utility\Utility.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="Orion.natvis" />
+    <ClInclude Include="Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Grvtlib\Grvtlib.vcxproj">
       <Project>{31e1253a-189d-49de-b5e2-ad1d1fb9411f}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Orion.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

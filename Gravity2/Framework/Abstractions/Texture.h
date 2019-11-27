@@ -10,7 +10,8 @@
 * Gravity engine's wrapper for texture types.
 * Supports PBR and non-PBR workflow.
 */
-enum TextureType : int32 {
+enum TextureType : int32 
+{
 	GrvtTexture_Type_None			= 0xFF,	/** On first init only. */
 	GrvtTexture_Type_Diffuse		= 0x00,
 	GrvtTexture_Type_Albedo			= 0x01,
@@ -24,13 +25,13 @@ enum TextureType : int32 {
 	GrvtTexture_Type_Reflection		= 0x09,
 	GrvtTexture_Type_Emissive		= 0x0A,
 	GrvtTexture_Type_Opacity		= 0x0B,
-	GrvtTexture_Type_Cubemap		= 0x0C
 };
 
 
 /**
 */
-struct TextureImportInfo {
+struct TextureImportInfo 
+{
 
 	Array<String>	Path;
 	String			Name;
@@ -41,28 +42,15 @@ struct TextureImportInfo {
 
 /**
 */
-struct TextureProps {
-
-	String	Path;
-	uint8*	DataPtr;
-	int32	Width;
-	int32	Height;
-	int32	Channel;
-
-	TextureProps();
-	~TextureProps();
-
-};
-
-
-/**
-*/
 class GrvtTexture {
 public:
 
-	Array<TextureProps> Properties;
 	ObjHandle	Handle;
+	uint8*		DataPtr;
 	TextureType Type;
+	int32		Width;
+	int32		Height;
+	int32		Channel;
 
 	GrvtTexture();
 	~GrvtTexture();

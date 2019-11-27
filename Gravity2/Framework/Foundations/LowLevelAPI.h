@@ -78,9 +78,9 @@ namespace BaseAPI {
 	* @param [OPTIONAL] (bool)			Default = 1;	Flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
 	* @param [OPTIONAL] (int)			Default = 0;	Width	- Texture's width. Use only when creating an empty texture.
 	* @param [OPTIONAL] (int)			Default = 0;	Height	- Texture's height. Use only when creating an empty texture.
-	* @param [REQUIRED] (uint32)			Default = 0;	Target	- Texture's target. E.g: GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP.
-	* @param [REQUIRED] (uint32)			Default = 0;	Type	- Data type of the pixel. E.g: GL_UNSIGNED_BYTE, GL_UNSIGNED_INT.
-	* @param [OPTIONAL] (uint32)			Default = 0;	Format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
+	* @param [REQUIRED] (uint32)		Default = 0;	Target	- Texture's target. E.g: GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP.
+	* @param [REQUIRED] (uint32)		Default = 0;	Type	- Data type of the pixel. E.g: GL_UNSIGNED_BYTE, GL_UNSIGNED_INT.
+	* @param [OPTIONAL] (uint32)		Default = 0;	Format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
 	* @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
 	*/
 	struct TextureBuildData {
@@ -94,6 +94,7 @@ namespace BaseAPI {
 		uint32			Target;
 		uint32			Type;
 		uint32			Format;
+		uint32			InternalFormat;
 
 		Array<Pair<uint32, uint32>>	Parameters;
 
@@ -163,21 +164,19 @@ namespace BaseAPI {
 	* Specify the attachment that is to be attached onto a Framebuffer.
 	*
 	* @param (uint32)	HandleId	- A copy to the Framebuffer's ObjectHandle Id.
-	* @param (uint32)	Target		- The attachment's Target type.
 	* @param (uint32)	Attachment	- The attachment's format (GL_COLOR_ATTACHMENTn | GL_DEPTH_ATTACHMENT | GL_DEPTH_STENCIL_ATTACHMENT).
 	* @param (bool)		Draw		- Specify if the attachment would be used for drawing. Only works for colour attachments.
 	*/
 	struct FramebufferAttachment {
 
-		uint32			HandleId;
-		uint32			Target;
-		uint32			Attachment;
-		bool			Draw;
+		ObjHandle*		Handle;
+		uint32			Type;
+		uint32			Count;
 
 		FramebufferAttachment();
 		~FramebufferAttachment();
 
-		FramebufferAttachment(uint32 SrcHandle, uint32 SrcTarget, uint32 SourceAttachment, bool DrawBuffer);
+		FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Index);
 
 		FramebufferAttachment(const FramebufferAttachment& Rhs);
 		FramebufferAttachment& operator= (const FramebufferAttachment& Rhs);
@@ -196,7 +195,9 @@ namespace BaseAPI {
 	*/
 	struct FramebufferBuildData {
 
-		Array<FramebufferAttachment> Attachment;
+		Array<FramebufferAttachment> Attachments;
+		int32 Width;
+		int32 Height;
 
 		FramebufferBuildData();
 		~FramebufferBuildData();

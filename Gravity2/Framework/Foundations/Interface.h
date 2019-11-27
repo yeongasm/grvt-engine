@@ -16,7 +16,7 @@ class GrvtMesh;
 class GrvtModel;
 class GrvtTexture;
 class GrvtShader;
-class GrvtPostProcess;
+class GrvtFramebuffer;
 
 
 namespace Middleware {
@@ -57,7 +57,7 @@ namespace Middleware {
 		GrvtGfx_Type_VertexArray	= 0x02,
 		GrvtGfx_Type_Texture		= 0x03,
 		GrvtGfx_Type_Shader			= 0x04,
-		GrvtGfx_Type_PostProcess	= 0x05,
+		GrvtGfx_Type_Framebuffer	= 0x05,
 		GrvtGfx_Type_RenderBuffer	= 0x06
 
 	};
@@ -91,7 +91,7 @@ namespace Middleware {
 	using MeshPacket		= ResourcePacket<GrvtMesh,			BaseAPI::MeshBuildData>;
 	using TexturePacket		= ResourcePacket<GrvtTexture,		BaseAPI::TextureBuildData>;
 	using ShaderPacket		= ResourcePacket<GrvtShader,		BaseAPI::ShaderBuildData>;
-	using FramebufferPacket = ResourcePacket<GrvtPostProcess,	BaseAPI::FramebufferBuildData>;
+	using FramebufferPacket = ResourcePacket<GrvtFramebuffer,	BaseAPI::FramebufferBuildData>;
 
 
 	/**
@@ -135,7 +135,7 @@ namespace Middleware {
 		* [MIDDLEWARE]
 		* Adds a framebuffer to be built by OpenGL.
 		*/
-		void QueuePostProcessForBuild(GrvtPostProcess* Framebuffer, BaseAPI::FramebufferBuildData Data);
+		void QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data);
 
 
 		/**
@@ -207,7 +207,7 @@ namespace Middleware {
 	* [MIDDLEWARE]
 	* A mid level API to build framebuffers into the engine.
 	*/
-	void PackageFramebufferForBuild(GrvtPostProcess* FramebufferSrc);
+	void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc);
 
 	/**
 	* [MIDDLEWARE]

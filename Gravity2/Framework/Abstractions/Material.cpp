@@ -11,11 +11,13 @@ GrvtMaterial::~GrvtMaterial() { Free(); }
 GrvtMaterial::GrvtMaterial(const GrvtMaterial& Other) { *this = Other; }
 
 
-GrvtMaterial::GrvtMaterial(GrvtMaterial&& Other) { *this = std::move(Other); }
+GrvtMaterial::GrvtMaterial(GrvtMaterial&& Other) { *this = Gfl::Move(Other); }
 
 
-GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) {
-	if (this != &Other) {
+GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) 
+{
+	if (this != &Other) 
+	{
 		Uniforms	= Other.Uniforms;
 		Textures	= Other.Textures;
 		ShaderHandle = Other.ShaderHandle;
@@ -25,8 +27,10 @@ GrvtMaterial& GrvtMaterial::operator= (const GrvtMaterial& Other) {
 }
 
 
-GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
-	if (this != &Other) {
+GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) 
+{
+	if (this != &Other) 
+	{
 		Uniforms = Other.Uniforms;
 		Textures = Other.Textures;
 		ShaderHandle = Other.ShaderHandle;
@@ -38,8 +42,10 @@ GrvtMaterial& GrvtMaterial::operator= (GrvtMaterial&& Other) {
 }
 
 
-size_t GrvtMaterial::FindUniform(const String& Identifier) {
-	for (UniformAttr& Uniform : Uniforms) {
+size_t GrvtMaterial::FindUniform(const String& Identifier) 
+{
+	for (UniformAttr& Uniform : Uniforms) 
+	{
 		if (Uniform.Name == Identifier)
 			return Uniforms.IndexOf(Uniform);
 	}
@@ -48,21 +54,24 @@ size_t GrvtMaterial::FindUniform(const String& Identifier) {
 }
 
 
-void GrvtMaterial::Alloc(const MaterialCreationInfo &Info) {
+void GrvtMaterial::Alloc(const MaterialCreationInfo &Info) 
+{
 	ShaderHandle = &Info.Shader->Handle;
 	Textures = Info.Textures;
 	Uniforms = Info.Shader->Uniforms;
 }
 
 
-void GrvtMaterial::Free() {
+void GrvtMaterial::Free() 
+{
 	ShaderHandle = nullptr;
 	Uniforms.Release();
 	Textures.Release();
 }
 
 
-bool GrvtMaterial::SetBool(const String& Uniform, bool Value) {
+bool GrvtMaterial::SetBool(const String& Uniform, bool Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -77,7 +86,8 @@ bool GrvtMaterial::SetBool(const String& Uniform, bool Value) {
 }
 
 
-bool GrvtMaterial::SetInt(const String& Uniform, int Value) {
+bool GrvtMaterial::SetInt(const String& Uniform, int Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -92,7 +102,8 @@ bool GrvtMaterial::SetInt(const String& Uniform, int Value) {
 }
 
 
-bool GrvtMaterial::SetFloat(const String& Uniform, float Value) {
+bool GrvtMaterial::SetFloat(const String& Uniform, float Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -107,7 +118,8 @@ bool GrvtMaterial::SetFloat(const String& Uniform, float Value) {
 }
 
 
-bool GrvtMaterial::SetVector(const String& Uniform, glm::vec2 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec2 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 	
 	if (Index == -1)
@@ -122,7 +134,8 @@ bool GrvtMaterial::SetVector(const String& Uniform, glm::vec2 Value) {
 }
 
 
-bool GrvtMaterial::SetVector(const String& Uniform, glm::vec3 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec3 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -137,7 +150,8 @@ bool GrvtMaterial::SetVector(const String& Uniform, glm::vec3 Value) {
 }
 
 
-bool GrvtMaterial::SetVector(const String& Uniform, glm::vec4 Value) {
+bool GrvtMaterial::SetVector(const String& Uniform, glm::vec4 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -152,7 +166,8 @@ bool GrvtMaterial::SetVector(const String& Uniform, glm::vec4 Value) {
 }
 
 
-bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat2 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat2 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -167,7 +182,8 @@ bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat2 Value) {
 }
 
 
-bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat3 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat3 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -182,7 +198,8 @@ bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat3 Value) {
 }
 
 
-bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat4 Value) {
+bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat4 Value) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
@@ -197,7 +214,8 @@ bool GrvtMaterial::SetMatrix(const String& Uniform, glm::mat4 Value) {
 }
 
 
-bool GrvtMaterial::SetTexture(const String& Uniform, GrvtTexture* Texture) {
+bool GrvtMaterial::SetTexture(const String& Uniform, GrvtTexture* Texture) 
+{
 	size_t Index = FindUniform(Uniform);
 
 	if (Index == -1)
