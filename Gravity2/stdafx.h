@@ -71,12 +71,17 @@ using namespace Gfl;
 
 #include "Camera/Camera.h"
 
+#include "Renderer/RenderCache.h"
 #include "Renderer/RenderFoundation.h"
-//#include "Renderer/Renderer.h"
+#include "Renderer/Renderer.h"
+#include "Renderer/DeferredRenderer.h"
 
 #include "Utility/Utility.h"
 #include "Manager/Manager.h"
 #include "IO/InputHandler.h"
 #include "IO/IO.h"
+
+#include "Engine/Application.h"
+#include "Engine/Engine.h"
 
 #endif // !PRECOMPILE_HEADER

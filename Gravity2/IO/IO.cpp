@@ -1,128 +1,138 @@
 #include "stdafx.h"
 
 
-AppIO::AppIO() : 
-	mouseWheel					(0.0f), 
-	mouseWheelH					(0.0f), 
-	minDurationForHold			(1.0f), 
-	mouseDoubleClickTime		(0.5f), 
-	mouseDoubleClickMaxDist		(5.0f),
-	keyDoubleTapTime			(0.5f), 
-	mouseState					{IO_INPUT_NONE}, 
-	keyState					{IO_INPUT_NONE}, 
-	clickTime					{0.0f}, 
-	keyPressTime				{0.0f}, 
-	mouseHoldDuration			{0.0f}, 
-	keyHoldDuration				{0.0f}, 
-	mouseClickPos				(0.0f, 0.0f), 
-	mousePos					(0.0f, 0.0f), 
-	keys						(), 
-	mouseButton					() {}
+EngineIO::EngineIO() : 
+	MouseWheel					(0.0f), 
+	MouseWheelH					(0.0f), 
+	MinDurationForHold			(1.0f), 
+	MouseDoubleClickTime		(0.5f), 
+	MouseDoubleClickMaxDist		(5.0f),
+	KeyDoubleTapTime			(0.5f), 
+	MouseState					{IO_INPUT_NONE}, 
+	KeyState					{IO_INPUT_NONE}, 
+	ClickTime					{0.0f}, 
+	KeyPressTime				{0.0f}, 
+	MouseHoldDuration			{0.0f}, 
+	KeyHoldDuration				{0.0f}, 
+	MouseClickPos				(0.0f, 0.0f), 
+	MousePos					(0.0f, 0.0f), 
+	Keys						(), 
+	MouseButton					() {}
 
 
-AppIO::AppIO(const AppIO &Other) {
-	*this = Other;
+//EngineIO::EngineIO(const EngineIO &Other) {
+//	*this = Other;
+//}
+//
+//
+//EngineIO& EngineIO::operator= (const EngineIO &Other) {
+//	if (this != &Other) {
+//		mouseWheel				= Other.mouseWheel;
+//		mouseWheelH				= Other.mouseWheelH;
+//		minDurationForHold		= Other.minDurationForHold;
+//		mouseDoubleClickTime	= Other.mouseDoubleClickTime;
+//		mouseDoubleClickMaxDist = Other.mouseDoubleClickMaxDist;
+//		keyDoubleTapTime		= Other.keyDoubleTapTime;
+//		
+//		mousePos				= Other.mousePos;
+//		mouseClickPos			= Other.mouseClickPos;
+//
+//		for (uint32 i = 0; i < MOUSE_BUTTON_MAX; i++) {
+//			clickTime[i]		= Other.clickTime[i];
+//			keyPressTime[i]		= Other.keyPressTime[i];
+//			mouseState[i]		= Other.mouseState[i];
+//			mouseButton[i]		= Other.mouseButton[i];
+//			mouseHoldDuration[i] = Other.mouseHoldDuration[i];
+//		}
+//
+//		for (uint32 i = 0; i < GRVT_ARRAY_LENGTH(keys); i++) {
+//			keys[i] = Other.keys[i];
+//			keyState[i] = Other.keyState[i];
+//			keyHoldDuration[i] = Other.keyHoldDuration[i];
+//		}
+//	}
+//
+//	return *this;
+//}
+
+
+EngineIO::~EngineIO() {}
+
+
+bool EngineIO::IsKeyPressed(int32 Key) 
+{
+	return KeyState[Key] == IO_INPUT_PRESSED;
 }
 
 
-AppIO& AppIO::operator= (const AppIO &Other) {
-	if (this != &Other) {
-		mouseWheel				= Other.mouseWheel;
-		mouseWheelH				= Other.mouseWheelH;
-		minDurationForHold		= Other.minDurationForHold;
-		mouseDoubleClickTime	= Other.mouseDoubleClickTime;
-		mouseDoubleClickMaxDist = Other.mouseDoubleClickMaxDist;
-		keyDoubleTapTime		= Other.keyDoubleTapTime;
-		
-		mousePos				= Other.mousePos;
-		mouseClickPos			= Other.mouseClickPos;
-
-		for (uint32 i = 0; i < MOUSE_BUTTON_MAX; i++) {
-			clickTime[i]		= Other.clickTime[i];
-			keyPressTime[i]		= Other.keyPressTime[i];
-			mouseState[i]		= Other.mouseState[i];
-			mouseButton[i]		= Other.mouseButton[i];
-			mouseHoldDuration[i] = Other.mouseHoldDuration[i];
-		}
-
-		for (uint32 i = 0; i < GRVT_ARRAY_LENGTH(keys); i++) {
-			keys[i] = Other.keys[i];
-			keyState[i] = Other.keyState[i];
-			keyHoldDuration[i] = Other.keyHoldDuration[i];
-		}
-	}
-
-	return *this;
+bool EngineIO::IsKeyHeld(int32 Key) 
+{
+	return KeyState[Key] == IO_INPUT_HELD;
 }
 
 
-AppIO::~AppIO() {}
-
-
-bool AppIO::IsKeyPressed(int32 Key) {
-	return keyState[Key] == IO_INPUT_PRESSED;
+bool EngineIO::IsKeyDoubleTapped(int32 Key) 
+{
+	return KeyState[Key] == IO_INPUT_REPEAT;
 }
 
 
-bool AppIO::IsKeyHeld(int32 Key) {
-	return keyState[Key] == IO_INPUT_HELD;
+bool EngineIO::IsKeyReleased(int32 Key) 
+{
+	return KeyState[Key] == IO_INPUT_RELEASED;
 }
 
 
-bool AppIO::IsKeyDoubleTapped(int32 Key) {
-	return keyState[Key] == IO_INPUT_REPEAT;
-}
-
-
-bool AppIO::IsKeyReleased(int32 Key) {
-	return keyState[Key] == IO_INPUT_RELEASED;
-}
-
-
-bool AppIO::IsMouseClicked(uint32 Button) {
+bool EngineIO::IsMouseClicked(uint32 Button) 
+{
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	return mouseState[Button] == IO_INPUT_PRESSED;
+	return MouseState[Button] == IO_INPUT_PRESSED;
 }
 
 
-bool AppIO::IsMouseDoubleClicked(uint32 Button) {
+bool EngineIO::IsMouseDoubleClicked(uint32 Button) 
+{
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	return mouseState[Button] == IO_INPUT_REPEAT;
+	return MouseState[Button] == IO_INPUT_REPEAT;
 }
 
 
-bool AppIO::IsMouseHeld(uint32 Button) {
+bool EngineIO::IsMouseHeld(uint32 Button) 
+{
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	return mouseState[Button] == IO_INPUT_HELD;
+	return MouseState[Button] == IO_INPUT_HELD;
 }
 
 
-bool AppIO::IsMouseReleased(uint32 Button) {
+bool EngineIO::IsMouseReleased(uint32 Button) 
+{
 	if (Button < 0 || Button > MOUSE_BUTTON_MAX)
 		return false;
 
-	return mouseState[Button] == IO_INPUT_RELEASED;
+	return MouseState[Button] == IO_INPUT_RELEASED;
 }
 
 
-bool AppIO::MouseDragDelta(uint32 Button, glm::vec2 *Buf) {
+bool EngineIO::MouseDragDelta(uint32 Button, glm::vec2 *Buf) 
+{
 	if (!IsMouseHeld(Button))
 		return false;
 
 	if (Buf)
-		*Buf = mousePos - mouseClickPos;
+		*Buf = MousePos - MouseClickPos;
 
 	return true;
 }
 
 
-bool AppIO::IsMouseDragging(uint32 Button) {
+bool EngineIO::IsMouseDragging(uint32 Button) 
+{
 	glm::vec2 dragDelta(0.0f);
 
 	if (MouseDragDelta(Button, &dragDelta))
@@ -133,16 +143,19 @@ bool AppIO::IsMouseDragging(uint32 Button) {
 }
 
 
-bool AppIO::Ctrl() {
+bool EngineIO::Ctrl() 
+{
 	return IsKeyHeld(GLFW_KEY_RIGHT_CONTROL) || IsKeyHeld(GLFW_KEY_LEFT_CONTROL);
 }
 
 
-bool AppIO::Alt() {
+bool EngineIO::Alt() 
+{
 	return IsKeyHeld(GLFW_KEY_RIGHT_ALT) || IsKeyHeld(GLFW_KEY_LEFT_ALT);
 }
 
 
-bool AppIO::Shift() {
+bool EngineIO::Shift() 
+{
 	return IsKeyHeld(GLFW_KEY_RIGHT_SHIFT) || IsKeyHeld(GLFW_KEY_LEFT_SHIFT);
 }

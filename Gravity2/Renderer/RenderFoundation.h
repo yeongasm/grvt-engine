@@ -26,6 +26,9 @@ struct GrvtRenderNode
 };
 
 
+struct RenderState;
+
+
 /**
 * GrvtRenderCommand data structure.
 *
@@ -38,8 +41,8 @@ struct GrvtRenderNode
 struct GrvtRenderCommand 
 {
 	Array<GrvtRenderNode>	Nodes;
-	Array<glm::mat4>		Instances;
 	glm::mat4				Transform;
+	RenderState				State;
 
 	GrvtRenderCommand();
 	~GrvtRenderCommand();
@@ -79,10 +82,11 @@ struct GrvtRenderTarget
 */
 struct GrvtCommandBuffer 
 {
-	glm::mat4					CompositeMatrix;
+	glm::mat4					ViewProjection;
 	Array<glm::mat4>			Lights;
 	Array<GrvtRenderCommand>	RenderCommands;
-	Array<GrvtRenderCommand>	InstanceCommands;
+	glm::vec2					ViewportSize;
+
 
 	GrvtCommandBuffer();
 	~GrvtCommandBuffer();

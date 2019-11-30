@@ -15,12 +15,36 @@
 */
 
 
+void GetDesktopResolution(int32& Width, int32& Height)
+{
+	RECT Size;
+	const HWND Desktop = GetDesktopWindow();
+	GetWindowRect(Desktop, &Size);
+	Width = Size.right;
+	Height = Size.bottom;
+}
+
 
 int main() {
 
-#if 0
-	_CrtDumpMemoryLeaks();
-#endif
+	int32 Width = 0;
+	int32 Height = 0;
+
+	GetDesktopResolution(Width, Height);
+
+	GrvtEngine* Engine = InitialiseEngine("Gravity Engine", Width, Height, 4, 3);
+
+	while (Engine->Running())
+	{
+		Engine->NewFrame();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+		Engine->EndFrame();
+	}
+
+	TerminateEngine();
 
 	return 0;
 }

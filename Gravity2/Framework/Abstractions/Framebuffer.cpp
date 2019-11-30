@@ -86,7 +86,7 @@ void GrvtFramebuffer::Alloc(const FramebufferCreationInfo& Info)
 
 		AttachPoint.Component = Attach.Key;
 		AttachPoint.Type = Attach.Value;
-		AttachPoint.Count = (Attach.Value == GrvtFramebuffer_Attachment_Colour) ? Count++ : 0;
+		AttachPoint.Count = (Attach.Value == GrvtFramebuffer_Attachment_Colour) ? (uint32)Count++ : 0;
 	}
 }
 

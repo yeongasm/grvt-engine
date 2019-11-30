@@ -58,7 +58,7 @@ GrvtRenderNode::~GrvtRenderNode()
 
 
 GrvtRenderCommand::GrvtRenderCommand() :
-	Nodes(), Instances(), Transform() {}
+	Nodes(), Transform(), State() {}
 
 
 GrvtRenderCommand::GrvtRenderCommand(const GrvtRenderCommand& Other) { *this = Other; }
@@ -71,8 +71,8 @@ GrvtRenderCommand& GrvtRenderCommand::operator= (const GrvtRenderCommand& Other)
 	if (this != &Other) 
 	{
 		Nodes		= Other.Nodes;
-		Instances	= Other.Instances;
 		Transform	= Other.Transform;
+		State		= Other.State;
 	}
 
 	return *this;
@@ -89,8 +89,8 @@ GrvtRenderCommand& GrvtRenderCommand::operator= (GrvtRenderCommand&& Other)
 	if (this != &Other) 
 	{
 		Nodes		= Other.Nodes;
-		Instances	= Other.Instances;
 		Transform	= Other.Transform;
+		State		= Other.State;
 
 		new (&Other) GrvtRenderCommand();
 	}
@@ -102,31 +102,7 @@ GrvtRenderCommand& GrvtRenderCommand::operator= (GrvtRenderCommand&& Other)
 GrvtRenderCommand::~GrvtRenderCommand() 
 {
 	Nodes.Release();
-	Instances.Release();
 	Transform = glm::mat4();
-}
-
-
-GrvtCommandBuffer::GrvtCommandBuffer() :
-	CompositeMatrix(), Lights(), RenderCommands(), InstanceCommands() {}
-
-
-GrvtCommandBuffer::GrvtCommandBuffer(const GrvtCommandBuffer& Other) { *this = Other; }
-
-
-GrvtCommandBuffer& GrvtCommandBuffer::operator= (const GrvtCommandBuffer& Other) 
-{
-	_ASSERTE(this != &Other);
-
-	if (this != &Other) 
-	{
-		CompositeMatrix		= Other.CompositeMatrix;
-		Lights				= Other.Lights;
-		RenderCommands		= Other.RenderCommands;
-		InstanceCommands	= Other.InstanceCommands;
-	}
-
-	return *this;
 }
 
 
@@ -181,6 +157,28 @@ GrvtRenderTarget& GrvtRenderTarget::operator= (GrvtRenderTarget&& Other)
 }
 
 
+GrvtCommandBuffer::GrvtCommandBuffer() :
+	ViewProjection(), Lights(), RenderCommands(), ViewportSize() {}
+
+
+GrvtCommandBuffer::GrvtCommandBuffer(const GrvtCommandBuffer& Other) { *this = Other; }
+
+
+GrvtCommandBuffer& GrvtCommandBuffer::operator= (const GrvtCommandBuffer& Other)
+{
+	_ASSERTE(this != &Other);
+
+	if (this != &Other) {
+		ViewProjection	= Other.ViewProjection;
+		Lights			= Other.Lights;
+		RenderCommands	= Other.RenderCommands;
+		ViewportSize	= Other.ViewportSize;
+	}
+
+	return *this;
+}
+
+
 GrvtCommandBuffer::GrvtCommandBuffer(GrvtCommandBuffer&& Other) { *this = Move(Other); }
 
 
@@ -190,10 +188,10 @@ GrvtCommandBuffer& GrvtCommandBuffer::operator= (GrvtCommandBuffer&& Other)
 
 	if (this != &Other) 
 	{
-		CompositeMatrix		= Other.CompositeMatrix;
-		Lights				= Other.Lights;
-		RenderCommands		= Other.RenderCommands;
-		InstanceCommands	= Other.InstanceCommands;
+		ViewProjection	= Other.ViewProjection;
+		Lights			= Other.Lights;
+		RenderCommands	= Other.RenderCommands;
+		ViewportSize	= Other.ViewportSize;
 
 		new (&Other) GrvtCommandBuffer();
 	}
@@ -204,8 +202,6 @@ GrvtCommandBuffer& GrvtCommandBuffer::operator= (GrvtCommandBuffer&& Other)
 
 GrvtCommandBuffer::~GrvtCommandBuffer() 
 {
-	CompositeMatrix = glm::mat4();
 	Lights.Release();
 	RenderCommands.Release();
-	InstanceCommands.Release();
 }

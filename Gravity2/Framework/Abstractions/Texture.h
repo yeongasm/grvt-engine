@@ -32,17 +32,16 @@ enum TextureType : int32
 */
 struct TextureImportInfo 
 {
-
 	Array<String>	Path;
 	String			Name;
 	TextureType		Type;
-
 };
 
 
 /**
 */
-class GrvtTexture {
+class GrvtTexture 
+{
 public:
 
 	ObjHandle	Handle;
@@ -66,5 +65,4 @@ private:
 	
 	GrvtTexture(GrvtTexture&&)					= delete;
 	GrvtTexture& operator= (GrvtTexture&&)		= delete;
-
 };

@@ -201,6 +201,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Camera\Camera.cpp" />
+    <ClCompile Include="Engine\Application.cpp" />
+    <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Framework\Abstractions\Material.cpp" />
     <ClCompile Include="Framework\Abstractions\Model.cpp" />
     <ClCompile Include="Framework\Abstractions\Framebuffer.cpp" />
@@ -208,6 +210,9 @@
     <ClCompile Include="IO\InputHandler.cpp" />
     <ClCompile Include="IO\IO.cpp" />
     <ClCompile Include="Manager\Manager.cpp" />
+    <ClCompile Include="Renderer\DeferredRenderer.cpp" />
+    <ClCompile Include="Renderer\RenderCache.cpp" />
+    <ClCompile Include="Renderer\Renderer.cpp" />
     <ClCompile Include="Renderer\RenderFoundation.cpp" />
     <ClCompile Include="ThirdParty\DearImGui\imgui.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -290,6 +295,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera\Camera.h" />
+    <ClInclude Include="Engine\Application.h" />
+    <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Framework\Abstractions\Material.h" />
     <ClInclude Include="Framework\Abstractions\Model.h" />
     <ClInclude Include="Framework\Abstractions\Framebuffer.h" />
@@ -299,6 +306,9 @@
     <ClInclude Include="IO\InputHandler.h" />
     <ClInclude Include="IO\IO.h" />
     <ClInclude Include="Manager\Manager.h" />
+    <ClInclude Include="Renderer\DeferredRenderer.h" />
+    <ClInclude Include="Renderer\RenderCache.h" />
+    <ClInclude Include="Renderer\Renderer.h" />
     <ClInclude Include="Renderer\RenderFoundation.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ThirdParty\DearImGui\imconfig.h" />

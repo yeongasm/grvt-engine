@@ -20,52 +20,53 @@ enum IOInputState : uint32 {
 };
 
 
+class GrvtEngine;
+
+
 /**
 * Gravity Engine's IO data structure.
 *
 * Responsible for handling all user interactions with the IO.
-* NEVER call the variables for detecting IO state changes. Only use the functions provided.
-*
-* Several variables can be altered to slightly alter the IO's behavior.
-*
-* @param (float) Default = 1.0f minDurationForHold		- Minimum time in seconds required to trigger an OnHold() event.
-* @param (float) Default = 0.5f mouseDoubleClickTime		- Minimum time in seconds required for the second click to be registered as a double click.
-* @param (float) Default = 5.0f mouseDoubleClickMaxDist	- Minimum distance in pixels from the initial click for the second click to be registered as a double click.
-* @param (float) Default = 0.5f keyDoubleTapTime			- Minimum time in seconds required for the second key press to be registerd as a double tap.
 */
-struct AppIO {
-
-	float			mouseWheel;
-	float			mouseWheelH;
-	float			minDurationForHold;
-	float			mouseDoubleClickTime;
-	float			mouseDoubleClickMaxDist;
-	float			keyDoubleTapTime;
-
-	glm::vec2		mouseClickPos;
-	glm::vec2		mousePos;
-
-	float			clickTime[5];
-	float			keyPressTime[5];
-	float			mouseHoldDuration[5];
-
-	IOInputState	mouseState[5];
-	InputHandler	mouseButton[5];
+class EngineIO 
+{
+private:
 	
-	float			keyHoldDuration[512];
-	IOInputState	keyState[512];
-	InputHandler	keys[512];
+	friend class GrvtEngine;
 
+	InputHandler	MouseButton[5];
+	InputHandler	Keys[512];
 
-	AppIO();
+public:
 
-	AppIO(const AppIO &Other);
-	AppIO& operator= (const AppIO &Other);
+	glm::vec2		MouseClickPos;
+	glm::vec2		MousePos;
 
-	AppIO(AppIO &&Other)				= delete;
-	AppIO& operator= (AppIO &&Other)	= delete;
+	IOInputState	MouseState[5];
+	IOInputState	KeyState[512];
 
-	~AppIO();
+	float			MouseWheel;
+	float			MouseWheelH;
+	float			MinDurationForHold;
+	float			MouseDoubleClickTime;
+	float			MouseDoubleClickMaxDist;
+	float			ClickTime[5];
+
+	float			KeyDoubleTapTime;
+	float			KeyPressTime[5];
+
+	float			MouseHoldDuration[5];
+	float			KeyHoldDuration[512];
+
+	EngineIO();
+	~EngineIO();
+
+	EngineIO(const EngineIO&Other)				= delete;
+	EngineIO& operator= (const EngineIO&Other)	= delete;
+
+	EngineIO(EngineIO&&Other)					= delete;
+	EngineIO& operator= (EngineIO&&Other)		= delete;
+
 
 	/**
 	* Returns true upon pressing the key supplied into the argument.

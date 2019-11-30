@@ -2,9 +2,9 @@
 
 
 struct InputHandler {
-	int			prevState;
-	int			currState;
-	float		pressTime;
+	int			PrevState;
+	int			CurrState;
+	float		PressTime;
 
 
 	InputHandler();

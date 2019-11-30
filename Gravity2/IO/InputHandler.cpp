@@ -2,35 +2,38 @@
 
 
 InputHandler::InputHandler() :
-	prevState(GLFW_RELEASE), 
-	currState(0), 
-	pressTime(0.0f) {}
+	PrevState(GLFW_RELEASE), 
+	CurrState(0), 
+	PressTime(0.0f) {}
 
 
-bool InputHandler::OnPress() {
+bool InputHandler::OnPress() 
+{
 	bool pressed = false;
 
-	if (currState == GLFW_PRESS && prevState == GLFW_RELEASE)
+	if (CurrState == GLFW_PRESS && PrevState == GLFW_RELEASE)
 		pressed	= true;
 	
-	prevState = currState;
+	PrevState = CurrState;
 	
 	return pressed;
 }
 
 
-bool InputHandler::OnHold(float MinDuration, float *Buf) {
+bool InputHandler::OnHold(float MinDuration, float *Buf) 
+{
 	bool hold = false;
 
-	if (currState == GLFW_PRESS) {
+	if (CurrState == GLFW_PRESS) 
+	{
 		float duration = 0.0f;
 
-		if (!pressTime)
-			pressTime = (float)glfwGetTime();
+		if (!PressTime)
+			PressTime = (float)glfwGetTime();
 
 		float now = (float)glfwGetTime();
 
-		duration = min(now - pressTime, 1.0f);
+		duration = min(now - PressTime, 1.0f);
 
 		if (duration >= MinDuration)
 			hold = true;
@@ -39,22 +42,24 @@ bool InputHandler::OnHold(float MinDuration, float *Buf) {
 			*Buf = duration;
 	}
 
-	if (pressTime && currState == GLFW_RELEASE) {
-		pressTime = 0.0f;
-		prevState = GLFW_PRESS;
+	if (PressTime && CurrState == GLFW_RELEASE) 
+	{
+		PressTime = 0.0f;
+		PrevState = GLFW_PRESS;
 	}
 
 	return hold;
 }
 
 
-bool InputHandler::OnRelease() {
+bool InputHandler::OnRelease() 
+{
 	bool released = false;
 
-	if (currState == GLFW_RELEASE && prevState == GLFW_PRESS)
+	if (CurrState == GLFW_RELEASE && PrevState == GLFW_PRESS)
 		released = true;
 	
-	prevState = currState;
+	PrevState = CurrState;
 
 	return released;
 }
