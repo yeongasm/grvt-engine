@@ -40,6 +40,7 @@ private:
 
 	void Alloc();
 	void Free();
+	void UpdateIO();
 
 public:
 
@@ -52,8 +53,9 @@ public:
 	GrvtEngine(GrvtEngine&& Other) = delete;
 	GrvtEngine& operator= (GrvtEngine&& Other) = delete;
 
-	void		NewFrame();
-	void		EndFrame();
-	EngineIO*	GetIO();
-	bool		Running();
+	void				NewFrame();
+	void				EndFrame();
+	EngineIO*			GetIO();
+	GrvtApplication*	GetApplication();
+	bool				Running();
 };

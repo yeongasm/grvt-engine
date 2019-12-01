@@ -118,6 +118,7 @@ void GrvtEngine::Alloc()
 	glfwSetFramebufferSizeCallback(Window, GrvtEngine::FramebufferCallback);
 
 	Middleware::InitialiseBuildQueue();
+	//Engine->Application->Initialise(this);
 }
 
 
@@ -126,16 +127,120 @@ void GrvtEngine::Free()
 	glfwDestroyWindow(Window);
 	glfwTerminate();
 
+	//Engine->Application->Shutdown();
 	Middleware::ReleaseBuildQueue();
+}
+
+
+void GrvtEngine::UpdateIO()
+{
+	const glm::vec2 MousePosBackup = IO.MousePos;
+	IO.MousePos = glm::vec2(-FLT_MAX, -FLT_MAX);
+
+	const bool Focused = glfwGetWindowAttrib(Window, GLFW_FOCUSED);
+
+	if (Focused)
+	{
+		float64 MouseX, MouseY;
+		glfwGetCursorPos(Window, &MouseX, &MouseY);
+
+		IO.MousePos.x = *(float32*)&MouseX;
+		IO.MousePos.y = *(float32*)&MouseY;
+	}
+
+	// Update the mouse button's state.
+	for (int i = 0; i < MOUSE_BUTTON_MAX; i++) 
+	{
+		IO.MouseButton[i].CurrState = glfwGetMouseButton(Window, i);
+		IO.MouseState[i] = IO_INPUT_NONE;
+
+		if (IO.MouseButton[i].OnPress())
+		{
+			IO.MouseState[i] = IO_INPUT_PRESSED;
+		}
+
+		if (IO.MouseButton[i].OnHold(IO.MinDurationForHold, &IO.MouseHoldDuration[i]))
+		{
+			IO.MouseState[i] = IO_INPUT_HELD;
+		}
+
+		if (IO.MouseButton[i].OnRelease())
+		{
+			IO.MouseState[i] = IO_INPUT_RELEASED;
+		}
+
+		if (IO.MouseState[i] == IO_INPUT_PRESSED) 
+		{
+			IO.MouseClickPos = IO.MousePos;
+
+			if (LastFrameTime - IO.ClickTime[i] < IO.MouseDoubleClickTime) 
+			{
+				glm::vec2 deltaFromClickPos = IO.MousePos - IO.MouseClickPos;
+				float SqrLength = deltaFromClickPos.x * deltaFromClickPos.x + deltaFromClickPos.y * deltaFromClickPos.y;
+				
+				if (SqrLength < IO.MouseDoubleClickMaxDist * IO.MouseDoubleClickMaxDist)
+				{
+					IO.MouseState[i] = IO_INPUT_REPEAT;
+				}
+				// This is done to ensure that the third click isn't registered as a double click.
+				IO.ClickTime[i] = -FLT_MAX;
+			} 
+			else 
+			{
+				IO.ClickTime[i] = LastFrameTime;
+			}
+		} 
+		else if (IO.MouseState[i] == IO_INPUT_HELD) 
+		{
+			IO.MouseClickPos = IO.MousePos;
+		}
+	}
+
+	// Update the key's state.
+	for (int i = 0; i < 512; i++) 
+	{
+		IO.KeyState[i] = IO_INPUT_NONE;
+
+		if (IO.Keys[i].OnPress())
+		{
+			IO.KeyState[i] = IO_INPUT_PRESSED;
+		}
+
+		if (IO.Keys[i].OnHold(IO.MinDurationForHold, &IO.KeyHoldDuration[i]))
+		{
+			IO.KeyState[i] = IO_INPUT_HELD;
+		}
+
+		if (IO.Keys[i].OnRelease()) 
+		{
+			IO.KeyState[i] = IO_INPUT_RELEASED;
+		}
+
+		if (IO.KeyState[i] == IO_INPUT_PRESSED) 
+		{
+			if (LastFrameTime - IO.KeyPressTime[i] < IO.KeyDoubleTapTime) 
+			{
+				IO.KeyState[i] = IO_INPUT_REPEAT;
+				IO.KeyPressTime[i] = -FLT_MAX;
+			} 
+			else 
+			{
+				IO.KeyPressTime[i] = LastFrameTime;
+			}
+		}
+	}
 }
 
 
 void GrvtEngine::NewFrame()
 {
 	glfwPollEvents();
+
 	CurrentFrameTime	= (float)glfwGetTime();
 	DeltaTime			= min(CurrentFrameTime - LastFrameTime, 0.1f);
 	LastFrameTime		= CurrentFrameTime;
+
+	UpdateIO();
 
 	// Listens for resources to be generated or deleted from the GPU.
 	Middleware::GetBuildQueue()->Listen();
@@ -151,6 +256,12 @@ void GrvtEngine::EndFrame()
 EngineIO* GrvtEngine::GetIO()
 {
 	return &IO;
+}
+
+
+GrvtApplication* GrvtEngine::GetApplication()
+{
+	return Application;
 }
 
 

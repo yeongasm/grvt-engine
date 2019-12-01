@@ -116,7 +116,7 @@ public:
 	/**
 	* Enable or disable the camera.
 	*/
-	boolean		Enable;
+	bool		Enable;
 
 	BaseCamera();
 	~BaseCamera();
@@ -129,7 +129,7 @@ public:
 
 protected:
 
-	boolean		Dirty;
+	bool		Dirty;
 
 public:
 
