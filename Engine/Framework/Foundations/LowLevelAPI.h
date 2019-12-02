@@ -1,7 +1,8 @@
 #pragma once
 
 
-namespace BaseAPI {
+namespace BaseAPI 
+{
 
 
 	/**
@@ -22,8 +23,8 @@ namespace BaseAPI {
 	* @param [REQUIRED] (int32)		Stride	- Needs to be manually provided. Automating this would reduce flexibility to generate Meshes for different type of objects. Eg: Models & Terrains.
 	* @param [REQURIED] (uint32)	Pointer - Pointer offset to the data inside of the vertex buffer.
 	*/
-	struct VertexAttribPointer {
-
+	struct ENGINE_API VertexAttribPointer 
+	{
 		uint32	Index;
 		int32	Size;
 		int32	Stride;
@@ -39,12 +40,11 @@ namespace BaseAPI {
 
 		VertexAttribPointer(VertexAttribPointer&& Rhs);
 		VertexAttribPointer& operator= (VertexAttribPointer&& Rhs);
-
 	};
 
 
-	struct MeshBuildData {
-
+	struct ENGINE_API MeshBuildData 
+	{
 		float				*Data;
 		uint32				*Indices;
 		size_t				Size;
@@ -60,7 +60,6 @@ namespace BaseAPI {
 
 		MeshBuildData(MeshBuildData&& Rhs);
 		MeshBuildData& operator= (MeshBuildData&& Rhs);
-
 	};
 
 
@@ -83,8 +82,8 @@ namespace BaseAPI {
 	* @param [OPTIONAL] (uint32)		Default = 0;	Format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
 	* @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
 	*/
-	struct TextureBuildData {
-
+	struct ENGINE_API TextureBuildData 
+	{
 		void			*DataPtr;
 		bool			Mipmap;
 		bool			Cubemap;
@@ -106,7 +105,6 @@ namespace BaseAPI {
 
 		TextureBuildData(TextureBuildData&& Rhs);
 		TextureBuildData& operator= (TextureBuildData&& Rhs);
-
 	};
 
 
@@ -114,7 +112,8 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* Type of Shader.
 	*/
-	enum FoundationsShaderType : uint32 {
+	enum FoundationsShaderType : uint32 
+	{
 		GrvtFoundations_ShaderType_None		= 0xFF,	/** On first init only */
 		GrvtFoundations_ShaderType_Vertex	= 0x00,
 		GrvtFoundations_ShaderType_Fragment = 0x01,
@@ -126,14 +125,13 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* Specify Shader's build information.
 	*/
-	struct ShaderInfo {
-
+	struct ENGINE_API ShaderInfo 
+	{
 		char* SourceCode;
 		FoundationsShaderType Type;
 
 		ShaderInfo();
 		~ShaderInfo();
-
 	};
 
 
@@ -142,8 +140,8 @@ namespace BaseAPI {
 	* ShaderBuildData data structure.
 	*
 	*/
-	struct ShaderBuildData {
-
+	struct ENGINE_API ShaderBuildData 
+	{
 		Array<ShaderInfo> BuildInfo;
 
 		ShaderBuildData();
@@ -154,7 +152,6 @@ namespace BaseAPI {
 
 		ShaderBuildData(ShaderBuildData&& Rhs);
 		ShaderBuildData& operator= (ShaderBuildData&& Rhs);
-
 	};
 
 
@@ -167,8 +164,8 @@ namespace BaseAPI {
 	* @param (uint32)	Attachment	- The attachment's format (GL_COLOR_ATTACHMENTn | GL_DEPTH_ATTACHMENT | GL_DEPTH_STENCIL_ATTACHMENT).
 	* @param (bool)		Draw		- Specify if the attachment would be used for drawing. Only works for colour attachments.
 	*/
-	struct FramebufferAttachment {
-
+	struct ENGINE_API FramebufferAttachment 
+	{
 		ObjHandle*		Handle;
 		uint32			Type;
 		uint32			Count;
@@ -183,7 +180,6 @@ namespace BaseAPI {
 
 		FramebufferAttachment(FramebufferAttachment&& Rhs);
 		FramebufferAttachment& operator= (FramebufferAttachment&& Rhs);
-
 	};
 
 
@@ -193,8 +189,8 @@ namespace BaseAPI {
 	*
 	* @param (Array<FramebufferAttachment>) Attachment - A list of attachment for the framebuffer.
 	*/
-	struct FramebufferBuildData {
-
+	struct ENGINE_API FramebufferBuildData 
+	{
 		Array<FramebufferAttachment> Attachments;
 		int32 Width;
 		int32 Height;
@@ -207,7 +203,6 @@ namespace BaseAPI {
 
 		FramebufferBuildData(FramebufferBuildData&& Rhs);
 		FramebufferBuildData& operator= (FramebufferBuildData&& Rhs);
-
 	};
 
 
@@ -215,28 +210,28 @@ namespace BaseAPI {
 	* [BASEAPI]
 	* An OpenGL wrapper to create a mesh.
 	*/
-	void BuildMesh			(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data);
+	extern "C" ENGINE_API void BuildMesh			(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a texture.
 	*/
-	void BuildTexture		(ObjHandle& Handle, TextureBuildData& Data);
+	extern "C" ENGINE_API void BuildTexture		(ObjHandle& Handle, TextureBuildData& Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to compile a shader.
 	*/
-	bool CompileShader		(ObjHandle& Handle, uint32 Type, const char* SourceCode);
+	extern "C" ENGINE_API bool CompileShader		(ObjHandle& Handle, uint32 Type, const char* SourceCode);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a shader program.
 	*/
-	void BuildShaderProgram	(ObjHandle& Handle, ShaderBuildData& Data);
+	extern "C" ENGINE_API void BuildShaderProgram	(ObjHandle& Handle, ShaderBuildData& Data);
 
 
 	/**
@@ -257,14 +252,14 @@ namespace BaseAPI {
 	* TextureBuildData.Parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
 	* TextureBuildData.Parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
 	*/
-	void GenerateGenericTextureData(TextureBuildData& Data);
+	extern "C" ENGINE_API void GenerateGenericTextureData(TextureBuildData& Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a frambuffer.
 	*/
-	void BuildFramebuffer	(ObjHandle& Handle, FramebufferBuildData& Data);
+	extern "C" ENGINE_API void BuildFramebuffer	(ObjHandle& Handle, FramebufferBuildData& Data);
 
 
 }

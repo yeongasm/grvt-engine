@@ -13,7 +13,7 @@ enum ProjectionMode : uint32 {
 
 /**
 */
-struct CameraCreationInfo {
+struct ENGINE_API CameraCreationInfo {
 
 	glm::vec3		CameraPosition	= glm::vec3(0.0f, 0.0f, 1.0f);
 	int32			ViewportWidth;
@@ -35,7 +35,7 @@ struct CameraCreationInfo {
 * NOTE(Afiq):
 * Not really sure if the camera system should be in the engine. Maybe it should maybe it shouldn't.
 */
-class BaseCamera {
+class ENGINE_API BaseCamera {
 protected:
 
 	glm::mat4	Projection;

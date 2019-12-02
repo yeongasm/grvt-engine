@@ -10,7 +10,8 @@
 * Types of light.
 * To be used upon creating a light light object onto the world.
 */
-enum LightType : uint32 {
+enum LightType : uint32 
+{
 	GrvtLight_Type_None			= 0xFF,
 	GrvtLight_Type_Directional	= 0x00,
 	GrvtLight_Type_Pointlight	= 0x01
@@ -19,7 +20,8 @@ enum LightType : uint32 {
 
 /**
 */
-struct LightCreationInfo {
+struct ENGINE_API LightCreationInfo 
+{
 
 	glm::vec3	Position;
 	glm::vec3	Colour;
@@ -36,14 +38,16 @@ struct LightCreationInfo {
 };
 
 
-enum ShadowMapType : uint32 {
+enum ShadowMapType : uint32 
+{
 	GrvtShadowMap_None				= 0xFF, /** On first init only */
 	GrvtShadowMap_Directional		= 0x00,
 	GrvtShadowMap_OmniDirectional	= 0x01
 };
 
 
-class ShadowMap {
+class ENGINE_API ShadowMap 
+{
 public:
 
 	ObjHandle		Handle;
@@ -64,7 +68,8 @@ private:
 
 /**
 */
-class LightSource {
+class ENGINE_API LightSource 
+{
 public:
 
 	ShadowMap	Shadow;
@@ -100,7 +105,8 @@ public:
 * We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
 * Compute method computes information required for directional light.
 */
-class DirLight : public LightSource {
+class ENGINE_API DirLight : public LightSource 
+{
 public:
 
 	glm::mat4 LightSpaceTransform;
@@ -133,7 +139,8 @@ public:
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
-class PointLight : public LightSource {
+class ENGINE_API PointLight : public LightSource 
+{
 public:
 
 	Array<glm::mat4> LightSpaceTransforms;

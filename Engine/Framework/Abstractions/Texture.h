@@ -30,7 +30,7 @@ enum TextureType : int32
 
 /**
 */
-struct TextureImportInfo 
+struct ENGINE_API TextureImportInfo 
 {
 	Array<String>	Path;
 	String			Name;
@@ -40,7 +40,7 @@ struct TextureImportInfo
 
 /**
 */
-class GrvtTexture 
+class ENGINE_API GrvtTexture 
 {
 public:
 

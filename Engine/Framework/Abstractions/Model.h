@@ -13,7 +13,7 @@
 * @param Name - Model's identity.
 * @param Path - Path to model's file.
 */
-struct ModelImportInfo 
+struct ENGINE_API ModelImportInfo 
 {
 	String	Name;
 	String	Path;
@@ -22,7 +22,7 @@ struct ModelImportInfo
 
 /**
 */
-class GrvtMesh 
+class ENGINE_API GrvtMesh 
 {
 public:
 
@@ -65,7 +65,7 @@ private:
 * We removed the ModelData abstraction layer as it was redundant and make it contain all the raw information instead.
 * The reason for doing this was because this raw Model object should only be a placeholder for the data and do nothing else.
 */
-class GrvtModel 
+class ENGINE_API GrvtModel 
 {
 public:
 

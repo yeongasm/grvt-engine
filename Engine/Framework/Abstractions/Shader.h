@@ -18,7 +18,7 @@ enum ShaderComponent : uint32 {
 * ShaderProps object.
 * Stores information about a specific type of shader.
 */
-struct ShaderProps {
+struct ENGINE_API ShaderProps {
 
 	String			Code;
 	String			Path;
@@ -35,7 +35,7 @@ struct ShaderProps {
 
 /**
 */
-struct ShaderImportInfo {
+struct ENGINE_API ShaderImportInfo {
 
 	Array<ShaderProps>	Properties;
 	String				Name;
@@ -85,7 +85,7 @@ enum AttrSubType : uint32 {
 *
 * Details the variables specified in the vertex shader.
 */
-struct VertexAttr {
+struct ENGINE_API VertexAttr {
 
 	String		Name;
 	uint32		Type;
@@ -101,7 +101,7 @@ struct VertexAttr {
 
 /**
 */
-struct UniformAttr : public VertexAttr {
+struct ENGINE_API UniformAttr : public VertexAttr {
 private:
 
 	union {
@@ -149,7 +149,7 @@ public:
 * A layer of abstraction is removed to let GrvtShader object itself contain all information.
 * Shaders in Gravity can be imported or custom made.
 */
-class GrvtShader {
+class ENGINE_API GrvtShader {
 public:
 
 	Array<UniformAttr>	Uniforms;

@@ -3,27 +3,20 @@
 #ifndef PRECOMPILE_HEADER
 #define PRECOMPILE_HEADER
 
-//#define _CRT_SECURE_NO_WARNINGS 1 
-#define _WINSOCK_DEPRECATED_NO_WARNINGS 1 
+#define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+
+#ifdef GRAVITY_EXPORT
+#define ENGINE_API __declspec(dllexport)
+#else
+#define ENGINE_API __declspec(dllimport)
+#endif
 
 #if _WIN32
 #include <Windows.h>
 #endif
 
-#include <sys/stat.h>
-
-#include <string>
 #include <unordered_map>
 #include <deque>
-
-//#if defined(_DEBUG)
-//#define _CRTDBG_MAP_ALLOC		// Enable heap memory leak detection
-//#include <stdlib.h>
-//#undef _malloca
-//#include <crtdbg.h>
-//#else
-//#include <stdlib.h>
-//#endif
 
 // Required OpenGL header files.
 #include <glad/glad.h>

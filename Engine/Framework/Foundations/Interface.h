@@ -19,7 +19,8 @@ class GrvtShader;
 class GrvtFramebuffer;
 
 
-namespace Middleware {
+namespace Middleware 
+{
 
 
 	/**
@@ -27,8 +28,8 @@ namespace Middleware {
 	* ResourcePacket data structure.
 	*/
 	template <class ResourceType, class BuildDataType>
-	struct ResourcePacket {
-
+	struct ENGINE_API ResourcePacket 
+	{
 		ResourceType* ResourcePtr;
 		BuildDataType BuildData;
 
@@ -39,7 +40,6 @@ namespace Middleware {
 
 		ResourcePacket(ResourceType* Pointer, BuildDataType Data) :
 			ResourcePtr(Pointer), BuildData(Data) {}
-
 	};
 
 
@@ -50,8 +50,8 @@ namespace Middleware {
 	* A list of available graphics object in the engine.
 	* Used for identifying the derived class of GraphicsObject.
 	*/
-	enum GfxObjectType : uint32 {
-
+	enum GfxObjectType : uint32 
+	{
 		GrvtGfx_Type_None			= 0x00,	// Used only for initialisation.
 		GrvtGfx_Type_MeshBuffer		= 0x01,
 		GrvtGfx_Type_VertexArray	= 0x02,
@@ -59,7 +59,6 @@ namespace Middleware {
 		GrvtGfx_Type_Shader			= 0x04,
 		GrvtGfx_Type_Framebuffer	= 0x05,
 		GrvtGfx_Type_RenderBuffer	= 0x06
-
 	};
 
 
@@ -69,7 +68,8 @@ namespace Middleware {
 	*
 	* A DeletePacket is required to remove a GraphicsObject from the GPU before removing it from memory.
 	*/
-	struct DeletePacket {
+	struct ENGINE_API DeletePacket 
+	{
 
 		ObjHandle		Handle;
 		GfxObjectType	Type;
@@ -96,7 +96,8 @@ namespace Middleware {
 
 	/**
 	*/
-	class ResourceBuildQueue {
+	class ENGINE_API ResourceBuildQueue 
+	{
 	private:
 
 		std::deque<MeshPacket>			MeshQueue;

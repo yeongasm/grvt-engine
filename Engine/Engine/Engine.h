@@ -9,7 +9,7 @@ GrvtEngine* GetEngine();
 void		TerminateEngine();
 
 
-class GrvtEngine
+class ENGINE_API GrvtEngine
 {
 private:
 

@@ -6,7 +6,8 @@ using TexturePair = Pair<TextureType, ObjHandle*>;
 
 /**
 */
-struct MaterialCreationInfo {
+struct ENGINE_API MaterialCreationInfo 
+{
 
 	String				Name;
 	GrvtShader*			Shader;
@@ -17,7 +18,8 @@ struct MaterialCreationInfo {
 
 /**
 */
-class GrvtMaterial {
+class ENGINE_API GrvtMaterial 
+{
 private:
 
 	size_t FindUniform(const String& Identifier);
@@ -117,6 +119,5 @@ public:
 	* Does not update the value that's in the shader.
 	* Returns false if uniform with the specified name is not found.
 	*/
-	bool SetTexture	(const String& Uniform, GrvtTexture *Texture);
-
+	bool SetTexture(const String& Uniform, GrvtTexture* Texture);
 };

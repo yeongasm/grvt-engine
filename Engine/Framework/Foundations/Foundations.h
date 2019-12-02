@@ -24,8 +24,8 @@ using uint64	= unsigned __int64;
 * Represents all types of graphics object that can exist in the GPU.
 * Allocation and Deallocation should be done through helper functions.
 */
-struct ObjHandle {
-
+struct ENGINE_API ObjHandle 
+{
 	uint32 Id;
 	uint32 Target;
 
@@ -37,7 +37,6 @@ struct ObjHandle {
 
 	ObjHandle(ObjHandle &&Rhs);
 	ObjHandle& operator= (ObjHandle &&Rhs);
-
 };
 
 

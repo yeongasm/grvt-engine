@@ -32,7 +32,7 @@ class GrvtFramebuffer;
 
 /**
 */
-class FramebufferCreationInfo 
+class ENGINE_API FramebufferCreationInfo 
 {
 private:
 
@@ -64,7 +64,7 @@ public:
 /**
 * Revamped GrvtFramebuffer object.
 */
-class GrvtFramebuffer 
+class ENGINE_API GrvtFramebuffer 
 {
 private:
 

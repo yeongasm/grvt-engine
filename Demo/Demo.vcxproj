@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Grvtlib;$(SolutionDir)include;$(SolutionDir)Gravity2;$(SolutionDir)Demo;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)include;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(MSBuildProjectName)\$(Configuration)\</OutDir>
@@ -79,7 +79,7 @@
     <SourcePath>$(SolutionDir)Gravity2\;$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Grvtlib;$(SolutionDir)include;$(SolutionDir)Gravity2;$(SolutionDir)Demo;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)include;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(MSBuildProjectName)\$(Configuration)\</OutDir>
