@@ -28,7 +28,7 @@ namespace Middleware
 	* ResourcePacket data structure.
 	*/
 	template <class ResourceType, class BuildDataType>
-	struct ENGINE_API ResourcePacket 
+	struct ResourcePacket 
 	{
 		ResourceType* ResourcePtr;
 		BuildDataType BuildData;
@@ -68,23 +68,21 @@ namespace Middleware
 	*
 	* A DeletePacket is required to remove a GraphicsObject from the GPU before removing it from memory.
 	*/
-	struct ENGINE_API DeletePacket 
+	struct DeletePacket 
 	{
-
 		ObjHandle		Handle;
 		GfxObjectType	Type;
 
 		DeletePacket();
 		~DeletePacket();
 
-		DeletePacket(ObjHandle &&Resource, GfxObjectType Type);
+		DeletePacket(ObjHandle&& Resource, GfxObjectType Type);
 
-		DeletePacket(const DeletePacket &Rhs)				= delete;
-		DeletePacket& operator= (const DeletePacket &Rhs)	= delete;
+		DeletePacket(const DeletePacket& Rhs)				= delete;
+		DeletePacket& operator= (const DeletePacket& Rhs)	= delete;
 
-		DeletePacket(DeletePacket &&Rhs);
-		DeletePacket& operator= (DeletePacket &&Rhs);
-
+		DeletePacket(DeletePacket&& Rhs);
+		DeletePacket& operator= (DeletePacket&& Rhs);
 	};
 
 
@@ -96,7 +94,7 @@ namespace Middleware
 
 	/**
 	*/
-	class ENGINE_API ResourceBuildQueue 
+	class ResourceBuildQueue 
 	{
 	private:
 
@@ -143,7 +141,7 @@ namespace Middleware
 		* [MIDDLEWARE]
 		* Removes a GraphicsObject from the GPU.
 		*/
-		void QueueHandleForDelete(ObjHandle& Handle, GfxObjectType Type);
+		void QueueHandleForDelete(ObjHandle&& Handle, GfxObjectType Type);
 
 
 		/**
@@ -155,7 +153,6 @@ namespace Middleware
 		void Listen();
 
 	};
-
 
 	/**
 	* [MIDDLEWARE]

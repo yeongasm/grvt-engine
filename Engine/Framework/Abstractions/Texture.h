@@ -10,27 +10,27 @@
 * Gravity engine's wrapper for texture types.
 * Supports PBR and non-PBR workflow.
 */
-enum TextureType : int32 
+enum TextureType : int32
 {
-	GrvtTexture_Type_None			= 0xFF,	/** On first init only. */
-	GrvtTexture_Type_Diffuse		= 0x00,
-	GrvtTexture_Type_Albedo			= 0x01,
-	GrvtTexture_Type_Specular		= 0x02,
-	GrvtTexture_Type_Roughness		= 0x03,
-	GrvtTexture_Type_Metallic		= 0x04,
-	GrvtTexture_Type_Ao				= 0x05,
-	GrvtTexture_Type_Normal			= 0x06,
-	GrvtTexture_Type_Height			= 0x07,
-	GrvtTexture_Type_Displacement	= 0x08,
-	GrvtTexture_Type_Reflection		= 0x09,
-	GrvtTexture_Type_Emissive		= 0x0A,
-	GrvtTexture_Type_Opacity		= 0x0B,
+	GrvtTexture_Type_None = 0xFF,	/** On first init only. */
+	GrvtTexture_Type_Diffuse = 0x00,
+	GrvtTexture_Type_Albedo = 0x01,
+	GrvtTexture_Type_Specular = 0x02,
+	GrvtTexture_Type_Roughness = 0x03,
+	GrvtTexture_Type_Metallic = 0x04,
+	GrvtTexture_Type_Ao = 0x05,
+	GrvtTexture_Type_Normal = 0x06,
+	GrvtTexture_Type_Height = 0x07,
+	GrvtTexture_Type_Displacement = 0x08,
+	GrvtTexture_Type_Reflection = 0x09,
+	GrvtTexture_Type_Emissive = 0x0A,
+	GrvtTexture_Type_Opacity = 0x0B,
 };
 
 
 /**
 */
-struct ENGINE_API TextureImportInfo 
+struct ENGINE_API TextureImportInfo
 {
 	Array<String>	Path;
 	String			Name;
@@ -40,12 +40,12 @@ struct ENGINE_API TextureImportInfo
 
 /**
 */
-class ENGINE_API GrvtTexture 
+class ENGINE_API GrvtTexture
 {
 public:
 
 	ObjHandle	Handle;
-	uint8*		DataPtr;
+	uint8* DataPtr;
 	TextureType Type;
 	int32		Width;
 	int32		Height;
@@ -60,9 +60,9 @@ public:
 private:
 
 
-	GrvtTexture(const GrvtTexture&)				= delete;
-	GrvtTexture& operator= (const GrvtTexture&)	= delete;
-	
-	GrvtTexture(GrvtTexture&&)					= delete;
-	GrvtTexture& operator= (GrvtTexture&&)		= delete;
+	GrvtTexture(const GrvtTexture&) = delete;
+	GrvtTexture& operator= (const GrvtTexture&) = delete;
+
+	GrvtTexture(GrvtTexture&&) = delete;
+	GrvtTexture& operator= (GrvtTexture&&) = delete;
 };

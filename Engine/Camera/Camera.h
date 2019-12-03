@@ -4,26 +4,28 @@
 /**
 * Camera's projection mode.
 */
-enum ProjectionMode : uint32 {
-	GrvtCamera_Projection_None			= 0x00,	// On first init only.
-	GrvtCamera_Projection_Perspective	= 0x01,
+enum ProjectionMode : uint32 
+{
+	GrvtCamera_Projection_None = 0x00,	// On first init only.
+	GrvtCamera_Projection_Perspective = 0x01,
 	GrvtCamear_Projection_Orthographics = 0x02
 };
 
 
 /**
 */
-struct ENGINE_API CameraCreationInfo {
+struct ENGINE_API CameraCreationInfo 
+{
 
-	glm::vec3		CameraPosition	= glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3		CameraPosition = glm::vec3(0.0f, 0.0f, 1.0f);
 	int32			ViewportWidth;
 	int32			ViewportHeight;
-	ProjectionMode	Projection		= GrvtCamera_Projection_Perspective;
-	float32			Near			= 1.0f;
-	float32			Far				= 1000.0f;
-	float32			FieldOfView		= 45.0f;
-	float32			Sensitivity		= 1.0f;
-	float32			MoveSpeed		= 20.0f;	
+	ProjectionMode	Projection = GrvtCamera_Projection_Perspective;
+	float32			Near = 1.0f;
+	float32			Far = 1000.0f;
+	float32			FieldOfView = 45.0f;
+	float32			Sensitivity = 1.0f;
+	float32			MoveSpeed = 20.0f;
 
 };
 
@@ -35,7 +37,8 @@ struct ENGINE_API CameraCreationInfo {
 * NOTE(Afiq):
 * Not really sure if the camera system should be in the engine. Maybe it should maybe it shouldn't.
 */
-class ENGINE_API BaseCamera {
+class ENGINE_API BaseCamera 
+{
 protected:
 
 	glm::mat4	Projection;
@@ -144,7 +147,7 @@ public:
 	const glm::mat4& GetCameraProjection() const;
 
 	/**
-	* Initialises the camera object. 
+	* Initialises the camera object.
 	*/
 	void Init(const CameraCreationInfo& Info);
 

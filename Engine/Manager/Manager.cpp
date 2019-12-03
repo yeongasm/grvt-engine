@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-
 static ResourceManager<GrvtModel>		ModelManager;
 static ResourceManager<GrvtTexture>		TextureManager;
 static ResourceManager<GrvtShader>		ShaderManager;
@@ -10,9 +9,13 @@ static ResourceManager<GrvtMaterial>	MaterialManager;
 
 bool ResourceHandler::CheckIfModelExist(const String& Path) 
 {
-	for (auto& [key, value] : ModelManager.Store)
-		if (value.Path == Path)
+	for (auto& It : ModelManager.Store)
+	{
+		if (It.second.Path == Path)
+		{
 			return true;
+		}
+	}
 
 	return false;
 }
@@ -20,9 +23,13 @@ bool ResourceHandler::CheckIfModelExist(const String& Path)
 
 bool ResourceHandler::CheckIfTextureExist(const String& Path) 
 {
-	for (auto& [key, value] : TextureManager.Store)
-		if (value.Path == Path)
+	for (auto& It : TextureManager.Store) 
+	{
+		if (It.second.Path == Path) 
+		{
 			return true;
+		}
+	}
 
 	return false;
 }
@@ -52,25 +59,26 @@ void ResourceHandler::Free()
 {
 	ResourceType type = GrvtResource_Type_None;
 
-	for (auto& [key, value] : Resources) 
+	for (auto& It : Resources) 
 	{
-		type = GetResourceType(key);
+		type = GetResourceType(It.first);
 
-		switch (type) {
+		switch (type) 
+		{
 		case GrvtResource_Type_Model:
-			DeleteModel(key, true);
+			DeleteModel(It.first, true);
 			break;
 		case GrvtResource_Type_Texture:
-			DeleteTexture(key, true);
+			DeleteTexture(It.first, true);
 			break;
 		case GrvtResource_Type_Shader:
-			DeleteShader(key, true);
+			DeleteShader(It.first, true);
 			break;
 		case GrvtResource_Type_Material:
-			DeleteMaterial(key);
+			DeleteMaterial(It.first);
 			break;
 		case GrvtResource_Type_Framebuffer:
-			DeleteFramebuffer(key, true);
+			DeleteFramebuffer(It.first, true);
 			break;
 		default:
 			break;
@@ -154,21 +162,21 @@ EngineResource<GrvtModel>* ResourceHandler::GetModelHandle(const String& Identif
 
 bool ResourceHandler::DeleteModel(const String& Identifier, bool Force) 
 {
-	EngineResource<GrvtModel>* handle = GetModelHandle(Identifier);
-	if (!handle)
+	EngineResource<GrvtModel>* Handle = GetModelHandle(Identifier);
+	if (!Handle)
 		return false;
 
-	if (!Force && handle->RefCount)
+	if (!Force && Handle->RefCount)
 		return false;
 
-	for (GrvtMesh& mesh : handle->ResourcePtr->Meshes) 
+	for (GrvtMesh& Mesh : Handle->ResourcePtr->Meshes) 
 	{
-		Middleware::GetBuildQueue()->QueueHandleForDelete(mesh.Vao, Middleware::GrvtGfx_Type_VertexArray);
-		Middleware::GetBuildQueue()->QueueHandleForDelete(mesh.Vbo, Middleware::GrvtGfx_Type_MeshBuffer);
-		Middleware::GetBuildQueue()->QueueHandleForDelete(mesh.Ebo, Middleware::GrvtGfx_Type_MeshBuffer);
+		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vao), Middleware::GrvtGfx_Type_VertexArray);
+		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vbo), Middleware::GrvtGfx_Type_MeshBuffer);
+		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Ebo), Middleware::GrvtGfx_Type_MeshBuffer);
 	}
 
-	handle->ResourcePtr->Free();
+	Handle->ResourcePtr->Free();
 	ModelManager.DeleteResource(Resources[Identifier]);
 	Resources.erase(Identifier);
 
@@ -254,15 +262,15 @@ EngineResource<GrvtTexture>* ResourceHandler::GetTextureHandle(const String& Ide
 
 bool ResourceHandler::DeleteTexture(const String& Identifier, bool Force) 
 {
-	EngineResource<GrvtTexture>* handle = GetTextureHandle(Identifier);
-	if (!handle)
+	EngineResource<GrvtTexture>* Handle = GetTextureHandle(Identifier);
+	if (!Handle)
 		return false;
 
-	if (!Force && handle->RefCount)
+	if (!Force && Handle->RefCount)
 		return false;
 
-	Middleware::GetBuildQueue()->QueueHandleForDelete(handle->ResourcePtr->Handle, Middleware::GrvtGfx_Type_Texture);
-	handle->ResourcePtr->Free();
+	Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Texture);
+	Handle->ResourcePtr->Free();
 
 	TextureManager.DeleteResource(Resources[Identifier]);
 	Resources.erase(Identifier);
@@ -273,8 +281,8 @@ bool ResourceHandler::DeleteTexture(const String& Identifier, bool Force)
 
 bool ResourceHandler::DeleteTexture(size_t Id, bool Force) 
 {
-	GrvtTexture* texture = GetTexture(Id);
-	if (!texture)
+	GrvtTexture* Texture = GetTexture(Id);
+	if (!Texture)
 		return false;
 
 	return DeleteTexture(TextureManager.Store[Id].Name, Force);
@@ -352,15 +360,15 @@ EngineResource<GrvtShader>* ResourceHandler::GetShaderHandle(const String& Ident
 
 bool ResourceHandler::DeleteShader(const String& Identifier, bool Force) 
 {
-	EngineResource<GrvtShader>* handle = GetShaderHandle(Identifier);
-	if (!handle)
+	EngineResource<GrvtShader>* Handle = GetShaderHandle(Identifier);
+	if (!Handle)
 		return false;
 
-	if (!Force && handle->RefCount)
+	if (!Force && Handle->RefCount)
 		return false;
 
-	Middleware::GetBuildQueue()->QueueHandleForDelete(handle->ResourcePtr->Handle, Middleware::GrvtGfx_Type_Shader);
-	handle->ResourcePtr->Free();
+	Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Shader);
+	Handle->ResourcePtr->Free();
 
 	ShaderManager.DeleteResource(Resources[Identifier]);
 	Resources.erase(Identifier);
@@ -389,21 +397,26 @@ GrvtMaterial* ResourceHandler::NewMaterial(const MaterialCreationInfo& Info)
 	MaterialManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
 
 	// Increase the shader  ref count by 1.
-	for (auto& [key, value] : ShaderManager.Store) 
+	for (auto& It : ShaderManager.Store) 
 	{
-		if (Info.Shader != value.ResourcePtr)
+		if (Info.Shader != It.second.ResourcePtr)
+		{
 			continue;
+		}
 
-		value.RefCount++;
+		It.second.RefCount++;
 		break;
 	}
 
 	// Increase the textures used ref counts by 1.
-	for (auto& [key, value] : TextureManager.Store) 
+	for (auto& It : TextureManager.Store) 
 	{
-		for (TexturePair& pair : Info.Textures) {
-			if (pair.Value == &value.ResourcePtr->Handle)
-				value.RefCount++;
+		for (TexturePair& pair : Info.Textures) 
+		{
+			if (pair.Value == &It.second.ResourcePtr->Handle)
+			{
+				It.second.RefCount++;
+			}
 		}
 	}
 

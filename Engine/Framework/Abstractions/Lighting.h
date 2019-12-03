@@ -10,17 +10,17 @@
 * Types of light.
 * To be used upon creating a light light object onto the world.
 */
-enum LightType : uint32 
+enum LightType : uint32
 {
-	GrvtLight_Type_None			= 0xFF,
-	GrvtLight_Type_Directional	= 0x00,
-	GrvtLight_Type_Pointlight	= 0x01
+	GrvtLight_Type_None = 0xFF,
+	GrvtLight_Type_Directional = 0x00,
+	GrvtLight_Type_Pointlight = 0x01
 };
 
 
 /**
 */
-struct ENGINE_API LightCreationInfo 
+struct ENGINE_API LightCreationInfo
 {
 
 	glm::vec3	Position;
@@ -38,15 +38,15 @@ struct ENGINE_API LightCreationInfo
 };
 
 
-enum ShadowMapType : uint32 
+enum ShadowMapType : uint32
 {
-	GrvtShadowMap_None				= 0xFF, /** On first init only */
-	GrvtShadowMap_Directional		= 0x00,
-	GrvtShadowMap_OmniDirectional	= 0x01
+	GrvtShadowMap_None = 0xFF, /** On first init only */
+	GrvtShadowMap_Directional = 0x00,
+	GrvtShadowMap_OmniDirectional = 0x01
 };
 
 
-class ENGINE_API ShadowMap 
+class ENGINE_API ShadowMap
 {
 public:
 
@@ -60,7 +60,7 @@ public:
 
 private:
 
-	ShadowMap(const ShadowMap&)				= delete;
+	ShadowMap(const ShadowMap&) = delete;
 	ShadowMap& operator= (const ShadowMap&) = delete;
 
 };
@@ -68,7 +68,7 @@ private:
 
 /**
 */
-class ENGINE_API LightSource 
+class ENGINE_API LightSource
 {
 public:
 
@@ -84,11 +84,11 @@ public:
 
 private:
 
-	LightSource(const LightSource&)				= delete;
+	LightSource(const LightSource&) = delete;
 	LightSource& operator= (const LightSource&) = delete;
 
-	LightSource(LightSource&&)					= delete;
-	LightSource& operator= (LightSource&&)		= delete;
+	LightSource(LightSource&&) = delete;
+	LightSource& operator= (LightSource&&) = delete;
 
 public:
 
@@ -101,11 +101,11 @@ public:
 
 /**
 * Directional light data structure.
-* 
+*
 * We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
 * Compute method computes information required for directional light.
 */
-class ENGINE_API DirLight : public LightSource 
+class ENGINE_API DirLight : public LightSource
 {
 public:
 
@@ -116,17 +116,17 @@ public:
 
 private:
 
-	DirLight(const DirLight&)				= delete;
-	DirLight& operator= (const DirLight&)	= delete;
+	DirLight(const DirLight&) = delete;
+	DirLight& operator= (const DirLight&) = delete;
 
-	DirLight(DirLight&&)					= delete;
-	DirLight& operator= (DirLight&&)		= delete;
+	DirLight(DirLight&&) = delete;
+	DirLight& operator= (DirLight&&) = delete;
 
 public:
 
-	void	Alloc	(const LightCreationInfo& Info);
-	void	Free	();
-	void	Compute	(glm::mat4& Buffer);
+	void	Alloc(const LightCreationInfo& Info);
+	void	Free();
+	void	Compute(glm::mat4& Buffer);
 
 };
 
@@ -139,7 +139,7 @@ public:
 * Add framebuffers to enable shadow mapping and include it as part of the structure.
 * Add a function to generate debug sphere in wireframe mode.
 */
-class ENGINE_API PointLight : public LightSource 
+class ENGINE_API PointLight : public LightSource
 {
 public:
 
@@ -156,11 +156,11 @@ public:
 
 private:
 
-	PointLight(const PointLight&)				= delete;
-	PointLight& operator= (const PointLight&)	= delete;
+	PointLight(const PointLight&) = delete;
+	PointLight& operator= (const PointLight&) = delete;
 
-	PointLight(PointLight&&)					= delete;
-	PointLight& operator= (PointLight&&)		= delete;
+	PointLight(PointLight&&) = delete;
+	PointLight& operator= (PointLight&&) = delete;
 
 public:
 

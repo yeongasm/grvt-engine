@@ -11,7 +11,7 @@
 * TODO(Afiq):
 * Work on blending once Order Independent Transparency is implemented.
 */
-struct RenderState
+struct ENGINE_API RenderState
 {
 	uint32	DepthFunc;
 	uint32	FrontFace;
@@ -31,7 +31,7 @@ struct RenderState
 /**
 * RenderCache data structure.
 */
-struct RenderCache : public RenderState 
+struct ENGINE_API RenderCache : public RenderState
 {
 	using RenderState::RenderState;
 	

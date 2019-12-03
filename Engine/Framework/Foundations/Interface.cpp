@@ -1,7 +1,8 @@
 #include "stdafx.h"
 
 
-namespace Middleware {
+namespace Middleware 
+{
 
 
 	static ResourceBuildQueue* GlobalBuildQueue = nullptr;
@@ -10,18 +11,37 @@ namespace Middleware {
 	DeletePacket::DeletePacket() : Handle(), Type(GrvtGfx_Type_None) {}
 
 
-	DeletePacket::DeletePacket(ObjHandle &&Resource, GfxObjectType Type) :
-		Handle(Move(Resource)), Type(Type) {}
+	DeletePacket::DeletePacket(ObjHandle&& Resource, GfxObjectType Type) :
+		Handle(Gfl::Move(Resource)), Type(Type) {}
 
 
-	DeletePacket::DeletePacket(DeletePacket &&Rhs) { *this = std::move(Rhs); }
+	//DeletePacket::DeletePacket(const DeletePacket& Rhs) { *this = Rhs; }
 
 
-	DeletePacket& DeletePacket::operator= (DeletePacket &&Rhs) {
+	//DeletePacket& DeletePacket::operator= (const DeletePacket& Rhs) 
+	//{
+	//	_ASSERTE(this != &Rhs);
+
+	//	if (this != &Rhs) 
+	//	{
+	//		Handle	= Gfl::Move(Rhs.Handle);
+	//		Type	= Rhs.Type;
+	//	}
+
+	//	return *this;
+	//}
+
+
+	DeletePacket::DeletePacket(DeletePacket&& Rhs) { *this = Gfl::Move(Rhs); }
+
+
+	DeletePacket& DeletePacket::operator= (DeletePacket&& Rhs) 
+	{
 		_ASSERTE(this != &Rhs);
 
-		if (this != &Rhs) {
-			Handle		= std::move(Rhs.Handle);
+		if (this != &Rhs) 
+		{
+			Handle		= Gfl::Move(Rhs.Handle);
 			Type		= Rhs.Type;
 
 			new (&Rhs) DeletePacket();
@@ -35,44 +55,47 @@ namespace Middleware {
 
 
 	ResourceBuildQueue::ResourceBuildQueue() 
-		: MeshQueue(), TextureQueue(), FramebufferQueue(), DeleteQueue() {}
+		: MeshQueue(), TextureQueue(), ShaderQueue(), FramebufferQueue(), DeleteQueue() {}
 
 
 	ResourceBuildQueue::~ResourceBuildQueue() {}
 
 
-	void ResourceBuildQueue::QueueMeshForBuild(GrvtMesh* Mesh, BaseAPI::MeshBuildData Data) {
+	void ResourceBuildQueue::QueueMeshForBuild(GrvtMesh* Mesh, BaseAPI::MeshBuildData Data) 
+	{
 		MeshQueue.push_back(MeshPacket(Mesh, Data));
 	}
 
 
-	void ResourceBuildQueue::QueueTextureForBuild(GrvtTexture* Texture, BaseAPI::TextureBuildData Data) {
+	void ResourceBuildQueue::QueueTextureForBuild(GrvtTexture* Texture, BaseAPI::TextureBuildData Data) 
+	{
 		TextureQueue.push_back(TexturePacket(Texture, Data));
 	}
 
 
-	void ResourceBuildQueue::QueueShaderForBuild(GrvtShader* Shader, BaseAPI::ShaderBuildData Data) {
+	void ResourceBuildQueue::QueueShaderForBuild(GrvtShader* Shader, BaseAPI::ShaderBuildData Data) 
+	{
 		ShaderQueue.push_back(ShaderPacket(Shader, Data));
 	}
 
 
-	void ResourceBuildQueue::QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data) {
+	void ResourceBuildQueue::QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data) 
+	{
 		FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
 	}
 
 
-	void ResourceBuildQueue::QueueHandleForDelete(ObjHandle& Handle, GfxObjectType Type) {
-		DeletePacket Packet;
-		Packet.Handle	= std::move(Handle);
-		Packet.Type		= Type;
-
-		DeleteQueue.push_back(Move(Packet));
+	void ResourceBuildQueue::QueueHandleForDelete(ObjHandle&& Handle, GfxObjectType Type) 
+	{
+		DeleteQueue.emplace_back(Gfl::Move(Handle), Type);
 	}
 
 
-	void ResourceBuildQueue::Listen() {
+	void ResourceBuildQueue::Listen() 
+	{
 		// Build meshes that are in the queue.
-		for (MeshPacket &Packet : MeshQueue) {
+		for (MeshPacket &Packet : MeshQueue) 
+		{
 			BaseAPI::BuildMesh(Packet.ResourcePtr->Vao, Packet.ResourcePtr->Vbo, Packet.ResourcePtr->Ebo, Packet.BuildData);
 			Packet.ResourcePtr->Size = (Packet.ResourcePtr->Ebo.Id) ? (uint32)Packet.BuildData.Length : (uint32)Packet.BuildData.Size;
 			free(Packet.BuildData.Data);
@@ -80,14 +103,16 @@ namespace Middleware {
 		}
 
 		// Build textures that are in the queue.
-		for (TexturePacket &Packet : TextureQueue) {
+		for (TexturePacket &Packet : TextureQueue) 
+		{
 			BaseAPI::BuildTexture(Packet.ResourcePtr->Handle, Packet.BuildData);
 			free(Packet.BuildData.DataPtr);
 			TextureQueue.pop_front();
 		}
 
 		// Build shaders that are in the queue.
-		for (ShaderPacket &Packet : ShaderQueue) {
+		for (ShaderPacket &Packet : ShaderQueue) 
+		{
 			BaseAPI::BuildShaderProgram(Packet.ResourcePtr->Handle, Packet.BuildData);
 			char buffer[128];
 			uint32	type	= 0;
@@ -97,7 +122,8 @@ namespace Middleware {
 
 			glGetProgramiv(Packet.ResourcePtr->Handle.Id, GL_ACTIVE_UNIFORMS, &total);
 			Packet.ResourcePtr->Uniforms.Reserve(*(size_t*)&total);
-			for (uint32 i = 0; i < *(uint32*)&total; i++) {
+			for (uint32 i = 0; i < *(uint32*)&total; i++) 
+			{
 				glGetActiveUniform(Packet.ResourcePtr->Handle.Id, i, sizeof(buffer), 0, &size, &type, buffer);
 				GetUniformType(type, uniform.Type, uniform.SubType);
 				uniform.Name	 = buffer;
@@ -112,13 +138,15 @@ namespace Middleware {
 
 
 		// Build framebuffers that are in the queue.
-		for (FramebufferPacket &Packet : FramebufferQueue) {
+		for (FramebufferPacket &Packet : FramebufferQueue) 
+		{
 			BaseAPI::BuildFramebuffer(Packet.ResourcePtr->Handle, Packet.BuildData);
 			FramebufferQueue.pop_front();
 		}
 
 		// Listen to delete packets.
-		for (DeletePacket &Packet : DeleteQueue) {
+		for (DeletePacket &Packet : DeleteQueue) 
+		{
 			switch (Packet.Type) {
 			case GrvtGfx_Type_MeshBuffer:
 				BaseAPI::GrDeleteBufferObject(Packet.Handle);
@@ -144,7 +172,8 @@ namespace Middleware {
 
 
 
-	ResourceBuildQueue* InitialiseBuildQueue() {
+	ResourceBuildQueue* InitialiseBuildQueue() 
+	{
 		if (!GlobalBuildQueue)
 			GlobalBuildQueue = new ResourceBuildQueue();
 
@@ -152,7 +181,8 @@ namespace Middleware {
 	}
 
 
-	ResourceBuildQueue* GetBuildQueue() { 
+	ResourceBuildQueue* GetBuildQueue() 
+	{ 
 		return GlobalBuildQueue;
 	}
 
@@ -245,7 +275,8 @@ namespace Middleware {
 	//}
 
 
-	void PackageMeshForBuild(GrvtMesh* MeshSrc) {
+	void PackageMeshForBuild(GrvtMesh* MeshSrc) 
+	{
 		int32	stride	= 0;
 		size_t	idx		= 0;
 		size_t	total	= 0;
@@ -274,40 +305,47 @@ namespace Middleware {
 		buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(0, 3, stride, pointer));
 		pointer += 3 * sizeof(float);
 
-		if (mesh.Normals.Length()) {
+		if (mesh.Normals.Length()) 
+		{
 			buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(1, 3, stride, pointer));
 			pointer += 3 * sizeof(float);
 		}
 
-		if (mesh.Uv.Length()) {
+		if (mesh.Uv.Length()) 
+		{
 			buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(2, 2, stride, pointer));
 			pointer += 2 * sizeof(float);
 		}
 
-		if (mesh.Tangents.Length()) {
+		if (mesh.Tangents.Length()) 
+		{
 			buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(3, 3, stride, pointer));
 			pointer += 3 * sizeof(float);
 
 			buildData.VertexAttribPointers.Push(BaseAPI::VertexAttribPointer(4, 3, stride, pointer));
 		}
 
-		for (uint32 i = 0; i < mesh.Positions.Length(); i++) {
+		for (uint32 i = 0; i < mesh.Positions.Length(); i++) 
+		{
 			buildData.Data[idx++] = mesh.Positions[i].x;
 			buildData.Data[idx++] = mesh.Positions[i].y;
 			buildData.Data[idx++] = mesh.Positions[i].z;
 
-			if (mesh.Normals.Length()) {
+			if (mesh.Normals.Length()) 
+			{
 				buildData.Data[idx++] = mesh.Normals[i].x;
 				buildData.Data[idx++] = mesh.Normals[i].y;
 				buildData.Data[idx++] = mesh.Normals[i].z;
 			}
 
-			if (mesh.Uv.Length()) {
+			if (mesh.Uv.Length()) 
+			{
 				buildData.Data[idx++] = mesh.Uv[i].x;
 				buildData.Data[idx++] = mesh.Uv[i].y;
 			}
 
-			if (mesh.Tangents.Length()) {
+			if (mesh.Tangents.Length()) 
+			{
 				buildData.Data[idx++] = mesh.Tangents[i].x;
 				buildData.Data[idx++] = mesh.Tangents[i].y;
 				buildData.Data[idx++] = mesh.Tangents[i].z;
@@ -324,7 +362,8 @@ namespace Middleware {
 	}
 
 
-	void PackageTextureForBuild(GrvtTexture* TextureSrc) {
+	void PackageTextureForBuild(GrvtTexture* TextureSrc) 
+	{
 		BaseAPI::TextureBuildData buildData;
 		BaseAPI::GenerateGenericTextureData(buildData);
 		buildData.Flip = true;
@@ -332,7 +371,8 @@ namespace Middleware {
 		buildData.Width		= TextureSrc->Width;
 		buildData.Height	= TextureSrc->Height;
 
-		switch (TextureSrc->Channel) {
+		switch (TextureSrc->Channel) 
+		{
 		case 1:
 			buildData.Format = GL_RED;
 			break;
@@ -348,13 +388,16 @@ namespace Middleware {
 	}
 
 
-	void PackageShaderForBuild(GrvtShader* ShaderSrc) {
+	void PackageShaderForBuild(GrvtShader* ShaderSrc) 
+	{
 		BaseAPI::ShaderBuildData buildData;
 		BaseAPI::ShaderInfo info;
 		
-		for (size_t i = 0; i < ShaderSrc->Properties.Length(); i++) {
+		for (size_t i = 0; i < ShaderSrc->Properties.Length(); i++) 
+		{
 			BaseAPI::FoundationsShaderType type;
-			switch (ShaderSrc->Properties[i].Component) {
+			switch (ShaderSrc->Properties[i].Component) 
+			{
 			case GrvtShader_SourceType_Vertex:
 				type = BaseAPI::GrvtFoundations_ShaderType_Vertex;
 				break;
@@ -405,8 +448,10 @@ namespace Middleware {
 	}
 
 
-	void GetUniformType(uint32 Type, uint32& AttributeType, uint32& AttributeSubType) {
-		switch (Type) {
+	void GetUniformType(uint32 Type, uint32& AttributeType, uint32& AttributeSubType) 
+	{
+		switch (Type) 
+		{
 		case GL_BOOL:
 			AttributeType = GrvtShader_AttrType_Boolean;
 			AttributeSubType = GrvtShader_AttrSubType_None;

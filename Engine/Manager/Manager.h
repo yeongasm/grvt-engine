@@ -3,34 +3,34 @@
 
 /**
 */
-enum ResourceType : size_t 
+enum ResourceType : size_t
 {
-	GrvtResource_Type_None			= 0xFF, /** On first init only. */
-	GrvtResource_Type_Model			= 0x00,
-	GrvtResource_Type_Texture		= 0x01,
-	GrvtResource_Type_Shader		= 0x02,
-	GrvtResource_Type_Material		= 0x03,
-	GrvtResource_Type_Framebuffer	= 0x04
+	GrvtResource_Type_None = 0xFF, /** On first init only. */
+	GrvtResource_Type_Model = 0x00,
+	GrvtResource_Type_Texture = 0x01,
+	GrvtResource_Type_Shader = 0x02,
+	GrvtResource_Type_Material = 0x03,
+	GrvtResource_Type_Framebuffer = 0x04
 };
 
 
 /**
 * Specifies how a resource has been allocated.
 */
-enum GrvtAllocType : uint32 
+enum GrvtAllocType : uint32
 {
-	GrvtResourceAlloc_Type_None		= 0xFF,		/** On first init only */
-	GrvtResourceAlloc_Type_Import	= 0x00,
-	GrvtResourceAlloc_Type_Custom	= 0x01
+	GrvtResourceAlloc_Type_None = 0xFF,		/** On first init only */
+	GrvtResourceAlloc_Type_Import = 0x00,
+	GrvtResourceAlloc_Type_Custom = 0x01
 };
 
 
 /**
 */
 template <class Type>
-struct EngineResource 
+struct ENGINE_API EngineResource
 {
-	Type*			ResourcePtr;
+	Type* ResourcePtr;
 	String			Name;
 	String			Path;
 	uint32			RefCount;
@@ -47,7 +47,7 @@ struct EngineResource
 * Manages a single type of resource.
 */
 template <class Type>
-class ResourceManager 
+class ENGINE_API ResourceManager 
 {
 private:
 
@@ -122,7 +122,7 @@ public:
 * NOTE(Afiq):
 * Should deleting a material delete the shader and material as well?
 */
-class ResourceHandler 
+class ENGINE_API ResourceHandler 
 {
 private:
 

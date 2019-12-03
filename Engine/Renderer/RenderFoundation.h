@@ -7,7 +7,7 @@
 * A render node is the most basic unit required to render an object onto the screen.
 * @param Mode		- The mode that this node will be rendered with. E.g: GL_TRIANGLES, GL_LINES, etc. 
 */
-struct GrvtRenderNode 
+struct ENGINE_API GrvtRenderNode
 {
 	GrvtMaterial*	Material;
 	ObjHandle*		Handle;
@@ -38,7 +38,7 @@ struct RenderState;
 * @param Instances	- An array of 4x4 matrices that represents the model matrix of each instance.
 * @param Model		- For render commands that are not instanced, this would represent the object's model matrix.
 */
-struct GrvtRenderCommand 
+struct ENGINE_API GrvtRenderCommand
 {
 	Array<GrvtRenderNode>	Nodes;
 	glm::mat4				Transform;
@@ -58,7 +58,7 @@ struct GrvtRenderCommand
 /**
 * GrvtRenderTarget data structure.
 */
-struct GrvtRenderTarget 
+struct ENGINE_API GrvtRenderTarget
 {
 	ObjHandle*	Handle;
 	uint32		Width;
@@ -80,7 +80,7 @@ struct GrvtRenderTarget
 * GrvtRenderBuffer data structure.
 * 
 */
-struct GrvtCommandBuffer 
+struct ENGINE_API GrvtCommandBuffer
 {
 	glm::mat4					ViewProjection;
 	Array<glm::mat4>			Lights;

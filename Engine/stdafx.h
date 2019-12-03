@@ -1,15 +1,21 @@
 #pragma once
 
+
 #ifndef PRECOMPILE_HEADER
 #define PRECOMPILE_HEADER
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS 1
+
+
+#define GRAVITY_EXPORT 
+
 
 #ifdef GRAVITY_EXPORT
 #define ENGINE_API __declspec(dllexport)
 #else
 #define ENGINE_API __declspec(dllimport)
 #endif
+
 
 #if _WIN32
 #include <Windows.h>

@@ -4,11 +4,6 @@
 class GrvtApplication;
 
 
-GrvtEngine* InitialiseEngine(const String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
-GrvtEngine* GetEngine();
-void		TerminateEngine();
-
-
 class ENGINE_API GrvtEngine
 {
 private:
@@ -28,8 +23,8 @@ private:
 
 public:
 
-	friend GrvtEngine*	InitialiseEngine(const String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
-	friend void			TerminateEngine();
+	friend ENGINE_API GrvtEngine*	InitialiseEngine(const String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
+	friend ENGINE_API void			TerminateEngine();
 
 private:
 
@@ -59,3 +54,7 @@ public:
 	GrvtApplication*	GetApplication();
 	bool				Running();
 };
+
+ENGINE_API GrvtEngine*	InitialiseEngine(const String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
+ENGINE_API GrvtEngine*	GetEngine();
+ENGINE_API void			TerminateEngine();

@@ -4,7 +4,7 @@
 namespace Util {
 
 
-	bool OpenFile(std::string& Buffer, const char* Path) {
+	bool OpenFile(String& Buffer, const char* Path) {
 		FILE* stream = nullptr;
 		fpos_t	pos;
 
@@ -17,25 +17,15 @@ namespace Util {
 		fgetpos(stream, &pos);
 
 		rewind(stream);
-		Buffer.reserve((size_t)(pos + 1));
-		fread(Buffer.data(), sizeof(char), pos, stream);
+		Buffer.Reserve((size_t)(pos + 1));
+		fread(Buffer.First(), sizeof(char), pos, stream);
 		fclose(stream);
 
 		Buffer[pos] = '\0';
-		//Buffer.UpdateHash();
 
 		return true;
 	}
 
-
-	std::string RootDir(const char* Path) {
-		std::string path;
-		char buf[1024];
-		sprintf_s(buf, sizeof(char) * 1024, "%s/%s", __ROOT__, Path);
-		path = buf;
-
-		return path;
-	}
 
 	//bool DoesFileExist(const std::string& Path) {
 	//	struct stat buffer;

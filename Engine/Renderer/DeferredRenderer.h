@@ -1,7 +1,7 @@
 #pragma once
 
 
-class BasicRenderer : public GrvtRenderer
+class ENGINE_API BasicRenderer : public GrvtRenderer
 {
 private:
 	RenderCache			Cache;

@@ -23,7 +23,7 @@ namespace BaseAPI
 	* @param [REQUIRED] (int32)		Stride	- Needs to be manually provided. Automating this would reduce flexibility to generate Meshes for different type of objects. Eg: Models & Terrains.
 	* @param [REQURIED] (uint32)	Pointer - Pointer offset to the data inside of the vertex buffer.
 	*/
-	struct ENGINE_API VertexAttribPointer 
+	struct VertexAttribPointer 
 	{
 		uint32	Index;
 		int32	Size;
@@ -43,7 +43,7 @@ namespace BaseAPI
 	};
 
 
-	struct ENGINE_API MeshBuildData 
+	struct MeshBuildData 
 	{
 		float				*Data;
 		uint32				*Indices;
@@ -82,7 +82,7 @@ namespace BaseAPI
 	* @param [OPTIONAL] (uint32)		Default = 0;	Format	- Format of the pixel data. If unspecified, Gravity would generate one base on the image's pixel data. E.g: GL_RED, GL_RGB.
 	* @param [REQUIRED] (Params)						parameters	- Texture's parameters. Specify in pairs using Pair() data structure or using initializer lists.
 	*/
-	struct ENGINE_API TextureBuildData 
+	struct TextureBuildData 
 	{
 		void			*DataPtr;
 		bool			Mipmap;
@@ -112,7 +112,7 @@ namespace BaseAPI
 	* [BASEAPI]
 	* Type of Shader.
 	*/
-	enum FoundationsShaderType : uint32 
+	enum FoundationsShaderType : uint32
 	{
 		GrvtFoundations_ShaderType_None		= 0xFF,	/** On first init only */
 		GrvtFoundations_ShaderType_Vertex	= 0x00,
@@ -125,7 +125,7 @@ namespace BaseAPI
 	* [BASEAPI]
 	* Specify Shader's build information.
 	*/
-	struct ENGINE_API ShaderInfo 
+	struct ShaderInfo 
 	{
 		char* SourceCode;
 		FoundationsShaderType Type;
@@ -140,7 +140,7 @@ namespace BaseAPI
 	* ShaderBuildData data structure.
 	*
 	*/
-	struct ENGINE_API ShaderBuildData 
+	struct ShaderBuildData 
 	{
 		Array<ShaderInfo> BuildInfo;
 
@@ -164,7 +164,7 @@ namespace BaseAPI
 	* @param (uint32)	Attachment	- The attachment's format (GL_COLOR_ATTACHMENTn | GL_DEPTH_ATTACHMENT | GL_DEPTH_STENCIL_ATTACHMENT).
 	* @param (bool)		Draw		- Specify if the attachment would be used for drawing. Only works for colour attachments.
 	*/
-	struct ENGINE_API FramebufferAttachment 
+	struct FramebufferAttachment 
 	{
 		ObjHandle*		Handle;
 		uint32			Type;
@@ -189,7 +189,7 @@ namespace BaseAPI
 	*
 	* @param (Array<FramebufferAttachment>) Attachment - A list of attachment for the framebuffer.
 	*/
-	struct ENGINE_API FramebufferBuildData 
+	struct FramebufferBuildData 
 	{
 		Array<FramebufferAttachment> Attachments;
 		int32 Width;
@@ -205,39 +205,32 @@ namespace BaseAPI
 		FramebufferBuildData& operator= (FramebufferBuildData&& Rhs);
 	};
 
-
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a mesh.
 	*/
-	extern "C" ENGINE_API void BuildMesh			(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data);
+	void BuildMesh(ObjHandle & VAO, ObjHandle & VBO, ObjHandle & EBO, MeshBuildData & Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a texture.
 	*/
-	extern "C" ENGINE_API void BuildTexture		(ObjHandle& Handle, TextureBuildData& Data);
+	void BuildTexture(ObjHandle & Handle, TextureBuildData & Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to compile a shader.
 	*/
-	extern "C" ENGINE_API bool CompileShader		(ObjHandle& Handle, uint32 Type, const char* SourceCode);
+	bool CompileShader(ObjHandle & Handle, uint32 Type, const char* SourceCode);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a shader program.
 	*/
-	extern "C" ENGINE_API void BuildShaderProgram	(ObjHandle& Handle, ShaderBuildData& Data);
-
-
-	/**
-	* [BASEAPI]
-	* An OpenGL wrapper to retrieve shader 
-	*/
+	void BuildShaderProgram(ObjHandle & Handle, ShaderBuildData & Data);
 
 
 	/**
@@ -252,14 +245,13 @@ namespace BaseAPI
 	* TextureBuildData.Parameters[2] = {GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR}
 	* TextureBuildData.Parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
 	*/
-	extern "C" ENGINE_API void GenerateGenericTextureData(TextureBuildData& Data);
+	void GenerateGenericTextureData(TextureBuildData & Data);
 
 
 	/**
 	* [BASEAPI]
 	* An OpenGL wrapper to create a frambuffer.
 	*/
-	extern "C" ENGINE_API void BuildFramebuffer	(ObjHandle& Handle, FramebufferBuildData& Data);
-
+	void BuildFramebuffer(ObjHandle& Handle, FramebufferBuildData& Data);
 
 }

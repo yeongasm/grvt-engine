@@ -6,7 +6,7 @@
 *
 * GrvtRenderer is an abstract class that acts like a shell for any custom implemented renderer.
 */
-struct GrvtRenderer
+struct ENGINE_API GrvtRenderer
 {
 	GrvtRenderer()			{};
 	virtual ~GrvtRenderer() {};

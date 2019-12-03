@@ -13,7 +13,7 @@
 * @param Name - Model's identity.
 * @param Path - Path to model's file.
 */
-struct ENGINE_API ModelImportInfo 
+struct ENGINE_API ModelImportInfo
 {
 	String	Name;
 	String	Path;
@@ -22,7 +22,7 @@ struct ENGINE_API ModelImportInfo
 
 /**
 */
-class ENGINE_API GrvtMesh 
+class ENGINE_API GrvtMesh
 {
 public:
 
@@ -42,8 +42,8 @@ public:
 	GrvtMesh();
 	~GrvtMesh();
 
-	GrvtMesh(const GrvtMesh&)				= delete;
-	GrvtMesh& operator= (const GrvtMesh&)	= delete;
+	GrvtMesh(const GrvtMesh&) = delete;
+	GrvtMesh& operator= (const GrvtMesh&) = delete;
 
 	GrvtMesh(GrvtMesh&&);
 	GrvtMesh& operator= (GrvtMesh&&);
@@ -65,7 +65,7 @@ private:
 * We removed the ModelData abstraction layer as it was redundant and make it contain all the raw information instead.
 * The reason for doing this was because this raw Model object should only be a placeholder for the data and do nothing else.
 */
-class ENGINE_API GrvtModel 
+class ENGINE_API GrvtModel
 {
 public:
 
@@ -76,19 +76,19 @@ public:
 
 private:
 
-	GrvtModel(const GrvtModel&)				= delete;
-	GrvtModel& operator= (const GrvtModel&)	= delete;
+	GrvtModel(const GrvtModel&) = delete;
+	GrvtModel& operator= (const GrvtModel&) = delete;
 
-	GrvtModel(GrvtModel&&)					= delete;
-	GrvtModel& operator= (GrvtModel&&)		= delete;
+	GrvtModel(GrvtModel&&) = delete;
+	GrvtModel& operator= (GrvtModel&&) = delete;
 
 public:
-	
+
 	/**
 	* Appends the information supplied in ModelImportInfo into it.
 	* Does not however create the model in the GPU.
 	*/
-	GrvtModel*	Alloc(const ModelImportInfo& Info);
+	GrvtModel* Alloc(const ModelImportInfo& Info);
 
 	/**
 	* Releases the information supplied into this GrvtModel object.
