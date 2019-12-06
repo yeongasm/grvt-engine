@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_GL_FOUNDATIONS
 #define GRAVITY_GL_FOUNDATIONS
 

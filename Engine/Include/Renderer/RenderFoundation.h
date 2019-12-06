@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_RENDER_FOUNDATION
 #define GRAVITY_RENDER_FOUNDATION
 

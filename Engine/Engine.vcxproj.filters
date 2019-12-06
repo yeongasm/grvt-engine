@@ -111,6 +111,12 @@
     <ClCompile Include="Source\Library\GrvtTemplates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GrvtPch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Tick.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h">
@@ -203,10 +209,13 @@
     <ClInclude Include="Minimal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Macros.h">
+    <ClInclude Include="GrvtPch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GrvtPch.h">
+    <ClInclude Include="EngineAPI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Core\Tick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

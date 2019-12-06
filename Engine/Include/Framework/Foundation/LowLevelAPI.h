@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_GL_LOWLEVELAPI
 #define GRAVITY_GL_LOWLEVELAPI
 

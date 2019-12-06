@@ -1,8 +1,8 @@
 #pragma once
+
 #ifndef GRAVITY_RESOURCE_MANAGER
 #define GRAVITY_RESOURCE_MANAGER
 
-#include "Minimal.h"
 #include "Framework/Abstraction/Model.h"
 #include "Framework/Abstraction/Shader.h"
 #include "Framework/Abstraction/Texture.h"

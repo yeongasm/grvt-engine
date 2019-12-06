@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_ABSTRACTION_MODEL
 #define GRAVITY_ABSTRACTION_MODEL
 

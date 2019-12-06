@@ -58,7 +58,8 @@ namespace Gfl
 			}
 
 			while (Len != Length) {
-				StoreInBuffer(Len++, Literal[Len]);
+				StoreInBuffer(Len, Literal[Len]);
+				Len++;
 			}
 
 			Type* Ptr = PointerToString();

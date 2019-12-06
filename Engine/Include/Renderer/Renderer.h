@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_BASE_RENDERER
 #define GRAVITY_BASE_RENDERER
 

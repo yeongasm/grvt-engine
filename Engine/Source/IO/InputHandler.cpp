@@ -1,6 +1,5 @@
 #include "GrvtPch.h"
 #include "IO/InputHandler.h"
-#include "Utility/Utility.h"
 
 namespace Grvt
 {

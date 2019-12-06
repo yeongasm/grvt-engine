@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_GL_INTERFACE
 #define GRAVITY_GL_INTERFACE
 
@@ -60,13 +61,13 @@ namespace Grvt
 		*/
 		enum GfxObjectType : uint32
 		{
-			GrvtGfx_Type_None = 0x00,	// Used only for initialisation.
-			GrvtGfx_Type_MeshBuffer = 0x01,
-			GrvtGfx_Type_VertexArray = 0x02,
-			GrvtGfx_Type_Texture = 0x03,
-			GrvtGfx_Type_Shader = 0x04,
-			GrvtGfx_Type_Framebuffer = 0x05,
-			GrvtGfx_Type_RenderBuffer = 0x06
+			GrvtGfx_Type_None			= 0x00,	// Used only for initialisation.
+			GrvtGfx_Type_MeshBuffer		= 0x01,
+			GrvtGfx_Type_VertexArray	= 0x02,
+			GrvtGfx_Type_Texture		= 0x03,
+			GrvtGfx_Type_Shader			= 0x04,
+			GrvtGfx_Type_Framebuffer	= 0x05,
+			GrvtGfx_Type_RenderBuffer	= 0x06
 		};
 
 

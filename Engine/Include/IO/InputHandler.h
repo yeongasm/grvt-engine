@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_INPUT_HANDLER
 #define GRAVITY_INPUT_HANDLER
 

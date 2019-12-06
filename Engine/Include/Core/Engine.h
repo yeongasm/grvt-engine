@@ -1,12 +1,9 @@
 #pragma once
+
 #ifndef GRAVITY_CORE_ENGINE
 #define GRAVITY_CORE_ENGINE
 
-#include "GLFW/glfw3.h"
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "GLFW/glfw3native.h"
 #include "Minimal.h"
-#include "IO/IO.h"
 
 namespace Grvt
 {
@@ -21,9 +18,8 @@ namespace Grvt
 
 		EngineIO			IO;
 		Gfl::String			Name;
-		GLFWwindow* Window;
-		GrvtApplication* Application;
-		float32				DeltaTime;
+		GLFWwindow*			Window;
+		GrvtApplication*	Application;
 		int32				Width;
 		int32				Height;
 		int32				VersionMajor;
@@ -31,6 +27,8 @@ namespace Grvt
 		bool				VSync;
 
 	public:
+
+		float32				DeltaTime;
 
 		friend ENGINE_API GrvtEngine* InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
 		friend ENGINE_API void		TerminateEngine();
@@ -48,8 +46,8 @@ namespace Grvt
 
 	public:
 
-		GrvtEngine();
-		~GrvtEngine();
+		ENGINE_API GrvtEngine();
+		ENGINE_API	~GrvtEngine();
 
 		GrvtEngine(const GrvtEngine& Other) = delete;
 		GrvtEngine& operator= (const GrvtEngine& Other) = delete;
@@ -57,16 +55,18 @@ namespace Grvt
 		GrvtEngine(GrvtEngine&& Other) = delete;
 		GrvtEngine& operator= (GrvtEngine&& Other) = delete;
 
-		void				NewFrame();
-		void				EndFrame();
-		EngineIO* GetIO();
-		GrvtApplication* GetApplication();
-		bool				Running();
+		ENGINE_API void				NewFrame();
+		ENGINE_API void				EndFrame();
+		ENGINE_API EngineIO*		GetIO();
+		ENGINE_API GrvtApplication* GetApplication();
+		ENGINE_API bool				Running();
 	};
 
 	ENGINE_API GrvtEngine*	InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
 	ENGINE_API GrvtEngine*	GetEngine();
 	ENGINE_API void			TerminateEngine();
+
+	extern "C" ENGINE_API void			EngineTick();
 
 }
 

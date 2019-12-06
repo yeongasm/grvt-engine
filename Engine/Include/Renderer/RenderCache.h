@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_RENDER_CACHE
 #define GRAVITY_RENDER_CACHE
 

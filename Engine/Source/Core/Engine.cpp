@@ -1,58 +1,60 @@
 #include "GrvtPch.h"
-#include "Core/Engine.h"
-#include "Utility/Utility.h"
 #include "Framework/Foundation/Interface.h"
 
 namespace Grvt
 {
 
-	GrvtEngine* Engine = nullptr;
+	GrvtEngine* g_Engine = nullptr;
 	float		LastFrameTime = 0.0f;
 	float		CurrentFrameTime = 0.0f;
 
+	float EngineDeltaTime()
+	{
+		return g_Engine->DeltaTime;
+	}
 
 	GrvtEngine* InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor)
 	{
-		if (!Engine)
-			Engine = new GrvtEngine();
+		if (!g_Engine)
+			g_Engine = new GrvtEngine();
 
-		Engine->Name = Name;
-		Engine->Width = Width;
-		Engine->Height = Height;
-		Engine->VersionMajor = OpenGLVMajor;
-		Engine->VersionMinor = OpenGLVMinor;
+		g_Engine->Name = Name;
+		g_Engine->Width = Width;
+		g_Engine->Height = Height;
+		g_Engine->VersionMajor = OpenGLVMajor;
+		g_Engine->VersionMinor = OpenGLVMinor;
 
-		Engine->Alloc();
+		g_Engine->Alloc();
 
-		return Engine;
+		return g_Engine;
 	}
 
 
 	GrvtEngine* GetEngine()
 	{
-		return Engine;
+		return g_Engine;
 	}
 
 
 	void TerminateEngine()
 	{
-		Engine->Free();
-		delete Engine;
+		g_Engine->Free();
+		delete g_Engine;
 	}
 
 
 	void GrvtEngine::ScrollCallback(GLFWwindow* Window, float64 HorizontalOffset, float64 VerticalOffset)
 	{
-		Engine->IO.MouseWheel = *(float32*)&VerticalOffset;
-		Engine->IO.MouseWheelH = *(float32*)&HorizontalOffset;
+		g_Engine->IO.MouseWheel = *(float32*)&VerticalOffset;
+		g_Engine->IO.MouseWheelH = *(float32*)&HorizontalOffset;
 	}
 
 
 	void GrvtEngine::MouseCallback(GLFWwindow* Window, int32 Button, int32 Action, int32 Mods)
 	{
-		if (Action == GLFW_PRESS && Button >= 0 && Button <= GRVT_ARRAY_LENGTH(Engine->IO.MouseButton))
+		if (Action == GLFW_PRESS && Button >= 0 && Button <= GRVT_ARRAY_LENGTH(g_Engine->IO.MouseButton))
 		{
-			Engine->IO.MouseButton[Button].CurrState = GLFW_PRESS;
+			g_Engine->IO.MouseButton[Button].CurrState = GLFW_PRESS;
 		}
 	}
 
@@ -63,12 +65,12 @@ namespace Grvt
 		{
 			if (Action == GLFW_PRESS)
 			{
-				Engine->IO.Keys[Key].CurrState = GLFW_PRESS;
+				g_Engine->IO.Keys[Key].CurrState = GLFW_PRESS;
 			}
 
 			if (Action == GLFW_RELEASE)
 			{
-				Engine->IO.Keys[Key].CurrState = GLFW_RELEASE;
+				g_Engine->IO.Keys[Key].CurrState = GLFW_RELEASE;
 			}
 		}
 	}
@@ -76,8 +78,8 @@ namespace Grvt
 
 	void GrvtEngine::FramebufferCallback(GLFWwindow* Window, int32 Width, int32 Height)
 	{
-		Engine->Width = Width;
-		Engine->Height = Height;
+		g_Engine->Width = Width;
+		g_Engine->Height = Height;
 	}
 
 
@@ -239,8 +241,6 @@ namespace Grvt
 
 	void GrvtEngine::NewFrame()
 	{
-		glfwPollEvents();
-
 		CurrentFrameTime = (float)glfwGetTime();
 		DeltaTime = min(CurrentFrameTime - LastFrameTime, 0.1f);
 		LastFrameTime = CurrentFrameTime;
@@ -255,6 +255,7 @@ namespace Grvt
 	void GrvtEngine::EndFrame()
 	{
 		glfwSwapBuffers(Window);
+		glfwPollEvents();
 	}
 
 

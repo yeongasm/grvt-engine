@@ -1,4 +1,5 @@
 #pragma once
+
 #ifndef GRAVITY_CORE_APPLICATION
 #define GRAVITY_CORE_APPLICATION
 

@@ -1,14 +1,30 @@
 #include "stdafx.h"
 
 
-
 int main()
 {
-	Grvt::GrvtEngine* Engine = Grvt::InitialiseEngine("Hello World!", 1920, 1080, 4, 3);
+	int32 Width	 = 0;
+	int32 Height = 0;
+	RECT Size;
+	const HWND Desktop = GetDesktopWindow();
+	
+	GetWindowRect(Desktop, &Size);
 
-	//xcopy "$(SolutionDir)bin\$(PlatformTarget)\$(Cofiguration)\Engine\Engine.lib" "$(SolutionDir)\lib" / e / y / q / i
+	Width	= Size.right;
+	Height	= Size.bottom;
 
-	printf("Hello World!\n");
+	Grvt::GrvtEngine* Engine = Grvt::InitialiseEngine("Gravity Engine", Width, Height, 4, 3);
+
+	while (Engine->Running())
+	{
+		Engine->NewFrame();
+
+		Grvt::Tick();
+
+		Engine->EndFrame();
+	}
+
+	Grvt::TerminateEngine();
 
 	return 0;
 }

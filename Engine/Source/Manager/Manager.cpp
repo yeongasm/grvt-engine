@@ -1,6 +1,6 @@
+#include "GrvtPch.h"
 #include "Manager/Manager.h"
 #include "Framework/Foundation/Interface.h"
-#include "Utility/Utility.h"
 #include "Thirdparty/stb/stb_image.h"
 
 namespace Grvt
@@ -126,7 +126,7 @@ namespace Grvt
 		g_ModelManager.Store[id].Path = Import.Path;
 		g_ModelManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
 
-		Util::AssimpImportModelFromPath(Import.Path, model);
+		AssimpImportModelFromPath(Import.Path, model);
 
 		return model;
 	}

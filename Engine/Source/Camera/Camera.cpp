@@ -1,3 +1,4 @@
+#include "GrvtPch.h"
 #include "Camera/Camera.h"
 
 namespace Grvt
@@ -27,25 +28,25 @@ namespace Grvt
 		_ASSERTE(this != &Other);
 
 		if (this != &Other) {
-			Projection = Other.Projection;
-			View = Other.View;
+			Projection	= Other.Projection;
+			View		= Other.View;
 			Orientation = Other.Orientation;
-			Position = Other.Position;
-			Forward = Other.Forward;
-			Up = Other.Up;
-			Right = Other.Right;
-			Mode = Other.Mode;
+			Position	= Other.Position;
+			Forward		= Other.Forward;
+			Up			= Other.Up;
+			Right		= Other.Right;
+			Mode		= Other.Mode;
 			FieldOfView = Other.FieldOfView;
-			Width = Other.Width;
-			Height = Other.Height;
-			Near = Other.Near;
-			Far = Other.Far;
-			MoveSpeed = Other.MoveSpeed;
+			Width		= Other.Width;
+			Height		= Other.Height;
+			Near		= Other.Near;
+			Far			= Other.Far;
+			MoveSpeed	= Other.MoveSpeed;
 			Sensitivity = Other.Sensitivity;
-			Yaw = Other.Yaw;
-			Pitch = Other.Pitch;
-			Roll = Other.Roll;
-			Enable = Other.Enable;
+			Yaw			= Other.Yaw;
+			Pitch		= Other.Pitch;
+			Roll		= Other.Roll;
+			Enable		= Other.Enable;
 		}
 
 		return *this;
