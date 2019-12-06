@@ -18,147 +18,195 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera\Camera.cpp">
+    <ClCompile Include="Source\Camera\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Application.cpp">
+    <ClCompile Include="Source\IO\InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Engine.cpp">
+    <ClCompile Include="Source\IO\IO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Framebuffer.cpp">
+    <ClCompile Include="Source\Manager\Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Lighting.cpp">
+    <ClCompile Include="Source\Renderer\DeferredRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Material.cpp">
+    <ClCompile Include="Source\Renderer\RenderCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Model.cpp">
+    <ClCompile Include="Source\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Shader.cpp">
+    <ClCompile Include="Source\Renderer\RenderFoundation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Abstractions\Texture.cpp">
+    <ClCompile Include="Source\ThirdParty\glad\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Foundations\Foundations.cpp">
+    <ClCompile Include="Source\ThirdParty\nfd\nfd_common.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Foundations\Interface.cpp">
+    <ClCompile Include="Source\ThirdParty\nfd\nfd_win.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Foundations\LowLevelAPI.cpp">
+    <ClCompile Include="Source\ThirdParty\stb\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IO\InputHandler.cpp">
+    <ClCompile Include="Source\Utility\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IO\IO.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Manager\Manager.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\DeferredRenderer.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Material.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderCache.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\Renderer.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer\RenderFoundation.cpp">
+    <ClCompile Include="Source\Framework\Abstraction\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\glad\glad.c">
+    <ClCompile Include="Source\Framework\Foundation\Foundations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\nfd\nfd_common.c">
+    <ClCompile Include="Source\Framework\Foundation\Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\nfd\nfd_win.cpp">
+    <ClCompile Include="Source\Framework\Foundation\LowLevelAPI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThirdParty\stb\stb_image.cpp">
+    <ClCompile Include="Source\Core\Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\Utility.cpp">
+    <ClCompile Include="Source\Core\Engine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Source\Library\GrvtArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtHash.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtIterator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtPair.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtString.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Library\GrvtTemplates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera\Camera.h">
+    <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Application.h">
+    <ClInclude Include="Include\Framework\Abstraction\Lighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Engine.h">
+    <ClInclude Include="Include\Framework\Abstraction\Material.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Framebuffer.h">
+    <ClInclude Include="Include\Framework\Abstraction\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Lighting.h">
+    <ClInclude Include="Include\Framework\Abstraction\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Material.h">
+    <ClInclude Include="Include\Framework\Abstraction\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Model.h">
+    <ClInclude Include="Include\Framework\Foundation\Foundations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Shader.h">
+    <ClInclude Include="Include\Framework\Foundation\Interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Abstractions\Texture.h">
+    <ClInclude Include="Include\Framework\Foundation\LowLevelAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Foundations\Foundations.h">
+    <ClInclude Include="Include\IO\InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Foundations\Interface.h">
+    <ClInclude Include="Include\IO\IO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Foundations\LowLevelAPI.h">
+    <ClInclude Include="Include\Manager\Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IO\InputHandler.h">
+    <ClInclude Include="Include\Renderer\DeferredRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IO\IO.h">
+    <ClInclude Include="Include\Renderer\RenderCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Manager\Manager.h">
+    <ClInclude Include="Include\Renderer\Renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\DeferredRenderer.h">
+    <ClInclude Include="Include\Renderer\RenderFoundation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderCache.h">
+    <ClInclude Include="Include\Thirdparty\stb\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\Renderer.h">
+    <ClInclude Include="Include\Utility\Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer\RenderFoundation.h">
+    <ClInclude Include="Include\Camera\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThirdParty\stb\stb_image.h">
+    <ClInclude Include="Include\Core\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\Utility.h">
+    <ClInclude Include="Include\Core\Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Include\Library\GrvtFoundation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtHash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtIterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtPair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtString.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Library\GrvtTemplates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Minimal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GrvtPch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

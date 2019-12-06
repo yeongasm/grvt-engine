@@ -74,89 +74,91 @@
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</OutDir>
     <IntDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</IntDir>
-    <IncludePath>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</OutDir>
     <IntDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</IntDir>
-    <IncludePath>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</OutDir>
     <IntDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</IntDir>
-    <IncludePath>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</OutDir>
     <IntDir>$(SolutionDir)bin\$(PlatformTarget)\$(Configuration)\Engine\</IntDir>
-    <IncludePath>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))";GRAVITY_EXPORT;GLFW_INCLUDE_NONE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>Default</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;Grvtlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x64\Debug\Grvtlib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)include\assimp\assimp-vc140-mt.dll" "$(TargetDir)" /e /y /q /i</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))";GRAVITY_EXPORT;GLFW_INCLUDE_NONE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>Default</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;Grvtlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x64\Debug\Grvtlib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)include\assimp\assimp-vc140-mt.dll" "$(TargetDir)" /e /y /q /i</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))";GRAVITY_EXPORT;GLFW_INCLUDE_NONE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>Default</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,26 +166,27 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;Grvtlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x64\Debug\Grvtlib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)include\assimp\assimp-vc140-mt.dll" "$(TargetDir)" /e /y /q /i</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))"</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;__ROOT__=R"($(TargetDir))";GRAVITY_EXPORT;GLFW_INCLUDE_NONE</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <LanguageStandard>Default</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Grvtlib;$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)Engine;$(SolutionDir)Engine\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,89 +194,101 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;Grvtlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x64\Debug\Grvtlib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)include\assimp\assimp-vc140-mt.dll" "$(TargetDir)" /e /y /q /i</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Engine\Application.cpp" />
-    <ClCompile Include="Engine\Engine.cpp" />
-    <ClCompile Include="Framework\Abstractions\Framebuffer.cpp" />
-    <ClCompile Include="Framework\Abstractions\Lighting.cpp" />
-    <ClCompile Include="Framework\Abstractions\Material.cpp" />
-    <ClCompile Include="Framework\Abstractions\Model.cpp" />
-    <ClCompile Include="Framework\Abstractions\Shader.cpp" />
-    <ClCompile Include="Framework\Abstractions\Texture.cpp" />
-    <ClCompile Include="Framework\Foundations\Foundations.cpp" />
-    <ClCompile Include="Framework\Foundations\Interface.cpp" />
-    <ClCompile Include="Framework\Foundations\LowLevelAPI.cpp" />
-    <ClCompile Include="IO\InputHandler.cpp" />
-    <ClCompile Include="IO\IO.cpp" />
-    <ClCompile Include="Manager\Manager.cpp" />
-    <ClCompile Include="Renderer\DeferredRenderer.cpp" />
-    <ClCompile Include="Renderer\RenderCache.cpp" />
-    <ClCompile Include="Renderer\Renderer.cpp" />
-    <ClCompile Include="Renderer\RenderFoundation.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\glad\glad.c">
+    <ClCompile Include="Source\Camera\Camera.cpp" />
+    <ClCompile Include="Source\Core\Application.cpp" />
+    <ClCompile Include="Source\Core\Engine.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Lighting.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Material.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Model.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Shader.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Texture.cpp" />
+    <ClCompile Include="Source\Framework\Foundation\Foundations.cpp" />
+    <ClCompile Include="Source\Framework\Foundation\Interface.cpp" />
+    <ClCompile Include="Source\Framework\Foundation\LowLevelAPI.cpp" />
+    <ClCompile Include="Source\IO\InputHandler.cpp" />
+    <ClCompile Include="Source\IO\IO.cpp" />
+    <ClCompile Include="Source\Library\GrvtArray.cpp" />
+    <ClCompile Include="Source\Library\GrvtHash.cpp" />
+    <ClCompile Include="Source\Library\GrvtIterator.cpp" />
+    <ClCompile Include="Source\Library\GrvtMap.cpp" />
+    <ClCompile Include="Source\Library\GrvtPair.cpp" />
+    <ClCompile Include="Source\Library\GrvtString.cpp" />
+    <ClCompile Include="Source\Library\GrvtTemplates.cpp" />
+    <ClCompile Include="Source\Manager\Manager.cpp" />
+    <ClCompile Include="Source\Renderer\DeferredRenderer.cpp" />
+    <ClCompile Include="Source\Renderer\RenderCache.cpp" />
+    <ClCompile Include="Source\Renderer\Renderer.cpp" />
+    <ClCompile Include="Source\Renderer\RenderFoundation.cpp" />
+    <ClCompile Include="Source\Utility\Utility.cpp" />
+    <ClCompile Include="Source\ThirdParty\glad\glad.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ThirdParty\nfd\nfd_common.c">
+    <ClCompile Include="Source\ThirdParty\nfd\nfd_common.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ThirdParty\nfd\nfd_win.cpp">
+    <ClCompile Include="Source\ThirdParty\nfd\nfd_win.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ThirdParty\stb\stb_image.cpp">
+    <ClCompile Include="Source\ThirdParty\stb\stb_image.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Utility\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera\Camera.h" />
-    <ClInclude Include="Engine\Application.h" />
-    <ClInclude Include="Engine\Engine.h" />
-    <ClInclude Include="Framework\Abstractions\Framebuffer.h" />
-    <ClInclude Include="Framework\Abstractions\Lighting.h" />
-    <ClInclude Include="Framework\Abstractions\Material.h" />
-    <ClInclude Include="Framework\Abstractions\Model.h" />
-    <ClInclude Include="Framework\Abstractions\Shader.h" />
-    <ClInclude Include="Framework\Abstractions\Texture.h" />
-    <ClInclude Include="Framework\Foundations\Foundations.h" />
-    <ClInclude Include="Framework\Foundations\Interface.h" />
-    <ClInclude Include="Framework\Foundations\LowLevelAPI.h" />
-    <ClInclude Include="IO\InputHandler.h" />
-    <ClInclude Include="IO\IO.h" />
-    <ClInclude Include="Manager\Manager.h" />
-    <ClInclude Include="Renderer\DeferredRenderer.h" />
-    <ClInclude Include="Renderer\RenderCache.h" />
-    <ClInclude Include="Renderer\Renderer.h" />
-    <ClInclude Include="Renderer\RenderFoundation.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="ThirdParty\stb\stb_image.h" />
-    <ClInclude Include="Utility\Utility.h" />
+    <ClInclude Include="GrvtPch.h" />
+    <ClInclude Include="Include\Camera\Camera.h" />
+    <ClInclude Include="Include\Core\Application.h" />
+    <ClInclude Include="Include\Core\Engine.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Lighting.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Material.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Model.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Shader.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Texture.h" />
+    <ClInclude Include="Include\Framework\Foundation\Foundations.h" />
+    <ClInclude Include="Include\Framework\Foundation\Interface.h" />
+    <ClInclude Include="Include\Framework\Foundation\LowLevelAPI.h" />
+    <ClInclude Include="Include\IO\InputHandler.h" />
+    <ClInclude Include="Include\IO\IO.h" />
+    <ClInclude Include="Include\Library\GrvtArray.h" />
+    <ClInclude Include="Include\Library\GrvtFoundation.h" />
+    <ClInclude Include="Include\Library\GrvtHash.h" />
+    <ClInclude Include="Include\Library\GrvtIterator.h" />
+    <ClInclude Include="Include\Library\GrvtMap.h" />
+    <ClInclude Include="Include\Library\GrvtPair.h" />
+    <ClInclude Include="Include\Library\GrvtString.h" />
+    <ClInclude Include="Include\Library\GrvtTemplates.h" />
+    <ClInclude Include="Include\Manager\Manager.h" />
+    <ClInclude Include="Include\Renderer\DeferredRenderer.h" />
+    <ClInclude Include="Include\Renderer\RenderCache.h" />
+    <ClInclude Include="Include\Renderer\Renderer.h" />
+    <ClInclude Include="Include\Renderer\RenderFoundation.h" />
+    <ClInclude Include="Include\Thirdparty\stb\stb_image.h" />
+    <ClInclude Include="Include\Utility\Utility.h" />
+    <ClInclude Include="Macros.h" />
+    <ClInclude Include="Minimal.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

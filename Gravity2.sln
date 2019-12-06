@@ -5,22 +5,11 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineBackup", "Gravity2\Gravity2.vcxproj", "{6A6B7EE0-F99F-43E2-90A9-86A69CB011EC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Grvtlib", "Grvtlib\Grvtlib.vcxproj", "{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{FE670662-0FCA-4210-878A-93826B26D8C2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F} = {31E1253A-189D-49DE-B5E2-AD1D1FB9411F}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{990082BD-A1BC-4D96-9F76-83F620952A92}"
-	ProjectSection(ProjectDependencies) = postProject
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F} = {31E1253A-189D-49DE-B5E2-AD1D1FB9411F}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gravity", "Gravity\Gravity.vcxproj", "{B20D9E62-5645-4BFE-A989-53AC96D1A423}"
-	ProjectSection(ProjectDependencies) = postProject
-		{990082BD-A1BC-4D96-9F76-83F620952A92} = {990082BD-A1BC-4D96-9F76-83F620952A92}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,14 +27,6 @@ Global
 		{6A6B7EE0-F99F-43E2-90A9-86A69CB011EC}.Release|x64.Build.0 = Release|x64
 		{6A6B7EE0-F99F-43E2-90A9-86A69CB011EC}.Release|x86.ActiveCfg = Release|Win32
 		{6A6B7EE0-F99F-43E2-90A9-86A69CB011EC}.Release|x86.Build.0 = Release|Win32
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Debug|x64.ActiveCfg = Debug|x64
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Debug|x64.Build.0 = Debug|x64
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Debug|x86.ActiveCfg = Debug|Win32
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Debug|x86.Build.0 = Debug|Win32
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Release|x64.ActiveCfg = Release|x64
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Release|x64.Build.0 = Release|x64
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Release|x86.ActiveCfg = Release|Win32
-		{31E1253A-189D-49DE-B5E2-AD1D1FB9411F}.Release|x86.Build.0 = Release|Win32
 		{FE670662-0FCA-4210-878A-93826B26D8C2}.Debug|x64.ActiveCfg = Debug|x64
 		{FE670662-0FCA-4210-878A-93826B26D8C2}.Debug|x64.Build.0 = Debug|x64
 		{FE670662-0FCA-4210-878A-93826B26D8C2}.Debug|x86.ActiveCfg = Debug|Win32
