@@ -117,6 +117,12 @@
     <ClCompile Include="Source\Core\Tick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Profiler\FrameTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\ReloadModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h">
@@ -218,5 +224,14 @@
     <ClInclude Include="Include\Core\Tick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Profiler\FrameTime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Core\ReloadModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Orion.natvis" />
   </ItemGroup>
 </Project>

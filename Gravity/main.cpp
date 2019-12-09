@@ -13,16 +13,9 @@ int main()
 	Width	= Size.right;
 	Height	= Size.bottom;
 
-	Grvt::GrvtEngine* Engine = Grvt::InitialiseEngine("Gravity Engine", Width, Height, 4, 3);
+	Grvt::InitialiseEngine("Gravity Engine", Width, Height, 4, 3);
 
-	while (Engine->Running())
-	{
-		Engine->NewFrame();
-
-		Grvt::Tick();
-
-		Engine->EndFrame();
-	}
+	Grvt::ExecuteEngine();
 
 	Grvt::TerminateEngine();
 

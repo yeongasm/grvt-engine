@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo", "Demo\Demo.vcxproj", "{FE670662-0FCA-4210-878A-93826B26D8C2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{990082BD-A1BC-4D96-9F76-83F620952A92}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FE670662-0FCA-4210-878A-93826B26D8C2} = {FE670662-0FCA-4210-878A-93826B26D8C2}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Gravity", "Gravity\Gravity.vcxproj", "{B20D9E62-5645-4BFE-A989-53AC96D1A423}"
 	ProjectSection(ProjectDependencies) = postProject

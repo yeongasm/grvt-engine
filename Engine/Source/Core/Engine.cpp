@@ -1,17 +1,14 @@
 #include "GrvtPch.h"
 #include "Framework/Foundation/Interface.h"
+#include "Profiler/FrameTime.h"
 
 namespace Grvt
 {
 
 	GrvtEngine* g_Engine = nullptr;
+	FrameTime	g_FrameTime;
 	float		LastFrameTime = 0.0f;
 	float		CurrentFrameTime = 0.0f;
-
-	float EngineDeltaTime()
-	{
-		return g_Engine->DeltaTime;
-	}
 
 	GrvtEngine* InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor)
 	{
@@ -33,6 +30,23 @@ namespace Grvt
 	GrvtEngine* GetEngine()
 	{
 		return g_Engine;
+	}
+
+
+	void ExecuteEngine()
+	{
+		PreTick();
+
+		while (g_Engine->Running())
+		{
+			g_Engine->NewFrame();
+
+			Tick();
+
+			g_Engine->EndFrame();
+		}
+
+		PostTick();
 	}
 
 
@@ -87,7 +101,6 @@ namespace Grvt
 		IO(),
 		Name(),
 		Window(nullptr),
-		Application(nullptr),
 		DeltaTime(0.0f),
 		Width(0),
 		Height(0),
@@ -106,11 +119,10 @@ namespace Grvt
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, VersionMinor);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-		//glfwWindowHint(GLFW_SAMPLES, 4);
 
 		Window = glfwCreateWindow(Width, Height, Name.C_Str(), nullptr, nullptr);
 
-		_ASSERTE(Window); // Failed to initialise window.
+		_ASSERTE(Window);	// Failed to initialise window.
 
 		glfwMakeContextCurrent(Window);
 
@@ -125,7 +137,11 @@ namespace Grvt
 		glfwSetFramebufferSizeCallback(Window, GrvtEngine::FramebufferCallback);
 
 		Middleware::InitialiseBuildQueue();
-		//Engine->Application->Initialise(this);
+
+		Module.DllFile		= "Demo.dll";
+		Module.DllTempFile	= "DemoReload.dll";
+
+		Module.LoadModuleDll();
 	}
 
 
@@ -151,8 +167,8 @@ namespace Grvt
 			float64 MouseX, MouseY;
 			glfwGetCursorPos(Window, &MouseX, &MouseY);
 
-			IO.MousePos.x = *(float32*)&MouseX;
-			IO.MousePos.y = *(float32*)&MouseY;
+			IO.MousePos.x = (float32)MouseX;
+			IO.MousePos.y = (float32)MouseY;
 		}
 
 		// Update the mouse button's state.
@@ -241,11 +257,21 @@ namespace Grvt
 
 	void GrvtEngine::NewFrame()
 	{
-		CurrentFrameTime = (float)glfwGetTime();
+		CurrentFrameTime = (float32)glfwGetTime();
 		DeltaTime = min(CurrentFrameTime - LastFrameTime, 0.1f);
 		LastFrameTime = CurrentFrameTime;
 
+		g_FrameTime.Update(DeltaTime);
 		UpdateIO();
+
+		FILETIME NewDllLastWrite = Module.WatchFileChange();
+		if (CompareFileTime(&NewDllLastWrite, &Module.DllLastWriteTime) != 0)
+		{
+			Module.UnloadModuleDll();
+			Module.LoadModuleDll();
+			Module.DllLastWriteTime = NewDllLastWrite;
+		}
+
 
 		// Listens for resources to be generated or deleted from the GPU.
 		Middleware::GetBuildQueue()->Listen();
@@ -265,12 +291,6 @@ namespace Grvt
 	}
 
 
-	GrvtApplication* GrvtEngine::GetApplication()
-	{
-		return Application;
-	}
-
-
 	bool GrvtEngine::Running()
 	{
 		if (IO.Alt() && IO.IsKeyPressed(GLFW_KEY_F4))
@@ -279,6 +299,32 @@ namespace Grvt
 		}
 
 		return !glfwWindowShouldClose(Window);
+	}
+
+	void GrvtEngine::InitModule()
+	{
+		if (Module.StartUp)
+		{
+			Module.StartUp(this);
+		}
+	}
+
+	void GrvtEngine::ExecuteModule()
+	{
+		if (Module.Execute)
+		{
+			Module.Execute();
+		}
+	}
+
+	void GrvtEngine::ShutdownModule()
+	{
+		if (Module.Unload)
+		{
+			Module.Unload();
+		}
+
+		Module.UnloadModuleDll();
 	}
 
 }

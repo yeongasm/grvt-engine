@@ -1,18 +1,25 @@
 #include "GrvtPch.h"
+#include "Profiler/FrameTime.h"
 
 namespace Grvt
 {
 
-	extern GrvtEngine* g_Engine;
+	extern GrvtEngine*	g_Engine;
+	extern FrameTime	g_FrameTime;
+
+	void PreTick()
+	{
+		g_Engine->InitModule();
+	}
 
 	void Tick()
 	{
-		EngineIO* IO = g_Engine->GetIO();
+		g_Engine->ExecuteModule();
+	}
 
-		if (IO->IsKeyHeld(GLFW_KEY_A))
-		{
-			printf("A is pressed!");
-		}
+	void PostTick()
+	{
+		g_Engine->ShutdownModule();
 	}
 
 }

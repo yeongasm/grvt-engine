@@ -6,7 +6,11 @@
 namespace Grvt
 {
 
-	extern "C" ENGINE_API void Tick();
+	void PreTick();
+	
+	void Tick();
+	
+	void PostTick();
 
 }
 
