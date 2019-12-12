@@ -3,6 +3,7 @@
 #ifndef GRAVITY_GL_INTERFACE
 #define GRAVITY_GL_INTERFACE
 
+#include <deque>
 #include "Minimal.h"
 #include "Framework/Foundation/Foundations.h"
 #include "Framework/Foundation/LowLevelAPI.h"

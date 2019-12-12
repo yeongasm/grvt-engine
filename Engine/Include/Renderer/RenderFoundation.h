@@ -3,6 +3,7 @@
 #ifndef GRAVITY_RENDER_FOUNDATION
 #define GRAVITY_RENDER_FOUNDATION
 
+#include <map>
 #include "Minimal.h"
 #include "Framework/Abstraction/Material.h"
 #include "Framework/Foundation/Foundations.h"
@@ -12,27 +13,27 @@ namespace Grvt
 {
 
 	/**
-	* GrvtRenderNode data structure.
+	* RenderNode data structure.
 	*
 	* A render node is the most basic unit required to render an object onto the screen.
 	* @param Mode		- The mode that this node will be rendered with. E.g: GL_TRIANGLES, GL_LINES, etc.
 	*/
-	struct GrvtRenderNode
+	struct RenderNode
 	{
-		GrvtMaterial* Material;
-		ObjHandle* Handle;
+		GrvtMaterial*	Material;
+		ObjHandle*		Handle;
 		size_t			Amount;
 		uint32			Size;
 		uint32			Mode;
 
-		GrvtRenderNode();
-		~GrvtRenderNode();
+		RenderNode();
+		~RenderNode();
 
-		GrvtRenderNode(const GrvtRenderNode& Other);
-		GrvtRenderNode& operator= (const GrvtRenderNode& Other);
+		RenderNode(const RenderNode& Other);
+		RenderNode& operator= (const RenderNode& Other);
 
-		GrvtRenderNode(GrvtRenderNode&& Other);
-		GrvtRenderNode& operator= (GrvtRenderNode&& Other);
+		RenderNode(RenderNode&& Other);
+		RenderNode& operator= (RenderNode&& Other);
 	};
 
 
@@ -40,72 +41,71 @@ namespace Grvt
 
 
 	/**
-	* GrvtRenderCommand data structure.
+	* RenderCommand data structure.
 	*
 	* A render command represent a "model" that will be rendered onto the screen.
 	*
-	* @param Nodes		- An array of GrvtRenderNode.
+	* @param Nodes		- An array of RenderNode.
 	* @param Instances	- An array of 4x4 matrices that represents the model matrix of each instance.
 	* @param Model		- For render commands that are not instanced, this would represent the object's model matrix.
 	*/
-	struct GrvtRenderCommand
+	struct RenderCommand
 	{
-		Gfl::Array<GrvtRenderNode>	Nodes;
-		glm::mat4					Transform;
-		RenderState					State;
+		Gfl::Array<RenderNode>	Nodes;
+		glm::mat4				Transform;
+		RenderState				State;
 
-		GrvtRenderCommand();
-		~GrvtRenderCommand();
+		RenderCommand();
+		~RenderCommand();
 
-		GrvtRenderCommand(const GrvtRenderCommand& Other);
-		GrvtRenderCommand& operator= (const GrvtRenderCommand& Other);
+		RenderCommand(const RenderCommand& Other);
+		RenderCommand& operator= (const RenderCommand& Other);
 
-		GrvtRenderCommand(GrvtRenderCommand&& Other);
-		GrvtRenderCommand& operator= (GrvtRenderCommand&& Other);
+		RenderCommand(RenderCommand&& Other);
+		RenderCommand& operator= (RenderCommand&& Other);
 	};
 
 
 	/**
-	* GrvtRenderTarget data structure.
+	* RenderTarget data structure.
 	*/
-	struct GrvtRenderTarget
+	struct RenderTarget
 	{
-		ObjHandle* Handle;
+		ObjHandle*	Handle;
 		uint32		Width;
 		uint32		Height;
 		uint8		AttachmentBitMask;
 
-		GrvtRenderTarget();
-		~GrvtRenderTarget();
+		RenderTarget();
+		~RenderTarget();
 
-		GrvtRenderTarget(const GrvtRenderTarget& Other);
-		GrvtRenderTarget& operator= (const GrvtRenderTarget& Other);
+		RenderTarget(const RenderTarget& Other);
+		RenderTarget& operator= (const RenderTarget& Other);
 
-		GrvtRenderTarget(GrvtRenderTarget&& Other);
-		GrvtRenderTarget& operator= (GrvtRenderTarget&& Other);
+		RenderTarget(RenderTarget&& Other);
+		RenderTarget& operator= (RenderTarget&& Other);
 	};
 
 
 	/**
-	* GrvtRenderBuffer data structure.
+	* CommandBuffer data structure.
 	*
 	*/
-	struct GrvtCommandBuffer
+	struct CommandBuffer
 	{
-		glm::mat4						ViewProjection;
-		Gfl::Array<glm::mat4>			Lights;
-		Gfl::Array<GrvtRenderCommand>	RenderCommands;
-		glm::vec2						ViewportSize;
+		Gfl::Array<glm::mat4>		Lights;
+		Gfl::Array<RenderCommand>	RenderCommands;
+		Gfl::Array<RenderCommand>	InstancedCommands;
+		std::map<RenderTarget, Gfl::Array<RenderCommand>> CustomCommands;
 
+		CommandBuffer();
+		~CommandBuffer();
 
-		GrvtCommandBuffer();
-		~GrvtCommandBuffer();
+		CommandBuffer(const CommandBuffer& Other);
+		CommandBuffer& operator= (const CommandBuffer& Other);
 
-		GrvtCommandBuffer(const GrvtCommandBuffer& Other);
-		GrvtCommandBuffer& operator= (const GrvtCommandBuffer& Other);
-
-		GrvtCommandBuffer(GrvtCommandBuffer&& Other);
-		GrvtCommandBuffer& operator= (GrvtCommandBuffer&& Other);
+		CommandBuffer(CommandBuffer&& Other);
+		CommandBuffer& operator= (CommandBuffer&& Other);
 	};
 
 }

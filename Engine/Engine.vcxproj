@@ -235,6 +235,7 @@
     </ClCompile>
     <ClCompile Include="Source\Core\ReloadModule.cpp" />
     <ClCompile Include="Source\Core\Tick.cpp" />
+    <ClCompile Include="Source\Framework\Abstraction\Actor.cpp" />
     <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -259,6 +260,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Framework\Abstraction\Scene.cpp" />
     <ClCompile Include="Source\Framework\Abstraction\Shader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -391,10 +393,12 @@
     <ClInclude Include="Include\Core\Engine.h" />
     <ClInclude Include="Include\Core\ReloadModule.h" />
     <ClInclude Include="Include\Core\Tick.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Actor.h" />
     <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h" />
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h" />
     <ClInclude Include="Include\Framework\Abstraction\Material.h" />
     <ClInclude Include="Include\Framework\Abstraction\Model.h" />
+    <ClInclude Include="Include\Framework\Abstraction\Scene.h" />
     <ClInclude Include="Include\Framework\Abstraction\Shader.h" />
     <ClInclude Include="Include\Framework\Abstraction\Texture.h" />
     <ClInclude Include="Include\Framework\Foundation\Foundations.h" />

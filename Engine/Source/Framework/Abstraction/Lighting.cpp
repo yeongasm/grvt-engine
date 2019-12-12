@@ -4,203 +4,234 @@
 
 namespace Grvt
 {
+	using DataEntry = Gfl::Pair<float32, glm::vec2>;
+	using PointLightTable = Gfl::Array<DataEntry>;
 
-	LightCreationInfo::LightCreationInfo() :
-		Position(0.0f), Colour(1.0f), Type(GrvtLight_Type_None), Brightness(0.5f),
-		Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f) {}
+	PointLightTable PLightTable =  {{   7.0f, glm::vec2(  0.70f,     1.80f)},
+									{  13.0f, glm::vec2(  0.35f,     0.44f)},
+									{  20.0f, glm::vec2(  0.22f,     0.20f)},
+									{  32.0f, glm::vec2(  0.14f,     0.07f)},
+									{  50.0f, glm::vec2(  0.09f,    0.032f)},
+									{  65.0f, glm::vec2(  0.07f,    0.017f)},
+									{ 100.0f, glm::vec2( 0.045f,   0.0075f)},
+									{ 160.0f, glm::vec2( 0.027f,   0.0028f)},
+									{ 200.0f, glm::vec2( 0.022f,   0.0019f)},
+									{ 325.0f, glm::vec2( 0.014f,   0.0007f)},
+									{ 600.0f, glm::vec2( 0.007f,   0.0002f)},
+									{3250.0f, glm::vec2(0.0014f, 0.000007f)}};
 
 
-	LightCreationInfo::~LightCreationInfo() {}
-
-
-	ShadowMap::ShadowMap() :
-		Handle(), DepthTexture(), Type(GrvtShadowMap_None), Bias(0.0f) {}
-
-
-	ShadowMap::~ShadowMap() {}
+	Gfl::Array<float32> DistanceEntry(16);
 
 
 	LightSource::LightSource() :
-		Position(0.0f), Colour(1.0f), Type(GrvtLight_Type_None), Brightness(0.0f), Enable(true) {}
+		ShadowMap(nullptr),
+		Position(0.0f, 0.0f, 0.0f),
+		Colour(0.0f, 0.0f, 0.0f),
+		Type(GrvtLight_Type_None),
+		Brightness(0.0f),
+		Enable(true) {}
 
 
 	LightSource::~LightSource() {}
 
 
-	void LightSource::Alloc(const LightCreationInfo& Info) {
-		Brightness = Info.Brightness;
-		Type = Info.Type;
-		Position = Info.Position;
-		Colour = Info.Colour;
+	LightSource::LightSource(const LightSource& Other)
+	{
+		*this = Other;
 	}
 
 
-	void LightSource::Free() {
+	LightSource& LightSource::operator= (const LightSource& Other)
+	{
+		_ASSERTE(this != &Other);
+
+		if (this != &Other)
+		{
+			ShadowMap	= Other.ShadowMap;
+			Position	= Other.Position;
+			Colour		= Other.Colour;
+			Type		= Other.Type;
+			Brightness	= Other.Brightness;
+			Enable		= Other.Enable;
+		}
+
+		return *this;
+	}
+
+
+	LightSource::LightSource(LightSource&& Other)
+	{
+		*this = Gfl::Move(Other);
+	}
+
+
+	LightSource& LightSource::operator= (LightSource&& Other)
+	{
+		_ASSERTE(this != &Other);
+
+		if (this != &Other)
+		{
+			ShadowMap	= Other.ShadowMap;
+			Position	= Other.Position;
+			Colour		= Other.Colour;
+			Type		= Other.Type;
+			Brightness	= Other.Brightness;
+			Enable		= Other.Enable;
+
+			new (&Other) LightSource();
+		}
+
+		return *this;
+	}
+
+
+	void LightSource::Alloc(const LightCreationInfo& Info) 
+	{
+		Position	= Info.Position;
+		Colour		= Info.Colour;
+		Type		= Info.Type;
+		Brightness	= Info.Brightness;
+	}
+
+
+	void LightSource::Free() 
+	{
 		Brightness = 0.0f;
 		Type = GrvtLight_Type_None;
 		Position = glm::vec3(0.0f);
 		Colour = glm::vec3(0.0f);
-		Shadow.Type = GrvtShadowMap_None;
 	}
 
 
-	void LightSource::Compute(glm::mat4& Buffer) {
-		Buffer[0][0] = 0.0f;
-		Buffer[0][1] = Brightness;
+	void LightSource::Compute(glm::mat4& Buffer) 
+	{
+		Buffer[0][0] = Brightness;
 		Buffer[1][0] = Position.x;
 		Buffer[1][1] = Position.y;
 		Buffer[1][2] = Position.z;
 		Buffer[2][0] = Colour.x;
 		Buffer[2][1] = Colour.y;
 		Buffer[2][2] = Colour.z;
-	}
-
-
-	DirLight::DirLight() : LightSource(), LightSpaceTransform() {}
-
-
-	DirLight::~DirLight() {}
-
-
-	//DirLight::DirLight(const DirLight &Other) { *this = Other; }
-
-
-	//DirLight::DirLight(DirLight &&Other) { *this = std::move(Other); }
-
-
-	void DirLight::Alloc(const LightCreationInfo& Info) {
-		LightSource::Alloc(Info);
-		//Position	= Info.Position;
-		//Colour		= Info.Colour;
-		//Brightness	= Info.Brightness;
-		//Type		= Info.Type;
-	}
-
-
-	void DirLight::Free() {
-		LightSource::Free();
-		//Brightness	= 0.0f;
-		//Type		= GrvtLight_Type_None;
-		//Position	= glm::vec3(0.0f);
-		//Colour		= glm::vec3(0.0f);
-		//Shadow.Type = GrvtShadowMap_None;
-	}
-
-
-	void DirLight::Compute(glm::mat4& Buffer) {
-		LightSource::Compute(Buffer);
-		//Buffer[0][0] = 0.0f;
-		//Buffer[0][1] = Brightness;
-		//Buffer[1][0] = Position.x;
-		//Buffer[1][1] = Position.y;
-		//Buffer[1][2] = Position.z;
-		//Buffer[2][0] = Colour.x;
-		//Buffer[2][1] = Colour.y;
-		//Buffer[2][2] = Colour.z;
+		Buffer[3][0] = 1.0f;
 	}
 
 
 	PointLight::PointLight() :
-		LightSource(), LightSpaceTransforms(6), Constant(1.0f), Linear(0.0f), Quadratic(0.0f), Radius(0.0f), Simplified(false) {}
+		LightSource(), 
+		Constant(1.0f), 
+		Linear(0.0f), 
+		Quadratic(0.0f) {}
 
 
 	PointLight::~PointLight() {}
 
 
-	//PointLight::PointLight(const PointLight &Other) { *this = Other; }
+	PointLight::PointLight(const PointLight &Other) 
+	{ 
+		*this = Other; 
+	}
 
+	PointLight& PointLight::operator= (const PointLight &Other) 
+	{
+		// Ensures that the object is not being assigned to itself. Only in debug.
+		_ASSERTE(this != &Other);
 
-	//PointLight::PointLight(PointLight &&Other) { *this = std::move(Other); }
+		if (this != &Other) {
+			Constant	= Other.Constant;
+			Linear		= Other.Linear;
+			Quadratic	= Other.Quadratic;
+			
+			LightSource::operator=(Other);
+		}
 
-
-	//PointLight& PointLight::operator= (const PointLight &Other) {
-	//	// Ensures that the object is not being assigned to itself. Only in debug.
-	//	_ASSERTE(this != &Other);
-	//
-	//	if (this != &Other) {
-	//		Constant	= Other.Constant;
-	//		Linear		= Other.Linear;
-	//		Quadratic	= Other.Quadratic;
-	//		Radius		= Other.Radius;
-	//		Simplified	= Other.Simplified;
-	//
-	//		LightSource::operator=(Other);
-	//	}
-	//
-	//	return *this;
-	//}
-
-
-	//PointLight& PointLight::operator= (PointLight &&Other) {
-	//	// Ensures that the object is not being assigned to itself. Only in debug.
-	//	_ASSERTE(this != &Other);
-	//
-	//	if (this != &Other) {
-	//		Constant	= Other.Constant;
-	//		Linear		= Other.Linear;
-	//		Quadratic	= Other.Quadratic;
-	//		Radius		= Other.Radius;
-	//		Simplified	= Other.Simplified;
-	//		
-	//		LightSource::operator=(std::move(Other));
-	//
-	//		new (&Other) PointLight();
-	//	}
-	//
-	//	return *this;
-	//}
-
-
-	void PointLight::Alloc(const LightCreationInfo& Info) {
-		LightSource::Alloc(Info);
-
-		if (Info.Radius)
-			Simplified = true;
-
-		Constant = Info.Constant;
-		Linear = Info.Linear;
-		Quadratic = Info.Quadratic;
-		Radius = Info.Radius;
+		return *this;
 	}
 
 
-	void PointLight::Free() {
-		Simplified = false;
-		Constant = 0.0f;
-		Linear = 0.0f;
-		Quadratic = 0.0f;
-		Radius = 0.0f;
+	PointLight::PointLight(PointLight &&Other) 
+	{ 
+		*this = Gfl::Move(Other); 
+	}
 
-		LightSpaceTransforms.Release();
+
+	PointLight& PointLight::operator= (PointLight &&Other) 
+	{
+		// Ensures that the object is not being assigned to itself. Only in debug.
+		_ASSERTE(this != &Other);
+	
+		if (this != &Other) {
+			Constant	= Other.Constant;
+			Linear		= Other.Linear;
+			Quadratic	= Other.Quadratic;
+			
+			LightSource::operator=(Gfl::Move(Other));
+	
+			new (&Other) PointLight();
+		}
+	
+		return *this;
+	}
+
+
+	void PointLight::Alloc(const LightCreationInfo& Info) 
+	{
+		LightSource::Alloc(Info);
+
+		Constant	= Info.Constant;
+		Linear		= Info.Linear;
+		Quadratic	= Info.Quadratic;
+	}
+
+
+	void PointLight::Free() 
+	{
+		Constant	= 0.0f;
+		Linear		= 0.0f;
+		Quadratic	= 0.0f;
 
 		LightSource::Free();
 	}
 
 
-	void PointLight::UpdateRadius(bool Simplify, float Value) {
-		if (Simplified != Simplify)
-			Simplified = Simplify;
+	void PointLight::UpdateByRadius(float32 Radius) 
+	{
+		float32 Distance = 0.0f;
+		for (size_t i = 0; i < PLightTable.Length(); i++)
+		{
+			Distance = Radius - PLightTable[i].Key;
 
-		Radius = Value;
+			if (Distance < 0)
+			{
+				Distance *= -1.0f;
+			}
+
+			DistanceEntry[i] = Distance;
+			Distance = 0.0f;
+		}
+
+		size_t Lowest = 0;
+		for (size_t i = 1; i < DistanceEntry.Length(); i++)
+		{
+			if (DistanceEntry[i] < DistanceEntry[Lowest])
+			{
+				Lowest = i;
+			}
+		}
+
+		Linear = PLightTable[Lowest].Value.x;
+		Quadratic = PLightTable[Lowest].Value.y;
 	}
 
 
-	void PointLight::Compute(glm::mat4& Buffer) {
+	void PointLight::Compute(glm::mat4& Buffer) 
+	{
 		LightSource::Compute(Buffer);
 
-		float kC = Constant;
-		float kL = Linear;
-		float kQ = Quadratic;
-
-		if (Simplified) {
-			kL = 2 / Radius;
-			kQ = 1 / (Radius * Radius);
-		}
-
-		Buffer[0][0] = 1.0f;
-		Buffer[3][0] = kC;
-		Buffer[3][1] = kL;
-		Buffer[3][2] = kQ;
+		Buffer[0][1] = Constant;
+		Buffer[0][2] = Linear;
+		Buffer[0][3] = Quadratic;
+		Buffer[3][1] = 1.0f;
 	}
 
 }

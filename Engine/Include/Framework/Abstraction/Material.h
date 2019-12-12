@@ -18,11 +18,9 @@ namespace Grvt
 	*/
 	struct MaterialCreationInfo
 	{
-
 		Gfl::String				Name;
 		GrvtShader* Shader;
 		Gfl::Array<TexturePair>	Textures;
-
 	};
 
 

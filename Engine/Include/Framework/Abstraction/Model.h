@@ -28,6 +28,17 @@ namespace Grvt
 	};
 
 
+	struct ModelCreationInfo
+	{
+		Gfl::String Name;
+		Gfl::Array<glm::vec3> PositionData;
+		Gfl::Array<glm::vec2> TexCoordData;
+		Gfl::Array<glm::vec3> NormalsData;
+		Gfl::Array<glm::vec3> TangentData;
+		Gfl::Array<glm::vec3> BitangentData;
+	};
+
+
 	/**
 	*/
 	class GrvtMesh
@@ -97,6 +108,14 @@ namespace Grvt
 		* Does not however create the model in the GPU.
 		*/
 		GrvtModel* Alloc(const ModelImportInfo& Info);
+
+
+		/**
+		* Appends the information supplied in ModelCreationInfo into it.
+		* Does not however create the model in the GPU.
+		*/
+		GrvtModel* Alloc(const ModelCreationInfo& Info);
+
 
 		/**
 		* Releases the information supplied into this GrvtModel object.

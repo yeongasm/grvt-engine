@@ -137,6 +137,7 @@ namespace Grvt
 		glfwSetFramebufferSizeCallback(Window, GrvtEngine::FramebufferCallback);
 
 		Middleware::InitialiseBuildQueue();
+		ResourceMgrPtr = InitialiseResourceManager();
 
 		Module.DllFile		= "Demo.dll";
 		Module.DllTempFile	= "DemoReload.dll";
@@ -150,7 +151,7 @@ namespace Grvt
 		glfwDestroyWindow(Window);
 		glfwTerminate();
 
-		//Engine->Application->Shutdown();
+		FreeResourceManager();
 		Middleware::ReleaseBuildQueue();
 	}
 
@@ -264,9 +265,17 @@ namespace Grvt
 		g_FrameTime.Update(DeltaTime);
 		UpdateIO();
 
+#if _DEBUG
+
 		FILETIME NewDllLastWrite = Module.WatchFileChange();
 		if (CompareFileTime(&NewDllLastWrite, &Module.DllLastWriteTime) != 0)
 		{
+			/**
+			* NOTE(Afiq):
+			* This should probably move into it's own thread.
+			* Still needs to test if 100ms is significant enough to cause the frame to lag.
+			*/
+			Sleep(10);
 			Module.UnloadModuleDll();
 			Module.LoadModuleDll();
 			Module.DllLastWriteTime = NewDllLastWrite;
@@ -276,6 +285,8 @@ namespace Grvt
 		// Listens for resources to be generated or deleted from the GPU.
 		Middleware::GetBuildQueue()->Listen();
 	}
+
+#endif
 
 
 	void GrvtEngine::EndFrame()

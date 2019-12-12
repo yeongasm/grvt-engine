@@ -3,6 +3,8 @@
 #ifndef GRAVITY_BASE_RENDERER
 #define GRAVITY_BASE_RENDERER
 
+#include "RenderFoundation.h"
+
 namespace Grvt
 {
 
@@ -13,6 +15,13 @@ namespace Grvt
 	*/
 	struct BaseRenderer
 	{
+		CommandBuffer			BackBuffer;
+		CommandBuffer			FrontBuffer;
+		GrvtShader*				ActiveShader;
+		Gfl::Array<glm::mat4>	Lights;
+		glm::vec2				RenderSize;
+		
+
 		BaseRenderer() {};
 		virtual ~BaseRenderer() {};
 

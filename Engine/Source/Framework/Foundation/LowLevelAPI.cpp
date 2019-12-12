@@ -13,7 +13,8 @@ namespace Grvt
 			Index(0), Size(0), Stride(0), PtrOffset(0) {}
 
 
-		VertexAttribPointer::~VertexAttribPointer() {
+		VertexAttribPointer::~VertexAttribPointer() 
+		{
 			new (this) VertexAttribPointer();
 		}
 
@@ -28,10 +29,12 @@ namespace Grvt
 		}
 
 
-		VertexAttribPointer& VertexAttribPointer::operator= (const VertexAttribPointer& Rhs) {
+		VertexAttribPointer& VertexAttribPointer::operator= (const VertexAttribPointer& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				Index = Rhs.Index;
 				Size = Rhs.Size;
 				Stride = Rhs.Stride;
@@ -48,10 +51,12 @@ namespace Grvt
 		}
 
 
-		VertexAttribPointer& VertexAttribPointer::operator= (VertexAttribPointer&& Rhs) {
+		VertexAttribPointer& VertexAttribPointer::operator= (VertexAttribPointer&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				new (this) VertexAttribPointer();
 
 				Index = Rhs.Index;
@@ -70,7 +75,8 @@ namespace Grvt
 			Data(nullptr), Indices(nullptr), Size(0), Length(0), VertexAttribPointers() {}
 
 
-		MeshBuildData::~MeshBuildData() {
+		MeshBuildData::~MeshBuildData() 
+		{
 			Data = nullptr, Indices = nullptr; Size = 0; Length = 0; VertexAttribPointers.Release();
 		}
 
@@ -87,10 +93,12 @@ namespace Grvt
 		}
 
 
-		MeshBuildData& MeshBuildData::operator= (const MeshBuildData& Rhs) {
+		MeshBuildData& MeshBuildData::operator= (const MeshBuildData& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				Data = Rhs.Data;
 				Indices = Rhs.Indices;
 				Size = Rhs.Size;
@@ -102,10 +110,12 @@ namespace Grvt
 		}
 
 
-		MeshBuildData& MeshBuildData::operator= (MeshBuildData&& Rhs) {
+		MeshBuildData& MeshBuildData::operator= (MeshBuildData&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				new (this) MeshBuildData();
 
 				Data = Rhs.Data;
@@ -126,20 +136,24 @@ namespace Grvt
 			Height(0), Target(0), Type(0), Format(0), InternalFormat(0), Parameters() {}
 
 
-		TextureBuildData::~TextureBuildData() {
+		TextureBuildData::~TextureBuildData() 
+		{
 			Parameters.Release();
 		}
 
 
-		TextureBuildData::TextureBuildData(const TextureBuildData& Rhs) {
+		TextureBuildData::TextureBuildData(const TextureBuildData& Rhs) 
+		{
 			*this = Rhs;
 		}
 
 
-		TextureBuildData& TextureBuildData::operator= (const TextureBuildData& Rhs) {
+		TextureBuildData& TextureBuildData::operator= (const TextureBuildData& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
 				Cubemap = Rhs.Cubemap;
@@ -163,10 +177,12 @@ namespace Grvt
 		}
 
 
-		TextureBuildData& TextureBuildData::operator= (TextureBuildData&& Rhs) {
+		TextureBuildData& TextureBuildData::operator= (TextureBuildData&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				new (this) TextureBuildData();
 
 				DataPtr = Rhs.DataPtr;
@@ -202,12 +218,14 @@ namespace Grvt
 		ShaderBuildData::~ShaderBuildData() {}
 
 
-		ShaderBuildData::ShaderBuildData(const ShaderBuildData& Rhs) {
+		ShaderBuildData::ShaderBuildData(const ShaderBuildData& Rhs)
+		{
 			*this = Rhs;
 		}
 
 
-		ShaderBuildData& ShaderBuildData::operator= (const ShaderBuildData& Rhs) {
+		ShaderBuildData& ShaderBuildData::operator= (const ShaderBuildData& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs)
@@ -223,10 +241,12 @@ namespace Grvt
 		}
 
 
-		ShaderBuildData& ShaderBuildData::operator= (ShaderBuildData&& Rhs) {
+		ShaderBuildData& ShaderBuildData::operator= (ShaderBuildData&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
-			if (this != &Rhs) {
+			if (this != &Rhs) 
+			{
 				BuildInfo = Rhs.BuildInfo;
 
 				new (&Rhs) ShaderBuildData();
@@ -239,7 +259,8 @@ namespace Grvt
 		FramebufferAttachment::FramebufferAttachment() : Handle(), Type(0), Count(0) {}
 
 
-		FramebufferAttachment::~FramebufferAttachment() {
+		FramebufferAttachment::~FramebufferAttachment() 
+		{
 			Type = Count = 0;
 		}
 
@@ -248,12 +269,14 @@ namespace Grvt
 			Handle(SrcHandle), Type(SourceAttachment), Count(Index) {}
 
 
-		FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment& Rhs) {
+		FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment& Rhs) 
+		{
 			*this = Rhs;
 		}
 
 
-		FramebufferAttachment& FramebufferAttachment::operator= (const FramebufferAttachment& Rhs) {
+		FramebufferAttachment& FramebufferAttachment::operator= (const FramebufferAttachment& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs) {
@@ -272,7 +295,8 @@ namespace Grvt
 		}
 
 
-		FramebufferAttachment& FramebufferAttachment::operator= (FramebufferAttachment&& Rhs) {
+		FramebufferAttachment& FramebufferAttachment::operator= (FramebufferAttachment&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs) {
@@ -298,12 +322,14 @@ namespace Grvt
 		}
 
 
-		FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData& Rhs) {
+		FramebufferBuildData::FramebufferBuildData(const FramebufferBuildData& Rhs) 
+		{
 			*this = Rhs;
 		}
 
 
-		FramebufferBuildData& FramebufferBuildData::operator= (const FramebufferBuildData& Rhs) {
+		FramebufferBuildData& FramebufferBuildData::operator= (const FramebufferBuildData& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs)
@@ -315,12 +341,14 @@ namespace Grvt
 		}
 
 
-		FramebufferBuildData::FramebufferBuildData(FramebufferBuildData&& Rhs) {
-			*this = std::move(Rhs);
+		FramebufferBuildData::FramebufferBuildData(FramebufferBuildData&& Rhs) 
+		{
+			*this = Gfl::Move(Rhs);
 		}
 
 
-		FramebufferBuildData& FramebufferBuildData::operator= (FramebufferBuildData&& Rhs) {
+		FramebufferBuildData& FramebufferBuildData::operator= (FramebufferBuildData&& Rhs) 
+		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs)
@@ -334,7 +362,8 @@ namespace Grvt
 		}
 
 
-		void BuildMesh(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data) {
+		void BuildMesh(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data) 
+		{
 			if (!VAO.Id) {
 				GrCreateVertexArray(VAO);
 				GrCreateBufferObject(VBO, GL_ARRAY_BUFFER);
@@ -364,7 +393,8 @@ namespace Grvt
 		}
 
 
-		void BuildTexture(ObjHandle& Handle, TextureBuildData& Data) {
+		void BuildTexture(ObjHandle& Handle, TextureBuildData& Data) 
+		{
 			if (!Handle.Id)
 				GrCreateTexture(Handle, Data.Target);
 
@@ -382,7 +412,8 @@ namespace Grvt
 		}
 
 
-		bool CompileShader(ObjHandle& Handle, uint32 Type, const char* SourceCode) {
+		bool CompileShader(ObjHandle& Handle, uint32 Type, const char* SourceCode) 
+		{
 			int32 compiled = 0;
 
 			GrCreateShader(Handle, Type);
@@ -399,7 +430,8 @@ namespace Grvt
 		}
 
 
-		void BuildShaderProgram(ObjHandle& Handle, ShaderBuildData& Data) {
+		void BuildShaderProgram(ObjHandle& Handle, ShaderBuildData& Data)
+		{
 			int32 link = 0;
 			size_t index = 0;
 			Gfl::Array<ObjHandle> handle(Data.BuildInfo.Length());
@@ -442,7 +474,8 @@ namespace Grvt
 		}
 
 
-		void GenerateGenericTextureData(TextureBuildData& Data) {
+		void GenerateGenericTextureData(TextureBuildData& Data) 
+		{
 			Data.Target = GL_TEXTURE_2D;
 			Data.Type = GL_UNSIGNED_BYTE;
 			Data.InternalFormat = GL_RGBA;

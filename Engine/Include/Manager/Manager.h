@@ -3,6 +3,8 @@
 #ifndef GRAVITY_RESOURCE_MANAGER
 #define GRAVITY_RESOURCE_MANAGER
 
+#include <unordered_map>
+#include "Framework/Abstraction/Scene.h"
 #include "Framework/Abstraction/Model.h"
 #include "Framework/Abstraction/Shader.h"
 #include "Framework/Abstraction/Texture.h"
@@ -17,12 +19,14 @@ namespace Grvt
 	*/
 	enum ResourceType : size_t
 	{
-		GrvtResource_Type_None = 0xFF, /** On first init only. */
-		GrvtResource_Type_Model = 0x00,
-		GrvtResource_Type_Texture = 0x01,
-		GrvtResource_Type_Shader = 0x02,
-		GrvtResource_Type_Material = 0x03,
-		GrvtResource_Type_Framebuffer = 0x04
+		GrvtResource_Type_None			= 0xFF, /** On first init only. */
+		GrvtResource_Type_Model			= 0x00,
+		GrvtResource_Type_Texture		= 0x01,
+		GrvtResource_Type_Shader		= 0x02,
+		GrvtResource_Type_Material		= 0x03,
+		GrvtResource_Type_Framebuffer	= 0x04,
+		GrvtResource_Type_Scene			= 0x05,
+		GrvtResource_Max
 	};
 
 
@@ -42,7 +46,7 @@ namespace Grvt
 	template <class Type>
 	struct EngineResource
 	{
-		Type* ResourcePtr;
+		Type*			ResourcePtr;
 		Gfl::String		Name;
 		Gfl::String		Path;
 		uint32			RefCount;
@@ -185,6 +189,12 @@ namespace Grvt
 		* Import a new model into the engine.
 		*/
 		GrvtModel* NewImportModel(const ModelImportInfo& Import);
+
+		/**
+		* Creates a new model into the engine.
+		* This method however will only create a single mesh within the model.
+		*/
+		GrvtModel* NewModel(const ModelCreationInfo& Info);
 
 		/**
 		* Retrieves the model specified by the identifier.
@@ -370,6 +380,40 @@ namespace Grvt
 		*/
 		bool DeleteFramebuffer(size_t Id, bool Force = false);
 
+		/**
+		* Creates a new scene into the engine.
+		*/
+		GrvtScene* NewScene(const SceneCreationInfo& Info);
+
+		/**
+		* Retrieves the scene specified by the identifier.
+		* Safe mode will check if the specified identifier exist and only return if it does.
+		*/
+		GrvtScene* GetScene(const Gfl::String& Identifier, bool Safe = true);
+
+		/**
+		* Retrieves the scene specified by the Id.
+		* Safe mode will check if the specified Id exist and only return if it does.
+		*/
+		GrvtScene* GetScene(size_t Id, bool Safe = true);
+
+		/**
+		* Retrieves the scene's handler.
+		* Safe mode will check if the specified identifier provided exists and only return if it does.
+		*/
+		EngineResource<GrvtScene>* GetSceneHandle(const Gfl::String& Identifier, bool Safe = true);
+
+		/**
+		* Deletes a scene with the specified identifier from the engine.
+		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+		*/
+		bool DeleteScene(const Gfl::String& Identifier, bool Force = false);
+
+		/**
+		* Deletes a scene with the specified Id from the engine.
+		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
+		*/
+		bool DeleteScene(size_t Id, bool Force = false);
 	};
 
 

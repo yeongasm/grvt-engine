@@ -4,7 +4,7 @@
 #define GRAVITY_ABSTRACTION_LIGHTING
 
 #include "Minimal.h"
-#include "Framework/Foundation/Foundations.h"
+#include "Framebuffer.h"
 
 namespace Grvt
 {
@@ -30,153 +30,100 @@ namespace Grvt
 	*/
 	struct LightCreationInfo
 	{
-
-		glm::vec3	Position;
-		glm::vec3	Colour;
-		LightType	Type;
-		float		Brightness;
-		float		Constant;
-		float		Linear;
-		float		Quadratic;
-		float		Radius;
-
-		LightCreationInfo();
-		~LightCreationInfo();
-
+		glm::vec3	Position	= glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3	Colour		= glm::vec3(1.0f, 1.0f, 1.0f);
+		LightType	Type		= GrvtLight_Type_Directional;
+		float		Brightness	= 1.0f;
+		float		Constant	= 1.0f;
+		float		Linear		= 0.0f;
+		float		Quadratic	= 0.0f;
 	};
 
-
-	enum ShadowMapType : uint32
-	{
-		GrvtShadowMap_None				= 0xFF, /** On first init only */
-		GrvtShadowMap_Directional		= 0x00,
-		GrvtShadowMap_OmniDirectional	= 0x01
-	};
-
-
-	class ShadowMap
-	{
-	public:
-
-		ObjHandle		Handle;
-		ObjHandle		DepthTexture;
-		ShadowMapType	Type;
-		float			Bias;
-
-		ShadowMap();
-		~ShadowMap();
-
-	private:
-
-		ShadowMap(const ShadowMap&) = delete;
-		ShadowMap& operator= (const ShadowMap&) = delete;
-
-	};
-
+	/**
+	* The following is how light data is stored in a 4x4 Matrix.
+	*
+	* [0][0] - Brightness.
+	* [0][1] - Constant.
+	* [0][2] - Linear.
+	* [0][3] - Quadratic.
+	* [1][0] - Position->x.
+	* [1][1] - Position->y.
+	* [1][2] - Position->z.
+	* [1][3] - Empty.
+	* [2][0] - Colour->r.
+	* [2][1] - Colour->g.
+	* [2][2] - Colour->b.
+	* [2][3] - Brightness.
+	* [3][0] - 1.0f if Directional light else 0.0f.
+	* [3][1] - 1.0f if Point light else 0.0f.
+	* [3][2] - Empty.
+	* [3][3] - Empty.
+	*/
 
 	/**
 	*/
-	class LightSource
+	struct LightSource
 	{
-	public:
-
-		ShadowMap	Shadow;
-		glm::vec3	Position;
-		glm::vec3	Colour;
-		LightType	Type;
-		float		Brightness;
-		bool		Enable;
+		GrvtFramebuffer* ShadowMap;
+		glm::vec3		 Position;
+		glm::vec3		 Colour;
+		LightType		 Type;
+		float			 Brightness;
+		bool			 Enable;
 
 		LightSource();
 		virtual ~LightSource();
 
-	private:
+		LightSource(const LightSource& Other);
+		LightSource& operator= (const LightSource& Other);
 
-		LightSource(const LightSource&) = delete;
-		LightSource& operator= (const LightSource&) = delete;
+		LightSource(LightSource&& Other);
+		LightSource& operator= (LightSource&& Other);
 
-		LightSource(LightSource&&) = delete;
-		LightSource& operator= (LightSource&&) = delete;
+		virtual void	Alloc	(const LightCreationInfo& Info);
+		virtual void	Free	();
 
-	public:
+		virtual void	Compute	(glm::mat4& Buffer);
+	};
 
-		virtual void	Alloc(const LightCreationInfo& Info);
-		virtual void	Free();
-		virtual void	Compute(glm::mat4& Buffer);
+
+	/**
+	* Directional light.
+	*/
+	struct DirLight : public LightSource
+	{
 
 	};
 
 
 	/**
-	* Directional light data structure.
-	*
-	* We could easily just make the base Light object a directional light but it wouldn't seem proper in programming terms.
-	* Compute method computes information required for directional light.
+	* Point light.
 	*/
-	class DirLight : public LightSource
+	struct PointLight : public LightSource
 	{
-	public:
-
-		glm::mat4 LightSpaceTransform;
-
-		DirLight();
-		~DirLight();
-
-	private:
-
-		DirLight(const DirLight&) = delete;
-		DirLight& operator= (const DirLight&) = delete;
-
-		DirLight(DirLight&&) = delete;
-		DirLight& operator= (DirLight&&) = delete;
-
-	public:
-
-		void	Alloc(const LightCreationInfo& Info);
-		void	Free();
-		void	Compute(glm::mat4& Buffer);
-
-	};
-
-
-	/**
-	* Point Light data structure.
-	* Compute() method is overridden in this structure and is used to pass in data for Point Light calculations.
-	*
-	* TODO(Afiq):
-	* Add framebuffers to enable shadow mapping and include it as part of the structure.
-	* Add a function to generate debug sphere in wireframe mode.
-	*/
-	class PointLight : public LightSource
-	{
-	public:
-
-		Gfl::Array<glm::mat4> LightSpaceTransforms;
-
 		float	Constant;
 		float	Linear;
 		float	Quadratic;
-		float	Radius;
-		bool	Simplified;
 
 		PointLight();
 		~PointLight();
 
-	private:
+		PointLight(const PointLight& Other);
+		PointLight& operator= (const PointLight& Other);
 
-		PointLight(const PointLight&) = delete;
-		PointLight& operator= (const PointLight&) = delete;
+		PointLight(PointLight&& Other);
+		PointLight& operator= (PointLight&& Other);
 
-		PointLight(PointLight&&) = delete;
-		PointLight& operator= (PointLight&&) = delete;
+		void	Alloc	(const LightCreationInfo& Info) override;
+		void	Free	() override;
 
-	public:
+		void	Compute	(glm::mat4& Buffer) override;
 
-		void	Alloc(const LightCreationInfo& Info) override;
-		void	Free() override;
-		void	UpdateRadius(bool Simplify, float Value);
-		void	Compute(glm::mat4& Buffer) override;
-
+		/**
+		* The algorithm compares the radius with each key value in the entry table.
+		* It then takes the shortest one from the specified Radius and uses the values in there instead.
+		*/
+		void	UpdateByRadius(float32 Radius);
 	};
 
 }

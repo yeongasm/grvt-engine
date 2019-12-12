@@ -6,17 +6,17 @@ namespace Grvt
 {
 
 
-	GrvtRenderNode::GrvtRenderNode() :
+	RenderNode::RenderNode() :
 		Material(nullptr), Handle(nullptr), Amount(0), Size(0), Mode(0) {}
 
 
-	GrvtRenderNode::GrvtRenderNode(const GrvtRenderNode& Other)
+	RenderNode::RenderNode(const RenderNode& Other)
 	{
 		*this = Other;
 	}
 
 
-	GrvtRenderNode& GrvtRenderNode::operator= (const GrvtRenderNode& Other)
+	RenderNode& RenderNode::operator= (const RenderNode& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -33,13 +33,13 @@ namespace Grvt
 	}
 
 
-	GrvtRenderNode::GrvtRenderNode(GrvtRenderNode&& Other)
+	RenderNode::RenderNode(RenderNode&& Other)
 	{
 		*this = Gfl::Move(Other);
 	}
 
 
-	GrvtRenderNode& GrvtRenderNode::operator= (GrvtRenderNode&& Other)
+	RenderNode& RenderNode::operator= (RenderNode&& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -51,14 +51,14 @@ namespace Grvt
 			Size = Other.Size;
 			Mode = Other.Mode;
 
-			new (&Other) GrvtRenderNode();
+			new (&Other) RenderNode();
 		}
 
 		return *this;
 	}
 
 
-	GrvtRenderNode::~GrvtRenderNode()
+	RenderNode::~RenderNode()
 	{
 		Material = nullptr;
 		Handle = nullptr;
@@ -68,16 +68,16 @@ namespace Grvt
 	}
 
 
-	GrvtRenderCommand::GrvtRenderCommand() :
+	RenderCommand::RenderCommand() :
 		Nodes(), Transform(), State() {}
 
 
-	GrvtRenderCommand::GrvtRenderCommand(const GrvtRenderCommand& Other) {
+	RenderCommand::RenderCommand(const RenderCommand& Other) {
 		*this = Other;
 	}
 
 
-	GrvtRenderCommand& GrvtRenderCommand::operator= (const GrvtRenderCommand& Other)
+	RenderCommand& RenderCommand::operator= (const RenderCommand& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -92,12 +92,12 @@ namespace Grvt
 	}
 
 
-	GrvtRenderCommand::GrvtRenderCommand(GrvtRenderCommand&& Other) {
+	RenderCommand::RenderCommand(RenderCommand&& Other) {
 		*this = Gfl::Move(Other);
 	}
 
 
-	GrvtRenderCommand& GrvtRenderCommand::operator= (GrvtRenderCommand&& Other)
+	RenderCommand& RenderCommand::operator= (RenderCommand&& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -107,25 +107,25 @@ namespace Grvt
 			Transform = Other.Transform;
 			State = Other.State;
 
-			new (&Other) GrvtRenderCommand();
+			new (&Other) RenderCommand();
 		}
 
 		return *this;
 	}
 
 
-	GrvtRenderCommand::~GrvtRenderCommand()
+	RenderCommand::~RenderCommand()
 	{
 		Nodes.Release();
 		Transform = glm::mat4();
 	}
 
 
-	GrvtRenderTarget::GrvtRenderTarget() :
+	RenderTarget::RenderTarget() :
 		Handle(nullptr), Width(0), Height(0), AttachmentBitMask(0) {}
 
 
-	GrvtRenderTarget::~GrvtRenderTarget()
+	RenderTarget::~RenderTarget()
 	{
 		Handle = nullptr;
 		Width = Height = 0;
@@ -133,12 +133,12 @@ namespace Grvt
 	}
 
 
-	GrvtRenderTarget::GrvtRenderTarget(const GrvtRenderTarget& Other) {
+	RenderTarget::RenderTarget(const RenderTarget& Other) {
 		*this = Other;
 	}
 
 
-	GrvtRenderTarget& GrvtRenderTarget::operator= (const GrvtRenderTarget& Other)
+	RenderTarget& RenderTarget::operator= (const RenderTarget& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -154,12 +154,12 @@ namespace Grvt
 	}
 
 
-	GrvtRenderTarget::GrvtRenderTarget(GrvtRenderTarget&& Other) {
+	RenderTarget::RenderTarget(RenderTarget&& Other) {
 		*this = Gfl::Move(Other);
 	}
 
 
-	GrvtRenderTarget& GrvtRenderTarget::operator= (GrvtRenderTarget&& Other)
+	RenderTarget& RenderTarget::operator= (RenderTarget&& Other)
 	{
 		_ASSERTE(this != &Other);
 
@@ -169,62 +169,60 @@ namespace Grvt
 			Height = Other.Height;
 			AttachmentBitMask = Other.AttachmentBitMask;
 
-			new (&Other) GrvtRenderTarget();
+			new (&Other) RenderTarget();
 		}
 
 		return *this;
 	}
 
 
-	GrvtCommandBuffer::GrvtCommandBuffer() :
-		ViewProjection(), Lights(), RenderCommands(), ViewportSize() {}
+	CommandBuffer::CommandBuffer() :
+		Lights(), RenderCommands() {}
 
 
-	GrvtCommandBuffer::GrvtCommandBuffer(const GrvtCommandBuffer& Other) {
+	CommandBuffer::CommandBuffer(const CommandBuffer& Other) 
+	{
 		*this = Other;
 	}
 
 
-	GrvtCommandBuffer& GrvtCommandBuffer::operator= (const GrvtCommandBuffer& Other)
+	CommandBuffer& CommandBuffer::operator= (const CommandBuffer& Other)
 	{
 		_ASSERTE(this != &Other);
 
-		if (this != &Other) {
-			ViewProjection = Other.ViewProjection;
-			Lights = Other.Lights;
-			RenderCommands = Other.RenderCommands;
-			ViewportSize = Other.ViewportSize;
+		if (this != &Other) 
+		{
+			Lights			= Other.Lights;
+			RenderCommands	= Other.RenderCommands;
 		}
 
 		return *this;
 	}
 
 
-	GrvtCommandBuffer::GrvtCommandBuffer(GrvtCommandBuffer&& Other)
+	CommandBuffer::CommandBuffer(CommandBuffer&& Other)
 	{
 		*this = Gfl::Move(Other);
 	}
 
 
-	GrvtCommandBuffer& GrvtCommandBuffer::operator= (GrvtCommandBuffer&& Other)
+	CommandBuffer& CommandBuffer::operator= (CommandBuffer&& Other)
 	{
 		_ASSERTE(this != &Other);
 
 		if (this != &Other)
 		{
-			ViewProjection = Other.ViewProjection;
-			Lights = Other.Lights;
-			RenderCommands = Other.RenderCommands;
-			ViewportSize = Other.ViewportSize;
+			Lights			= Other.Lights;
+			RenderCommands	= Other.RenderCommands;
 
-			new (&Other) GrvtCommandBuffer();
+			new (&Other) CommandBuffer();
 		}
 
 		return *this;
 	}
 
 
-	GrvtCommandBuffer::~GrvtCommandBuffer()
+	CommandBuffer::~CommandBuffer()
 	{
 		Lights.Release();
 		RenderCommands.Release();

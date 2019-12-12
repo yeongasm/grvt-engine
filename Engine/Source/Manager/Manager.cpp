@@ -11,6 +11,7 @@ namespace Grvt
 	ResourceHandle<GrvtShader>		g_ShaderManager;
 	ResourceHandle<GrvtFramebuffer>	g_FramebufferManager;
 	ResourceHandle<GrvtMaterial>	g_MaterialManager;
+	ResourceHandle<GrvtScene>		g_SceneManager;
 
 	ResourceManager* g_ResourceManager = nullptr;
 
@@ -53,13 +54,14 @@ namespace Grvt
 	void ResourceManager::Alloc(size_t Reserve)
 	{
 		// The main handler needs to allocate 5 times more than a manager of a single type of asset.
-		Resources.reserve(Reserve * 5);
+		Resources.reserve(Reserve * GrvtResource_Max);
 
 		g_ModelManager.Alloc(Reserve);
 		g_TextureManager.Alloc(Reserve);
 		g_ShaderManager.Alloc(Reserve);
 		g_MaterialManager.Alloc(Reserve);
 		g_FramebufferManager.Alloc(Reserve);
+		g_SceneManager.Alloc(Reserve);
 	}
 
 
@@ -83,7 +85,7 @@ namespace Grvt
 				DeleteShader(It.first, true);
 				break;
 			case GrvtResource_Type_Material:
-				DeleteMaterial(It.first);
+				DeleteMaterial(It.first, true);
 				break;
 			case GrvtResource_Type_Framebuffer:
 				DeleteFramebuffer(It.first, true);
@@ -115,20 +117,50 @@ namespace Grvt
 	GrvtModel* ResourceManager::NewImportModel(const ModelImportInfo& Import)
 	{
 		if (CheckIfModelExist(Import.Path))
+		{
 			return GetModel(Import.Name.C_Str());
+		}
 
-		size_t id = GenerateResourceId<GrvtModel>(GrvtResource_Type_Model);
-		Resources.emplace(Import.Name, id);
+		size_t Id = GenerateResourceId<GrvtModel>(GrvtResource_Type_Model);
+		Resources.emplace(Import.Name, Id);
 
-		GrvtModel* model = g_ModelManager.NewResource(id, Import.Name);
-		model->Alloc(Import);
+		GrvtModel* Model = g_ModelManager.NewResource(Id, Import.Name);
+		Model->Alloc(Import);
 
-		g_ModelManager.Store[id].Path = Import.Path;
-		g_ModelManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
+		g_ModelManager.Store[Id].Type = GrvtResourceAlloc_Type_Import;
 
-		AssimpImportModelFromPath(Import.Path, model);
+		if (Import.Path.Length())
+		{
+			g_ModelManager.Store[Id].Path = Import.Path;
+			AssimpImportModelFromPath(Import.Path, Model);
+		}
 
-		return model;
+		for (GrvtMesh& Mesh : Model->Meshes)
+		{
+			Middleware::PackageMeshForBuild(&Mesh);
+		}
+
+		return Model;
+	}
+
+
+	GrvtModel* ResourceManager::NewModel(const ModelCreationInfo& Info)
+	{
+		size_t Id = GenerateResourceId<GrvtModel>(GrvtResource_Type_Model);
+		Resources.emplace(Info.Name, Id);
+
+		GrvtModel* Model = g_ModelManager.NewResource(Id, Info.Name);
+		Model->Alloc(Info);
+
+		g_ModelManager.Store[Id].Type = GrvtResourceAlloc_Type_Custom;
+
+		// Future proofing to allow a more robust custom model creation.
+		for (GrvtMesh& Mesh : Model->Meshes)
+		{
+			Middleware::PackageMeshForBuild(&Mesh);
+		}
+
+		return Model;
 	}
 
 
@@ -539,7 +571,7 @@ namespace Grvt
 	GrvtFramebuffer* ResourceManager::GetFramebuffer(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
-			g_FramebufferManager.Store[Resources[Identifier]].ResourcePtr;
+			return g_FramebufferManager.Store[Resources[Identifier]].ResourcePtr;
 
 		auto it = Resources.find(Identifier);
 		if (it != Resources.end())
@@ -552,7 +584,7 @@ namespace Grvt
 	GrvtFramebuffer* ResourceManager::GetFramebuffer(size_t Id, bool Safe)
 	{
 		if (!Safe)
-			g_FramebufferManager.Store[Id].ResourcePtr;
+			return g_FramebufferManager.Store[Id].ResourcePtr;
 
 		auto it = g_FramebufferManager.Store.find(Id);
 		if (it != g_FramebufferManager.Store.end())
@@ -609,12 +641,116 @@ namespace Grvt
 	}
 
 
+	GrvtScene* ResourceManager::NewScene(const SceneCreationInfo& Info)
+	{
+		size_t Id = GenerateResourceId<GrvtScene>(GrvtResource_Type_Scene);
+		Resources.emplace(Info.Name, Id);
+
+		GrvtScene* Scene = g_SceneManager.NewResource(Id, Info.Name);
+		Scene->Alloc(Info);
+
+		g_SceneManager.Store[Id].Type = GrvtResourceAlloc_Type_Custom;
+
+		return Scene;
+	}
+
+
+	GrvtScene* ResourceManager::GetScene(const Gfl::String& Identifier, bool Safe)
+	{
+		if (!Safe)
+		{
+			return g_SceneManager.Store[Resources[Identifier]].ResourcePtr;
+		}
+
+		auto it = Resources.find(Identifier);
+
+		if (it != Resources.end())
+		{
+			return g_SceneManager.Store[Resources[Identifier]].ResourcePtr;
+		}
+
+		return nullptr;
+	}
+
+
+	GrvtScene* ResourceManager::GetScene(size_t Id, bool Safe)
+	{
+		if (!Safe)
+		{
+			return g_SceneManager.Store[Id].ResourcePtr;
+		}
+
+		auto it = g_SceneManager.Store.find(Id);
+
+		if (it != g_SceneManager.Store.end())
+		{
+			return g_SceneManager.Store[Id].ResourcePtr;
+		}
+
+		return nullptr;
+	}
+
+
+	EngineResource<GrvtScene>* ResourceManager::GetSceneHandle(const Gfl::String& Identifier, bool Safe)
+	{
+		if (!Safe)
+		{
+			return &g_SceneManager.Store[Resources[Identifier]];
+		}
+
+		auto it = Resources.find(Identifier);
+
+		if (it != Resources.end())
+		{
+			return &g_SceneManager.Store[Resources[Identifier]];
+		}
+
+		return nullptr;
+	}
+
+
+	bool ResourceManager::DeleteScene(const Gfl::String& Identifier, bool Force)
+	{
+		EngineResource<GrvtScene>* Handle = GetSceneHandle(Identifier);
+		if (!Handle)
+		{
+			return false;
+		}
+
+		if (!Force && g_SceneManager.Store[Resources[Identifier]].RefCount)
+		{
+			return false;
+		}
+
+		Handle->ResourcePtr->Free();
+		g_SceneManager.DeleteResource(Resources[Identifier]);
+		Resources.erase(Identifier);
+
+		return true;
+	}
+
+
+	bool ResourceManager::DeleteScene(size_t Id, bool Force)
+	{
+		GrvtScene* Scene = GetScene(Id);
+		if (!Scene)
+		{
+			return false;
+		}
+
+		return DeleteScene(g_SceneManager.Store[Id].Name, Force);
+	}
+
+
 	ResourceManager* InitialiseResourceManager()
 	{
 		if (g_ResourceManager)
+		{
 			return g_ResourceManager;
+		}
 
 		g_ResourceManager = new ResourceManager();
+		g_ResourceManager->Alloc(128);
 
 		return g_ResourceManager;
 	}

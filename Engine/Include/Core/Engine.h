@@ -5,6 +5,7 @@
 
 #include "Minimal.h"
 #include "Core/ReloadModule.h"
+#include "Manager/Manager.h"
 
 namespace Grvt
 {
@@ -21,6 +22,7 @@ namespace Grvt
 		ReloadModule		Module;
 
 		Gfl::String			Name;
+		ResourceManager*	ResourceMgrPtr;
 		GLFWwindow*			Window;
 		
 		float32				DeltaTime;
@@ -60,32 +62,32 @@ namespace Grvt
 
 		ENGINE_API EngineIO* GetIO();
 
-		void				NewFrame();
-		void				EndFrame();
+		void NewFrame();
+		void EndFrame();
 
 		/**
 		* Checks if the Engine is still running.
 		* Exits the program loop when false is returned.
 		*/
-		bool				Running();
+		bool Running();
 
 		/**
 		* Initialises the currently loaded in the engine.
 		* Called automatically inside of the global PreTick() function.
 		*/
-		void				InitModule();
+		void InitModule();
 
 		/**
 		* Executes the currently loaded module in the engine.
 		* Called every frame inside of the global Tick() function.
 		*/
-		void				ExecuteModule();
+		void ExecuteModule();
 
 		/**
 		* Shuts down the currently loaded module in the engine.
 		* Called automatically inside of the global PostTick() function.
 		*/
-		void				ShutdownModule();
+		void ShutdownModule();
 	};
 
 

@@ -13,9 +13,7 @@ namespace Grvt
 	class DeferredRenderer : public BaseRenderer
 	{
 	private:
-		RenderCache			Cache;
-		GrvtCommandBuffer*	CommandBuffer;
-		GrvtShader*			ActiveShader;
+
 	};
 
 }
