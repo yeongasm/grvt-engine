@@ -92,18 +92,19 @@ namespace Grvt
 		*/
 		struct TextureBuildData
 		{
-			void*	DataPtr;
-			bool	Mipmap;
-			bool	Cubemap;
-			bool	Flip;
-			int32	Width;
-			int32	Height;
+			Gfl::Array<Gfl::Pair<uint32, uint32>>	Parameters;
 			uint32	Target;
 			uint32	Type;
 			uint32	Format;
 			uint32	InternalFormat;
+			int32	Width;
+			int32	Height;
+			bool	Mipmap;
+			bool	Flip;
+			bool	Cubemap;
+			void*	DataPtr;
+			void*	CubemapDataPtr[6];
 
-			Gfl::Array<Gfl::Pair<uint32, uint32>>	Parameters;
 
 			TextureBuildData();
 			~TextureBuildData();
@@ -167,21 +168,17 @@ namespace Grvt
 		* [BASEAPI]
 		* FramebufferAttachment data structure.
 		* Specify the attachment that is to be attached onto a Framebuffer.
-		*
-		* @param (uint32)	HandleId	- A copy to the Framebuffer's ObjectHandle Id.
-		* @param (uint32)	Attachment	- The attachment's format (GL_COLOR_ATTACHMENTn | GL_DEPTH_ATTACHMENT | GL_DEPTH_STENCIL_ATTACHMENT).
-		* @param (bool)		Draw		- Specify if the attachment would be used for drawing. Only works for colour attachments.
 		*/
 		struct FramebufferAttachment
 		{
-			ObjHandle* Handle;
+			ObjHandle*		Handle;
 			uint32			Type;
-			uint32			Count;
+			uint32			Component;
 
 			FramebufferAttachment();
 			~FramebufferAttachment();
 
-			FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Index);
+			FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Component);
 
 			FramebufferAttachment(const FramebufferAttachment& Rhs);
 			FramebufferAttachment& operator= (const FramebufferAttachment& Rhs);
@@ -254,6 +251,22 @@ namespace Grvt
 		* TextureBuildData.Parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
 		*/
 		void GenerateGenericTextureData(TextureBuildData& Data);
+
+
+		/**
+		* [BASEAPI]
+		* An OpenGL wrapper to set generice cubemap building data.
+		*
+		* TextureBuildData.Target = GL_TEXTURE_CUBE_MAP;
+		* TextureBuildData.Type = GL_UNSIGNED_BYTE;
+		* TextureBuildData.Format = GL_RGB;
+		* TextureBuildData.Parameters[0] = {GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE}
+		* TextureBuildData.Parameters[1] = {GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}
+		* TextureBuildData.Parameters[2] = {GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE}
+		* TextureBuildData.Parameters[3] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+		* TextureBuildData.Parameters[4] = {GL_TEXTURE_MAG_FILTER, GL_LINEAR}
+		*/
+		void GenerateGenericCubemapData(TextureBuildData& Data);
 
 
 		/**

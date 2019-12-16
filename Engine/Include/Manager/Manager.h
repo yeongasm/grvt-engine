@@ -183,243 +183,249 @@ namespace Grvt
 		/**
 		* Determine the resources type from the specified identifier.
 		*/
-		ResourceType GetResourceType(const Gfl::String& Identifier);
+		ENGINE_API ResourceType GetResourceType(const Gfl::HashString& Identifier);
 
 		/**
 		* Import a new model into the engine.
 		*/
-		GrvtModel* NewImportModel(const ModelImportInfo& Import);
+		ENGINE_API GrvtModel* NewImportModel(const ModelImportInfo& Import);
 
 		/**
 		* Creates a new model into the engine.
 		* This method however will only create a single mesh within the model.
 		*/
-		GrvtModel* NewModel(const ModelCreationInfo& Info);
+		ENGINE_API GrvtModel* NewModel(const ModelCreationInfo& Info);
 
 		/**
 		* Retrieves the model specified by the identifier.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtModel* GetModel(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtModel* GetModel(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the model specified by the Id.
 		* Safe mode will check if the specified Id exist and only return if it does.
 		*/
-		GrvtModel* GetModel(size_t Id, bool Safe = true);
+		ENGINE_API GrvtModel* GetModel(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieves the model's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtModel>* GetModelHandle(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API EngineResource<GrvtModel>* GetModelHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a model with the specified identifier from the engine.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteModel(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteModel(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a model with the specified Id from the engine.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteModel(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteModel(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Import a new texture into the engine.
 		*/
-		GrvtTexture* NewImportTexture(const TextureImportInfo& Import);
+		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Import);
 
 		/**
 		* Create a custom texture and store it into the engine.
 		*/
-		GrvtTexture* NewCustomTexture(const TextureImportInfo& Info, void* TextureData, BaseAPI::TextureBuildData& BuildData);
+		ENGINE_API GrvtTexture* NewCustomTexture(const TextureImportInfo& Info, void* TextureData, BaseAPI::TextureBuildData& BuildData);
+
+		/**
+		* Import a new cubemap into the engine.
+		*/
+		ENGINE_API GrvtTexture* NewImportCubemap(const TextureImportInfo& Import);
 
 		/**
 		* Retrieves the texture specified by the identifier.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtTexture* GetTexture(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtTexture* GetTexture(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the texture specified by the Id.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtTexture* GetTexture(size_t Id, bool Safe = true);
+		ENGINE_API GrvtTexture* GetTexture(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieve's the texture's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtTexture>* GetTextureHandle(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API EngineResource<GrvtTexture>* GetTextureHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a texture with the specified identifier.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteTexture(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteTexture(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a texture with the specified Id.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteTexture(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteTexture(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new shader and stores it into the engine.
 		*/
-		GrvtShader* NewShaderProgram(const ShaderImportInfo& Import);
+		ENGINE_API GrvtShader* NewShaderProgram(const ShaderImportInfo& Import);
 
 		/**
 		* Retrieves the shader specified by the identifier from the engine.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtShader* GetShader(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtShader* GetShader(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the shader specified by the Id from the engine.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtShader* GetShader(size_t Id, bool Safe = true);
+		ENGINE_API GrvtShader* GetShader(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieve's the shader's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtShader>* GetShaderHandle(const Gfl::String& Name, bool Safe = true);
+		ENGINE_API EngineResource<GrvtShader>* GetShaderHandle(const Gfl::String& Name, bool Safe = true);
 
 		/**
 		* Delete a shader program with the specified identifier.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteShader(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteShader(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a shader program with the specified Id.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteShader(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteShader(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new material and stores it in the engine.
 		*/
-		GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
+		ENGINE_API GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
 
 		/**
 		* Retrieves the material specified by the identifier from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		GrvtMaterial* GetMaterial(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtMaterial* GetMaterial(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the material specified by the id from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		GrvtMaterial* GetMaterial(size_t Id, bool Safe = true);
+		ENGINE_API GrvtMaterial* GetMaterial(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieve's the material's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtMaterial>* GetMaterialHandle(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API EngineResource<GrvtMaterial>* GetMaterialHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a material with the specified identifier.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteMaterial(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteMaterial(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a material with the specified id.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteMaterial(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteMaterial(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new framebuffer and stores it in the engine.
 		* Resource is also allocated on the GPU.
 		*/
-		GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
+		ENGINE_API GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
 
 		/**
 		* Retrieves the framebuffer specified by the identifier from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		GrvtFramebuffer* GetFramebuffer(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtFramebuffer* GetFramebuffer(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the framebuffer specified by the id from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
+		ENGINE_API GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieve's the post processing's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a framebuffer with the specified identifier.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteFramebuffer(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteFramebuffer(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a framebuffer with the specified id.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteFramebuffer(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteFramebuffer(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new scene into the engine.
 		*/
-		GrvtScene* NewScene(const SceneCreationInfo& Info);
+		ENGINE_API GrvtScene* NewScene(const SceneCreationInfo& Info);
 
 		/**
 		* Retrieves the scene specified by the identifier.
 		* Safe mode will check if the specified identifier exist and only return if it does.
 		*/
-		GrvtScene* GetScene(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API GrvtScene* GetScene(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the scene specified by the Id.
 		* Safe mode will check if the specified Id exist and only return if it does.
 		*/
-		GrvtScene* GetScene(size_t Id, bool Safe = true);
+		ENGINE_API GrvtScene* GetScene(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieves the scene's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		EngineResource<GrvtScene>* GetSceneHandle(const Gfl::String& Identifier, bool Safe = true);
+		ENGINE_API EngineResource<GrvtScene>* GetSceneHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a scene with the specified identifier from the engine.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteScene(const Gfl::String& Identifier, bool Force = false);
+		ENGINE_API bool DeleteScene(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a scene with the specified Id from the engine.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		bool DeleteScene(size_t Id, bool Force = false);
+		ENGINE_API bool DeleteScene(size_t Id, bool Force = false, bool Remove = true);
 	};
 
 
 	ResourceManager* InitialiseResourceManager();
-	ResourceManager* GetResourceManager();
 	void			 FreeResourceManager();
+
+	ENGINE_API ResourceManager* GetResourceManager();
 
 }
 

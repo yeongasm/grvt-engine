@@ -10,6 +10,18 @@
 #include <Windows.h>
 #endif
 
+#if _DEBUG
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#endif 
+
+//#ifdef _DEBUG
+//#define DBG_NEW new (_NORMAL_BLOCK, __FILE__, __LINE__)
+//#else
+//#define BDG_NEW new
+//#endif
+
 #include <stdio.h>
 
 #include <glad/glad.h>

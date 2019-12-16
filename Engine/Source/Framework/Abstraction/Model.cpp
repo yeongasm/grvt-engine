@@ -95,6 +95,69 @@ namespace Grvt
 	//}
 
 
+	void CalculateTangentAndBitangent(ModelCreationInfo& Info)
+	{
+		Info.TangentData.Reserve(Info.PositionData.Length());
+		Info.BitangentData.Reserve(Info.PositionData.Length());
+
+		for (size_t i = 0; i < Info.IndexData.Length() - 2; i++)
+		{
+			size_t Index1 = Info.IndexData[i];
+			size_t Index2 = Info.IndexData[i + 1];
+			size_t Index3 = Info.IndexData[i + 2];
+
+			glm::vec3& Pos0 = Info.PositionData[Index1];
+			glm::vec3& Pos1 = Info.PositionData[Index2];
+			glm::vec3& Pos2 = Info.PositionData[Index3];
+
+			glm::vec2& Uv0 = Info.TexCoordData[Index1];
+			glm::vec2& Uv1 = Info.TexCoordData[Index2];
+			glm::vec2& Uv2 = Info.TexCoordData[Index3];
+
+
+			glm::vec3 Edge1 = Pos1 - Pos0;
+			glm::vec3 Edge2 = Pos2 - Pos0;
+
+			glm::vec2 DeltaUV1 = Uv1 - Uv0;
+			glm::vec2 DeltaUV2 = Uv2 - Uv0;
+
+			float f = 1.0f / (DeltaUV1.x * DeltaUV2.y - DeltaUV2.x * DeltaUV1.y);
+
+			glm::vec3 Tangent, Bitangent;
+
+			Tangent.x = f * (DeltaUV2.y * Edge1.x - DeltaUV1.y * Edge2.x);
+			Tangent.y = f * (DeltaUV2.y * Edge1.y - DeltaUV1.y * Edge2.y);
+			Tangent.z = f * (DeltaUV2.y * Edge1.z - DeltaUV1.y * Edge2.z);
+
+			if (i % 2 == 0)
+			{
+				Bitangent.x = f * (-DeltaUV2.x * Edge1.x - DeltaUV1.x * Edge2.x);
+				Bitangent.y = f * (-DeltaUV2.x * Edge1.y - DeltaUV1.x * Edge2.y);
+				Bitangent.z = f * (-DeltaUV2.x * Edge1.z - DeltaUV1.x * Edge2.z);
+			}
+			else
+			{
+				Bitangent.x = f * (-DeltaUV2.x * Edge2.x - DeltaUV1.x * Edge1.x);
+				Bitangent.y = f * (-DeltaUV2.x * Edge2.y - DeltaUV1.x * Edge1.y);
+				Bitangent.z = f * (-DeltaUV2.x * Edge2.z - DeltaUV1.x * Edge1.z);
+			}
+
+			Info.TangentData[Index1] += Tangent;
+			Info.TangentData[Index2] += Tangent;
+			Info.TangentData[Index3] += Tangent;
+			Info.BitangentData[Index1] += Bitangent;
+			Info.BitangentData[Index2] += Bitangent;
+			Info.BitangentData[Index3] += Bitangent;
+		}
+
+		for (size_t i = 0; i < Info.TangentData.Length(); i++)
+		{
+			Info.TangentData[i] = glm::normalize(Info.TangentData[i]);
+			Info.BitangentData[i] = glm::normalize(Info.BitangentData[i]);
+		}
+	}
+
+
 	GrvtModel::GrvtModel() :
 		Meshes() {}
 

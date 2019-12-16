@@ -33,6 +33,7 @@ namespace Grvt
 		GrvtTexture_Type_Reflection = 0x09,
 		GrvtTexture_Type_Emissive = 0x0A,
 		GrvtTexture_Type_Opacity = 0x0B,
+		GrvtTexture_Type_Cubemap = 0x0C
 	};
 
 
@@ -52,8 +53,12 @@ namespace Grvt
 	{
 	public:
 
+		union {
+			uint8*	DataPtr;
+			uint8*	CubemapPtr[6];
+		};
+
 		ObjHandle	Handle;
-		uint8* DataPtr;
 		TextureType Type;
 		int32		Width;
 		int32		Height;

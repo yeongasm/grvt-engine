@@ -30,9 +30,6 @@
     <ClCompile Include="Source\Manager\Manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Renderer\DeferredRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Renderer\RenderCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,6 +126,12 @@
     <ClCompile Include="Source\Framework\Abstraction\Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Core\ModelDefaults.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Renderer\DeferredPBR.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h">
@@ -165,9 +168,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Manager\Manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Renderer\DeferredRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Renderer\RenderCache.h">
@@ -240,6 +240,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Framework\Abstraction\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Core\ModelDefaults.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\DeferredPBR.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

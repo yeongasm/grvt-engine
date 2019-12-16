@@ -25,8 +25,8 @@ namespace Grvt
 		uint32	FrontFace;
 		uint32	PolygonMode;
 
-		RenderState();
-		~RenderState();
+		ENGINE_API RenderState();
+		ENGINE_API ~RenderState();
 
 		RenderState(const RenderState& Other);
 		RenderState& operator= (const RenderState& Other);

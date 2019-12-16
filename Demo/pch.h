@@ -23,6 +23,4 @@
 #include <Include/IO/IO.h>
 #include <Include/Core/Engine.h>
 
-#include "DemoModule.h"
-
 #endif //PCH_H

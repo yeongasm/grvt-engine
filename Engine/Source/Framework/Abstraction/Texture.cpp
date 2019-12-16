@@ -6,7 +6,7 @@ namespace Grvt
 {
 
 	GrvtTexture::GrvtTexture() :
-		Handle(), DataPtr(nullptr), Type(GrvtTexture_Type_None), Width(0), Height(0), Channel(0) {}
+		CubemapPtr{nullptr}, Handle(), Type(GrvtTexture_Type_None), Width(0), Height(0), Channel(0) {}
 
 
 	GrvtTexture::~GrvtTexture() {}

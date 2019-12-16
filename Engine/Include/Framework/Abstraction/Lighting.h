@@ -37,6 +37,7 @@ namespace Grvt
 		float		Constant	= 1.0f;
 		float		Linear		= 0.0f;
 		float		Quadratic	= 0.0f;
+		bool		Shadows		= true;
 	};
 
 	/**

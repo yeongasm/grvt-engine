@@ -132,7 +132,7 @@ namespace Grvt
 
 
 		TextureBuildData::TextureBuildData() :
-			DataPtr(nullptr), Mipmap(1), Cubemap(0), Flip(1), Width(0),
+			DataPtr(nullptr), CubemapDataPtr{nullptr}, Cubemap(0), Mipmap(1), Flip(1), Width(0), 
 			Height(0), Target(0), Type(0), Format(0), InternalFormat(0), Parameters() {}
 
 
@@ -156,7 +156,6 @@ namespace Grvt
 			{
 				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
-				Cubemap = Rhs.Cubemap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
 				Height = Rhs.Height;
@@ -165,6 +164,14 @@ namespace Grvt
 				Format = Rhs.Format;
 				InternalFormat = Rhs.InternalFormat;
 				Parameters = Rhs.Parameters;
+
+				if (Rhs.CubemapDataPtr)
+				{
+					for (size_t i = 0; i < 6; i++)
+					{
+						CubemapDataPtr[i] = Rhs.CubemapDataPtr[i];
+					}
+				}
 			}
 
 			return *this;
@@ -187,7 +194,6 @@ namespace Grvt
 
 				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
-				Cubemap = Rhs.Cubemap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
 				Height = Rhs.Height;
@@ -196,6 +202,14 @@ namespace Grvt
 				Format = Rhs.Format;
 				InternalFormat = Rhs.InternalFormat;
 				Parameters = Rhs.Parameters;
+
+				if (Rhs.CubemapDataPtr)
+				{
+					for (size_t i = 0; i < 6; i++)
+					{
+						CubemapDataPtr[i] = Rhs.CubemapDataPtr[i];
+					}
+				}
 
 				new (&Rhs) TextureBuildData();
 			}
@@ -256,17 +270,17 @@ namespace Grvt
 		}
 
 
-		FramebufferAttachment::FramebufferAttachment() : Handle(), Type(0), Count(0) {}
+		FramebufferAttachment::FramebufferAttachment() : Handle(), Type(0), Component(0) {}
 
 
 		FramebufferAttachment::~FramebufferAttachment() 
 		{
-			Type = Count = 0;
+			Type = Component = 0;
 		}
 
 
-		FramebufferAttachment::FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Index) :
-			Handle(SrcHandle), Type(SourceAttachment), Count(Index) {}
+		FramebufferAttachment::FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Component) :
+			Handle(SrcHandle), Type(SourceAttachment), Component(Component) {}
 
 
 		FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment& Rhs) 
@@ -282,7 +296,7 @@ namespace Grvt
 			if (this != &Rhs) {
 				Handle = Rhs.Handle;
 				Type = Rhs.Type;
-				Count = Rhs.Count;
+				Component = Rhs.Component;
 			}
 
 			return *this;
@@ -302,7 +316,7 @@ namespace Grvt
 			if (this != &Rhs) {
 				Handle = Rhs.Handle;
 				Type = Rhs.Type;
-				Count = Rhs.Count;
+				Component = Rhs.Component;
 
 				new (&Rhs) FramebufferAttachment();
 			}
@@ -370,7 +384,6 @@ namespace Grvt
 
 				if (Data.Length)
 					GrCreateBufferObject(EBO, GL_ELEMENT_ARRAY_BUFFER);
-
 			}
 
 			GrBindVertexArray(VAO);
@@ -400,7 +413,17 @@ namespace Grvt
 
 			GrBindTexture(Handle);
 
-			glTexImage2D(Handle.Target, 0, Data.InternalFormat, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint32*)Data.DataPtr);
+			if (Data.Cubemap)
+			{
+				for (uint32 i = 0; i < 6; i++)
+				{
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, Data.InternalFormat, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint8*)Data.CubemapDataPtr[i]);
+				}
+			}
+			else
+			{
+				glTexImage2D(Handle.Target, 0, Data.InternalFormat, Data.Width, Data.Height, 0, Data.Format, Data.Type, (uint8*)Data.DataPtr);
+			}
 
 			if (Data.Mipmap)
 				glGenerateMipmap(Handle.Target);
@@ -487,11 +510,26 @@ namespace Grvt
 		}
 
 
+		void GenerateGenericCubemapData(TextureBuildData& Data)
+		{
+			Data.Target = GL_TEXTURE_CUBE_MAP;
+			Data.Type = GL_UNSIGNED_BYTE;
+			Data.InternalFormat = GL_RGB;
+			Data.Format = GL_RGB;
+			Data.Parameters =  {{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE},
+								{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE},
+								{GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE},
+								{GL_TEXTURE_MAG_FILTER, GL_LINEAR},
+								{GL_TEXTURE_MIN_FILTER, GL_LINEAR}};
+		}
+
+
 		void BuildFramebuffer(ObjHandle& Handle, FramebufferBuildData& Data)
 		{
 			if (!Handle.Id)
 				GrCreateFramebuffer(Handle);
 
+			uint32				ColourCount = 0;
 			bool				hasImage = false;
 			Gfl::Array<uint32>	drawBuffers;
 
@@ -502,14 +540,28 @@ namespace Grvt
 			buildData.Mipmap = false;
 			buildData.Width = Data.Width;
 			buildData.Height = Data.Height;
-			buildData.Target = GL_TEXTURE_2D;
-			buildData.Parameters = {{GL_TEXTURE_MIN_FILTER, GL_LINEAR},
-									{GL_TEXTURE_MAG_FILTER, GL_LINEAR},
-									{GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE},
-									{GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE}};
 
 			for (FramebufferAttachment& Attachment : Data.Attachments)
 			{
+				if (Attachment.Component == GrvtFramebuffer_AttachComponent_Cubemap)
+				{
+					buildData.Cubemap = true;
+					buildData.Target = GL_TEXTURE_CUBE_MAP;
+					buildData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+					buildData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
+					buildData.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
+					buildData.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+					buildData.Parameters.Push({GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE});
+				}
+				else
+				{
+					buildData.Target = GL_TEXTURE_2D;
+					buildData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
+					buildData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
+					buildData.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
+					buildData.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+				}
+
 				if (Attachment.Type == GL_DEPTH_ATTACHMENT)
 				{
 					buildData.Type = GL_FLOAT;
@@ -524,7 +576,7 @@ namespace Grvt
 					buildData.Format = GL_DEPTH_STENCIL;
 				}
 
-				if (Attachment.Type == GL_COLOR_ATTACHMENT0 + Attachment.Count)
+				if (Attachment.Type == GL_COLOR_ATTACHMENT0 + ColourCount++)
 				{
 					hasImage = true;
 					buildData.Type = GL_UNSIGNED_BYTE;
@@ -534,8 +586,9 @@ namespace Grvt
 				}
 
 				BuildTexture(*Attachment.Handle, buildData);
-				GrBindTexture(Handle);
 				glFramebufferTexture2D(Handle.Target, Attachment.Type, Attachment.Handle->Target, Attachment.Handle->Id, 0);
+				GrBindTexture(Handle);
+				buildData.Parameters.Empty();
 			}
 
 			if (!hasImage) {

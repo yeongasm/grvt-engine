@@ -1,12 +1,13 @@
 #include "GrvtPch.h"
 #include "Framework/Abstraction/Scene.h"
+#include "Manager/Manager.h"
 
 
 namespace Grvt
 {
 
 	GrvtScene::GrvtScene() :
-		LevelName(), Actors(), DirectionalLights(), PointLights() {}
+		Name(), Actors(), DirectionalLights(), PointLights() {}
 
 
 	GrvtScene::~GrvtScene() {}
@@ -24,7 +25,7 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			LevelName			= Other.LevelName;
+			Name				= Other.Name;
 			Actors				= Other.Actors;
 			DirectionalLights	= Other.DirectionalLights;
 			PointLights			= Other.PointLights;
@@ -46,7 +47,7 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			LevelName			= Other.LevelName;
+			Name				= Other.Name;
 			Actors				= Other.Actors;
 			DirectionalLights	= Other.DirectionalLights;
 			PointLights			= Other.PointLights;
@@ -78,6 +79,21 @@ namespace Grvt
 		DirLight& Light = DirectionalLights.Insert(DirLight());
 		Light.Alloc(Info);
 
+		if (Info.Shadows)
+		{
+			/**
+			* TODO(Afiq):
+			* Make the shadow map's width and height be the same as the renderer's viewport size.
+			*/
+			FramebufferCreationInfo ShadowMapInfo;
+			ShadowMapInfo.Name = Gfl::String().Format("%s_DShadowMap_%d", Name.C_Str(), DirectionalLights.Length());
+			ShadowMapInfo.Width  = 800;
+			ShadowMapInfo.Height = 600;
+			ShadowMapInfo.AddAttachment(GrvtFramebuffer_AttachComponent_Texture, GrvtFramebuffer_Attachment_Depth);
+			
+			GetResourceManager()->NewFramebuffer(ShadowMapInfo);
+		}
+
 		return &Light;
 	}
 
@@ -91,6 +107,21 @@ namespace Grvt
 		
 		PointLight& Light = PointLights.Insert(PointLight());
 		Light.Alloc(Info);
+
+		if (Info.Shadows)
+		{
+			/**
+			* TODO(Afiq):
+			* Make the shadow map's width and height be the same as the renderer's viewport size.
+			*/
+			FramebufferCreationInfo ShadowMapInfo;
+			ShadowMapInfo.Name = Gfl::String().Format("%s_PShadowMap_%d", Name.C_Str(), PointLights.Length());
+			ShadowMapInfo.Width = 800;
+			ShadowMapInfo.Height = 600;
+			ShadowMapInfo.AddAttachment(GrvtFramebuffer_AttachComponent_Cubemap, GrvtFramebuffer_Attachment_Depth);
+
+			GetResourceManager()->NewFramebuffer(ShadowMapInfo);
+		}
 
 		return &Light;
 	}
@@ -175,7 +206,7 @@ namespace Grvt
 
 	void GrvtScene::Alloc(const SceneCreationInfo& Info)
 	{
-		LevelName = Info.Name;
+		Name = Info.Name;
 		Actors.Reserve(Info.ActorReserves);
 		DirectionalLights.Reserve(Info.DirLightReserves);
 		PointLights.Reserve(Info.PointLightReserves);
@@ -214,4 +245,110 @@ namespace Grvt
 		DeleteAllPointLights();
 	}
 
+
+	/**
+	* TODO(Afiq):
+	* Package lighting into the command buffer.
+	* Package custom commands into the command buffer.
+	*/
+	void GrvtScene::CreateSceneCommandBuffer(CommandBuffer& Buffer)
+	{
+		// Prep for non instanced render command.
+		for (GrvtActor& Actor : Actors)
+		{
+			if (!Actor.Render)
+			{
+				continue;
+			}
+
+			glm::mat4 Model = glm::mat4(1.0f);
+			Model = glm::translate(Model, Actor.Position);
+			Model = glm::scale(Model, Actor.Scale);
+
+			if (Actor.Rotation.x)
+			{
+				Model = glm::rotate(Model, Actor.Position.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			}
+
+			if (Actor.Rotation.y)
+			{
+				Model = glm::rotate(Model, Actor.Position.y, glm::vec3(0.0f, 1.0f, 0.0f));
+			}
+
+			if (Actor.Position.z)
+			{
+				Model = glm::rotate(Model, Actor.Position.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			}
+
+			RenderCommand Command;
+			Command.State = Actor.DrawingState;
+
+			for (GrvtMesh& Mesh : Actor.ModelPtr->Meshes)
+			{
+				RenderNode Node;
+				Node.Handle = &Mesh.Vao;
+				Node.Size = Mesh.Size;
+				Node.Mode = Actor.Mode;
+				Node.Material = Actor.MaterialPtr;
+
+				// This step is no longer necessary since we always default the amount to 1.
+				//Node.Amount = 1;
+
+				if (Mesh.Ebo.Id)
+				{
+					Node.Indexed = true;
+				}
+
+				Command.Nodes.Push(Node);
+			}
+
+			if (Actor.Instanced)
+			{
+				size_t Index = -1;
+
+				for (RenderCommand& Command : Buffer.InstancedCommands)
+				{
+					if (Actor.ModelPtr->Meshes[0].Vao.Id != Command.Nodes[0].Handle->Id)
+					{
+						continue;
+					}
+
+					Index = Buffer.InstancedCommands.IndexOf(Command);
+					break;
+				}
+
+				if (Index != -1)
+				{
+					size_t Length = Buffer.InstancedCommands[Index].Instances.Push(Model);
+					Length++;
+
+					for (RenderNode& Node : Buffer.InstancedCommands[Index].Nodes)
+					{
+						Node.Amount = Length;
+					}
+				}
+				else
+				{
+					Buffer.InstancedCommands.Push(Command);
+				}
+			}
+			else
+			{
+				Command.Transform = Model;
+				Buffer.RenderCommands.Push(Gfl::Move(Command));
+			}
+		}
+
+		/**
+		* TODO(Afiq):
+		* Package for lights and shadow maps.
+		*/
+
+		/**
+		* TODO(Afiq):
+		* Figure out a way to handle custom commands.
+		*/
+
+		Buffer.IsEmpty = false;
+	}
 }

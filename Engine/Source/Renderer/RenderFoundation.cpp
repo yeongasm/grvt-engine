@@ -7,7 +7,7 @@ namespace Grvt
 
 
 	RenderNode::RenderNode() :
-		Material(nullptr), Handle(nullptr), Amount(0), Size(0), Mode(0) {}
+		Material(nullptr), Handle(nullptr), Amount(1), Size(0), Mode(0), Indexed(true) {}
 
 
 	RenderNode::RenderNode(const RenderNode& Other)
@@ -27,6 +27,7 @@ namespace Grvt
 			Amount = Other.Amount;
 			Size = Other.Size;
 			Mode = Other.Mode;
+			Indexed = Other.Indexed;
 		}
 
 		return *this;
@@ -50,6 +51,7 @@ namespace Grvt
 			Amount = Other.Amount;
 			Size = Other.Size;
 			Mode = Other.Mode;
+			Indexed = Other.Indexed;
 
 			new (&Other) RenderNode();
 		}
@@ -69,7 +71,7 @@ namespace Grvt
 
 
 	RenderCommand::RenderCommand() :
-		Nodes(), Transform(), State() {}
+		Nodes(), Instances(), Transform(1.0f), State() {}
 
 
 	RenderCommand::RenderCommand(const RenderCommand& Other) {
@@ -84,6 +86,7 @@ namespace Grvt
 		if (this != &Other)
 		{
 			Nodes = Other.Nodes;
+			Instances = Other.Instances;
 			Transform = Other.Transform;
 			State = Other.State;
 		}
@@ -103,9 +106,10 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Nodes = Other.Nodes;
-			Transform = Other.Transform;
-			State = Other.State;
+			Nodes = Gfl::Move(Other.Nodes);
+			Instances = Gfl::Move(Other.Instances);
+			Transform = Gfl::Move(Other.Transform);
+			State = Gfl::Move(Other.State);
 
 			new (&Other) RenderCommand();
 		}
@@ -117,6 +121,7 @@ namespace Grvt
 	RenderCommand::~RenderCommand()
 	{
 		Nodes.Release();
+		Instances.Release();
 		Transform = glm::mat4();
 	}
 
@@ -177,7 +182,17 @@ namespace Grvt
 
 
 	CommandBuffer::CommandBuffer() :
-		Lights(), RenderCommands() {}
+		Lights(), RenderCommands(), InstancedCommands(), CustomCommands(), IsEmpty(true) {}
+
+
+	CommandBuffer::~CommandBuffer()
+	{
+		Lights.Release();
+		ShadowMaps.Release();
+		RenderCommands.Release();
+		InstancedCommands.Release();
+		CustomCommands.clear();
+	}
 
 
 	CommandBuffer::CommandBuffer(const CommandBuffer& Other) 
@@ -194,6 +209,9 @@ namespace Grvt
 		{
 			Lights			= Other.Lights;
 			RenderCommands	= Other.RenderCommands;
+			InstancedCommands = Other.InstancedCommands;
+			CustomCommands = Other.CustomCommands;
+			IsEmpty = Other.IsEmpty;
 		}
 
 		return *this;
@@ -214,18 +232,25 @@ namespace Grvt
 		{
 			Lights			= Other.Lights;
 			RenderCommands	= Other.RenderCommands;
+			InstancedCommands = Other.InstancedCommands;
+			CustomCommands = Other.CustomCommands;
+			IsEmpty = Other.IsEmpty;
 
 			new (&Other) CommandBuffer();
 		}
 
 		return *this;
 	}
+	
 
-
-	CommandBuffer::~CommandBuffer()
+	void CommandBuffer::Clear()
 	{
-		Lights.Release();
-		RenderCommands.Release();
-	}
+		Lights.Empty();
+		ShadowMaps.Empty();
+		RenderCommands.Empty();
+		InstancedCommands.Empty();
+		CustomCommands.clear();
 
+		IsEmpty = true;
+	}
 }

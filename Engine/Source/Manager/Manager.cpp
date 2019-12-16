@@ -76,24 +76,29 @@ namespace Grvt
 			switch (Type)
 			{
 			case GrvtResource_Type_Model:
-				DeleteModel(It.first, true);
+				DeleteModel(It.first, true, false);
 				break;
 			case GrvtResource_Type_Texture:
-				DeleteTexture(It.first, true);
+				DeleteTexture(It.first, true, false);
 				break;
 			case GrvtResource_Type_Shader:
-				DeleteShader(It.first, true);
+				DeleteShader(It.first, true, false);
 				break;
 			case GrvtResource_Type_Material:
-				DeleteMaterial(It.first, true);
+				DeleteMaterial(It.first, true, false);
 				break;
 			case GrvtResource_Type_Framebuffer:
-				DeleteFramebuffer(It.first, true);
+				DeleteFramebuffer(It.first, true, false);
+				break;
+			case GrvtResource_Type_Scene:
+				DeleteScene(It.first, true, false);
 				break;
 			default:
 				break;
 			}
 		}
+
+		Resources.clear();
 
 		g_ModelManager.Free();
 		g_TextureManager.Free();
@@ -103,7 +108,7 @@ namespace Grvt
 	}
 
 
-	ResourceType ResourceManager::GetResourceType(const Gfl::String& Identifier)
+	ResourceType ResourceManager::GetResourceType(const Gfl::HashString& Identifier)
 	{
 		auto it = Resources.find(Identifier);
 		if (it == Resources.end())
@@ -206,7 +211,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteModel(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteModel(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtModel>* Handle = GetModelHandle(Identifier);
 		if (!Handle)
@@ -224,13 +229,17 @@ namespace Grvt
 
 		Handle->ResourcePtr->Free();
 		g_ModelManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteModel(size_t Id, bool Force)
+	bool ResourceManager::DeleteModel(size_t Id, bool Force, bool Remove)
 	{
 		GrvtModel* model = GetModel(Id);
 		if (!model)
@@ -280,6 +289,31 @@ namespace Grvt
 	}
 
 
+	GrvtTexture* ResourceManager::NewImportCubemap(const TextureImportInfo& Import)
+	{
+		if (Import.Path.Length() < 6)
+		{
+			return nullptr;
+		}
+
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Import.Name, Id);
+
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
+		Texture->Alloc(Import);
+
+		for (size_t i = 0; i < Import.Path.Length(); i++)
+		{
+			Texture->CubemapPtr[i] = (uint8*)stbi_load(Import.Path[i].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+		}
+		g_TextureManager.Store[Id].Type = GrvtResourceAlloc_Type_Import;
+
+		Middleware::PackageCubemapForBuild(Texture);
+
+		return Texture;
+	}
+
+
 	GrvtTexture* ResourceManager::GetTexture(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
@@ -322,7 +356,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteTexture(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteTexture(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtTexture>* Handle = GetTextureHandle(Identifier);
 		if (!Handle)
@@ -334,14 +368,30 @@ namespace Grvt
 		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Texture);
 		Handle->ResourcePtr->Free();
 
+		if (Handle->ResourcePtr->Type == GrvtTexture_Type_Cubemap)
+		{
+			for (size_t i = 0; i < 6; i++)
+			{
+				free(Handle->ResourcePtr->CubemapPtr[i]);
+			}
+		}
+		else
+		{
+			free(Handle->ResourcePtr->DataPtr);
+		}
+
 		g_TextureManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteTexture(size_t Id, bool Force)
+	bool ResourceManager::DeleteTexture(size_t Id, bool Force, bool Remove)
 	{
 		GrvtTexture* Texture = GetTexture(Id);
 		if (!Texture)
@@ -420,7 +470,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteShader(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteShader(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtShader>* Handle = GetShaderHandle(Identifier);
 		if (!Handle)
@@ -433,13 +483,17 @@ namespace Grvt
 		Handle->ResourcePtr->Free();
 
 		g_ShaderManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteShader(size_t Id, bool Force)
+	bool ResourceManager::DeleteShader(size_t Id, bool Force, bool Remove)
 	{
 		GrvtShader* shader = GetShader(Id);
 		if (!shader)
@@ -525,7 +579,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteMaterial(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteMaterial(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtMaterial>* handle = GetMaterialHandle(Identifier);
 		if (!handle)
@@ -535,13 +589,17 @@ namespace Grvt
 			return false;
 
 		g_MaterialManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteMaterial(size_t Id, bool Force)
+	bool ResourceManager::DeleteMaterial(size_t Id, bool Force, bool Remove)
 	{
 		GrvtMaterial* material = GetMaterial(Id);
 		if (!material)
@@ -607,7 +665,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteFramebuffer(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteFramebuffer(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtFramebuffer>* Handle = GetFramebufferHandle(Identifier);
 		if (!Handle)
@@ -625,13 +683,17 @@ namespace Grvt
 
 		Handle->ResourcePtr->Free();
 		g_FramebufferManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteFramebuffer(size_t Id, bool Force)
+	bool ResourceManager::DeleteFramebuffer(size_t Id, bool Force, bool Remove)
 	{
 		GrvtFramebuffer* Framebuffer = GetFramebuffer(Id);
 		if (!Framebuffer)
@@ -709,7 +771,7 @@ namespace Grvt
 	}
 
 
-	bool ResourceManager::DeleteScene(const Gfl::String& Identifier, bool Force)
+	bool ResourceManager::DeleteScene(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtScene>* Handle = GetSceneHandle(Identifier);
 		if (!Handle)
@@ -724,13 +786,17 @@ namespace Grvt
 
 		Handle->ResourcePtr->Free();
 		g_SceneManager.DeleteResource(Resources[Identifier]);
-		Resources.erase(Identifier);
+
+		if (Remove)
+		{
+			Resources.erase(Identifier);
+		}
 
 		return true;
 	}
 
 
-	bool ResourceManager::DeleteScene(size_t Id, bool Force)
+	bool ResourceManager::DeleteScene(size_t Id, bool Force, bool Remove)
 	{
 		GrvtScene* Scene = GetScene(Id);
 		if (!Scene)

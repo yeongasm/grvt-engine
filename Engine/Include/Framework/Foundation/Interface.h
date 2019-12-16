@@ -213,6 +213,13 @@ namespace Grvt
 
 		/**
 		* [MIDDLEWARE]
+		* A mind level API to load cubemaps from file into engine.
+		*/
+		void PackageCubemapForBuild(GrvtTexture* CubemapSrc);
+
+
+		/**
+		* [MIDDLEWARE]
 		* A mid level API to build shaders from file into the engine.
 		*/
 		void PackageShaderForBuild(GrvtShader* ShaderSrc);

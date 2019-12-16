@@ -18,9 +18,10 @@ namespace Grvt
 	*/
 	enum AttachComponent : uint32
 	{
-		GrvtFramebuffer_AttachComponent_None = 0xFF, /** On first init only */
-		GrvtFramebuffer_AttachComponent_Texture = 0x00,
-		GrvtFramebuffer_AttachComponent_RenderBuffer = 0x01 /** Renderbuffers are currently not being supported */
+		GrvtFramebuffer_AttachComponent_None			= 0xFF, /** On first init only */
+		GrvtFramebuffer_AttachComponent_Texture			= 0x00,
+		GrvtFramebuffer_AttachComponent_RenderBuffer	= 0x01, /** Renderbuffers are currently not being supported */
+		GrvtFramebuffer_AttachComponent_Cubemap			= 0x02
 	};
 
 
@@ -29,9 +30,9 @@ namespace Grvt
 	*/
 	enum AttachmentType : uint32
 	{
-		GrvtFramebuffer_Attachment_None = 0x00, /** On first init only */
-		GrvtFramebuffer_Attachment_Colour = 0x01,
-		GrvtFramebuffer_Attachment_Depth = 0x02,
+		GrvtFramebuffer_Attachment_None			= 0x00, /** On first init only */
+		GrvtFramebuffer_Attachment_Colour		= 0x01,
+		GrvtFramebuffer_Attachment_Depth		= 0x02,
 		GrvtFramebuffer_Attachment_DepthStencil = 0x04
 	};
 

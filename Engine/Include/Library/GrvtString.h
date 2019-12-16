@@ -37,7 +37,7 @@ namespace Gfl
 
 		union
 		{
-			Type* Data;
+			Type* Data = nullptr;
 			Type  Buffer[SSO_MAX];
 		};
 
@@ -287,6 +287,9 @@ namespace Gfl
 				Type* Ptr = Buffer;
 				const Type* RhsPtr = Rhs.PointerToString();
 
+				Capacity = Rhs.Capacity;
+				Len		 = Rhs.Len;
+
 				// Perform a deep copy if the copied string is not a small string.
 				if (!Rhs.IsSmallString())
 				{
@@ -294,14 +297,13 @@ namespace Gfl
 					Ptr = Data;
 				}
 
-				Capacity = Rhs.Capacity;
-				Len		 = Rhs.Len;
-
-				//memcpy(Ptr, RhsPtr, Rhs.Capacity);
+				//memcpy(Ptr, RhsPtr, Len);
 				for (size_t i = 0; i < Len; i++)
 				{
 					Ptr[i] = RhsPtr[i];
 				}
+
+				Ptr[Len] = '\0';
 			}
 
 			return *this;
@@ -326,21 +328,21 @@ namespace Gfl
 
 			if (this != &Rhs)
 			{
-				Type* Ptr = Buffer;
 				Type* RhsPtr = Rhs.PointerToString();
-
-				// Perform a deep copy if the copied string is not a small string.
-				if (!Rhs.IsSmallString()) 
-				{
-					Ptr = Data;
-				}
 
 				Capacity = Rhs.Capacity;
 				Len		 = Rhs.Len;
 
-				for (size_t i = 0; i < Len; i++) 
+				if (!Rhs.IsSmallString()) 
 				{
-					Ptr[i] = RhsPtr[i];
+					Data = RhsPtr;
+				}
+				else
+				{
+					for (size_t i = 0; i < Len; i++) 
+					{
+						Buffer[i] = RhsPtr[i];
+					}
 				}
 
 				new (&Rhs) BasicString();

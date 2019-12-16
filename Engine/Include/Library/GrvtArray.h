@@ -200,7 +200,7 @@ namespace Gfl
 		ElementType& operator[] (size_t Index)
 		{
 			// The index specified exceeded the internal buffer size of the Array.
-			_ASSERTE(Index < Len);
+			//_ASSERTE(Index < Len);
 
 			// In a scenario where the [] operator is used to assign values to the Array, the Array needs to increase it's internal capacity when needed.
 			if (Index == Len)

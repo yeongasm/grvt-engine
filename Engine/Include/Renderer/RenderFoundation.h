@@ -16,7 +16,6 @@ namespace Grvt
 	* RenderNode data structure.
 	*
 	* A render node is the most basic unit required to render an object onto the screen.
-	* @param Mode		- The mode that this node will be rendered with. E.g: GL_TRIANGLES, GL_LINES, etc.
 	*/
 	struct RenderNode
 	{
@@ -25,6 +24,7 @@ namespace Grvt
 		size_t			Amount;
 		uint32			Size;
 		uint32			Mode;
+		bool			Indexed;
 
 		RenderNode();
 		~RenderNode();
@@ -52,6 +52,7 @@ namespace Grvt
 	struct RenderCommand
 	{
 		Gfl::Array<RenderNode>	Nodes;
+		Gfl::Array<glm::mat4>	Instances;
 		glm::mat4				Transform;
 		RenderState				State;
 
@@ -94,18 +95,23 @@ namespace Grvt
 	struct CommandBuffer
 	{
 		Gfl::Array<glm::mat4>		Lights;
+		Gfl::Array<RenderTarget>	ShadowMaps;
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
 		std::map<RenderTarget, Gfl::Array<RenderCommand>> CustomCommands;
+		bool IsEmpty;
 
-		CommandBuffer();
-		~CommandBuffer();
+
+		ENGINE_API CommandBuffer();
+		ENGINE_API ~CommandBuffer();
 
 		CommandBuffer(const CommandBuffer& Other);
 		CommandBuffer& operator= (const CommandBuffer& Other);
 
 		CommandBuffer(CommandBuffer&& Other);
 		CommandBuffer& operator= (CommandBuffer&& Other);
+
+		void Clear();
 	};
 
 }

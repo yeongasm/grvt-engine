@@ -5,18 +5,19 @@
 
 #include "Model.h"
 #include "Material.h"
-#include "Renderer/RenderCache.h"
+#include "Include/Renderer/RenderCache.h"
 
 namespace Grvt
 {
 	struct ActorCreationInfo
 	{
 		Gfl::String		Identifier;
-		RenderState		DrawingState;
 		glm::vec3		Position;
-		GrvtMaterial*	SrcMaterial;
-		GrvtModel*		SrcModel;
-		bool			Instanced;
+		RenderState		DrawingState;
+		GrvtMaterial*	SrcMaterial = nullptr;
+		GrvtModel*		SrcModel	= nullptr;
+		uint32			Mode		= GL_TRIANGLES;
+		bool			Instanced	= false;
 	};
 
 
@@ -25,9 +26,13 @@ namespace Grvt
 		Gfl::String		Name;
 		RenderState		DrawingState;
 		glm::vec3		Position;
+		glm::vec3		Rotation;
+		glm::vec3		Scale;
 		GrvtMaterial*	MaterialPtr;
 		GrvtModel*		ModelPtr;
+		uint32			Mode;
 		bool			Instanced;
+		bool			Render;
 
 		GrvtActor();
 		~GrvtActor();

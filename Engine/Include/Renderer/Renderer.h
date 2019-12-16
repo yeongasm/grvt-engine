@@ -4,6 +4,7 @@
 #define GRAVITY_BASE_RENDERER
 
 #include "RenderFoundation.h"
+#include "RenderCache.h"
 
 namespace Grvt
 {
@@ -15,15 +16,16 @@ namespace Grvt
 	*/
 	struct BaseRenderer
 	{
-		CommandBuffer			BackBuffer;
-		CommandBuffer			FrontBuffer;
-		GrvtShader*				ActiveShader;
-		Gfl::Array<glm::mat4>	Lights;
-		glm::vec2				RenderSize;
+		CommandBuffer	BackBuffer;
+		CommandBuffer	FrontBuffer;
+		RenderCache		StateCache;
+		GrvtShader*		ActiveShader;
+		uint32			Width;
+		uint32			Height;
 		
 
-		BaseRenderer() {};
-		virtual ~BaseRenderer() {};
+		ENGINE_API BaseRenderer();
+		ENGINE_API virtual ~BaseRenderer() {};
 
 		/**
 		* Initialises the renderer.
@@ -43,6 +45,10 @@ namespace Grvt
 		*/
 		virtual void Shutdown() = 0;
 	};
+
+	ENGINE_API	BaseRenderer*	InitRenderer(BaseRenderer* RendererPtr);
+	ENGINE_API	BaseRenderer*	GetRenderer();
+				void			ShutdownRenderer();
 
 }
 

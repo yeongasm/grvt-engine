@@ -1,6 +1,11 @@
 #include "GrvtPch.h"
 #include "Framework/Foundation/Interface.h"
 #include "Profiler/FrameTime.h"
+#include "Renderer/Renderer.h"
+
+
+extern Grvt::BaseRenderer* g_Renderer;
+
 
 namespace Grvt
 {
@@ -42,6 +47,8 @@ namespace Grvt
 			g_Engine->NewFrame();
 
 			Tick();
+
+			g_Renderer->Render();
 
 			g_Engine->EndFrame();
 		}
@@ -142,7 +149,47 @@ namespace Grvt
 		Module.DllFile		= "Demo.dll";
 		Module.DllTempFile	= "DemoReload.dll";
 
-		Module.LoadModuleDll();
+		Module.LoadModuleDll(true);
+
+		ModelImportInfo Info;
+
+		{
+			Info.Name = "Plane";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Plane.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Quad";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Quad.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Cube";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cube.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Sphere";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Sphere.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Cylinder";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cylinder.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Cone";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cone.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "IcoSphere";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\IcoSphere.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Torus";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Torus.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Suzanne";
+			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Monkey.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+		}
 	}
 
 
@@ -338,4 +385,9 @@ namespace Grvt
 		Module.UnloadModuleDll();
 	}
 
+
+	//ResourceManager* GrvtEngine::GetResourceManager()
+	//{
+	//	return ResourceMgrPtr;
+	//}
 }

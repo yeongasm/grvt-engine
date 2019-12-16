@@ -1,5 +1,7 @@
 #include "GrvtPch.h"
 #include "Profiler/FrameTime.h"
+#include "Renderer/Renderer.h"
+
 
 namespace Grvt
 {
@@ -19,6 +21,7 @@ namespace Grvt
 
 	void PostTick()
 	{
+		ShutdownRenderer();
 		g_Engine->ShutdownModule();
 	}
 

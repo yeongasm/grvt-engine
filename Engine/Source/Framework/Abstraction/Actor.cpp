@@ -8,10 +8,14 @@ namespace Grvt
 	GrvtActor::GrvtActor() :
 		Name(),
 		DrawingState(),
-		Position(0.0f, 0.0f, 0.0f),
+		Position(),
+		Rotation(),
+		Scale(1.0f),
 		MaterialPtr(nullptr), 
-		ModelPtr(nullptr), 
-		Instanced(false) {}
+		ModelPtr(nullptr),
+		Mode(GL_TRIANGLES),
+		Instanced(false),
+		Render(true) {}
 
 
 	GrvtActor::~GrvtActor() {}
@@ -42,6 +46,8 @@ namespace Grvt
 			ModelPtr = Other.ModelPtr;
 			DrawingState = Other.DrawingState;
 			Position = Other.Position;
+			Rotation = Other.Rotation;
+			Scale = Other.Scale;
 			Instanced = Other.Instanced;
 		}
 		
@@ -66,6 +72,8 @@ namespace Grvt
 			ModelPtr = Other.ModelPtr;
 			DrawingState = Other.DrawingState;
 			Position = Other.Position;
+			Rotation = Other.Rotation;
+			Scale = Other.Scale;
 			Instanced = Other.Instanced;
 
 			new (&Other) GrvtActor();

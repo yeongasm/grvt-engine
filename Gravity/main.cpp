@@ -19,5 +19,9 @@ int main()
 
 	Grvt::TerminateEngine();
 
+#if _DEBUG
+	_CrtDumpMemoryLeaks();
+#endif
+
 	return 0;
 }

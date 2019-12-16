@@ -36,6 +36,7 @@ namespace Grvt
 		Gfl::Array<glm::vec3> NormalsData;
 		Gfl::Array<glm::vec3> TangentData;
 		Gfl::Array<glm::vec3> BitangentData;
+		Gfl::Array<uint32>	  IndexData;
 	};
 
 
@@ -72,6 +73,9 @@ namespace Grvt
 		void Free();
 
 	};
+
+
+	void CalculateTangentAndBitangent(ModelCreationInfo& Info);
 
 
 	/**

@@ -101,7 +101,14 @@ namespace Grvt
 			for (TexturePacket& Packet : TextureQueue)
 			{
 				BaseAPI::BuildTexture(Packet.ResourcePtr->Handle, Packet.BuildData);
-				free(Packet.BuildData.DataPtr);
+				//if (Packet.BuildData.CubemapDataPtr)
+				//{
+				//	free(Packet.BuildData.CubemapDataPtr);
+				//}
+				//else
+				//{
+				//	free(Packet.BuildData.DataPtr);
+				//}
 				TextureQueue.pop_front();
 			}
 
@@ -302,6 +309,36 @@ namespace Grvt
 			GetBuildQueue()->QueueTextureForBuild(TextureSrc, buildData);
 		}
 
+		
+		void PackageCubemapForBuild(GrvtTexture* CubemapSrc)
+		{
+			BaseAPI::TextureBuildData BuildData;
+			BaseAPI::GenerateGenericCubemapData(BuildData);
+			for (size_t i = 0; i < 6; i++)
+			{
+				BuildData.CubemapDataPtr[i] = CubemapSrc->CubemapPtr[i];
+
+			}
+			//memcpy(BuildData.CubemapDataPtr, CubemapSrc->CubemapPtr, 6);
+			BuildData.Width = CubemapSrc->Width;
+			BuildData.Height = CubemapSrc->Height;
+
+			switch (CubemapSrc->Channel)
+			{
+			case 1:
+				BuildData.Format = GL_RED;
+				break;
+			case 3:
+				BuildData.Format = GL_RGB;
+				break;
+			case 4:
+				BuildData.Format = GL_RGBA;
+				break;
+			}
+
+			GetBuildQueue()->QueueTextureForBuild(CubemapSrc, BuildData);
+		}
+
 
 		void PackageCustomTextureForBuild(GrvtTexture* TextureSrc, BaseAPI::TextureBuildData& BuildData)
 		{
@@ -341,28 +378,27 @@ namespace Grvt
 
 		void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc)
 		{
-			uint32 Component = GL_NONE;
+			uint32 Type = GL_NONE;
 			BaseAPI::FramebufferBuildData buildData;
 			buildData.Width = FramebufferSrc->Width;
 			buildData.Height = FramebufferSrc->Height;
 
 			for (auto& Attachment : FramebufferSrc->Attachments)
 			{
-
 				switch (Attachment.Type)
 				{
 				case GrvtFramebuffer_Attachment_Depth:
-					Component = GL_DEPTH_ATTACHMENT;
+					Type = GL_DEPTH_ATTACHMENT;
 					break;
 				case GrvtFramebuffer_Attachment_DepthStencil:
-					Component = GL_DEPTH_STENCIL_ATTACHMENT;
+					Type = GL_DEPTH_STENCIL_ATTACHMENT;
 					break;
 				case GrvtFramebuffer_Attachment_Colour:
-					Component = GL_COLOR_ATTACHMENT0 + Attachment.Count;
+					Type = GL_COLOR_ATTACHMENT0 + Attachment.Count;
 					break;
 				}
 
-				buildData.Attachments.Push(BaseAPI::FramebufferAttachment(&Attachment.Handle, Component, Attachment.Count));
+				buildData.Attachments.Push(BaseAPI::FramebufferAttachment(&Attachment.Handle, Type, Attachment.Component));
 			}
 
 			GetBuildQueue()->QueueFramebufferForBuild(FramebufferSrc, buildData);

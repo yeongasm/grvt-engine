@@ -6,6 +6,7 @@
 #include "Minimal.h"
 #include "Actor.h"
 #include "Lighting.h"
+#include "Renderer/RenderFoundation.h"
 
 namespace Grvt
 {
@@ -33,12 +34,13 @@ namespace Grvt
 	{
 	public:
 
-		Gfl::String	LevelName;
+		Gfl::String	Name;
 
 	private:
 
-		friend class ResourceManager;
-		friend class CommandBuffer;
+		friend class  ResourceManager;
+		friend struct BaseRenderer;
+		friend class  DeferredPBR;
 
 		Gfl::Array<GrvtActor>	Actors;
 		Gfl::Array<DirLight>	DirectionalLights;
@@ -61,68 +63,74 @@ namespace Grvt
 		/**
 		* Adds a new actor into the scene.
 		*/
-		GrvtActor&	AddNewActor				(const ActorCreationInfo& Info);
+		ENGINE_API GrvtActor&	AddNewActor				(const ActorCreationInfo& Info);
 
 		/**
 		* Adds a new directional light into the scene.
 		*/
-		DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
+		ENGINE_API DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
 		
 		/**
 		* Adds a new point light into the scene.
 		*/
-		PointLight* AddNewPointLight		(const LightCreationInfo& Info);
+		ENGINE_API PointLight* AddNewPointLight		(const LightCreationInfo& Info);
 
 		/**
 		* Retrieves an actor with the specified identifier from the scene.
 		*/
-		GrvtActor*	GetActor				(const Gfl::String& Identifier);
+		ENGINE_API GrvtActor*	GetActor				(const Gfl::String& Identifier);
 
 		/**
 		* Deletes an actor by reference from the scene.
 		* Always prioritise this method of deleting by specifying an identifier.
 		*/
-		bool		DeleteActor				(GrvtActor& Actor);
+		ENGINE_API bool		DeleteActor				(GrvtActor& Actor);
 
 		/**
 		* Deletes an actor by identifier from the scene.
 		* Always prioritise deleting by reference over this method.
 		*/
-		bool		DeleteActor				(const Gfl::String& Identifier);
+		ENGINE_API bool		DeleteActor				(const Gfl::String& Identifier);
 
 		/**
 		* Deletes a directional light by reference from the scene.
 		*/
-		bool		DeleteDirLight			(DirLight& DirectionalLight);
+		ENGINE_API bool		DeleteDirLight			(DirLight& DirectionalLight);
 
 		/**
 		* Deletes a point light by reference from the scene.
 		*/
-		bool		DeletePointLight		(PointLight& PointLight);
+		ENGINE_API bool		DeletePointLight		(PointLight& PointLight);
 
 		/**
 		* Clears all actors from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
-		void		DeleteAllActors			();
+		ENGINE_API void		DeleteAllActors			();
 
 		/**
 		* Clears all directional lights from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
-		void		DeleteAllDirLights		();
+		ENGINE_API void		DeleteAllDirLights		();
 
 		/**
 		* Clears all point lights from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
-		void		DeleteAllPointLights	();
+		ENGINE_API void		DeleteAllPointLights	();
 
 		/**
 		* Clears all lights from the scene.
 		* Does not release memory that was once allocated for them.
 		*/
-		void		DeleteAllLights			();
+		ENGINE_API void		DeleteAllLights			();
+
+
+		/**
+		* Creates a command buffer for this level.
+		*/
+		ENGINE_API void CreateSceneCommandBuffer(CommandBuffer& Buffer);
 	};
 
 }

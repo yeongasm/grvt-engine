@@ -12,6 +12,7 @@ namespace Grvt
 
 	class GrvtApplication;
 
+
 	class GrvtEngine
 	{
 	private:
@@ -88,6 +89,11 @@ namespace Grvt
 		* Called automatically inside of the global PostTick() function.
 		*/
 		void ShutdownModule();
+
+		/**
+		* Returns the global resource manager.
+		*/
+		//ResourceManager* GetResourceManager();
 	};
 
 
