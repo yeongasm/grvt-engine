@@ -50,7 +50,7 @@ namespace Grvt
 		* When the renderer's front buffer is not empty, wait til it clears out before swapping with the back buffer.
 		* Should disable the program to fill the back buffer when this process fails.
 		*/
-		if (FrontBuffer.IsEmpty && !BackBuffer.IsEmpty)
+		if (FrontBuffer.IsEmpty/* && !BackBuffer.IsEmpty*/)
 		{
 			FrontBuffer = BackBuffer;
 			FrontBuffer.IsEmpty = false;

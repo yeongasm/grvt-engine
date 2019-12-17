@@ -253,10 +253,10 @@ namespace Grvt
 
 	void CommandBuffer::Init()
 	{
-		Lights.Reserve(64);
-		ShadowMaps.Reserve(64);
-		RenderCommands.Reserve(64);
-		InstancedCommands.Reserve(64);
+		//Lights.Reserve(64);
+		//ShadowMaps.Reserve(64);
+		//RenderCommands.Reserve(64);
+		//InstancedCommands.Reserve(64);
 	}
 
 
