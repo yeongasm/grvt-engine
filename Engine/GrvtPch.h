@@ -26,6 +26,5 @@
 #include "Utility/Utility.h"
 #include "IO/IO.h"
 #include "Core/Engine.h"
-#include "Core/Tick.h"
 
 #endif // !GRAVITY_PRECOMPILE_HEADER

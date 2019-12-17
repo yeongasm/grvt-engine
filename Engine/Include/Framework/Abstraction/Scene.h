@@ -38,16 +38,19 @@ namespace Grvt
 
 	private:
 
-		friend class  ResourceManager;
-		friend struct BaseRenderer;
-		friend class  DeferredPBR;
+		friend class	ResourceManager;
+		friend struct	BaseRenderer;
+		friend class	DeferredPBR;
+		friend ENGINE_API void	ExecuteEngine();
 
 		Gfl::Array<GrvtActor>	Actors;
 		Gfl::Array<DirLight>	DirectionalLights;
 		Gfl::Array<PointLight>	PointLights;
 
-		void		Alloc(const SceneCreationInfo& Info);
-		void		Free();
+		void	Alloc(const SceneCreationInfo& Info);
+		void	Free();
+
+		void	CreateSceneCommandBuffer(CommandBuffer& Buffer);
 
 	public:
 
@@ -125,13 +128,19 @@ namespace Grvt
 		* Does not release memory that was once allocated for them.
 		*/
 		ENGINE_API void		DeleteAllLights			();
-
-
-		/**
-		* Creates a command buffer for this level.
-		*/
-		ENGINE_API void CreateSceneCommandBuffer(CommandBuffer& Buffer);
 	};
+
+	/**
+	* Sets an active scene to be rendered.
+	* The current implementation in Gravity is that it only renders whatever scene that is set as the global active scene.
+	* Because there always needs to be an active scene, a method to unset the active scene will not be provided.
+	*/
+	ENGINE_API void SetActiveScene(GrvtScene* ActiveScene);
+
+	/**
+	* Gets the currently global active scene.
+	*/
+	ENGINE_API GrvtScene* GetActiveScene();
 
 }
 

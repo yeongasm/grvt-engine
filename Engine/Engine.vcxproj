@@ -239,7 +239,6 @@ xcopy "$(SolutionDir)\Primitives" "$(SolutionDir)bin\$(Configuration)_$(Platform
     </ClCompile>
     <ClCompile Include="Source\Core\ModelDefaults.cpp" />
     <ClCompile Include="Source\Core\ReloadModule.cpp" />
-    <ClCompile Include="Source\Core\Tick.cpp" />
     <ClCompile Include="Source\Framework\Abstraction\Actor.cpp" />
     <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
@@ -398,7 +397,6 @@ xcopy "$(SolutionDir)\Primitives" "$(SolutionDir)bin\$(Configuration)_$(Platform
     <ClInclude Include="Include\Core\Engine.h" />
     <ClInclude Include="Include\Core\ModelDefaults.h" />
     <ClInclude Include="Include\Core\ReloadModule.h" />
-    <ClInclude Include="Include\Core\Tick.h" />
     <ClInclude Include="Include\Framework\Abstraction\Actor.h" />
     <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h" />
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h" />

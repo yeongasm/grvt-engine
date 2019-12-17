@@ -63,7 +63,6 @@ namespace Gfl
 			} 
 			else if (!Len || Len == Capacity)
 			{
-
 				Capacity = (!Len) ? 1 << Slack : Capacity + (1 << Slack);
 				TempData = (ElementType*)realloc(Data, sizeof(ElementType) * Capacity);
 

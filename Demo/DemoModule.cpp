@@ -2,6 +2,7 @@
 #include <Include/Core/ModelDefaults.h>
 #include <Include/Manager/Manager.h>
 #include <Include/Framework/Abstraction/Actor.h>
+#include <Include/Framework/Abstraction/Scene.h>
 #include <Renderer/Renderer.h>
 #include <Renderer/DeferredPBR.h>
 
@@ -26,6 +27,8 @@ extern "C"
 			Grvt::SceneCreationInfo Info;
 			Info.Name = "Demo Level";
 			DemoScene = Manager->NewScene(Info);
+
+			Grvt::SetActiveScene(DemoScene);
 		}
 
 		Grvt::ActorCreationInfo Info;
@@ -58,14 +61,6 @@ extern "C"
 		* Transform the actors here.
 		*/
 
-		Grvt::CommandBuffer Buffer;
-		DemoScene->CreateSceneCommandBuffer(Buffer);
-
-		/**
-		* TODO(Afiq):
-		* Allow a mechanism to push command buffer into the renderer.
-		* This needs to be done every frame.
-		*/
 	}
 
 	void OnUnload()

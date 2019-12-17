@@ -111,9 +111,6 @@
     <ClCompile Include="GrvtPch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Tick.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Profiler\FrameTime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -225,9 +222,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EngineAPI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\Core\Tick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Profiler\FrameTime.h">

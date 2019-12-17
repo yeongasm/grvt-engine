@@ -3,6 +3,9 @@
 #include "Manager/Manager.h"
 
 
+Grvt::GrvtScene* g_ActiveScene = nullptr;
+
+
 namespace Grvt
 {
 
@@ -253,7 +256,14 @@ namespace Grvt
 	*/
 	void GrvtScene::CreateSceneCommandBuffer(CommandBuffer& Buffer)
 	{
+		if (!Buffer.IsEmpty)
+		{
+			return;
+		}
+
 		// Prep for non instanced render command.
+		RenderCommand Command;
+
 		for (GrvtActor& Actor : Actors)
 		{
 			if (!Actor.Render)
@@ -280,12 +290,12 @@ namespace Grvt
 				Model = glm::rotate(Model, Actor.Position.z, glm::vec3(0.0f, 0.0f, 1.0f));
 			}
 
-			RenderCommand Command;
 			Command.State = Actor.DrawingState;
+
+			RenderNode Node;
 
 			for (GrvtMesh& Mesh : Actor.ModelPtr->Meshes)
 			{
-				RenderNode Node;
 				Node.Handle = &Mesh.Vao;
 				Node.Size = Mesh.Size;
 				Node.Mode = Actor.Mode;
@@ -299,7 +309,7 @@ namespace Grvt
 					Node.Indexed = true;
 				}
 
-				Command.Nodes.Push(Node);
+				Command.Nodes.Push(Gfl::Move(Node));
 			}
 
 			if (Actor.Instanced)
@@ -337,6 +347,8 @@ namespace Grvt
 				Command.Transform = Model;
 				Buffer.RenderCommands.Push(Gfl::Move(Command));
 			}
+
+			Command.Empty();
 		}
 
 		/**
@@ -350,5 +362,20 @@ namespace Grvt
 		*/
 
 		Buffer.IsEmpty = false;
+	}
+
+	
+	void SetActiveScene(GrvtScene* ActiveScene)
+	{
+		if (g_ActiveScene != ActiveScene)
+		{
+			g_ActiveScene = ActiveScene;
+		}
+	}
+
+
+	GrvtScene* GetActiveScene()
+	{
+		return g_ActiveScene;
 	}
 }

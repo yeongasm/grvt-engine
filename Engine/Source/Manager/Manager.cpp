@@ -228,7 +228,7 @@ namespace Grvt
 		}
 
 		Handle->ResourcePtr->Free();
-		g_ModelManager.DeleteResource(Resources[Identifier]);
+		g_ModelManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{
@@ -380,7 +380,7 @@ namespace Grvt
 			free(Handle->ResourcePtr->DataPtr);
 		}
 
-		g_TextureManager.DeleteResource(Resources[Identifier]);
+		g_TextureManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{
@@ -482,7 +482,7 @@ namespace Grvt
 		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Shader);
 		Handle->ResourcePtr->Free();
 
-		g_ShaderManager.DeleteResource(Resources[Identifier]);
+		g_ShaderManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{
@@ -588,7 +588,7 @@ namespace Grvt
 		if (!Force && handle->RefCount)
 			return false;
 
-		g_MaterialManager.DeleteResource(Resources[Identifier]);
+		g_MaterialManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{
@@ -682,7 +682,7 @@ namespace Grvt
 		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Framebuffer);
 
 		Handle->ResourcePtr->Free();
-		g_FramebufferManager.DeleteResource(Resources[Identifier]);
+		g_FramebufferManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{
@@ -785,7 +785,7 @@ namespace Grvt
 		}
 
 		Handle->ResourcePtr->Free();
-		g_SceneManager.DeleteResource(Resources[Identifier]);
+		g_SceneManager.DeleteResource(Resources[Identifier], Remove);
 
 		if (Remove)
 		{

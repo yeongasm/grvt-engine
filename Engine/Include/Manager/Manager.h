@@ -119,7 +119,7 @@ namespace Grvt
 		* Releases the resource with the specified Id from the manager.
 		* Note, this does not remove the resource from the GPU.
 		*/
-		bool DeleteResource(size_t Id)
+		bool DeleteResource(size_t Id, bool Remove = true)
 		{
 			EngineResource<Type>& resource = Store[Id];
 
@@ -127,8 +127,12 @@ namespace Grvt
 			resource.Path.Release();
 
 			delete resource.ResourcePtr;
+			
+			if (Remove)
+			{
+				Store.erase(Id);
+			}
 
-			Store.erase(Id);
 			Total--;
 
 			return true;

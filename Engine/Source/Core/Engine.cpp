@@ -1,9 +1,11 @@
 #include "GrvtPch.h"
 #include "Framework/Foundation/Interface.h"
 #include "Profiler/FrameTime.h"
+#include "Framework/Abstraction/Scene.h"
 #include "Renderer/Renderer.h"
 
 
+extern Grvt::GrvtScene* g_ActiveScene;
 extern Grvt::BaseRenderer* g_Renderer;
 
 
@@ -40,20 +42,32 @@ namespace Grvt
 
 	void ExecuteEngine()
 	{
-		PreTick();
+		g_Engine->InitModule();
 
 		while (g_Engine->Running())
 		{
 			g_Engine->NewFrame();
 
-			Tick();
+			g_Engine->ExecuteModule();
+
+			/**
+			* Allow the scene to fill the contents of the renderer's back buffer when it is empty.
+			* In a single threaded program, this scenation would never happen.
+			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
+			*/
+			if (g_ActiveScene && g_Renderer->BackBuffer.IsEmpty)
+			{
+				g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
+			}
 
 			g_Renderer->Render();
 
 			g_Engine->EndFrame();
 		}
 
-		PostTick();
+		ShutdownRenderer();
+
+		g_Engine->ShutdownModule();
 	}
 
 

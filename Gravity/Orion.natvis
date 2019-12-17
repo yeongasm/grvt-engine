@@ -11,8 +11,24 @@
       </ArrayItems>
     </Expand>
   </Type>
-  <Type Name="Gfl::BasicString&lt;char,wchar_t,*&gt;">
-    <AlternativeType Name="Gfl::BasicString&lt;wchar_t,*&gt;"/>
+  <Type Name="Gfl::BasicString&lt;char,*&gt;">
+    <AlternativeType Name="Gfl::String&lt;char,*&gt;"/>
+    <DisplayString Condition="Capacity &lt;= SSO_MAX">{Buffer, s8}</DisplayString>
+    <DisplayString Condition="Capacity &gt; SSO_MAX">{Data, s8}</DisplayString>
+    <StringView Condition="Capacity &lt;= SSO_MAX">Buffer, s8</StringView>
+    <StringView Condition="Capacity &gt; SSO_MAX">Data, s8</StringView>
+    <Expand>
+      <Item Name="Length">Len</Item>
+      <Item Name="Capacity">Capacity</Item>
+      <ArrayItems>
+        <Size>Len</Size>
+        <ValuePointer Condition="Capacity &lt;= SSO_MAX">Buffer</ValuePointer>
+        <ValuePointer Condition="Capacity &gt; SSO_MAX">Data</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="Gfl::BasicString&lt;wchar_t,*&gt;">
+    <AlternativeType Name="Gfl::String&lt;char,*&gt;"/>
     <DisplayString Condition="Capacity &lt;= SSO_MAX">{Buffer, s8}</DisplayString>
     <DisplayString Condition="Capacity &gt; SSO_MAX">{Data, s8}</DisplayString>
     <StringView Condition="Capacity &lt;= SSO_MAX">Buffer, s8</StringView>

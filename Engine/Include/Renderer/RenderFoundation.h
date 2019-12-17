@@ -64,6 +64,8 @@ namespace Grvt
 
 		RenderCommand(RenderCommand&& Other);
 		RenderCommand& operator= (RenderCommand&& Other);
+
+		void Empty();
 	};
 
 
@@ -111,6 +113,8 @@ namespace Grvt
 		CommandBuffer(CommandBuffer&& Other);
 		CommandBuffer& operator= (CommandBuffer&& Other);
 
+		void Init();
+		void Free();
 		void Clear();
 	};
 

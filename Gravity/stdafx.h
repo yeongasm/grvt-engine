@@ -16,11 +16,11 @@
 #include <crtdbg.h>
 #endif 
 
-//#ifdef _DEBUG
-//#define DBG_NEW new (_NORMAL_BLOCK, __FILE__, __LINE__)
-//#else
-//#define BDG_NEW new
-//#endif
+#ifdef _DEBUG
+#define DBG_NEW new (_NORMAL_BLOCK, __FILE__, __LINE__)
+#else
+#define DBG_NEW new
+#endif
 
 #include <stdio.h>
 
@@ -33,6 +33,5 @@
 #include <EngineAPI.h>
 #include <IO/IO.h>
 #include <Core/Engine.h>
-#include <Core/Tick.h>
 
 #endif // !PRECOMPILE_HEADER
