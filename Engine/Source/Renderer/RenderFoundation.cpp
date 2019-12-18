@@ -188,7 +188,7 @@ namespace Grvt
 
 
 	CommandBuffer::CommandBuffer() :
-		Lights(), ShadowMaps(), RenderCommands(), InstancedCommands(), CustomCommands(), IsEmpty(true) {}
+		Lights(), ShadowMaps(), RenderCommands(), InstancedCommands(), IsEmpty(true) {}
 
 
 	CommandBuffer::~CommandBuffer()
@@ -197,7 +197,6 @@ namespace Grvt
 		ShadowMaps.Release();
 		RenderCommands.Release();
 		InstancedCommands.Release();
-		CustomCommands.clear();
 	}
 
 
@@ -217,7 +216,6 @@ namespace Grvt
 			ShadowMaps		= Other.ShadowMaps;
 			RenderCommands	= Other.RenderCommands;
 			InstancedCommands = Other.InstancedCommands;
-			CustomCommands = Other.CustomCommands;
 			IsEmpty = Other.IsEmpty;
 		}
 
@@ -241,7 +239,6 @@ namespace Grvt
 			ShadowMaps			= Gfl::Move(Other.ShadowMaps);
 			RenderCommands		= Gfl::Move(Other.RenderCommands);
 			InstancedCommands	= Gfl::Move(Other.InstancedCommands);
-			CustomCommands		= Gfl::Move(Other.CustomCommands);
 			IsEmpty = Other.IsEmpty;
 
 			new (&Other) CommandBuffer();
@@ -253,10 +250,10 @@ namespace Grvt
 
 	void CommandBuffer::Init()
 	{
-		//Lights.Reserve(64);
-		//ShadowMaps.Reserve(64);
-		//RenderCommands.Reserve(64);
-		//InstancedCommands.Reserve(64);
+		Lights.Reserve(64);
+		ShadowMaps.Reserve(64);
+		RenderCommands.Reserve(64);
+		InstancedCommands.Reserve(64);
 	}
 
 

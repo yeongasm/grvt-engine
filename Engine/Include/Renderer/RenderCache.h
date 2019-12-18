@@ -8,6 +8,15 @@
 
 namespace Grvt
 {
+	/**
+	* Depth - 8 bits.
+	* Front Face - 4 bits.
+	* Polygon Mode - 4 bits.
+	*/
+	enum RenderStateValue : size_t
+	{
+
+	};
 
 	/**
 	* RenderState data structure.

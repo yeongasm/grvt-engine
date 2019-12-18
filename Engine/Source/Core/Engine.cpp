@@ -50,28 +50,15 @@ namespace Grvt
 
 			g_Engine->ExecuteModule();
 
-			CommandBuffer CmdBuffer;
-
-			if (g_ActiveScene)
-			{
-				g_ActiveScene->CreateSceneCommandBuffer(CmdBuffer);
-			}
-
-			if (g_Renderer->BackBuffer.IsEmpty)
-			{
-				g_Renderer->BackBuffer = CmdBuffer;
-			}
-
-
 			/**
 			* Allow the scene to fill the contents of the renderer's back buffer when it is empty.
 			* In a single threaded program, this scenation would never happen.
 			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
 			*/
-			//if (g_ActiveScene && g_Renderer->BackBuffer.IsEmpty)
-			//{
-			//	g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
-			//}
+			if (g_ActiveScene && g_Renderer->BackBuffer.IsEmpty)
+			{
+				g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
+			}
 
 			g_Renderer->Render();
 

@@ -50,7 +50,7 @@ namespace Grvt
 		* When the renderer's front buffer is not empty, wait til it clears out before swapping with the back buffer.
 		* Should disable the program to fill the back buffer when this process fails.
 		*/
-		if (FrontBuffer.IsEmpty/* && !BackBuffer.IsEmpty*/)
+		if (FrontBuffer.IsEmpty && !BackBuffer.IsEmpty)
 		{
 			FrontBuffer = BackBuffer;
 			FrontBuffer.IsEmpty = false;
@@ -59,6 +59,12 @@ namespace Grvt
 
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		
+		/**
+		* 1. Sort the Render Commands and create an array from it.
+		* 2. Sort the Instanced Commands and create an array from it.
+		* 3. Render based on the sorted array.
+		*/
 
 		FrontBuffer.Clear();
 	}
