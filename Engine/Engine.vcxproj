@@ -282,6 +282,12 @@ xcopy "$(SolutionDir)\Primitives" "$(SolutionDir)bin\$(Configuration)_$(Platform
     <ClCompile Include="Source\Framework\Foundation\LowLevelAPI.cpp" />
     <ClCompile Include="Source\IO\InputHandler.cpp" />
     <ClCompile Include="Source\IO\IO.cpp" />
+    <ClCompile Include="Source\Library\GrvtAlgorithms.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Library\GrvtArray.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
@@ -410,6 +416,7 @@ xcopy "$(SolutionDir)\Primitives" "$(SolutionDir)bin\$(Configuration)_$(Platform
     <ClInclude Include="Include\Framework\Foundation\LowLevelAPI.h" />
     <ClInclude Include="Include\IO\InputHandler.h" />
     <ClInclude Include="Include\IO\IO.h" />
+    <ClInclude Include="Include\Library\GrvtAlgorithms.h" />
     <ClInclude Include="Include\Library\GrvtArray.h" />
     <ClInclude Include="Include\Library\GrvtFoundation.h" />
     <ClInclude Include="Include\Library\GrvtHash.h" />

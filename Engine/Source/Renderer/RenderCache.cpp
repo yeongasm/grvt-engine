@@ -4,13 +4,41 @@
 namespace Grvt
 {
 
-	RenderState::RenderState() :
-		DepthFunc(GL_CCW), FrontFace(GL_LESS), PolygonMode(GL_FILL) {}
+	uint32 g_StateParams[32] = { GL_NONE, GL_ONE,
+		GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR,
+		GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
+		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+		GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA,
+		GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR,
+		GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA,
+		GL_ALWAYS, GL_NEVER,
+		GL_LESS, GL_EQUAL,
+		GL_LEQUAL, GL_GREATER,
+		GL_NOTEQUAL, GL_GEQUAL,
+		GL_FRONT, GL_BACK,
+		GL_FRONT_AND_BACK, GL_CW,
+		GL_CCW, GL_POINT,
+		GL_LINE, GL_FILL
+	};
 
+	RenderState::RenderState() :
+		SrcBlend(BlendFunc_None),
+		DstBlend(BlendFunc_None),
+		DepthFunc(DepthFunc_Less),
+		CullFace(CullFace_Back),
+		FrontFace(FrontFace_CCW),
+		PolygonFace(PolygonFace_Front_And_Back),
+		PolygonMode(PolygonMode_Fill) {}
 
 	RenderState::~RenderState()
 	{
-		DepthFunc = FrontFace = PolygonMode = 0;
+		SrcBlend = 0;
+		DstBlend = 0;
+		DepthFunc = 0;
+		CullFace = 0;
+		FrontFace = 0;
+		PolygonFace = 0;
+		PolygonMode = 0;
 	}
 
 
@@ -26,8 +54,12 @@ namespace Grvt
 
 		if (this != &Other)
 		{
+			SrcBlend = Other.SrcBlend;
+			DstBlend = Other.DstBlend;
 			DepthFunc = Other.DepthFunc;
+			CullFace = Other.CullFace;
 			FrontFace = Other.FrontFace;
+			PolygonFace = Other.PolygonFace;
 			PolygonMode = Other.PolygonMode;
 		}
 
@@ -46,8 +78,12 @@ namespace Grvt
 		_ASSERTE(this != &Other);
 
 		if (this != &Other) {
+			SrcBlend = Other.SrcBlend;
+			DstBlend = Other.DstBlend;
 			DepthFunc = Other.DepthFunc;
+			CullFace = Other.CullFace;
 			FrontFace = Other.FrontFace;
+			PolygonFace = Other.PolygonFace;
 			PolygonMode = Other.PolygonMode;
 
 			new (&Other) RenderState();
@@ -56,42 +92,57 @@ namespace Grvt
 		return *this;
 	}
 
+	
+	void RenderCache::SetAlphaBlend(uint32 Source, uint32 Destination)
+	{
+		if (Source && Destination)
+		{
+			glEnable(GL_BLEND);
+		}
+		else
+		{
+			glDisable(GL_BLEND);
+		}
+
+		if (SrcBlend != Source || DstBlend != Destination)
+		{
+			SrcBlend = Source;
+			DstBlend = Destination;
+
+			glBlendFunc(g_StateParams[SrcBlend], g_StateParams[DstBlend]);
+		}
+	}
+
 
 	void RenderCache::SetDepthFunc(uint32 Func)
 	{
 		if (DepthFunc)
 		{
-			if (DepthFunc != Func)
-			{
-				DepthFunc = Func;
-
-				glEnable(GL_DEPTH_TEST);
-				glDepthFunc(DepthFunc);
-			}
-
-			return;
+			glEnable(GL_DEPTH_TEST);
+		}
+		else
+		{
+			glDisable(GL_DEPTH_TEST);
 		}
 
-		glDisable(GL_DEPTH_TEST);
+		if (DepthFunc != Func)
+		{
+			DepthFunc = Func;
+
+			glDepthFunc(g_StateParams[DepthFunc]);
+		}
 	}
 
 
 	void RenderCache::SetCullFace(uint32 Face)
 	{
-		if (FrontFace)
+		if (FrontFace != Face)
 		{
-			if (FrontFace != Face)
-			{
-				FrontFace = Face;
+			FrontFace = Face;
 
-				glEnable(GL_CULL_FACE);
-				glCullFace(FrontFace);
-			}
-
-			return;
-		}
-
-		glDisable(GL_CULL_FACE);
+			glFrontFace(g_StateParams[FrontFace]);
+			glCullFace(g_StateParams[CullFace]);
+		}	
 	}
 
 
@@ -100,7 +151,7 @@ namespace Grvt
 		if (PolygonMode != Mode)
 		{
 			PolygonMode = Mode;
-			glPolygonMode(GL_FRONT_AND_BACK, PolygonMode);
+			glPolygonMode(g_StateParams[PolygonFace], g_StateParams[PolygonMode]);
 		}
 	}
 

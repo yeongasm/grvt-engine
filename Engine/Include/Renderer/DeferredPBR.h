@@ -12,9 +12,14 @@ namespace Grvt
 	{
 	private:
 
-		//uint32		LightUBO;
+		/**
+		* Stores the index of the draw calls.
+		*/
+		Gfl::Array<uint32> SortedCommands;
+		Gfl::Array<uint32> SortedInstancedCommands;
 
 		void RenderMesh(RenderNode* Node);
+		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<uint32>& SortedCommand);
 
 	public:
 

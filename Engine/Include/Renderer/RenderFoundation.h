@@ -19,7 +19,6 @@ namespace Grvt
 	*/
 	struct RenderNode
 	{
-		GrvtMaterial*	Material;
 		ObjHandle*		Handle;
 		size_t			Amount;
 		uint32			Size;
@@ -55,6 +54,7 @@ namespace Grvt
 		Gfl::Array<glm::mat4>	Instances;
 		glm::mat4				Transform;
 		RenderState				State;
+		GrvtMaterial*			Material;
 
 		RenderCommand();
 		~RenderCommand();

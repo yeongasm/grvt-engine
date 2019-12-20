@@ -7,7 +7,7 @@ namespace Grvt
 
 
 	RenderNode::RenderNode() :
-		Material(nullptr), Handle(nullptr), Amount(1), Size(0), Mode(0), Indexed(true) {}
+		Handle(nullptr), Amount(1), Size(0), Mode(0), Indexed(true) {}
 
 
 	RenderNode::RenderNode(const RenderNode& Other)
@@ -22,7 +22,6 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Material = Other.Material;
 			Handle = Other.Handle;
 			Amount = Other.Amount;
 			Size = Other.Size;
@@ -46,7 +45,6 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Material = Other.Material;
 			Handle = Other.Handle;
 			Amount = Other.Amount;
 			Size = Other.Size;
@@ -62,7 +60,6 @@ namespace Grvt
 
 	RenderNode::~RenderNode()
 	{
-		Material = nullptr;
 		Handle = nullptr;
 		Amount = 0;
 		Size = 0;
@@ -71,7 +68,7 @@ namespace Grvt
 
 
 	RenderCommand::RenderCommand() :
-		Nodes(), Instances(), Transform(1.0f), State() {}
+		Nodes(), Instances(), Transform(1.0f), State(), Material(nullptr) {}
 
 
 	RenderCommand::RenderCommand(const RenderCommand& Other) {
@@ -89,6 +86,7 @@ namespace Grvt
 			Instances = Other.Instances;
 			Transform = Other.Transform;
 			State = Other.State;
+			Material = Other.Material;
 		}
 
 		return *this;
@@ -110,6 +108,7 @@ namespace Grvt
 			Instances = Gfl::Move(Other.Instances);
 			Transform = Gfl::Move(Other.Transform);
 			State = Gfl::Move(Other.State);
+			Material = Gfl::Move(Other.Material);
 
 			new (&Other) RenderCommand();
 		}
