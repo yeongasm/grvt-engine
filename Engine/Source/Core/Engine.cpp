@@ -160,6 +160,8 @@ namespace Grvt
 		glfwSetMouseButtonCallback(Window, GrvtEngine::MouseCallback);
 		glfwSetFramebufferSizeCallback(Window, GrvtEngine::FramebufferCallback);
 
+		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 		Middleware::InitialiseBuildQueue();
 		ResourceMgrPtr = InitialiseResourceManager();
 

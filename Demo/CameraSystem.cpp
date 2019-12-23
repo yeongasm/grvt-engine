@@ -52,7 +52,7 @@ void CameraSystem::Init()
 
 	Grvt::CameraCreationInfo Info;
 	Info.CameraPosition = glm::vec3(0.0f, 5.0f, 5.0f);
-	Info.Sensitivity = 5.0f;
+	Info.Sensitivity = 0.001f;
 	Info.Near = 0.1f;
 	Info.Far = 1000.0f;
 	Info.ViewportWidth  = Grvt::GetRenderer()->Width;

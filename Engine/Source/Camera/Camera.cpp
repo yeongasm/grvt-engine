@@ -109,14 +109,21 @@ namespace Grvt
 
 	void BaseCamera::UpdateOrientation()
 	{
-		glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
+		//glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
+		glm::quat Quaternion = glm::quat(glm::vec3(Pitch, Yaw, Roll));
+		//printf_s("%.3f, %.3f\n", Yaw, Pitch);
 
-		Orientation = Quaternion * Orientation;
-		Orientation = glm::normalize(Orientation);
+		//Orientation = Quaternion * Orientation;
+		//Orientation = glm::normalize(Orientation);
+		Orientation = Quaternion;
 
-		Forward = glm::normalize(glm::conjugate(Orientation) * glm::vec3(0.0f, 0.0f, -1.0f));
-		Up		= glm::normalize(glm::conjugate(Orientation) * glm::vec3(0.0f, 1.0f, 0.0f));
-		Right	= glm::normalize(glm::conjugate(Orientation) * glm::vec3(1.0f, 0.0f, 0.0f));
+		glm::mat4 Rot = glm::mat4_cast(Quaternion);
+		Forward = glm::vec3(Rot[0][2], Rot[1][2], Rot[2][2]) * -1.0f;
+		Up = glm::vec3(Rot[0][1], Rot[1][1], Rot[2][1]) * -1.0f;
+		Right = glm::vec3(Rot[0][0], Rot[1][0], Rot[2][0]) * -1.0f;
+		//Forward = Rotation * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
+		//Up		= Rotation * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+		//Right	= Rotation * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 
@@ -147,20 +154,11 @@ namespace Grvt
 		float Horizontal = Angle.x * Sensitivity;
 		float Vertical = Angle.y * Sensitivity;
 
-		Yaw = glm::radians(Yaw + Horizontal);
-		Pitch = glm::radians(Pitch + Vertical);
+		//Yaw = glm::radians(Yaw + Horizontal);
+		//Pitch = glm::radians(Pitch + Vertical);
 
-		//glm::vec3 Front;
-		//Front.x = glm::cos(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
-		//Front.y = glm::sin(glm::radians(Pitch));
-		//Front.z = glm::sin(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
-
-		//Forward = glm::normalize(Front);
-		//Right	= glm::normalize(glm::cross(Front, glm::vec3(0.0f, 1.0f, 0.0f)));
-		//Up		= glm::normalize(glm::cross(Right, Front));
-
-		// Not sure if we will need to implement some sort of constrain pitch.
-		// Currently roll is not being implemented.
+		Yaw += Horizontal;
+		Pitch += Vertical;
 
 		UpdateOrientation();
 		Dirty = true;

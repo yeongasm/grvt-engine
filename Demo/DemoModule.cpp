@@ -105,11 +105,16 @@ extern "C"
 		
 		count++;
 
-		if (count == 256)
+		//printf("Yaw: %.3f\n", DemoScene->Camera->Yaw);
+		//printf("Pitch: %.3f\n\n", DemoScene->Camera->Pitch);
+
+		if (count == 128)
 		{
-			printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Forward.x, DemoScene->Camera->Forward.y, DemoScene->Camera->Forward.z);
-			printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Right.x, DemoScene->Camera->Right.y, DemoScene->Camera->Right.z);
-			printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Up.x, DemoScene->Camera->Up.y, DemoScene->Camera->Up.z);
+			//printf("Yaw: %.3f\n", DemoScene->Camera->Yaw);
+			//printf("Pitch: %.3f\n", DemoScene->Camera->Pitch);
+			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Forward.x, DemoScene->Camera->Forward.y, DemoScene->Camera->Forward.z);
+			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Right.x, DemoScene->Camera->Right.y, DemoScene->Camera->Right.z);
+			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Up.x, DemoScene->Camera->Up.y, DemoScene->Camera->Up.z);
 
 			count = 0;
 		}
