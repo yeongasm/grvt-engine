@@ -18,7 +18,7 @@ namespace Grvt
 	*/
 	struct MaterialCreationInfo
 	{
-		Gfl::String				Name;
+		Gfl::String	Name;
 		GrvtShader* Shader;
 		Gfl::Array<TexturePair>	Textures;
 	};
@@ -34,9 +34,9 @@ namespace Grvt
 
 	public:
 
-		Gfl::Array<UniformAttr>		Uniforms;
-		Gfl::Array<TexturePair>		Textures;
-		ObjHandle* ShaderHandle;
+		Gfl::Array<UniformAttr>	Uniforms;
+		Gfl::Array<TexturePair>	Textures;
+		GrvtShader* Shader;
 
 		GrvtMaterial();
 		~GrvtMaterial();

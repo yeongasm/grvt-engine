@@ -85,6 +85,7 @@ namespace Grvt
 
 	void GrvtActor::Alloc(const ActorCreationInfo& Info)
 	{
+		Name			= Info.Identifier;
 		MaterialPtr		= Info.SrcMaterial;
 		ModelPtr		= Info.SrcModel;
 		DrawingState	= Info.DrawingState;

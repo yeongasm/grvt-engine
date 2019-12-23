@@ -6,27 +6,31 @@
 #include "Minimal.h"
 #include "Core/ReloadModule.h"
 #include "Manager/Manager.h"
+#include "Systems/BaseSystem.h"
 
 namespace Grvt
 {
 
-	class GrvtApplication;
-
-
 	class GrvtEngine
 	{
 	private:
-
-		friend class GrvtApplication;
+		
+		using EngineSystems = Gfl::Array<BaseSystem*>;
 
 		EngineIO			IO;
 		ReloadModule		Module;
 
+		EngineSystems		Systems;
 		Gfl::String			Name;
 		ResourceManager*	ResourceMgrPtr;
 		GLFWwindow*			Window;
-		
+
+	public:
+
 		float32				DeltaTime;
+
+	private:
+
 		int32				Width;
 		int32				Height;
 		int32				VersionMajor;
@@ -91,9 +95,25 @@ namespace Grvt
 		void ShutdownModule();
 
 		/**
-		* Returns the global resource manager.
+		* Registers a system into the engine.
 		*/
-		//ResourceManager* GetResourceManager();
+		ENGINE_API BaseSystem* RegisterSystem(const Gfl::String& Identity, BaseSystem* SrcSystem);
+
+		/**
+		* Retrieves a system from the engine.
+		* Pointer needs to be casted into the system's type.
+		*/
+		ENGINE_API BaseSystem* GetSystem(const Gfl::String& Identity);
+
+		/**
+		* Deletes the specified system from the engine.
+		*/
+		ENGINE_API void DeleteSystem(const Gfl::String& Identity);
+
+		/**
+		* Shuts down all the systems registered in the engine.
+		*/
+		void ShutdownSystems();
 	};
 
 

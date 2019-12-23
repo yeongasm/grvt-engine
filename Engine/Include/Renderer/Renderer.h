@@ -20,6 +20,8 @@ namespace Grvt
 		CommandBuffer	FrontBuffer;
 		RenderCache		StateCache;
 		GrvtShader*		ActiveShader;
+		uint32			PosX;
+		uint32			PosY;
 		uint32			Width;
 		uint32			Height;
 		

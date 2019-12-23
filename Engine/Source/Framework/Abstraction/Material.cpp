@@ -6,7 +6,7 @@ namespace Grvt
 {
 
 	GrvtMaterial::GrvtMaterial() :
-		Uniforms(), Textures(), ShaderHandle(nullptr) {}
+		Uniforms(), Textures(), Shader(nullptr) {}
 
 
 	GrvtMaterial::~GrvtMaterial() {
@@ -32,7 +32,7 @@ namespace Grvt
 		{
 			Uniforms = Other.Uniforms;
 			Textures = Other.Textures;
-			ShaderHandle = Other.ShaderHandle;
+			Shader = Other.Shader;
 		}
 
 		return *this;
@@ -45,7 +45,7 @@ namespace Grvt
 		{
 			Uniforms = Other.Uniforms;
 			Textures = Other.Textures;
-			ShaderHandle = Other.ShaderHandle;
+			Shader = Other.Shader;
 
 			new (&Other) GrvtMaterial();
 		}
@@ -68,7 +68,7 @@ namespace Grvt
 
 	void GrvtMaterial::Alloc(const MaterialCreationInfo& Info)
 	{
-		ShaderHandle = &Info.Shader->Handle;
+		Shader = Info.Shader;
 		Textures = Info.Textures;
 		Uniforms = Info.Shader->Uniforms;
 	}
@@ -76,7 +76,7 @@ namespace Grvt
 
 	void GrvtMaterial::Free()
 	{
-		ShaderHandle = nullptr;
+		Shader = nullptr;
 		Uniforms.Release();
 		Textures.Release();
 	}

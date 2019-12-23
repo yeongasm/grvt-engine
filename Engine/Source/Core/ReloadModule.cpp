@@ -70,7 +70,10 @@ namespace Grvt
 			return false;
 		}
 
-		OnLoad(GetEngine());
+		if (!OnEngineInit)
+		{
+			OnLoad(GetEngine());
+		}
 
 		return true;
 	}

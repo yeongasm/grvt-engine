@@ -222,6 +222,111 @@ namespace Grvt
 			glDeleteRenderbuffers(1, &Handle.Id);
 		}
 
+
+		namespace Shader
+		{
+			void GrShaderSetBool(uint32 Location, bool Value)
+			{
+				glUniform1i(Location, (int32)Value);
+			}
+
+
+			void GrShaderSetInt(uint32 Location, int32 Value)
+			{
+				glUniform1i(Location, Value);
+			}
+
+
+			void GrShaderSetFloat(uint32 Location, float32 Value)
+			{
+				glUniform1f(Location, Value);
+			}
+
+
+			void GrShaderSetVec2Float(uint32 Location, float32* Value)
+			{
+				glUniform2fv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetVec2Double(uint32 Location, float64* Value)
+			{
+				glUniform2dv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetVec3Float(uint32 Location, float32* Value)
+			{
+				glUniform3fv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetVec3Double(uint32 Location, float64* Value)
+			{
+				glUniform3dv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetVec4Float(uint32 Location, float32* Value)
+			{
+				glUniform4fv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetVec4Double(uint32 Location, float64* Value)
+			{
+				glUniform4dv(Location, 1, Value);
+			}
+
+
+			void GrShaderSetMat2Float(uint32 Location, float32* Value)
+			{
+				glUniformMatrix2fv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat2Double(uint32 Location, float64* Value)
+			{
+				glUniformMatrix2dv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat3Float(uint32 Location, float32* Value)
+			{
+				glUniformMatrix3fv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat3Double(uint32 Location, float64* Value)
+			{
+				glUniformMatrix3dv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat4Float(uint32 Location, float32* Value)
+			{
+				glUniformMatrix4fv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat4Double(uint32 Location, float64* Value)
+			{
+				glUniformMatrix4dv(Location, 1, GL_FALSE, Value);
+			}
+
+
+			void GrShaderSetMat4FloatN(uint32 Id, const char* Uniform, float32* Value)
+			{
+				uint32 Location = glGetUniformLocation(Id, Uniform);
+
+				if (Location == -1)
+				{
+					return;
+				}
+
+				GrShaderSetMat4Float(Location, Value);
+			}
+		}
 	}
 
 }

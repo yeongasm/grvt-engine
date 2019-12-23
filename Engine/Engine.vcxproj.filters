@@ -248,6 +248,9 @@
     <ClInclude Include="Include\Library\GrvtAlgorithms.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Systems\BaseSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Orion.natvis" />

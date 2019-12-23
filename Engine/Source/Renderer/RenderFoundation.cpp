@@ -187,7 +187,7 @@ namespace Grvt
 
 
 	CommandBuffer::CommandBuffer() :
-		Lights(), ShadowMaps(), RenderCommands(), InstancedCommands(), IsEmpty(true) {}
+		Projection(0.0f), View(0.0f), Lights(), ShadowMaps(), RenderCommands(), InstancedCommands(), IsEmpty(true) {}
 
 
 	CommandBuffer::~CommandBuffer()
@@ -211,6 +211,8 @@ namespace Grvt
 
 		if (this != &Other) 
 		{
+			Projection		= Other.Projection;
+			View			= Other.View;
 			Lights			= Other.Lights;
 			ShadowMaps		= Other.ShadowMaps;
 			RenderCommands	= Other.RenderCommands;
@@ -234,6 +236,8 @@ namespace Grvt
 
 		if (this != &Other)
 		{
+			Projection			= Gfl::Move(Projection);
+			View				= Gfl::Move(View);
 			Lights				= Gfl::Move(Other.Lights);
 			ShadowMaps			= Gfl::Move(Other.ShadowMaps);
 			RenderCommands		= Gfl::Move(Other.RenderCommands);

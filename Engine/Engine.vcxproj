@@ -431,6 +431,7 @@ xcopy "$(SolutionDir)\Primitives" "$(SolutionDir)bin\$(Configuration)_$(Platform
     <ClInclude Include="Include\Renderer\RenderCache.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
     <ClInclude Include="Include\Renderer\RenderFoundation.h" />
+    <ClInclude Include="Include\Systems\BaseSystem.h" />
     <ClInclude Include="Include\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="Include\Utility\Utility.h" />
     <ClInclude Include="EngineAPI.h" />

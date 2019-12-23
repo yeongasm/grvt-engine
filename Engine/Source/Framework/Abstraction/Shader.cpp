@@ -161,6 +161,38 @@ namespace Grvt
 		Uniforms.Release();
 	}
 
+	
+	size_t GrvtShader::FindUniformIdx(const Gfl::String& Identifier)
+	{
+		for (UniformAttr& Uniform : Uniforms)
+		{
+			if (Uniform.Name != Identifier)
+			{
+				continue;
+			}
+
+			return Uniforms.IndexOf(Uniform);
+		}
+
+		return -1;
+	}
+
+
+	UniformAttr* GrvtShader::FindUniformPtr(const Gfl::String& Identifier)
+	{
+		for (UniformAttr& Uniform : Uniforms)
+		{
+			if (Uniform.Name != Identifier)
+			{
+				continue;
+			}
+
+			return &Uniform;
+		}
+
+		return nullptr;
+	}
+
 
 	//void ShaderObj::RetrieveAttributes(ShaderAttr *Buff) {
 	//	if (!Id)

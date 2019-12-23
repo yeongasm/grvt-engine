@@ -42,6 +42,8 @@ namespace Grvt
 
 	void ExecuteEngine()
 	{
+		EngineIO* Io = g_Engine->GetIO();
+
 		g_Engine->InitModule();
 
 		while (g_Engine->Running())
@@ -67,6 +69,7 @@ namespace Grvt
 
 		ShutdownRenderer();
 
+		g_Engine->ShutdownSystems();
 		g_Engine->ShutdownModule();
 	}
 
@@ -165,6 +168,9 @@ namespace Grvt
 
 		Module.LoadModuleDll(true);
 
+		// NOTE(Afiq):
+		// The engine shouldn't really contain default models.
+		// Let the module import the models on StartUp.
 		ModelImportInfo Info;
 
 		{
@@ -326,6 +332,32 @@ namespace Grvt
 		g_FrameTime.Update(DeltaTime);
 		UpdateIO();
 
+		// NOTE(Afiq):
+		// Not feeling too good about this.
+		// By default, the renderer should always start rendering from the window's position.
+		// If the renderer position requires to be specific, it can be assigned inside of the module.
+		glfwGetWindowPos(Window, (int32*)&g_Renderer->PosX, (int32*)&g_Renderer->PosY);
+
+		// The renderer's Width and Height will get updated every frame.
+		// If the renderer's width and height require to be customised, the new width and height can be assigned inside of the modile.
+		if (g_Renderer->Width != Width)
+		{
+			g_Renderer->Width = Width;
+		}
+
+		if (g_Renderer->Height != Height)
+		{
+			g_Renderer->Height	= Height;
+		}
+
+		// Listens for resources to be generated or deleted from the GPU.
+		Middleware::GetBuildQueue()->Listen();
+		// Runs the tick function for all the systems registered in the engine.
+		for (BaseSystem* System : Systems)
+		{
+			System->Tick();
+		}
+
 #if _DEBUG
 
 		FILETIME NewDllLastWrite = Module.WatchFileChange();
@@ -342,12 +374,9 @@ namespace Grvt
 			Module.DllLastWriteTime = NewDllLastWrite;
 		}
 
-
-		// Listens for resources to be generated or deleted from the GPU.
-		Middleware::GetBuildQueue()->Listen();
+#endif
 	}
 
-#endif
 
 
 	void GrvtEngine::EndFrame()
@@ -397,6 +426,64 @@ namespace Grvt
 		}
 
 		Module.UnloadModuleDll();
+	}
+
+	BaseSystem* GrvtEngine::RegisterSystem(const Gfl::String& Identity, BaseSystem* SrcSystem)
+	{
+		for (BaseSystem* System : Systems)
+		{
+			if (System->Name == Identity)
+			{
+				return System;
+			}
+		}
+
+		BaseSystem* System = Systems.Insert(SrcSystem);
+		System->Name = Identity;
+		System->Init();
+
+		return System;
+	}
+
+	BaseSystem* GrvtEngine::GetSystem(const Gfl::String& Identity)
+	{
+		for (BaseSystem* System : Systems)
+		{
+			if (System->Name == Identity)
+			{
+				return System;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void GrvtEngine::DeleteSystem(const Gfl::String& Identity)
+	{
+		for (size_t i = 0; i < Systems.Length(); i++)
+		{
+			if (Systems[i]->Name != Identity)
+			{
+				continue;
+			}
+
+			Systems[i]->Shutdown();
+			delete Systems[i];
+			Systems.PopAt(i);
+			break;
+		}
+	}
+
+	void GrvtEngine::ShutdownSystems()
+	{
+		for (size_t i = 0; i < Systems.Length(); i++)
+		{
+			Systems[i]->Shutdown();
+			delete Systems[i];
+			Systems[i] = nullptr;
+		}
+
+		Systems.Release();
 	}
 
 

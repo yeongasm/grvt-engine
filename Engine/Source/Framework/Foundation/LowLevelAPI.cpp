@@ -445,6 +445,9 @@ namespace Grvt
 			glGetShaderiv(Handle.Id, GL_COMPILE_STATUS, &compiled);
 
 			if (!compiled) {
+				char Buf[1024];
+				glGetShaderInfoLog(Handle.Id, 1024, nullptr, Buf);
+				printf(Buf);
 				glDeleteShader(Handle.Id);
 				return false;
 			}
@@ -455,9 +458,9 @@ namespace Grvt
 
 		void BuildShaderProgram(ObjHandle& Handle, ShaderBuildData& Data)
 		{
-			int32 link = 0;
-			size_t index = 0;
-			Gfl::Array<ObjHandle> handle(Data.BuildInfo.Length());
+			int32 Link = 0;
+			size_t Index = 0;
+			Gfl::Array<ObjHandle> Handles(Data.BuildInfo.Length());
 
 			GrCreateShaderProgram(Handle);
 
@@ -475,24 +478,29 @@ namespace Grvt
 					break;
 				}
 
-				if (!CompileShader(handle[index], GL_VERTEX_SHADER, Info.SourceCode))
+				if (!CompileShader(Handles[Index], type, Info.SourceCode))
 					_ASSERTE(false); // Failed to compile vertex shader.
 
-				glAttachShader(Handle.Id, handle[index].Id);
-				index++;
+				glAttachShader(Handle.Id, Handles[Index].Id);
+				Index++;
 			}
 
 			// Unlike other graphic objects, shaders are not allowed to be linked twice.
 			// Hence there is really no point use the same shader.
 			glLinkProgram(Handle.Id);
-			glGetProgramiv(Handle.Id, GL_LINK_STATUS, &link);
+			glGetProgramiv(Handle.Id, GL_LINK_STATUS, &Link);
 
-			if (!link)
+			if (!Link)
+			{
+				char Buf[1024];
+				glGetProgramInfoLog(Handle.Id, 1024, nullptr, Buf);
+				printf(Buf);
 				_ASSERTE(false); // Failed to create a shader.
+			}
 
-			while (index >= 0) {
-				glDeleteShader(handle[index].Id);
-				index--;
+			while (Index > 0) {
+				glDeleteShader(Handles[Index].Id);
+				Index--;
 			}
 		}
 

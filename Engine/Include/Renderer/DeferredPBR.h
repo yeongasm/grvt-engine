@@ -15,11 +15,28 @@ namespace Grvt
 		/**
 		* Stores the index of the draw calls.
 		*/
-		Gfl::Array<uint32> SortedCommands;
-		Gfl::Array<uint32> SortedInstancedCommands;
+		Gfl::Array<size_t> SortedCommands;
+		Gfl::Array<size_t> SortedInstancedCommands;
 
+		/**
+		* Updates the materials inside the render command.
+		*/
+		void UpdateMaterial(GrvtMaterial* SourceMaterial);
+
+		/**
+		* Render pushed commands.
+		*/
+		void RenderPushedCommand(const RenderCommand* Command, bool UpdateState);
+		
+		/**
+		* Render the nodes in the command.
+		*/
 		void RenderMesh(RenderNode* Node);
-		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<uint32>& SortedCommand);
+
+		/**
+		* Sort commands that are pushed into the renderer.
+		*/
+		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<size_t>& SortedCommand);
 
 	public:
 

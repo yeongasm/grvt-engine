@@ -90,10 +90,20 @@ namespace Gfl
 			return *this;
 		}
 
+		Iterator& operator+ (const Iterator& Rhs) const
+		{
+			return Pointer + Rhs.Pointer;
+		}
+
 		Iterator& operator- (size_t Offset) 
 		{
 			Pointer -= Offset;
 			return *this;
+		}
+
+		Iterator& operator- (const Iterator& Rhs) const
+		{
+			return Pointer - Rhs.Pointer;
 		}
 
 		ElementType& operator[] (size_t Index) 

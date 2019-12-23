@@ -23,16 +23,57 @@ namespace Gfl
 		Swap<T>(&First, &Second);
 	}
 
+	
+	template <typename T>
+	T& Min(T* First, T* Second)
+	{
+		return (*First < *Second) ? *First : *Second;
+	}
+
+
+	template <typename T>
+	T& Min(T& First, T& Second)
+	{
+		return Min(&First, &Second);
+	}
+
+
+	template <typename T>
+	T& Max(T* First, T* Second)
+	{
+		return (*First > * Second) ? *First : *Second;
+	}
+
+
+	template <typename T>
+	T& Max(T& First, T& Second)
+	{
+		return Max(&First, &Second);
+	}
+
+
+	template <typename T>
+	T& Clamp(const T& Value, T* First, T* Second)
+	{
+		return Max(Min(Value, *Second), *First);
+	}
+
+
+	template <typename T>
+	T& Clamp(const T& Value, T& First, T& Second)
+	{
+		return Clamp(Value, &First, &Second);
+	}
 
 	namespace Ga
 	{
-		template<typename T>
-		uint32 _Paritition(T* Data, uint32 Low, uint32 High)
+		template <typename T>
+		int32 Partition(T* Data, int32 Low, int32 High)
 		{
 			T Pivot = Data[High];
-			uint32 Index = Low - 1;
+			int32 Index = Low - 1;
 
-			for (uint32 i = Low; i <= High; i++)
+			for (int32 i = Low; i <= High; i++)
 			{
 				if (Data[i] < Pivot)
 				{
@@ -40,48 +81,59 @@ namespace Gfl
 					Swap(Data[Index], Data[i]);
 				}
 			}
-			
+
 			Swap(Data[Index + 1], Data[High]);
 
 			return Index + 1;
 		}
+	}
 
-		/**
-		* TODO(Afiq):
-		* Understand the algorithm and improvise the function.
-		*/
-		template <typename T>
-		void _QuickSort(T* Data, uint32 Low, uint32 High)
+
+	template <typename T>
+	void BubbleSort(T* Data, size_t Start, size_t End)
+	{
+		for (size_t i = Start; i < End - 1; i++)
 		{
-			if (Low > High)
+			for (size_t j = Start; j < End - i - 1; j++)
 			{
-				return;
+				if (Data[j + 1] < Data[j])
+				{
+					Swap(Data[j + 1], Data[j]);
+				}
 			}
-
-			uint32 Pivot = _Paritition(Data, Low, High);
-
-			_QuickSort(Data, Low, Pivot);
-			_QuickSort(Data, Pivot + 1, High);
 		}
 	}
 
 
-	/**
-	* QuickSort algorithm.
-	*
-	* Element type stored in the array must overload '<' operator if types are non-native.
-	* Containers used should provide both of these functions:
-	*
-	* 1. First() - Returns a pointer to the first element in the container.
-	* 2. Length() - The total number of elements in the container.
-	*/
 	template <typename ContainerType>
-	void QuickSort(ContainerType& Source)
+	void BubbleSort(ContainerType& Container)
 	{
-		Ga::_QuickSort(Source.First(), 0, Source.Length());
+		BubbleSort(Container.First(), 0, Container.Length());
 	}
 
-	
+
+	template <typename T>
+	bool QuickSort(T* Data, int32 Start, int32 End)
+	{
+		if (Start > End)
+		{
+			return false;
+		}
+
+		int32 Pivot = Ga::Partition(Data, Start, End);
+
+		QuickSort(Data, Start, Pivot - 1);
+		QuickSort(Data, Pivot + 1, End);
+
+		return true;
+	}
+
+
+	template <typename ContainerType>
+	bool QuickSort(ContainerType& Container)
+	{
+		return QuickSort(Container.First(), 0, (int32)Container.Length() - 1);
+	}
 }
 
 

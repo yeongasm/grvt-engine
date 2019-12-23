@@ -51,11 +51,11 @@ namespace Grvt
 		Gfl::Array<ShaderProps>	Properties;
 		Gfl::String				Name;
 
-		ShaderImportInfo();
-		~ShaderImportInfo();
+		ENGINE_API ShaderImportInfo();
+		ENGINE_API ~ShaderImportInfo();
 
-		ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, ShaderComponent Component);
-		ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, const Gfl::String& PathToFile, ShaderComponent Component);
+		ENGINE_API ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, ShaderComponent Component);
+		ENGINE_API ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, const Gfl::String& PathToFile, ShaderComponent Component);
 
 		void PopShaderProperty(ShaderProps&);
 	};
@@ -128,7 +128,7 @@ namespace Grvt
 			glm::vec4	Vec4;
 			glm::mat2	Mat2;
 			glm::mat3	Mat3;
-			glm::mat4	Mat4;
+			glm::mat4	Mat4 = glm::mat4(0.0f);
 		};
 
 	public:
@@ -179,12 +179,14 @@ namespace Grvt
 
 		void Alloc(const ShaderImportInfo& Import);
 		void Free();
+		
+		size_t			FindUniformIdx	(const Gfl::String& Identifier);
+		UniformAttr*	FindUniformPtr	(const Gfl::String& Identifier);
 
 	private:
 
 		GrvtShader(const GrvtShader& Rhs) = delete;
 		GrvtShader& operator= (const GrvtShader& Rhs) = delete;
-
 
 		GrvtShader(GrvtShader&& Rhs) = delete;
 		GrvtShader& operator= (GrvtShader&& Rhs) = delete;

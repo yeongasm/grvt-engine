@@ -22,8 +22,8 @@ namespace Grvt
 	};
 
 	RenderState::RenderState() :
-		SrcBlend(BlendFunc_None),
-		DstBlend(BlendFunc_None),
+		SrcBlend(CacheState_None),
+		DstBlend(CacheState_None),
 		DepthFunc(DepthFunc_Less),
 		CullFace(CullFace_Back),
 		FrontFace(FrontFace_CCW),
@@ -134,10 +134,20 @@ namespace Grvt
 	}
 
 
-	void RenderCache::SetCullFace(uint32 Face)
+	void RenderCache::SetCullFace(uint32 Cull, uint32 Face)
 	{
-		if (FrontFace != Face)
+		if (Face)
 		{
+			glEnable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
+		}
+
+		if (CullFace != Cull || FrontFace != Face)
+		{
+			CullFace = Cull;
 			FrontFace = Face;
 
 			glFrontFace(g_StateParams[FrontFace]);
@@ -146,11 +156,13 @@ namespace Grvt
 	}
 
 
-	void RenderCache::SetPolygonMode(uint32 Mode)
+	void RenderCache::SetPolygonMode(uint32 Face, uint32 Mode)
 	{
-		if (PolygonMode != Mode)
+		if (PolygonFace != Face || PolygonMode != Mode)
 		{
+			PolygonFace = Face;
 			PolygonMode = Mode;
+
 			glPolygonMode(g_StateParams[PolygonFace], g_StateParams[PolygonMode]);
 		}
 	}

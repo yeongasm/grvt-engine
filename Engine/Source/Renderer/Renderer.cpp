@@ -11,7 +11,10 @@ namespace Grvt
 	BaseRenderer::BaseRenderer() :
 		BackBuffer(),
 		FrontBuffer(),
+		StateCache(),
 		ActiveShader(nullptr),
+		PosX(0),
+		PosY(0),
 		Width(0),
 		Height(0) {}
 

@@ -10,7 +10,7 @@ namespace Grvt
 {
 
 	GrvtScene::GrvtScene() :
-		Name(), Actors(), DirectionalLights(), PointLights() {}
+		Name(), Camera(nullptr), Actors(), DirectionalLights(), PointLights() {}
 
 
 	GrvtScene::~GrvtScene() {}
@@ -218,6 +218,8 @@ namespace Grvt
 
 	void GrvtScene::Free()
 	{
+		Camera = nullptr;
+		Name.Release();
 		Actors.Release();
 		DirectionalLights.Release();
 		PointLights.Release();
@@ -260,13 +262,23 @@ namespace Grvt
 		{
 			return;
 		}
+		
+		// Pass in the final projection and view matrix.
+		Buffer.Projection = Camera->GetCameraProjection();
+		Buffer.View = Camera->GetCameraView();
 
-		// Prep for non instanced render command.
 		RenderCommand Command;
 
 		for (GrvtActor& Actor : Actors)
 		{
 			if (!Actor.Render)
+			{
+				continue;
+			}
+
+			// Do not pass the actor in for render if there is no shader or texture assigned to it.
+			// Not sure if this is the right way but ideally, this should not happen.
+			if (!Actor.MaterialPtr)
 			{
 				continue;
 			}
@@ -291,6 +303,7 @@ namespace Grvt
 			}
 
 			Command.State = Actor.DrawingState;
+			Command.Material = Actor.MaterialPtr;
 
 			RenderNode Node;
 
@@ -299,7 +312,6 @@ namespace Grvt
 				Node.Handle = &Mesh.Vao;
 				Node.Size = Mesh.Size;
 				Node.Mode = Actor.Mode;
-				Node.Material = Actor.MaterialPtr;
 
 				// This step is no longer necessary since we always default the amount to 1.
 				//Node.Amount = 1;

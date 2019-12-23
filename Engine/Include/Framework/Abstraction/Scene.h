@@ -6,6 +6,7 @@
 #include "Minimal.h"
 #include "Actor.h"
 #include "Lighting.h"
+#include "Camera/Camera.h"
 #include "Renderer/RenderFoundation.h"
 
 namespace Grvt
@@ -35,6 +36,7 @@ namespace Grvt
 	public:
 
 		Gfl::String	Name;
+		BaseCamera* Camera;
 
 	private:
 

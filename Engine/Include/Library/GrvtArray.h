@@ -162,7 +162,10 @@ namespace Gfl
 		{
 			if (this != &Rhs)
 			{
-				Alloc(Rhs.Capacity);
+				if (Capacity < Rhs.Capacity)
+				{
+					Alloc(Rhs.Capacity);
+				}
 
 				Capacity = Rhs.Capacity;
 				Len = Rhs.Len;
@@ -202,8 +205,8 @@ namespace Gfl
 			//_ASSERTE(Index < Len);
 
 			// In a scenario where the [] operator is used to assign values to the Array, the Array needs to increase it's internal capacity when needed.
-			if (Index == Len)
-				Alloc();
+			if (Index >= Capacity)
+				Alloc(Index);
 
 			// Keeps track of the last element index inside the Array.
 			if (Len <= Index)

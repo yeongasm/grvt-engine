@@ -7,7 +7,7 @@ namespace Grvt
 	EngineIO::EngineIO() :
 		MouseWheel(0.0f),
 		MouseWheelH(0.0f),
-		MinDurationForHold(1.0f),
+		MinDurationForHold(0.0f),
 		MouseDoubleClickTime(0.5f),
 		MouseDoubleClickMaxDist(5.0f),
 		KeyDoubleTapTime(0.5f),

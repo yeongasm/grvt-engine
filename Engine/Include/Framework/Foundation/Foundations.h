@@ -229,6 +229,107 @@ namespace Grvt
 		*/
 		void GrDeleteRenderbuffer(ObjHandle& Handle);
 
+
+		namespace Shader
+		{
+			/**
+			* [BASEAPI][Shader]
+			* Sends a boolean uniform to the shader.
+			*/
+			void GrShaderSetBool(uint32 Location, bool Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a integer uniform to the shader.
+			*/
+			void GrShaderSetInt(uint32 Location, int32 Value);
+			
+			/**
+			* [BASEAPI][Shader]
+			* Sends a float uniform to the shader.
+			*/
+			void GrShaderSetFloat(uint32 Location, float32 Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 2D float vector uniform to the shader.
+			*/
+			void GrShaderSetVec2Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 2D double vector uniform to the shader.
+			*/
+			void GrShaderSetVec2Double(uint32 Location, float64* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 3D float vector uniform to the shader.
+			*/
+			void GrShaderSetVec3Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 3D double vector uniform to the shader.
+			*/
+			void GrShaderSetVec3Double(uint32 Location, float64* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 4D float vector uniform to the shader.
+			*/
+			void GrShaderSetVec4Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 4D double vector uniform to the shader.
+			*/
+			void GrShaderSetVec4Double(uint32 Location, float64* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 2x2 float matrix uniform to the shader.
+			*/
+			void GrShaderSetMat2Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 2x2 double matrix uniform to the shader.
+			*/
+			void GrShaderSetMat2Double(uint32 Location, float64* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 3x3 float matrix uniform to the shader.
+			*/
+			void GrShaderSetMat3Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 3x3 double matrix uniform to the shader.
+			*/
+			void GrShaderSetMat3Double(uint32 Location, float64* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 4x4 float matrix uniform to the shader by name.
+			*/
+			void GrShaderSetMat4FloatN(uint32 Id, const char* Uniform, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 4x4 float matrix uniform to the shader.
+			*/
+			void GrShaderSetMat4Float(uint32 Location, float32* Value);
+
+			/**
+			* [BASEAPI][Shader]
+			* Sends a 4x4 double matrix uniform to the shader.
+			*/
+			void GrShaderSetMat4Double(uint32 Location, float64* Value);
+
+		}
+
 	}
 
 }

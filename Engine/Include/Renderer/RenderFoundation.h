@@ -96,6 +96,8 @@ namespace Grvt
 	*/
 	struct CommandBuffer
 	{
+		glm::mat4 Projection;
+		glm::mat4 View;
 		Gfl::Array<glm::mat4>		Lights;
 		Gfl::Array<RenderTarget>	ShadowMaps;
 		Gfl::Array<RenderCommand>	RenderCommands;

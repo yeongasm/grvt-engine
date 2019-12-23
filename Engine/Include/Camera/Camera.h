@@ -41,8 +41,8 @@ namespace Grvt
 	* Gravity Engine's robust camera data structure.
 	*
 	* GravityCamera should be flexible enough to construct different types of camera fit for different needs.
-	* NOTE(Afiq):
-	* Not really sure if the camera system should be in the engine. Maybe it should maybe it shouldn't.
+	* TODO(Afiq):
+	* Make the BaseCamera a struct instead.
 	*/
 	class BaseCamera
 	{
@@ -52,11 +52,15 @@ namespace Grvt
 		glm::mat4	View;
 
 		glm::quat	Orientation;
-		glm::vec3	Position;
 
+	public:
+
+		glm::vec3	Position;
 		glm::vec3	Forward;
 		glm::vec3	Up;
 		glm::vec3	Right;
+
+	protected:
 
 		/**
 		* Resets the camera to it's default state.
@@ -83,17 +87,17 @@ namespace Grvt
 		/**
 		* Moves the camera in world space.
 		*/
-		virtual void Translate(const glm::vec3& Direction, float DeltaTime);
+		ENGINE_API virtual void Translate(const glm::vec3& Direction, float DeltaTime);
 
 		/**
 		* Rotates the camera in world space.
 		*/
-		virtual void Rotate(const glm::vec3& Angle);
+		ENGINE_API virtual void Rotate(const glm::vec3& Angle, float DeltaTime);
 
 		/**
 		* Zooms the camera's view. Only works when in perspective mode.
 		*/
-		virtual void Zoom(float Offset);
+		ENGINE_API virtual void Zoom(float Offset);
 
 	private:
 
@@ -128,14 +132,14 @@ namespace Grvt
 		*/
 		bool		Enable;
 
-		BaseCamera();
-		~BaseCamera();
+		ENGINE_API BaseCamera();
+		ENGINE_API ~BaseCamera();
 
-		BaseCamera(const BaseCamera& Other);
-		BaseCamera& operator= (const BaseCamera& Other);
+		ENGINE_API BaseCamera(const BaseCamera& Other);
+		ENGINE_API BaseCamera& operator= (const BaseCamera& Other);
 
-		BaseCamera(BaseCamera&& Other);
-		BaseCamera& operator= (BaseCamera&& Other);
+		ENGINE_API BaseCamera(BaseCamera&& Other);
+		ENGINE_API BaseCamera& operator= (BaseCamera&& Other);
 
 	protected:
 
@@ -151,17 +155,17 @@ namespace Grvt
 		/**
 		* Retrieves the projection matrix.
 		*/
-		const glm::mat4& GetCameraProjection() const;
+		ENGINE_API const glm::mat4& GetCameraProjection() const;
 
 		/**
 		* Initialises the camera object.
 		*/
-		void Init(const CameraCreationInfo& Info);
+		ENGINE_API void Init(const CameraCreationInfo& Info);
 
 		/**
 		* Camera's Tick() function. Called every single frame.
 		*/
-		virtual void Tick(float DeltaTime);
+		ENGINE_API virtual void Tick(float DeltaTime);
 
 		/**
 		* Changes the camera's projection mode.

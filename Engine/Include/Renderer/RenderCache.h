@@ -21,7 +21,7 @@ namespace Grvt
 	*/
 	enum BlendFuncs : uint32
 	{
-		BlendFunc_None						= 0x00,
+		CacheState_None						= 0x00,
 		BlendFunc_Zero						= 0x00,
 		BlendFunc_One						= 0x01,
 		BlendFunc_Src_Colour				= 0x02,
@@ -120,8 +120,8 @@ namespace Grvt
 
 		void SetAlphaBlend(uint32 Source, uint32 Destination);
 		void SetDepthFunc(uint32 Func);
-		void SetCullFace(uint32 Face);
-		void SetPolygonMode(uint32 Mode);
+		void SetCullFace(uint32 Cull, uint32 Face);
+		void SetPolygonMode(uint32 Face, uint32 Mode);
 	};
 
 }

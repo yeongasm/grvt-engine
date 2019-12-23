@@ -109,24 +109,25 @@ namespace Grvt
 
 	void BaseCamera::UpdateOrientation()
 	{
-		glm::quat Quaternion = glm::quat(glm::vec3(Pitch, Yaw, Roll));
-		// For now we don't reset the pitch, yaw and roll values, curious to know what it does.
-		// Pitch = Yaw = Roll = 0.0f;
+		glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
 
 		Orientation = Quaternion * Orientation;
 		Orientation = glm::normalize(Orientation);
 
-		Forward = Orientation * Forward;
-		Up = Orientation * Up;
-		Right = Orientation * Right;
+		Forward = glm::normalize(glm::conjugate(Orientation) * glm::vec3(0.0f, 0.0f, -1.0f));
+		Up		= glm::normalize(glm::conjugate(Orientation) * glm::vec3(0.0f, 1.0f, 0.0f));
+		Right	= glm::normalize(glm::conjugate(Orientation) * glm::vec3(1.0f, 0.0f, 0.0f));
 	}
 
 
 	void BaseCamera::UpdateProjectionMatrix()
 	{
-		if (Mode == GrvtCamera_Projection_Perspective) {
+		if (Mode == GrvtCamera_Projection_Perspective) 
+		{
 			Projection = glm::perspective(glm::radians(FieldOfView), Width / Height, Near, Far);
-		} else {
+		} 
+		else 
+		{
 			Projection = glm::ortho(0.0f, Width, 0.0f, Height, Near, Far);
 		}
 	}
@@ -141,13 +142,22 @@ namespace Grvt
 	}
 
 
-	void BaseCamera::Rotate(const glm::vec3& Angle)
+	void BaseCamera::Rotate(const glm::vec3& Angle, float DeltaTime)
 	{
 		float Horizontal = Angle.x * Sensitivity;
 		float Vertical = Angle.y * Sensitivity;
 
 		Yaw = glm::radians(Yaw + Horizontal);
 		Pitch = glm::radians(Pitch + Vertical);
+
+		//glm::vec3 Front;
+		//Front.x = glm::cos(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+		//Front.y = glm::sin(glm::radians(Pitch));
+		//Front.z = glm::sin(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+
+		//Forward = glm::normalize(Front);
+		//Right	= glm::normalize(glm::cross(Front, glm::vec3(0.0f, 1.0f, 0.0f)));
+		//Up		= glm::normalize(glm::cross(Right, Front));
 
 		// Not sure if we will need to implement some sort of constrain pitch.
 		// Currently roll is not being implemented.
@@ -159,15 +169,18 @@ namespace Grvt
 
 	void BaseCamera::Zoom(float Offset)
 	{
-		if (FieldOfView >= 1.0f && FieldOfView <= 90.0f) {
+		if (FieldOfView >= 1.0f && FieldOfView <= 90.0f) 
+		{
 			FieldOfView -= Offset;
 		}
 
-		if (FieldOfView <= 1.0f) {
+		if (FieldOfView <= 1.0f) 
+		{
 			FieldOfView = 1.0f;
 		}
 
-		if (FieldOfView >= 90.0f) {
+		if (FieldOfView >= 90.0f) 
+		{
 			FieldOfView = 90.0f;
 		}
 

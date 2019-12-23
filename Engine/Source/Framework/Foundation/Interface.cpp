@@ -123,8 +123,8 @@ namespace Grvt
 				UniformAttr uniform;
 
 				glGetProgramiv(Packet.ResourcePtr->Handle.Id, GL_ACTIVE_UNIFORMS, &total);
-				Packet.ResourcePtr->Uniforms.Reserve(*(size_t*)&total);
-				for (uint32 i = 0; i < *(uint32*)&total; i++)
+				Packet.ResourcePtr->Uniforms.Reserve((size_t)total);
+				for (uint32 i = 0; i < (uint32)total; i++)
 				{
 					glGetActiveUniform(Packet.ResourcePtr->Handle.Id, i, sizeof(buffer), 0, &size, &type, buffer);
 					GetUniformType(type, uniform.Type, uniform.SubType);
