@@ -16,8 +16,12 @@ private:
 
 	Grvt::EngineIO*		Io;
 	glm::vec2			LastMousePos;
+	glm::vec2			Offsets;
 
 public:
+
+	bool IsActive;
+	bool FirstMouse;
 
 	void Init();
 	void Tick();

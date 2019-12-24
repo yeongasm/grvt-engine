@@ -278,7 +278,7 @@ namespace Grvt
 
 			// Do not pass the actor in for render if there is no shader or texture assigned to it.
 			// Not sure if this is the right way but ideally, this should not happen.
-			if (!Actor.MaterialPtr)
+			if (!Actor.MaterialPtr.Shader)
 			{
 				continue;
 			}
@@ -289,21 +289,21 @@ namespace Grvt
 
 			if (Actor.Rotation.x)
 			{
-				Model = glm::rotate(Model, Actor.Position.x, glm::vec3(1.0f, 0.0f, 0.0f));
+				Model = glm::rotate(Model, Actor.Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
 			}
 
 			if (Actor.Rotation.y)
 			{
-				Model = glm::rotate(Model, Actor.Position.y, glm::vec3(0.0f, 1.0f, 0.0f));
+				Model = glm::rotate(Model, Actor.Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 
 			if (Actor.Position.z)
 			{
-				Model = glm::rotate(Model, Actor.Position.z, glm::vec3(0.0f, 0.0f, 1.0f));
+				Model = glm::rotate(Model, Actor.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 			}
 
 			Command.State = Actor.DrawingState;
-			Command.Material = Actor.MaterialPtr;
+			Command.Material = &Actor.MaterialPtr;
 
 			RenderNode Node;
 

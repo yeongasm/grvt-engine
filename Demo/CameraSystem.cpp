@@ -51,22 +51,30 @@ void CameraSystem::Init()
 	REGISTERSYSTEM(CameraSystem)
 
 	Grvt::CameraCreationInfo Info;
-	Info.CameraPosition = glm::vec3(0.0f, 5.0f, 5.0f);
-	Info.Sensitivity = 0.001f;
-	Info.Near = 0.1f;
+	Info.CameraPosition = glm::vec3(0.0f, 5.0f, -5.0f);
+	Info.Sensitivity = 2.5f;
+	Info.Near = 0.001f;
 	Info.Far = 1000.0f;
 	Info.ViewportWidth  = Grvt::GetRenderer()->Width;
 	Info.ViewportHeight = Grvt::GetRenderer()->Height;
 
 	LastMousePos = glm::vec2(0.0f, 0.0f);
 
+	IsActive   = true;
+	FirstMouse = true;
+	Offsets = glm::vec2(0.0f);
+
 	Camera.Init(Info);
+	Camera.Yaw = -90.0f;
 	Io = Grvt::GetEngine()->GetIO();
 }
 
 
 void CameraSystem::Tick()
 {
+	if (!IsActive)
+		return;
+
 	// TODO(Afiq):
 	// Need to find a way to not convert the width and height into a float.
 	if (Camera.Width != (float32)Grvt::GetRenderer()->Width)
@@ -81,10 +89,19 @@ void CameraSystem::Tick()
 
 	float32 DeltaTime = Grvt::GetEngine()->DeltaTime;
 
-	glm::vec2 AngleOffset = Io->MousePos - LastMousePos;
+	Offsets = Io->MousePos - LastMousePos;
+
+	if (FirstMouse)
+	{
+		Offsets.x = Io->MousePos.x;
+		Offsets.y = Io->MousePos.y;
+
+		FirstMouse = false;
+	}
+
 	LastMousePos = Io->MousePos;
 
-	Camera.Rotate(glm::vec3(AngleOffset.x, AngleOffset.y, 0.0f), DeltaTime);
+	Camera.Rotate(glm::vec3(Offsets.x, Offsets.y, 0.0f), DeltaTime);
 	Camera.Zoom(Io->MouseWheel);
 
 	if (Io->IsKeyHeld(GLFW_KEY_Q))

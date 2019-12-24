@@ -11,7 +11,7 @@ namespace Grvt
 		Position(),
 		Rotation(),
 		Scale(1.0f),
-		MaterialPtr(nullptr), 
+		MaterialPtr(), 
 		ModelPtr(nullptr),
 		Mode(GL_TRIANGLES),
 		Instanced(false),
@@ -86,7 +86,13 @@ namespace Grvt
 	void GrvtActor::Alloc(const ActorCreationInfo& Info)
 	{
 		Name			= Info.Identifier;
-		MaterialPtr		= Info.SrcMaterial;
+
+		// TODO(Afiq):
+		// Remove this once everything is figured out.
+		if (Info.SrcMaterial)
+		{
+			MaterialPtr		= *Info.SrcMaterial;
+		}
 		ModelPtr		= Info.SrcModel;
 		DrawingState	= Info.DrawingState;
 		Position		= Info.Position;
@@ -98,7 +104,7 @@ namespace Grvt
 	{
 		Name.Release();
 		ModelPtr = nullptr;
-		MaterialPtr = nullptr;
+		MaterialPtr;
 	}
 
 }

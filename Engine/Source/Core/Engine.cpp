@@ -83,8 +83,10 @@ namespace Grvt
 
 	void GrvtEngine::ScrollCallback(GLFWwindow* Window, float64 HorizontalOffset, float64 VerticalOffset)
 	{
-		g_Engine->IO.MouseWheel = *(float32*)&VerticalOffset;
-		g_Engine->IO.MouseWheelH = *(float32*)&HorizontalOffset;
+		// NOTE(Afiq):
+		// This behavior is not right. Check and see how ImGui does it.
+		g_Engine->IO.MouseWheel  = (float32)VerticalOffset;
+		g_Engine->IO.MouseWheelH = (float32)HorizontalOffset;
 	}
 
 
@@ -116,7 +118,7 @@ namespace Grvt
 
 	void GrvtEngine::FramebufferCallback(GLFWwindow* Window, int32 Width, int32 Height)
 	{
-		g_Engine->Width = Width;
+		g_Engine->Width  = Width;
 		g_Engine->Height = Height;
 	}
 
@@ -294,14 +296,14 @@ namespace Grvt
 		{
 			IO.KeyState[i] = Grvt_IoInput_None;
 
-			if (IO.Keys[i].OnPress())
-			{
-				IO.KeyState[i] = Grvt_IoInput_Pressed;
-			}
-
 			if (IO.Keys[i].OnHold(IO.MinDurationForHold, &IO.KeyHoldDuration[i]))
 			{
 				IO.KeyState[i] = Grvt_IoInput_Held;
+			}
+
+			if (IO.Keys[i].OnPress())
+			{
+				IO.KeyState[i] = Grvt_IoInput_Pressed;
 			}
 
 			if (IO.Keys[i].OnRelease())

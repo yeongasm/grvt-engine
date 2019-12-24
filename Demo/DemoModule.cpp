@@ -49,13 +49,20 @@ extern "C"
 
 		{
 			Grvt::ActorCreationInfo Info;
-			Info.Identifier		= "SphereActor";
-			Info.SrcModel		= Manager->GetModel("Sphere");
+			Info.Identifier	= "SphereActorMiddle";
+			Info.SrcModel	= Manager->GetModel("Sphere");
 
 			DemoScene->AddNewActor(Info);
 
-			Info.Identifier = "PlaneActor";
-			Info.SrcModel	= Manager->GetModel("Plane");
+			Info.Identifier = "SphereActorUp";
+
+			DemoScene->AddNewActor(Info);
+
+			Info.Identifier = "SphereActorRight";
+
+			DemoScene->AddNewActor(Info);
+
+			Info.Identifier = "SphereActorForward";
 
 			DemoScene->AddNewActor(Info);
 		}
@@ -68,6 +75,11 @@ extern "C"
 		m_Engine = EnginePtr;
 		m_IO = m_Engine->GetIO();
 
+		for (size_t i = 0; i < 5; i++)
+		{
+			m_IO->MouseHoldDuration[i] = 0.0f;
+		}
+
 		Grvt::ResourceManager* Manager = Grvt::GetResourceManager();
 		DemoScene = Manager->GetScene("DemoLevel");
 
@@ -79,46 +91,41 @@ extern "C"
 			Info.Shader = Manager->GetShader("TestShader");
 
 			TestMaterial = Manager->NewMaterial(Info);
-			DemoScene->GetActor("SphereActor")->MaterialPtr = TestMaterial;
-			DemoScene->GetActor("PlaneActor")->MaterialPtr = TestMaterial;
+			// TODO(Afiq):
+			// The Material in the actors, cannot be pointers.
+			// They have to be by value.
+			DemoScene->GetActor("SphereActorMiddle")->MaterialPtr = *TestMaterial;
+			DemoScene->GetActor("SphereActorUp")->MaterialPtr = *TestMaterial;
+			DemoScene->GetActor("SphereActorRight")->MaterialPtr = *TestMaterial;
+			DemoScene->GetActor("SphereActorForward")->MaterialPtr = *TestMaterial;
 		}
 	}
 
 	void ExecuteApplication()
-	{
-		static bool init = true;
-		static uint32 count = 0;
+	{	
+		Grvt::GrvtActor* Mid = DemoScene->GetActor("SphereActorMiddle");
+		Grvt::GrvtActor* X = DemoScene->GetActor("SphereActorRight");
+		Grvt::GrvtActor* Y = DemoScene->GetActor("SphereActorUp");
+		Grvt::GrvtActor* Z = DemoScene->GetActor("SphereActorForward");
 
-		// TODO(Afiq):
-		// There needs to be a way to streamline this.
-		// Updating the scene's camera pointer on every frame would be a hassle.
 
-		Grvt::GrvtActor* Sphere = DemoScene->GetActor("SphereActor");
-		//Grvt::GrvtActor* Plane = DemoScene->GetActor("PlaneActor");
-
-		if (init)
+		if (m_IO->IsKeyPressed(GLFW_KEY_F1))
 		{
-			printf("Actor position x:%.3f y:%.3f z:%.3f\n", Sphere->Position.x, Sphere->Position.y, Sphere->Position.z);
-			printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Position.x, DemoScene->Camera->Position.y, DemoScene->Camera->Position.z);
-			init = false;
-		}
-		
-		count++;
-
-		//printf("Yaw: %.3f\n", DemoScene->Camera->Yaw);
-		//printf("Pitch: %.3f\n\n", DemoScene->Camera->Pitch);
-
-		if (count == 128)
-		{
-			//printf("Yaw: %.3f\n", DemoScene->Camera->Yaw);
-			//printf("Pitch: %.3f\n", DemoScene->Camera->Pitch);
-			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Forward.x, DemoScene->Camera->Forward.y, DemoScene->Camera->Forward.z);
-			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Right.x, DemoScene->Camera->Right.y, DemoScene->Camera->Right.z);
-			//printf("Camera position x:%.3f y:%.3f z:%.3f\n", DemoScene->Camera->Up.x, DemoScene->Camera->Up.y, DemoScene->Camera->Up.z);
-
-			count = 0;
+			printf("I came in here!");
+			CameraSystem* CamSys = dynamic_cast<CameraSystem*>(m_Engine->GetSystem(GRSYSTEMCRED(CameraSystem)));
+			CamSys->IsActive ^= true;
+			CamSys->FirstMouse = true;
 		}
 
+		Mid->MaterialPtr.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
+		X->MaterialPtr.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
+		Y->MaterialPtr.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
+		Z->MaterialPtr.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
+
+		Mid->Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		X->Position = glm::vec3(10.0f, 0.0f, 0.0f);
+		Y->Position = glm::vec3(0.0f, 10.0f, 0.0f);
+		Z->Position = glm::vec3(0.0f, 0.0f, 10.0f);
 	}
 
 	void OnUnload()

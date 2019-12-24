@@ -23,8 +23,10 @@ Gfl::String TestShader::FragmentShader = "\
 #version 430 core\n\
 out vec4 FragColour;\n\
 \n\
+uniform vec3 Colour;\n\
+\n\
 void main()\n\
 {\n\
-	FragColour = vec4(1.0f);\n\
+	FragColour = vec4(Colour, 1.0f);\n\
 }\n\
 ";

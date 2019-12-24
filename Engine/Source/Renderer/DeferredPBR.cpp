@@ -101,7 +101,7 @@ namespace Grvt
 			RenderMesh(&Node);
 		}
 
-		BaseAPI::GrUnbindShaderProgram(Material->Shader->Handle);
+		//BaseAPI::GrUnbindShaderProgram(Material->Shader->Handle);
 	}
 
 
