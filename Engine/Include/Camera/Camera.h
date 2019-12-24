@@ -141,9 +141,9 @@ namespace Grvt
 		ENGINE_API BaseCamera(BaseCamera&& Other);
 		ENGINE_API BaseCamera& operator= (BaseCamera&& Other);
 
-	protected:
-
 		bool		Dirty;
+
+	protected:
 
 	public:
 

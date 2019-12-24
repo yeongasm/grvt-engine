@@ -109,14 +109,15 @@ namespace Grvt
 
 	void BaseCamera::UpdateOrientation()
 	{
-		glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
-		
+		glm::quat Quaternion = glm::quat(glm::vec3(Pitch, Yaw, Roll));
+		//glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
+
 		// Since we are not accumulating the values of Yaw, Pitch and Roll, the existing orientation has to take the new rotation into account.
-		Orientation = glm::normalize(Quaternion * Orientation);
+		//Orientation = glm::normalize(Quaternion * Orientation);
 
 		// If we are accumulating the values of Yaw, Pitch and Roll, we can't multiply the existing orientation with the new quaternion.
 		// This is because of the fact that the new Quaternion is a result from the cumulation of those 3 angles.
-		//Orientation = glm::normalize(Quaternion);
+		Orientation = glm::normalize(Quaternion);
 
 		// Ideally this is what we should be going for but this method introduces new problems mainly,
 		// if Roll was rotated, then Yaw and Pitch would be rotated as well. If Roll was rotated 90 degreed,
@@ -172,22 +173,22 @@ namespace Grvt
 
 		//Yaw = glm::radians(Yaw + Horizontal);
 		//Pitch = glm::radians(Pitch + Vertical);
-		
+		printf("Yaw: %.3f\n\n", Yaw);
 		// Old code. Sort of works but not really. The rotation axis would be warped along the dimensions.
 		// Meaning moving the mouse around x would change the pitch instead of the yaw and etc.
 		//
-		//Yaw		+= Horizontal;
-		//Pitch	+= Vertical;
-		//Roll	+= ZRotation;
+		Yaw		+= Horizontal;
+		Pitch	+= Vertical;
+		Roll	+= ZRotation;
 
-		Yaw		= Horizontal;
-		Pitch	= Vertical;
-		Roll	= ZRotation;
+		//Yaw		= Horizontal;
+		//Pitch	= Vertical;
+		//Roll	= ZRotation;
 
 		UpdateOrientation();
 
 		// No reset previously.
-		Yaw = Pitch = Roll = 0;
+		//Yaw = Pitch = Roll = 0;
 		
 		Dirty = true;
 	}
@@ -239,8 +240,8 @@ namespace Grvt
 		MoveSpeed = Info.MoveSpeed;
 
 		Forward = glm::vec3(0.0f, 0.0f, -1.0f);
-		Up = glm::vec3(0.0f, 1.0f, 0.0f);
-		Right = glm::vec3(1.0f, 0.0f, 0.0f);
+		Up		= glm::vec3(0.0f, 1.0f, 0.0f);
+		Right	= glm::vec3(1.0f, 0.0f, 0.0f);
 	}
 
 

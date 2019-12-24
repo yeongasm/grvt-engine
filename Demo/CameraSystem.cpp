@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <Renderer/Renderer.h>
 #include "CameraSystem.h"
+#include <Core/Engine.h>
 
 //CameraSystem::CameraSystem() : Camera() {}
 //
@@ -51,8 +52,8 @@ void CameraSystem::Init()
 	REGISTERSYSTEM(CameraSystem)
 
 	Grvt::CameraCreationInfo Info;
-	Info.CameraPosition = glm::vec3(0.0f, 5.0f, -5.0f);
-	Info.Sensitivity = 2.5f;
+	Info.CameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+	Info.Sensitivity = 0.005f;
 	Info.Near = 0.001f;
 	Info.Far = 1000.0f;
 	Info.ViewportWidth  = Grvt::GetRenderer()->Width;
@@ -65,7 +66,7 @@ void CameraSystem::Init()
 	Offsets = glm::vec2(0.0f);
 
 	Camera.Init(Info);
-	Camera.Yaw = -90.0f;
+	//Camera.Yaw = -90.0f * Camera.Sensitivity * Grvt::GetEngine()->DeltaTime;
 	Io = Grvt::GetEngine()->GetIO();
 }
 
@@ -77,6 +78,7 @@ void CameraSystem::Tick()
 
 	// TODO(Afiq):
 	// Need to find a way to not convert the width and height into a float.
+	// TODO(Afiq): Data breakpoint to check yaw change.
 	if (Camera.Width != (float32)Grvt::GetRenderer()->Width)
 	{
 		Camera.Width = (float32)Grvt::GetRenderer()->Width;
@@ -89,7 +91,6 @@ void CameraSystem::Tick()
 
 	float32 DeltaTime = Grvt::GetEngine()->DeltaTime;
 
-	Offsets = Io->MousePos - LastMousePos;
 
 	if (FirstMouse)
 	{
@@ -97,13 +98,17 @@ void CameraSystem::Tick()
 		Offsets.y = Io->MousePos.y;
 
 		FirstMouse = false;
+		Camera.Dirty = true;
+		Io->MousePos = glm::vec2(0.0f, 0.0f);
 	}
+
+	Offsets = Io->MousePos - LastMousePos;
 
 	LastMousePos = Io->MousePos;
 
 	Camera.Rotate(glm::vec3(Offsets.x, Offsets.y, 0.0f), DeltaTime);
 	Camera.Zoom(Io->MouseWheel);
-
+	
 	if (Io->IsKeyHeld(GLFW_KEY_Q))
 	{
 		Camera.Translate(Camera.Up, DeltaTime);
