@@ -28,7 +28,7 @@ namespace Grvt
 		glm::vec3		Position;
 		glm::vec3		Rotation;
 		glm::vec3		Scale;
-		GrvtMaterial	MaterialPtr;
+		GrvtMaterial	Material;
 		GrvtModel*		ModelPtr;
 		uint32			Mode;
 		bool			Instanced;

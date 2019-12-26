@@ -11,7 +11,7 @@ namespace Grvt
 		Position(),
 		Rotation(),
 		Scale(1.0f),
-		MaterialPtr(), 
+		Material(), 
 		ModelPtr(nullptr),
 		Mode(GL_TRIANGLES),
 		Instanced(false),
@@ -42,7 +42,7 @@ namespace Grvt
 		if (this != &Other)
 		{
 			Name = Other.Name;
-			MaterialPtr = Other.MaterialPtr;
+			Material = Other.Material;
 			ModelPtr = Other.ModelPtr;
 			DrawingState = Other.DrawingState;
 			Position = Other.Position;
@@ -68,7 +68,7 @@ namespace Grvt
 		if (this != &Other)
 		{
 			Name = Other.Name;
-			MaterialPtr = Other.MaterialPtr;
+			Material = Other.Material;
 			ModelPtr = Other.ModelPtr;
 			DrawingState = Other.DrawingState;
 			Position = Other.Position;
@@ -91,8 +91,9 @@ namespace Grvt
 		// Remove this once everything is figured out.
 		if (Info.SrcMaterial)
 		{
-			MaterialPtr		= *Info.SrcMaterial;
+			Material = *Info.SrcMaterial;
 		}
+
 		ModelPtr		= Info.SrcModel;
 		DrawingState	= Info.DrawingState;
 		Position		= Info.Position;
@@ -104,7 +105,6 @@ namespace Grvt
 	{
 		Name.Release();
 		ModelPtr = nullptr;
-		MaterialPtr;
 	}
 
 }

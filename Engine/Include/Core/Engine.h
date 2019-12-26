@@ -97,18 +97,28 @@ namespace Grvt
 		/**
 		* Registers a system into the engine.
 		*/
-		ENGINE_API BaseSystem* RegisterSystem(const Gfl::String& Identity, BaseSystem* SrcSystem);
+		ENGINE_API BaseSystem*	RegisterSystem(const Gfl::String& Identity, BaseSystem* SrcSystem);
 
 		/**
 		* Retrieves a system from the engine.
 		* Pointer needs to be casted into the system's type.
 		*/
-		ENGINE_API BaseSystem* GetSystem(const Gfl::String& Identity);
+		ENGINE_API BaseSystem*	GetSystem(const Gfl::String& Identity);
 
 		/**
 		* Deletes the specified system from the engine.
 		*/
-		ENGINE_API void DeleteSystem(const Gfl::String& Identity);
+		ENGINE_API void			DeleteSystem(const Gfl::String& Identity);
+
+		/**
+		* Toggle to show or hide the cursor.
+		*/
+		ENGINE_API void			ShowCursor(bool Show);
+
+		/**
+		* Sets the mouse position in the application.
+		*/
+		ENGINE_API void			SetMousePosition(const glm::vec2& Position);
 
 		/**
 		* Shuts down all the systems registered in the engine.

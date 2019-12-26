@@ -5,13 +5,24 @@ namespace Grvt
 {
 
 	BaseCamera::BaseCamera() :
-		Projection(1.0f), View(1.0f), Orientation(),
-		Position(0.0f), Forward(), Up(),
-		Right(), Mode(0), FieldOfView(0.0f),
-		Width(0.0f), Height(0.0f), Near(0.0f),
-		Far(0.0f), MoveSpeed(0.0f), Sensitivity(0.0f),
-		Yaw(0.0f), Pitch(0.0f), Roll(0.0f),
-		Enable(true), Dirty(false) {}
+		Projection(1.0f), 
+		View(1.0f), 
+		Orientation(),
+		Position(0.0f), 
+		Forward(), 
+		Up(),
+		Right(), 
+		Mode(0), 
+		FieldOfView(0.0f),
+		Width(0.0f), 
+		Height(0.0f), 
+		Near(0.0f),
+		Far(0.0f), 
+		MoveSpeed(0.0f), 
+		Sensitivity(0.0f),
+		Yaw(0.0f), 
+		Pitch(0.0f), 
+		Roll(0.0f) {}
 
 
 	BaseCamera::~BaseCamera()
@@ -46,7 +57,6 @@ namespace Grvt
 			Yaw			= Other.Yaw;
 			Pitch		= Other.Pitch;
 			Roll		= Other.Roll;
-			Enable		= Other.Enable;
 		}
 
 		return *this;
@@ -64,25 +74,24 @@ namespace Grvt
 		_ASSERTE(this != &Other);
 
 		if (this != &Other) {
-			Projection = Other.Projection;
-			View = Other.View;
+			Projection  = Other.Projection;
+			View		= Other.View;
 			Orientation = Other.Orientation;
-			Position = Other.Position;
-			Forward = Other.Forward;
-			Up = Other.Up;
-			Right = Other.Right;
-			Mode = Other.Mode;
+			Position	= Other.Position;
+			Forward		= Other.Forward;
+			Up			= Other.Up;
+			Right		= Other.Right;
+			Mode		= Other.Mode;
 			FieldOfView = Other.FieldOfView;
-			Width = Other.Width;
-			Height = Other.Height;
-			Near = Other.Near;
-			Far = Other.Far;
-			MoveSpeed = Other.MoveSpeed;
+			Width		= Other.Width;
+			Height		= Other.Height;
+			Near		= Other.Near;
+			Far			= Other.Far;
+			MoveSpeed	= Other.MoveSpeed;
 			Sensitivity = Other.Sensitivity;
-			Yaw = Other.Yaw;
-			Pitch = Other.Pitch;
-			Roll = Other.Roll;
-			Enable = Other.Enable;
+			Yaw			= Other.Yaw;
+			Pitch		= Other.Pitch;
+			Roll		= Other.Roll;
 
 			new (&Other) BaseCamera();
 		}
@@ -109,8 +118,8 @@ namespace Grvt
 
 	void BaseCamera::UpdateOrientation()
 	{
-		glm::quat Quaternion = glm::quat(glm::vec3(Pitch, Yaw, Roll));
-		//glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
+		//glm::quat Quaternion = glm::quat(glm::vec3(Pitch, Yaw, Roll));
+		glm::quat Quaternion = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), glm::radians(Roll)));
 
 		// Since we are not accumulating the values of Yaw, Pitch and Roll, the existing orientation has to take the new rotation into account.
 		//Orientation = glm::normalize(Quaternion * Orientation);
@@ -146,7 +155,6 @@ namespace Grvt
 	{
 		if (Mode == GrvtCamera_Projection_Perspective) 
 		{
-			printf("Field of view: %.3f\n", FieldOfView);
 			Projection = glm::perspective(glm::radians(FieldOfView), Width / Height, Near, Far);
 		} 
 		else 
@@ -161,7 +169,6 @@ namespace Grvt
 		float Velocity = MoveSpeed * DeltaTime;
 
 		Position += Direction * Velocity;
-		Dirty = true;
 	}
 
 
@@ -173,7 +180,7 @@ namespace Grvt
 
 		//Yaw = glm::radians(Yaw + Horizontal);
 		//Pitch = glm::radians(Pitch + Vertical);
-		printf("Yaw: %.3f\n\n", Yaw);
+
 		// Old code. Sort of works but not really. The rotation axis would be warped along the dimensions.
 		// Meaning moving the mouse around x would change the pitch instead of the yaw and etc.
 		//
@@ -189,8 +196,6 @@ namespace Grvt
 
 		// No reset previously.
 		//Yaw = Pitch = Roll = 0;
-		
-		Dirty = true;
 	}
 
 
@@ -201,17 +206,15 @@ namespace Grvt
 			FieldOfView -= Offset;
 		}
 
-		if (FieldOfView <= 1.0f) 
+		if (FieldOfView < 1.0f) 
 		{
 			FieldOfView = 1.0f;
 		}
 
-		if (FieldOfView >= 90.0f) 
+		if (FieldOfView > 90.0f) 
 		{
 			FieldOfView = 90.0f;
 		}
-		printf("Zoom: %.3f\n", Offset);
-		Dirty = true;
 	}
 
 
@@ -247,13 +250,8 @@ namespace Grvt
 
 	void BaseCamera::Tick(float DeltaTime)
 	{
-		if (!Dirty)
-			return;
-
 		UpdateProjectionMatrix();
 		UpdateViewMatrix();
-
-		Dirty = false;
 	}
 
 

@@ -13,4 +13,11 @@ struct TestShader
 };
 
 
+struct FloorShader
+{
+	static Gfl::String VertexShader;
+	static Gfl::String FragmentShader;
+};
+
+
 #endif // !GRAVITY_SHADER_LIB

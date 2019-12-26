@@ -195,6 +195,7 @@ namespace Grvt
 		Gfl::Array<RenderCommand>& RenderCommands	 = FrontBuffer.RenderCommands;
 		Gfl::Array<RenderCommand>& InstancedCommands = FrontBuffer.InstancedCommands;
 
+		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, Width, Height);
 		//glViewport(PosX, PosY, Width, Height);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

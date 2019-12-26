@@ -278,7 +278,7 @@ namespace Grvt
 
 			// Do not pass the actor in for render if there is no shader or texture assigned to it.
 			// Not sure if this is the right way but ideally, this should not happen.
-			if (!Actor.MaterialPtr.Shader)
+			if (!Actor.Material.Shader)
 			{
 				continue;
 			}
@@ -303,7 +303,7 @@ namespace Grvt
 			}
 
 			Command.State = Actor.DrawingState;
-			Command.Material = &Actor.MaterialPtr;
+			Command.Material = &Actor.Material;
 
 			RenderNode Node;
 

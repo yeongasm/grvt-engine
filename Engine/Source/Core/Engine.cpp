@@ -85,8 +85,8 @@ namespace Grvt
 	{
 		// NOTE(Afiq):
 		// This behavior is not right. Check and see how ImGui does it.
-		g_Engine->IO.MouseWheel  = (float32)VerticalOffset;
-		g_Engine->IO.MouseWheelH = (float32)HorizontalOffset;
+		g_Engine->IO.MouseWheel  += (float32)VerticalOffset;
+		g_Engine->IO.MouseWheelH += (float32)HorizontalOffset;
 	}
 
 
@@ -145,6 +145,9 @@ namespace Grvt
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, VersionMinor);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+		// TODO(Afiq):
+		// Implement some sort of anti-aliasing.
+		glfwWindowHint(GLFW_SAMPLES, 4);
 
 		Window = glfwCreateWindow(Width, Height, Name.C_Str(), nullptr, nullptr);
 
@@ -162,7 +165,7 @@ namespace Grvt
 		glfwSetMouseButtonCallback(Window, GrvtEngine::MouseCallback);
 		glfwSetFramebufferSizeCallback(Window, GrvtEngine::FramebufferCallback);
 
-		glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		Middleware::InitialiseBuildQueue();
 		ResourceMgrPtr = InitialiseResourceManager();
@@ -385,6 +388,7 @@ namespace Grvt
 
 	void GrvtEngine::EndFrame()
 	{
+		IO.MouseWheel = IO.MouseWheelH = 0.0f;
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
 	}
@@ -406,6 +410,7 @@ namespace Grvt
 		return !glfwWindowShouldClose(Window);
 	}
 
+
 	void GrvtEngine::InitModule()
 	{
 		if (Module.StartUp)
@@ -414,6 +419,7 @@ namespace Grvt
 		}
 	}
 
+
 	void GrvtEngine::ExecuteModule()
 	{
 		if (Module.Execute)
@@ -421,6 +427,7 @@ namespace Grvt
 			Module.Execute();
 		}
 	}
+
 
 	void GrvtEngine::ShutdownModule()
 	{
@@ -431,6 +438,7 @@ namespace Grvt
 
 		Module.UnloadModuleDll();
 	}
+
 
 	BaseSystem* GrvtEngine::RegisterSystem(const Gfl::String& Identity, BaseSystem* SrcSystem)
 	{
@@ -449,6 +457,7 @@ namespace Grvt
 		return System;
 	}
 
+
 	BaseSystem* GrvtEngine::GetSystem(const Gfl::String& Identity)
 	{
 		for (BaseSystem* System : Systems)
@@ -461,6 +470,27 @@ namespace Grvt
 
 		return nullptr;
 	}
+
+
+	void GrvtEngine::ShowCursor(bool Show)
+	{
+		if (!Show)
+		{
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+		else
+		{
+			glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+	}
+
+
+	void GrvtEngine::SetMousePosition(const glm::vec2& Position)
+	{
+		glfwSetCursorPos(Window, (float64)Position.x, (float64)Position.y);
+		IO.MousePos = Position;
+	}
+
 
 	void GrvtEngine::DeleteSystem(const Gfl::String& Identity)
 	{
@@ -477,6 +507,7 @@ namespace Grvt
 			break;
 		}
 	}
+
 
 	void GrvtEngine::ShutdownSystems()
 	{

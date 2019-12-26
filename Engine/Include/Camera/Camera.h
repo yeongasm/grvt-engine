@@ -13,9 +13,9 @@ namespace Grvt
 	*/
 	enum ProjectionMode : uint32
 	{
-		GrvtCamera_Projection_None = 0x00,	// On first init only.
-		GrvtCamera_Projection_Perspective = 0x01,
-		GrvtCamear_Projection_Orthographics = 0x02
+		GrvtCamera_Projection_None			= 0x00,	// On first init only.
+		GrvtCamera_Projection_Perspective   = 0x01,
+		GrvtCamera_Projection_Orthographic  = 0x02
 	};
 
 
@@ -51,10 +51,9 @@ namespace Grvt
 		glm::mat4	Projection;
 		glm::mat4	View;
 
-		glm::quat	Orientation;
-
 	public:
 
+		glm::quat	Orientation;
 		glm::vec3	Position;
 		glm::vec3	Forward;
 		glm::vec3	Up;
@@ -99,15 +98,12 @@ namespace Grvt
 		*/
 		ENGINE_API virtual void Zoom(float Offset);
 
-	private:
-
-		uint32		Mode;
-
 	public:
 
 		/**
 		* Properties for computing the projection matrix.
 		*/
+		uint32		Mode;
 		float32		FieldOfView;
 		float32		Width;
 		float32		Height;
@@ -127,11 +123,6 @@ namespace Grvt
 		float32		Pitch;
 		float32		Roll;
 
-		/**
-		* Enable or disable the camera.
-		*/
-		bool		Enable;
-
 		ENGINE_API BaseCamera();
 		ENGINE_API ~BaseCamera();
 
@@ -140,10 +131,6 @@ namespace Grvt
 
 		ENGINE_API BaseCamera(BaseCamera&& Other);
 		ENGINE_API BaseCamera& operator= (BaseCamera&& Other);
-
-		bool		Dirty;
-
-	protected:
 
 	public:
 
@@ -170,7 +157,7 @@ namespace Grvt
 		/**
 		* Changes the camera's projection mode.
 		*/
-		void SetCameraProjection(uint32 NewProjection);
+		ENGINE_API void SetCameraProjection(uint32 NewProjection);
 
 	};
 
