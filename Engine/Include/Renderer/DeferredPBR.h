@@ -12,6 +12,9 @@ namespace Grvt
 	{
 	private:
 
+		glm::vec3	BGColour;
+		uint32		LightUBO;
+
 		/**
 		* Stores the index of the draw calls.
 		*/
@@ -63,7 +66,6 @@ namespace Grvt
 		* Renders the scene that is pushed into the renderer.
 		*/
 		void Render();
-
 
 	};
 

@@ -10,11 +10,14 @@ layout (location = 2) in vec2 aTexCoord;\n\
 layout (location = 3) in vec3 aTangent;\n\
 layout (location = 4) in vec3 aBitangent;\n\
 \n\
+out vec2 TexCoord;\n\
+\n\
 uniform mat4 Projection;\n\
 uniform mat4 View;\n\
 uniform mat4 Model;\n\
 void main()\n\
 {\n\
+	TexCoord = aTexCoord;\n\
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);\n\
 }\n\
 ";
@@ -22,15 +25,16 @@ void main()\n\
 Gfl::String TestShader::FragmentShader = "\
 #version 430 core\n\
 out vec4 FragColour;\n\
+in vec2 TexCoord;\n\
 \n\
 uniform vec3 Colour;\n\
+uniform sampler2D Albedo;\n\
 \n\
 void main()\n\
 {\n\
-	FragColour = vec4(Colour, 1.0f);\n\
+	FragColour = texture(Albedo, TexCoord);\n\
 }\n\
 ";
-
 
 Gfl::String FloorShader::VertexShader = R"(
 #version 430 core
@@ -50,20 +54,6 @@ void main()
 	FragPos  = vec3(Model * vec4(aPos, 1.0f));
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
 })";
-
-
-//Gfl::String FloorShader::FragmentShader = R"(
-//#version 430 core
-//out vec4 FragColour;
-//
-//uniform vec3 GridColour;
-//uniform vec3 ViewPos;
-//
-//in vec2 TexCoord;
-//in vec3 FragPos;
-//
-//
-//})";
 
 
 Gfl::String FloorShader::FragmentShader = R"(

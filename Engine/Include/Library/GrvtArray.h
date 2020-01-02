@@ -139,19 +139,19 @@ namespace Gfl
 		/**
 		* Constructor to initialise the Array with an initialiser list.
 		*/
-		Array(const std::initializer_list<ElementType>& InitList)
+		Array(const std::initializer_list<ElementType>& InitList) : Array()
 		{
-			if (InitList.size() > Capacity)
-			{
-				if (!Alloc((size_t)InitList.size()))
-				{
-					// If upsizing the Array fails, throw an assertion.
-					_ASSERTE(false);
-				}
-			}
+			//if (InitList.size() > Len)
+			//{
+			//	if (!Alloc((size_t)InitList.size()))
+			//	{
+			//		// If upsizing the Array fails, throw an assertion.
+			//		_ASSERTE(false);
+			//	}
+			//}
 
-			Len = (size_t)InitList.size();
-			memcpy(Data, InitList.begin(), sizeof(ElementType) * InitList.size());
+			//Len = (size_t)InitList.size();
+			Append(InitList);
 		}
 
 
@@ -167,7 +167,7 @@ namespace Gfl
 					Alloc(Rhs.Capacity);
 				}
 
-				Capacity = Rhs.Capacity;
+				//Capacity = Rhs.Capacity;
 				Len = Rhs.Len;
 				//memcpy(pArr, Other.pArr, Other.cusPos - 1);
 				for (size_t i = 0; i < Rhs.Len; i++)

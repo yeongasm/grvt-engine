@@ -408,8 +408,11 @@ namespace Gfl
 		void Release()
 		{
 			Destruct(0, Capacity);
+
 			if (!IsSmallString())
+			{
 				free(Data);
+			}
 
 			new (this) BasicString();
 		}

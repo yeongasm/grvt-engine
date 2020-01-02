@@ -100,8 +100,6 @@ namespace Grvt
 		{
 			RenderMesh(&Node);
 		}
-
-		//BaseAPI::GrUnbindShaderProgram(Material->Shader->Handle);
 	}
 
 
@@ -160,15 +158,15 @@ namespace Grvt
 	
 	void DeferredPBR::Init()
 	{
-		printf("Initialising DeferredPBR renderer!\n");
 		BackBuffer.Init();
 		FrontBuffer.Init();
+
+		BGColour = glm::vec3(0.169f, 0.169f, 0.169f);
 	}
 
 
 	void DeferredPBR::Shutdown()
 	{
-		printf("Shuting down DeferredPBR renderer!\n");
 		SortedCommands.Release();
 		SortedInstancedCommands.Release();
 	}
@@ -195,10 +193,12 @@ namespace Grvt
 		Gfl::Array<RenderCommand>& RenderCommands	 = FrontBuffer.RenderCommands;
 		Gfl::Array<RenderCommand>& InstancedCommands = FrontBuffer.InstancedCommands;
 
+		// NOTE(Afiq):
+		// Get rid of this once we've learned about some anti-aliasing techniques.
 		glEnable(GL_MULTISAMPLE);
 		glViewport(0, 0, Width, Height);
 		//glViewport(PosX, PosY, Width, Height);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(BGColour.x, BGColour.y, BGColour.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
@@ -231,11 +231,14 @@ namespace Grvt
 
 			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 
+			// NOTE(Afiq):
+			// There has to be a better way than this.
+			// We shouldn't construct a string every single frame to update the Projection, View and Model uniforms.
 			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "Projection", &FrontBuffer.Projection[0][0]);
 			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "View", &FrontBuffer.View[0][0]);
 			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "Model", &Command->Transform[0][0]);
 
-			RenderPushedCommand(Command, false);
+			RenderPushedCommand(Command, true);
 		}
 
 		StateCache.SetPolygonMode(PolygonFace_Front_And_Back, PolygonMode_Fill);

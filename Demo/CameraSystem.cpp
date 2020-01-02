@@ -108,7 +108,7 @@ void CameraSystem::Init()
 	REGISTERSYSTEM(CameraSystem)
 
 	Grvt::CameraCreationInfo Info;
-	Info.CameraPosition = glm::vec3(0.0f, 50.0f, 50.0f);
+	Info.CameraPosition = glm::vec3(0.0f, 10.0f, 10.0f);
 	Info.Sensitivity	= 5.0f;
 	Info.MoveSpeed		= 50.0f;
 	Info.Near			= 0.001f;
@@ -132,10 +132,6 @@ void CameraSystem::Init()
 }
 
 
-/**
-* TODO(Afiq):
-* Follow Unreal's feel for handling the camera.
-*/
 void CameraSystem::Tick()
 {
 	// TODO(Afiq):
@@ -160,6 +156,8 @@ void CameraSystem::Tick()
 		Dirty = true;
 	}
 
+	// NOTE(Afiq):
+	// Remove this section when it is no longer needed.
 	// Reset the camera to it's default position.
 	if (Io->IsKeyPressed(GLFW_KEY_F1))
 	{
@@ -183,7 +181,7 @@ void CameraSystem::Tick()
 
 	if (Io->IsMouseReleased(Grvt::Grvt_MouseButton_Right) || Io->IsMouseReleased(Grvt::Grvt_MouseButton_Left))
 	{
-		// Reset the mouse position to where it once was/
+		// Reset the mouse position to where it once was.
 		EnginePtr->SetMousePosition(CapturedMousePos);
 		Mode = CameraSystem_NoMode;
 	}
@@ -242,7 +240,6 @@ void CameraSystem::Tick()
 
 void CameraSystem::Shutdown()
 {
-	printf("Shutting down CameraSystem!\n");
 	EnginePtr	= nullptr;
 	Io			= nullptr;
 }

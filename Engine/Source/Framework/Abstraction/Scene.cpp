@@ -289,17 +289,17 @@ namespace Grvt
 
 			if (Actor.Rotation.x)
 			{
-				Model = glm::rotate(Model, Actor.Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+				Model = glm::rotate(Model, glm::radians(Actor.Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
 			}
 
 			if (Actor.Rotation.y)
 			{
-				Model = glm::rotate(Model, Actor.Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+				Model = glm::rotate(Model, glm::radians(Actor.Rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 			}
 
 			if (Actor.Position.z)
 			{
-				Model = glm::rotate(Model, Actor.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+				Model = glm::rotate(Model, glm::radians(Actor.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 			}
 
 			Command.State = Actor.DrawingState;

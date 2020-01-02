@@ -39,23 +39,6 @@ extern "C"
 			Grvt::SetActiveScene(DemoScene);
 		}
 
-		{
-			Grvt::ShaderImportInfo Test;
-			Test.Name = "TestShader";
-			Test.AddShaderToProgram(TestShader::VertexShader,	Grvt::GrvtShader_SourceType_Vertex);
-			Test.AddShaderToProgram(TestShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
-
-			Manager->NewShaderProgram(Test);
-
-			Grvt::ShaderImportInfo Floor;
-
-			Floor.Name = "FloorShader";
-			Floor.AddShaderToProgram(FloorShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
-			Floor.AddShaderToProgram(FloorShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
-
-			Manager->NewShaderProgram(Floor);
-		}
-
 		DemoScene->Camera = &CamSystem->Camera;
 	}
 
@@ -63,68 +46,11 @@ extern "C"
 	{
 		m_Engine = EnginePtr;
 		m_IO = m_Engine->GetIO();
-
-		Grvt::GrvtMaterial* SimpleMat = nullptr;
-		Grvt::ResourceManager* Manager = Grvt::GetResourceManager();
-		DemoScene = Manager->GetScene("DemoLevel");
-
-		{
-			if (!Manager->GetMaterial("TestMaterial"))
-			{
-				Grvt::MaterialCreationInfo Info;
-				Info.Name = "TestMaterial";
-				Info.Shader = Manager->GetShader("TestShader");
-
-				SimpleMat = Manager->NewMaterial(Info);
-
-				Info.Name = "FloorMaterial";
-				Info.Shader = Manager->GetShader("FloorShader");
-
-				Manager->NewMaterial(Info);
-			}
-		}
-
-		{
-			if (!DemoScene->GetActor("SphereActor"))
-			{
-				Grvt::ActorCreationInfo Info;
-				Info.Identifier = "SphereActorMiddle";
-				Info.SrcModel = Manager->GetModel("Sphere");
-				Info.SrcMaterial = SimpleMat;
-
-				DemoScene->AddNewActor(Info);
-
-				Info.Identifier = "SphereActorUp";
-				DemoScene->AddNewActor(Info);
-
-				Info.Identifier = "SphereActorRight";
-				DemoScene->AddNewActor(Info);
-
-				Info.Identifier = "SphereActorForward";
-				DemoScene->AddNewActor(Info);
-			}
-		}
 	}
 
 	void ExecuteApplication()
 	{
-		// Render the floor grid.
-		RenderFloorGrid();
-
-		Grvt::GrvtActor* Mid = DemoScene->GetActor("SphereActorMiddle");
-		Grvt::GrvtActor* X = DemoScene->GetActor("SphereActorRight");
-		Grvt::GrvtActor* Y = DemoScene->GetActor("SphereActorUp");
-		Grvt::GrvtActor* Z = DemoScene->GetActor("SphereActorForward");
-
-		Mid->Material.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
-		X->Material.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
-		Y->Material.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
-		Z->Material.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
-
-		Mid->Position = glm::vec3(0.0f, 0.0f, 0.0f);
-		X->Position = glm::vec3(10.0f, 0.0f, 0.0f);
-		Y->Position = glm::vec3(0.0f, 10.0f, 0.0f);
-		Z->Position = glm::vec3(0.0f, 0.0f, 10.0f);
+	
 	}
 
 	void OnUnload()

@@ -360,6 +360,8 @@ namespace Grvt
 		// Listens for resources to be generated or deleted from the GPU.
 		Middleware::GetBuildQueue()->Listen();
 		// Runs the tick function for all the systems registered in the engine.
+		// TODO(Afiq):
+		// This loop would sometime crash ... Need to figure out why!!!
 		for (BaseSystem* System : Systems)
 		{
 			System->Tick();

@@ -23,7 +23,7 @@ void RenderFloorGrid()
 		Floor = &Grvt::GetActiveScene()->AddNewActor(Info);
 	}
 
-	Floor->Scale = glm::vec3(4000.0f);
+	Floor->Scale = glm::vec3(1000.0f);
 
 	//const float32 Width = Grvt::GetActiveScene()->Camera->Width;
 	//const float32 Far = Grvt::GetActiveScene()->Camera->Far;

@@ -156,6 +156,7 @@ namespace Grvt
 			{
 				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
+				Cubemap = Rhs.Cubemap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
 				Height = Rhs.Height;
@@ -410,9 +411,12 @@ namespace Grvt
 		{
 			if (!Handle.Id)
 				GrCreateTexture(Handle, Data.Target);
-
+			
 			GrBindTexture(Handle);
-
+			
+			// NOTE(Afiq):
+			// We really shouldn't use a boolean expression to determine if it is a cubemap or not.
+			// Use the first element in the cubemap array of pointers instead.
 			if (Data.Cubemap)
 			{
 				for (uint32 i = 0; i < 6; i++)
@@ -435,6 +439,10 @@ namespace Grvt
 		}
 
 
+		// NOTE(Afiq):
+		// This method is flawed! If the shader fails to compile, the results would not be reflected outside of the the low level API.
+		// What really needs to be done is a job based system. The result would send a job that updates the state of this shader.
+		// An even better approach would be to not allow shader compilation failure to not happen at all.
 		bool CompileShader(ObjHandle& Handle, uint32 Type, const char* SourceCode) 
 		{
 			int32 compiled = 0;
