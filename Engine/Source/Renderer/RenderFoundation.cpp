@@ -120,6 +120,7 @@ namespace Grvt
 	{
 		Nodes.Empty();
 		Instances.Empty();
+		Material = nullptr;
 	}
 
 
@@ -217,6 +218,8 @@ namespace Grvt
 			ShadowMaps		= Other.ShadowMaps;
 			RenderCommands	= Other.RenderCommands;
 			InstancedCommands = Other.InstancedCommands;
+			CustomCommands	= Other.CustomCommands;
+			SkyBox			= Other.SkyBox;
 			IsEmpty = Other.IsEmpty;
 		}
 
@@ -242,6 +245,8 @@ namespace Grvt
 			ShadowMaps			= Gfl::Move(Other.ShadowMaps);
 			RenderCommands		= Gfl::Move(Other.RenderCommands);
 			InstancedCommands	= Gfl::Move(Other.InstancedCommands);
+			CustomCommands		= Gfl::Move(Other.CustomCommands);
+			SkyBox				= Gfl::Move(Other.SkyBox);
 			IsEmpty = Other.IsEmpty;
 
 			new (&Other) CommandBuffer();
@@ -262,11 +267,14 @@ namespace Grvt
 
 	void CommandBuffer::Free()
 	{
+		Projection = glm::mat4();
+		View = glm::mat4();
 		Lights.Release();
 		ShadowMaps.Release();
 		RenderCommands.Release();
 		InstancedCommands.Release();
 		CustomCommands.clear();
+		SkyBox.Empty();
 	}
 
 
@@ -277,6 +285,7 @@ namespace Grvt
 		RenderCommands.Empty();
 		InstancedCommands.Empty();
 		CustomCommands.clear();
+		SkyBox.Empty();
 
 		IsEmpty = true;
 	}

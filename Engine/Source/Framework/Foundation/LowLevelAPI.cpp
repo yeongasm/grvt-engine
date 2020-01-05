@@ -132,7 +132,7 @@ namespace Grvt
 
 
 		TextureBuildData::TextureBuildData() :
-			DataPtr(nullptr), CubemapDataPtr{nullptr}, Cubemap(0), Mipmap(1), Flip(1), Width(0), 
+			DataPtr(nullptr), CubemapDataPtr{nullptr}, Mipmap(1), Flip(1), Width(0), 
 			Height(0), Target(0), Type(0), Format(0), InternalFormat(0), Parameters() {}
 
 
@@ -156,7 +156,6 @@ namespace Grvt
 			{
 				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
-				Cubemap = Rhs.Cubemap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
 				Height = Rhs.Height;
@@ -414,10 +413,7 @@ namespace Grvt
 			
 			GrBindTexture(Handle);
 			
-			// NOTE(Afiq):
-			// We really shouldn't use a boolean expression to determine if it is a cubemap or not.
-			// Use the first element in the cubemap array of pointers instead.
-			if (Data.Cubemap)
+			if (Data.Target == GL_TEXTURE_CUBE_MAP)
 			{
 				for (uint32 i = 0; i < 6; i++)
 				{
@@ -487,7 +483,7 @@ namespace Grvt
 				}
 
 				if (!CompileShader(Handles[Index], type, Info.SourceCode))
-					_ASSERTE(false); // Failed to compile vertex shader.
+					_ASSERTE(false); // Failed to compile shader.
 
 				glAttachShader(Handle.Id, Handles[Index].Id);
 				Index++;
@@ -561,7 +557,6 @@ namespace Grvt
 			{
 				if (Attachment.Component == GrvtFramebuffer_AttachComponent_Cubemap)
 				{
-					buildData.Cubemap = true;
 					buildData.Target = GL_TEXTURE_CUBE_MAP;
 					buildData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
 					buildData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});

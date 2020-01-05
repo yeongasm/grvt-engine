@@ -101,13 +101,12 @@ namespace Grvt
 			int32	Height;
 			bool	Mipmap;
 			bool	Flip;
-			bool	Cubemap;
 			void*	DataPtr;
 			void*	CubemapDataPtr[6];
 
 
-			TextureBuildData();
-			~TextureBuildData();
+			ENGINE_API TextureBuildData();
+			ENGINE_API ~TextureBuildData();
 
 			TextureBuildData(const TextureBuildData& Rhs);
 			TextureBuildData& operator= (const TextureBuildData& Rhs);

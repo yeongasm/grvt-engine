@@ -39,6 +39,48 @@ extern "C"
 			Grvt::SetActiveScene(DemoScene);
 		}
 
+		{
+			Grvt::ShaderImportInfo ShaderInfo;
+			ShaderInfo.Name = "CubeMapShader";
+			ShaderInfo.AddShaderToProgram(SkyboxShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
+			ShaderInfo.AddShaderToProgram(SkyboxShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+
+			Manager->NewShaderProgram(ShaderInfo);
+		}
+
+		{
+			Grvt::ShaderImportInfo ShaderInfo;
+			ShaderInfo.Name = "FloorShader";
+			ShaderInfo.AddShaderToProgram(FloorShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
+			ShaderInfo.AddShaderToProgram(FloorShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+
+			Manager->NewShaderProgram(ShaderInfo);
+		}
+
+
+		{
+			Grvt::TextureImportInfo CubemapInfo;
+			CubemapInfo.Name = "DemoCubeMap";
+			CubemapInfo.Type = Grvt::GrvtTexture_Type_Cubemap;
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\right.jpg");
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\left.jpg");
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\top.jpg");
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\bottom.jpg");
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\front.jpg");
+			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\back.jpg");
+			
+			Manager->NewImportCubemap(CubemapInfo);
+		}
+
+		{
+			Grvt::TextureImportInfo Info;
+			Info.Name = "FloorTileTexture";
+			Info.Type = Grvt::GrvtTexture_Type_Albedo;
+			Info.Path.Push(__EXEPATH__"Data\\Texture\\FloorTile.png");
+
+			Manager->NewImportTexture(Info);
+		}
+
 		DemoScene->Camera = &CamSystem->Camera;
 	}
 
@@ -46,11 +88,37 @@ extern "C"
 	{
 		m_Engine = EnginePtr;
 		m_IO = m_Engine->GetIO();
+
+		DemoScene = Grvt::GetResourceManager()->GetScene("DemoLevel");
+
+		{
+			Grvt::GrvtTexture* SkyBox = Grvt::GetResourceManager()->GetTexture("DemoCubeMap");
+
+			Grvt::MaterialCreationInfo MaterialInfo;
+			MaterialInfo.Name = "CubeMapMaterial";
+			MaterialInfo.Shader = Grvt::GetResourceManager()->GetShader("CubeMapShader");
+			MaterialInfo.Textures.Push({Grvt::GrvtTexture_Type_Cubemap, &SkyBox->Handle});
+
+			Grvt::GetResourceManager()->NewMaterial(MaterialInfo);
+		}
+
+		{
+			Grvt::GrvtTexture* FloorTile = Grvt::GetResourceManager()->GetTexture("FloorTileTexture");
+
+			Grvt::MaterialCreationInfo FloorMat;
+			FloorMat.Name = "FloorMaterial";
+			FloorMat.Shader = Grvt::GetResourceManager()->GetShader("FloorShader");
+			FloorMat.Textures.Push({Grvt::GrvtTexture_Type_Albedo, &FloorTile->Handle});
+
+			Grvt::GetResourceManager()->NewMaterial(FloorMat);
+		}
+
+		DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
 	void ExecuteApplication()
 	{
-	
+		RenderFloorGrid();
 	}
 
 	void OnUnload()

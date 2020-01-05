@@ -255,7 +255,7 @@ namespace Grvt
 			return nullptr;
 
 		if (CheckIfTextureExist(Import.Path[0]))
-			return GetTexture(Import.Name);
+			return nullptr;
 
 		size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
 		Resources.emplace(Import.Name, id);
@@ -268,6 +268,34 @@ namespace Grvt
 		g_TextureManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
 
 		Middleware::PackageTextureForBuild(texture);
+
+		return texture;
+	}
+
+
+	GrvtTexture* ResourceManager::NewImportTexture(const TextureImportInfo& Import, BaseAPI::TextureBuildData& BuildData)
+	{
+		if (Import.Path.Length() != 1)
+			return nullptr;
+
+		if (CheckIfTextureExist(Import.Path[0]))
+			return nullptr;
+
+		size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Import.Name, id);
+
+		GrvtTexture* texture = g_TextureManager.NewResource(id, Import.Name);
+		texture->Alloc(Import);
+
+		stbi_set_flip_vertically_on_load(true);
+		texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &texture->Width, &texture->Height, &texture->Channel, 0);
+		g_TextureManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
+
+		BuildData.DataPtr	= texture->DataPtr;
+		BuildData.Height	= texture->Height;
+		BuildData.Width		= texture->Width;
+
+		Middleware::PackageCustomTextureForBuild(texture, BuildData);
 
 		return texture;
 	}

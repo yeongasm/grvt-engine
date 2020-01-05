@@ -236,6 +236,11 @@ namespace Grvt
 		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Import);
 
 		/**
+		* Import a new texture into the engine but manually specifying it's build data.
+		*/
+		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Import, BaseAPI::TextureBuildData& BuildData);
+
+		/**
 		* Create a custom texture and store it into the engine.
 		*/
 		ENGINE_API GrvtTexture* NewCustomTexture(const TextureImportInfo& Info, void* TextureData, BaseAPI::TextureBuildData& BuildData);

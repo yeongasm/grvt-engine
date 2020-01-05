@@ -33,6 +33,21 @@ namespace Grvt
 	*/
 	class GrvtScene
 	{
+	private:
+
+		/**
+		* A Skybox when added should always have the default cube model set.
+		* The only variables that should be allowed to be modified is Render and SrcMaterial.
+		*/
+		struct SkyBox
+		{
+			GrvtMaterial	SrcMaterial;
+			GrvtModel*		SrcModel	= nullptr;
+			bool			Render		= false;
+		};
+
+		SkyBox		Sky;
+
 	public:
 
 		Gfl::String	Name;
@@ -130,6 +145,22 @@ namespace Grvt
 		* Does not release memory that was once allocated for them.
 		*/
 		ENGINE_API void		DeleteAllLights			();
+
+		/**
+		* Adds a sky box into the level.
+		* There can only be one sky box per level.
+		*/
+		ENGINE_API void		AddSkyBox				(GrvtMaterial* MaterialPtr, bool Render = true);
+
+		/**
+		* Toggles if the sky box is rendered or not.
+		*/
+		ENGINE_API void		RenderSkyBox			(bool Render);
+
+		/**
+		* Removes a sky box from the level.
+		*/
+		ENGINE_API void		RemoveSkyBox			();
 	};
 
 	/**

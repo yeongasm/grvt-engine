@@ -182,39 +182,39 @@ namespace Grvt
 
 		{
 			Info.Name = "Plane";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Plane.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Plane.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Quad";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Quad.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Quad.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Cube";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cube.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Cube.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Sphere";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Sphere.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Sphere.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Cylinder";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cylinder.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Cylinder.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Cone";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Cone.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Cone.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "IcoSphere";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\IcoSphere.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\IcoSphere.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Torus";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Torus.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Torus.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 
 			Info.Name = "Suzanne";
-			Info.Path = Gfl::String(__EXEPATH__"Primitives\\Monkey.fbx");
+			Info.Path = Gfl::String(__EXEPATH__"Data\\Model\\Monkey.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 		}
 	}
@@ -364,6 +364,9 @@ namespace Grvt
 		// This loop would sometime crash ... Need to figure out why!!!
 		for (BaseSystem* System : Systems)
 		{
+			if (!System)
+				continue;
+
 			System->Tick();
 		}
 

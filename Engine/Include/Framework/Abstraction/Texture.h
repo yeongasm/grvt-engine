@@ -20,24 +20,26 @@ namespace Grvt
 	*/
 	enum TextureType : int32
 	{
-		GrvtTexture_Type_None = 0xFF,	/** On first init only. */
-		GrvtTexture_Type_Diffuse = 0x00,
-		GrvtTexture_Type_Albedo = 0x01,
-		GrvtTexture_Type_Specular = 0x02,
-		GrvtTexture_Type_Roughness = 0x03,
-		GrvtTexture_Type_Metallic = 0x04,
-		GrvtTexture_Type_Ao = 0x05,
-		GrvtTexture_Type_Normal = 0x06,
-		GrvtTexture_Type_Height = 0x07,
-		GrvtTexture_Type_Displacement = 0x08,
-		GrvtTexture_Type_Reflection = 0x09,
-		GrvtTexture_Type_Emissive = 0x0A,
-		GrvtTexture_Type_Opacity = 0x0B,
-		GrvtTexture_Type_Cubemap = 0x0C
+		GrvtTexture_Type_None			= 0xFF,	/** On first init only. */
+		GrvtTexture_Type_Diffuse		= 0x00,
+		GrvtTexture_Type_Albedo			= 0x01,
+		GrvtTexture_Type_Specular		= 0x02,
+		GrvtTexture_Type_Roughness		= 0x03,
+		GrvtTexture_Type_Metallic		= 0x04,
+		GrvtTexture_Type_Ao				= 0x05,
+		GrvtTexture_Type_Normal			= 0x06,
+		GrvtTexture_Type_Height			= 0x07,
+		GrvtTexture_Type_Displacement	= 0x08,
+		GrvtTexture_Type_Reflection		= 0x09,
+		GrvtTexture_Type_Emissive		= 0x0A,
+		GrvtTexture_Type_Opacity		= 0x0B,
+		GrvtTexture_Type_Cubemap		= 0x0C
 	};
 
 
 	/**
+	* Cubemaps need to be specified by the following order:
+	* Right -> Left -> Top -> Bottom -> Front -> Back.
 	*/
 	struct TextureImportInfo
 	{

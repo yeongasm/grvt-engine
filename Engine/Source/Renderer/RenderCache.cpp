@@ -4,7 +4,7 @@
 namespace Grvt
 {
 
-	uint32 g_StateParams[32] = { GL_NONE, GL_ONE,
+	constexpr uint32 g_StateParams[32] = { GL_NONE, GL_ONE,
 		GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR,
 		GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
 		GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
@@ -108,7 +108,6 @@ namespace Grvt
 		{
 			SrcBlend = Source;
 			DstBlend = Destination;
-
 			glBlendFunc(g_StateParams[SrcBlend], g_StateParams[DstBlend]);
 		}
 	}
@@ -116,7 +115,7 @@ namespace Grvt
 
 	void RenderCache::SetDepthFunc(uint32 Func)
 	{
-		if (DepthFunc)
+		if (Func)
 		{
 			glEnable(GL_DEPTH_TEST);
 		}
@@ -125,12 +124,12 @@ namespace Grvt
 			glDisable(GL_DEPTH_TEST);
 		}
 
-		if (DepthFunc != Func)
+		if (DepthFunc && DepthFunc != Func)
 		{
 			DepthFunc = Func;
-
 			glDepthFunc(g_StateParams[DepthFunc]);
 		}
+
 	}
 
 
@@ -152,7 +151,7 @@ namespace Grvt
 
 			glFrontFace(g_StateParams[FrontFace]);
 			glCullFace(g_StateParams[CullFace]);
-		}	
+		}
 	}
 
 

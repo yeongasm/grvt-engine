@@ -13,11 +13,11 @@ struct TestShader
 };
 
 
-//struct CubemapShader
-//{
-//	static Gfl::String VertexShader;
-//	static Gfl::String FragmentShader;
-//};
+struct SkyboxShader
+{
+	static Gfl::String VertexShader;
+	static Gfl::String FragmentShader;
+};
 
 
 struct FloorShader

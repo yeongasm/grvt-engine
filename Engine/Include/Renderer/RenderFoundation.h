@@ -96,13 +96,16 @@ namespace Grvt
 	*/
 	struct CommandBuffer
 	{
+		using CustomCommandsList = std::map<RenderTarget, Gfl::Array<RenderCommand>>;
+
 		glm::mat4 Projection;
 		glm::mat4 View;
 		Gfl::Array<glm::mat4>		Lights;
 		Gfl::Array<RenderTarget>	ShadowMaps;
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
-		std::map<RenderTarget, Gfl::Array<RenderCommand>> CustomCommands;
+		CustomCommandsList			CustomCommands;
+		RenderCommand				SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
 		bool IsEmpty;
 
 

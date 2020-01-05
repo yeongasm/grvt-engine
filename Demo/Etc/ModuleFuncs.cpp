@@ -80,6 +80,8 @@ void RenderFloorGrid()
 	// We always want to render the grid hence face culling should be disabled.
 	Floor->DrawingState.FrontFace = Grvt::CacheState_None;
 	Floor->Rotation.x = -90.0f;
-	Floor->Material.SetVector("GridColour", glm::vec3(0.85f, 0.85f, 0.85f));
-	Floor->Material.SetVector("ViewPos", CamPos);
+	Floor->Material.SetTexture("FloorTexture", Grvt::GrvtTexture_Type_Albedo);
+	Floor->Material.SetVector("ScaleFactor", glm::vec2(Floor->Scale));
+	Floor->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+	Floor->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
 }

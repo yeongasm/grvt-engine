@@ -251,6 +251,29 @@ namespace Grvt
 	}
 
 
+	void GrvtScene::AddSkyBox(GrvtMaterial* MaterialPtr, bool Render)
+	{
+		Sky.SrcModel	= GetResourceManager()->GetModel("Cube");
+		Sky.Render		= Render;
+		Sky.SrcMaterial = *MaterialPtr;
+		Sky.SrcMaterial.SetTexture("CubeMap", GrvtTexture_Type_Cubemap);
+	}
+
+
+	void GrvtScene::RenderSkyBox(bool Render)
+	{
+		Sky.Render = Render;
+	}
+
+
+	void GrvtScene::RemoveSkyBox()
+	{
+		Sky.SrcModel = nullptr;
+		Sky.Render = false;
+		Sky.SrcMaterial.Free();
+	}
+
+
 	/**
 	* TODO(Afiq):
 	* Package lighting into the command buffer.
@@ -368,10 +391,26 @@ namespace Grvt
 		* Package for lights and shadow maps.
 		*/
 
-		/**
-		* TODO(Afiq):
-		* Figure out a way to handle custom commands.
-		*/
+		if (Sky.SrcModel && Sky.Render)
+		{
+			RenderNode Node;
+
+			for (GrvtMesh& Mesh : Sky.SrcModel->Meshes)
+			{
+				Node.Handle = &Mesh.Vao;
+				Node.Size	= Mesh.Size;
+				Node.Mode	= GL_TRIANGLES;
+
+				if (Mesh.Ebo.Id)
+				{
+					Node.Indexed = true;
+				}
+
+				Buffer.SkyBox.Nodes.Push(Gfl::Move(Node));
+			}
+
+			Buffer.SkyBox.Material = &Sky.SrcMaterial;
+		}
 
 		Buffer.IsEmpty = false;
 	}
