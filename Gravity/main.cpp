@@ -13,7 +13,7 @@ int main()
 	Width	= Size.right;
 	Height	= Size.bottom;
 
-	Grvt::InitialiseEngine("Gravity Engine", 800, 600, 4, 3);
+	Grvt::InitialiseEngine("Gravity Engine", 800, 600, 4, 5);
 
 	Grvt::ExecuteEngine();
 

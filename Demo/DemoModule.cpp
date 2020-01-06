@@ -62,12 +62,12 @@ extern "C"
 			Grvt::TextureImportInfo CubemapInfo;
 			CubemapInfo.Name = "DemoCubeMap";
 			CubemapInfo.Type = Grvt::GrvtTexture_Type_Cubemap;
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\right.jpg");
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\left.jpg");
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\top.jpg");
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\bottom.jpg");
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\front.jpg");
-			CubemapInfo.Path.Push("C:\\Users\\geege\\Desktop\\skybox\\back.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\right.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\left.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\top.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\bottom.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\front.jpg");
+			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\back.jpg");
 			
 			Manager->NewImportCubemap(CubemapInfo);
 		}
@@ -76,7 +76,7 @@ extern "C"
 			Grvt::TextureImportInfo Info;
 			Info.Name = "FloorTileTexture";
 			Info.Type = Grvt::GrvtTexture_Type_Albedo;
-			Info.Path.Push(__EXEPATH__"Data\\Texture\\FloorTile.png");
+			Info.Path.Push("Data\\Texture\\FloorTile.png");
 
 			Manager->NewImportTexture(Info);
 		}
@@ -113,7 +113,7 @@ extern "C"
 			Grvt::GetResourceManager()->NewMaterial(FloorMat);
 		}
 
-		DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
+		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
 	void ExecuteApplication()

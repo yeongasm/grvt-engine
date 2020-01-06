@@ -80,7 +80,8 @@ uniform mat4 Model;
 
 void main()
 {
-	TexCoord = aTexCoord;
+	vec4 Coord = Model * vec4(aTexCoord.x, 0.0f, aTexCoord.y, 1.0f);
+	TexCoord = Coord.xz;
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
 })";
 
@@ -105,9 +106,11 @@ float LinearizeDepth(float Depth)
 
 void main()
 {
-	float Alpha = LinearizeDepth(gl_FragCoord.z) / Far;
-	Alpha = 1.0f - Alpha;
+	float Blend = LinearizeDepth(gl_FragCoord.z) / Far;
+	Blend = 1.0f - Blend;
+	Blend = pow(Blend, 10.0f);
 	vec2 Scale = ScaleFactor * 0.5f;
-	vec3 Colour = texture(FloorTexture, TexCoord * Scale).rgb;
-	FragColour = vec4(Colour, Alpha * 2.0f);
+	//vec4 Colour = texture(FloorTexture, TexCoord * Scale).rgba;
+	//FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), Colour, Blend); 
+	FragColour = texture(FloorTexture, TexCoord); 
 })";

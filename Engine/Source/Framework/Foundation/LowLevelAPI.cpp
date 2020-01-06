@@ -426,7 +426,13 @@ namespace Grvt
 			}
 
 			if (Data.Mipmap)
+			{
 				glGenerateMipmap(Handle.Target);
+
+				float32 AnisotropicF = 0.0f;
+				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &AnisotropicF);
+				glTexParameterf(Handle.Target, GL_TEXTURE_MAX_ANISOTROPY, min(4.0f, AnisotropicF));
+			}
 
 			for (Gfl::Pair<uint32, uint32>& Param : Data.Parameters)
 				glTexParameteri(Handle.Target, Param.Key, Param.Value);
