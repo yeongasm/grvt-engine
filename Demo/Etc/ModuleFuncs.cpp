@@ -23,14 +23,12 @@ void RenderFloorGrid()
 		Floor = &Grvt::GetActiveScene()->AddNewActor(Info);
 	}
 
-	Floor->Scale = glm::vec3(1000.0f);
+	Floor->Scale = glm::vec3(10.0f);
+	Floor->Position.x = Grvt::GetActiveScene()->Camera->Position.x;
+	Floor->Position.z = Grvt::GetActiveScene()->Camera->Position.z;
 
 	const float32 Width = Grvt::GetActiveScene()->Camera->Width;
 	const float32 Far = Grvt::GetActiveScene()->Camera->Far;
-
-	// NOTE(Afiq):
-	// This is not right! Since it does not take rotations into account.
-	glm::vec3 CamPos  = Grvt::GetActiveScene()->Camera->Position;
 
 	// Toggle the floor for render.
 	if (Io->IsKeyPressed(GLFW_KEY_G))
@@ -43,6 +41,7 @@ void RenderFloorGrid()
 	Floor->Rotation.x = -90.0f;
 	Floor->Material.SetTexture("FloorTexture", Grvt::GrvtTexture_Type_Albedo);
 	Floor->Material.SetVector("ScaleFactor", glm::vec2(Floor->Scale));
+	Floor->Material.SetVector("ViewPos", Grvt::GetActiveScene()->Camera->Position);
 	Floor->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
 	Floor->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
 }

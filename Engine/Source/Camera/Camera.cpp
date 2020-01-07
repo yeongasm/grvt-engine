@@ -113,6 +113,7 @@ namespace Grvt
 		Translation = glm::translate(Translation, -Position);
 
 		View = Rotation * Translation;
+		//View = glm::lookAt(Position, Position + Forward, Up);
 	}
 
 
@@ -129,6 +130,15 @@ namespace Grvt
 		Forward = glm::inverse(Orientation) * glm::vec3(0.0f, 0.0f, -1.0f);
 		Up		= glm::inverse(Orientation) * glm::vec3(0.0f, 1.0f,  0.0f);
 		Right	= glm::inverse(Orientation) * glm::vec3(1.0f, 0.0f,  0.0f);
+
+		//glm::vec3 Front;
+		//Front.x = glm::cos(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+		//Front.y = glm::sin(glm::radians(Pitch));
+		//Front.z = glm::sin(glm::radians(Yaw)) * glm::cos(glm::radians(Pitch));
+
+		//Forward = glm::normalize(Front);
+		//Up		= glm::normalize(glm::cross(Right, Forward));
+		//Right	= glm::normalize(glm::cross(Front, glm::vec3(0.0f, 1.0f, 0.0f)));
 	}
 
 
@@ -162,6 +172,30 @@ namespace Grvt
 		Yaw		+= Horizontal;
 		Pitch	+= Vertical;
 		Roll	+= ZRotation;
+
+		if (Yaw > 360.0f || Yaw < -360.0f)
+		{
+			if (Yaw < 0.0f)
+				Yaw *= -1.0f;
+
+			Yaw += 360.0f * -1.0f;
+		}
+
+		if (Pitch > 360.0f || Pitch < -360.0f)
+		{
+			if (Pitch < 0.0f)
+				Pitch *= -1.0f;
+
+			Pitch += 360.0f * -1.0f;
+		}
+
+		if (Roll > 360.0f || Roll < -360.0f)
+		{
+			if (Roll < 0.0f)
+				Roll *= -1.0f;
+
+			Roll += 360.0f * -1.0f;
+		}
 
 		UpdateOrientation();
 	}

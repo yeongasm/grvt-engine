@@ -2,39 +2,39 @@
 #include "ShaderLib.h"
 
 
-Gfl::String TestShader::VertexShader = "\
-#version 430 core\n\
-layout (location = 0) in vec3 aPos;\n\
-layout (location = 1) in vec3 aNormal;\n\
-layout (location = 2) in vec2 aTexCoord;\n\
-layout (location = 3) in vec3 aTangent;\n\
-layout (location = 4) in vec3 aBitangent;\n\
-\n\
-out vec2 TexCoord;\n\
-\n\
-uniform mat4 Projection;\n\
-uniform mat4 View;\n\
-uniform mat4 Model;\n\
-void main()\n\
-{\n\
-	TexCoord = aTexCoord;\n\
-	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);\n\
-}\n\
-";
+Gfl::String TestShader::VertexShader = R"(
+#version 430 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
+layout (location = 3) in vec3 aTangent;
+layout (location = 4) in vec3 aBitangent;
 
-Gfl::String TestShader::FragmentShader = "\
-#version 430 core\n\
-out vec4 FragColour;\n\
-in vec2 TexCoord;\n\
-\n\
-uniform vec3 Colour;\n\
-uniform sampler2D Albedo;\n\
-\n\
-void main()\n\
-{\n\
-	FragColour = texture(Albedo, TexCoord);\n\
-}\n\
-";
+out vec2 TexCoord;
+
+uniform mat4 Projection;
+uniform mat4 View;
+uniform mat4 Model;
+void main()
+{
+	TexCoord = aTexCoord;
+	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
+}
+)";
+
+Gfl::String TestShader::FragmentShader = R"(
+#version 430 core
+out vec4 FragColour;
+in vec2 TexCoord;
+
+uniform vec3 Colour;
+uniform sampler2D Albedo;
+
+void main()
+{
+	FragColour = texture(Albedo, TexCoord);
+}
+)";
 
 Gfl::String SkyboxShader::VertexShader = R"(
 #version 430 core
@@ -78,10 +78,13 @@ uniform mat4 Projection;
 uniform mat4 View;
 uniform mat4 Model;
 
+uniform vec3 ViewPos;
+
 void main()
 {
-	vec4 Coord = Model * vec4(aTexCoord.x, 0.0f, aTexCoord.y, 1.0f);
-	TexCoord = Coord.xz;
+	//vec4 FixedPos = Projection * View * vec4(aPos.x, aPos.y - ViewPos.y, aPos.z, 1.0f);
+	//TexCoord = normalize(FixedPos.xz);
+	TexCoord = aTexCoord;
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
 })";
 
@@ -106,11 +109,11 @@ float LinearizeDepth(float Depth)
 
 void main()
 {
-	float Blend = LinearizeDepth(gl_FragCoord.z) / Far;
-	Blend = 1.0f - Blend;
-	Blend = pow(Blend, 10.0f);
-	vec2 Scale = ScaleFactor * 0.5f;
+	//float Blend = LinearizeDepth(gl_FragCoord.z) / Far;
+	//Blend = 1.0f - Blend;
+	//Blend = pow(Blend, 50.0f);
+	//vec2 Scale = ScaleFactor * 0.5f;
 	//vec4 Colour = texture(FloorTexture, TexCoord * Scale).rgba;
-	//FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), Colour, Blend); 
-	FragColour = texture(FloorTexture, TexCoord); 
+	//FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), Colour, Blend);
+	FragColour = texture(FloorTexture, TexCoord);
 })";
