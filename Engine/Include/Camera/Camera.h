@@ -71,10 +71,14 @@ namespace Grvt
 		*/
 		virtual void UpdateViewMatrix();
 
+	public:
+
 		/**
 		* Updates the different vectors of the camera.
 		*/
 		virtual void UpdateOrientation();
+
+	protected:
 
 		/**
 		* Updates the camera's projection matrix.

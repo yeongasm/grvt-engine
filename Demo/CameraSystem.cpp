@@ -127,7 +127,7 @@ void CameraSystem::Init()
 	FirstMouse	= true;
 
 	Camera.Init(Info);
-	Camera.Pitch = 45.0f;
+	Camera.Pitch = 22.5f;
 	Camera.Rotate(glm::vec3(Camera.Pitch, Camera.Yaw, 0.0f), EnginePtr->DeltaTime);
 }
 

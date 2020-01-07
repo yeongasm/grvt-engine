@@ -20,6 +20,10 @@ Grvt::DeferredPBR*	m_Renderer	= nullptr;
 
 CameraSystem* CamSystem = nullptr;
 
+glm::vec3 StartPos = glm::vec3(0.0f, 20.0f, 50.0f);
+glm::vec3 EndPos = glm::vec3(50.0f, 20.0f, 0.0f);
+float Time = 0.0f;
+
 extern "C"
 {
 
@@ -53,6 +57,15 @@ extern "C"
 			ShaderInfo.Name = "FloorShader";
 			ShaderInfo.AddShaderToProgram(FloorShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
 			ShaderInfo.AddShaderToProgram(FloorShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+
+			Manager->NewShaderProgram(ShaderInfo);
+		}
+
+		{
+			Grvt::ShaderImportInfo ShaderInfo;
+			ShaderInfo.Name = "BasicColour";
+			ShaderInfo.AddShaderToProgram(TestColourShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
+			ShaderInfo.AddShaderToProgram(TestColourShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
 
 			Manager->NewShaderProgram(ShaderInfo);
 		}
@@ -113,12 +126,95 @@ extern "C"
 			Grvt::GetResourceManager()->NewMaterial(FloorMat);
 		}
 
+		{
+			Grvt::MaterialCreationInfo BColourMat;
+			BColourMat.Name = "BaseColourMaterial";
+			BColourMat.Shader = Grvt::GetResourceManager()->GetShader("BasicColour");
+			
+			Grvt::GetResourceManager()->NewMaterial(BColourMat);
+		}
+
+		{
+			Grvt::ActorCreationInfo ActorInfo;
+			ActorInfo.Identifier = "Mid";
+			ActorInfo.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+			ActorInfo.SrcModel = Grvt::GetResourceManager()->GetModel("Cube");
+			ActorInfo.SrcMaterial = Grvt::GetResourceManager()->GetMaterial("BaseColourMaterial");
+
+			DemoScene->AddNewActor(ActorInfo);
+
+			ActorInfo.Identifier = "Right";
+			ActorInfo.Position = glm::vec3(10.0f, 0.0, 0.0f);
+			DemoScene->AddNewActor(ActorInfo);
+
+			ActorInfo.Identifier = "Up";
+			ActorInfo.Position = glm::vec3(0.0f, 10.0, 0.0f);
+			DemoScene->AddNewActor(ActorInfo);
+
+			ActorInfo.Identifier = "Front";
+			ActorInfo.Position = glm::vec3(0.0f, 0.0, 10.0f);
+			DemoScene->AddNewActor(ActorInfo);
+		}
+
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
 	void ExecuteApplication()
 	{
+		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
+		static bool Animate = false;
+		static bool InitAnim = true;
 		RenderFloorGrid();
+
+		Grvt::GrvtActor* Mid	= Grvt::GetActiveScene()->GetActor("Mid");
+		Grvt::GrvtActor* Right	= Grvt::GetActiveScene()->GetActor("Right");
+		Grvt::GrvtActor* Up		= Grvt::GetActiveScene()->GetActor("Up");
+		Grvt::GrvtActor* Front	= Grvt::GetActiveScene()->GetActor("Front");
+
+		Mid->Material.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
+		Mid->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
+		Mid->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+
+		Right->Material.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
+		Right->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
+		Right->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+
+		Up->Material.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
+		Up->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
+		Up->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+
+		Front->Material.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
+		Front->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
+		Front->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+
+		if (m_IO->IsKeyPressed(GLFW_KEY_P))
+			Animate ^= true;
+
+		// NOTE(Afiq):
+		// This part here needs to be a system instead.
+		if (Animate)
+		{
+			if (InitAnim)
+			{
+				Time = 0.0f;
+				Camera->Yaw = 0.0f;
+				Camera->Position.x = StartPos.x;
+				InitAnim = false;
+			}
+
+			glm::vec3 Distance = glm::normalize(EndPos - Camera->Position);
+			float Velocity = Camera->MoveSpeed * m_Engine->DeltaTime;
+			float T = (Time * m_Engine->DeltaTime) / (5.0f * m_Engine->DeltaTime);
+			
+			Camera->Position = (1.0f - T) * StartPos + T * EndPos;
+			Camera->Yaw = (1.0f - T) * 0.0f + T * -90.0f;
+			Camera->UpdateOrientation();
+
+			Time += 1.0f * m_Engine->DeltaTime;
+
+			if (Camera->Position.x >= EndPos.x)
+				InitAnim = true;
+		}
 	}
 
 	void OnUnload()

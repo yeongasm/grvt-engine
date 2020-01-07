@@ -7,6 +7,11 @@
 static bool MoveFloor = false;
 constexpr float FloorMoveSpeed = 10.0f;
 
+/**
+* NOTE(Afiq):
+* We cant really use a single plane and scale it up as the floor. Single plane technique leads to floating point imprecision errors.
+* Best solution is to use a terrain system.
+*/
 void RenderFloorGrid()
 {
 	Grvt::EngineIO*	 Io		= Grvt::GetEngine()->GetIO();
@@ -23,7 +28,7 @@ void RenderFloorGrid()
 		Floor = &Grvt::GetActiveScene()->AddNewActor(Info);
 	}
 
-	Floor->Scale = glm::vec3(10.0f);
+	Floor->Scale = glm::vec3(100.0f);
 	Floor->Position.x = Grvt::GetActiveScene()->Camera->Position.x;
 	Floor->Position.z = Grvt::GetActiveScene()->Camera->Position.z;
 

@@ -6,7 +6,14 @@
 #include <Minimal.h>
 
 
-struct TestShader
+struct TestColourShader
+{
+	static Gfl::String VertexShader;
+	static Gfl::String FragmentShader;
+};
+
+
+struct TestDiffShader
 {
 	static Gfl::String VertexShader;
 	static Gfl::String FragmentShader;
