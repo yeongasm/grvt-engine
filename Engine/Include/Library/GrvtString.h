@@ -50,14 +50,18 @@ namespace Gfl
 		*/
 		size_t WriteFv(const char* Literal)
 		{
-			Len = 0;
 			size_t Length = strlen(Literal);
 
-			if (Length >= Capacity) {
+			if (Length >= Capacity) 
 				Alloc(Length + (1 << SlackMultiplier), false);
-			}
 
-			while (Len != Length) {
+			if (Len > Length)
+				Destruct(Length - 1, Len - 1);
+
+			Len = 0;
+
+			while (Len != Length) 
+			{
 				StoreInBuffer(Len, Literal[Len]);
 				Len++;
 			}
@@ -343,6 +347,8 @@ namespace Gfl
 					{
 						Buffer[i] = RhsPtr[i];
 					}
+
+					Buffer[Len] = '\0';
 				}
 
 				new (&Rhs) BasicString();
@@ -695,7 +701,7 @@ namespace Gfl
 		/**
 		* Constructor to take in a String object.
 		*/
-		BasicHashString(const BasicString<Type>& Source) : BasicString<Type>(Source), Hash(0)
+		BasicHashString(const BasicString<Type>& Source) : BasicString<Type>(), Hash(0)
 		{
 			*this = Source;
 		}

@@ -23,12 +23,12 @@ void RenderFloorGrid()
 		Grvt::ActorCreationInfo Info;
 		Info.Identifier = "FloorActor";
 		Info.SrcMaterial = Grvt::GetResourceManager()->GetMaterial("FloorMaterial");
-		Info.SrcModel = Grvt::GetResourceManager()->GetModel("Plane");
+		Info.SrcModel = Grvt::GetResourceManager()->GetModel("Floor");
 
 		Floor = &Grvt::GetActiveScene()->AddNewActor(Info);
 	}
 
-	Floor->Scale = glm::vec3(100.0f);
+	Floor->Scale = glm::vec3(10.0f);
 	Floor->Position.x = Grvt::GetActiveScene()->Camera->Position.x;
 	Floor->Position.z = Grvt::GetActiveScene()->Camera->Position.z;
 
@@ -43,10 +43,10 @@ void RenderFloorGrid()
 
 	// We always want to render the grid hence face culling should be disabled.
 	Floor->DrawingState.FrontFace = Grvt::CacheState_None;
-	Floor->Rotation.x = -90.0f;
 	Floor->Material.SetTexture("FloorTexture", Grvt::GrvtTexture_Type_Albedo);
 	Floor->Material.SetVector("ScaleFactor", glm::vec2(Floor->Scale));
 	Floor->Material.SetVector("ViewPos", Grvt::GetActiveScene()->Camera->Position);
 	Floor->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
 	Floor->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
+	Floor->Material.SetFloat("Shininess", 128.0f);
 }

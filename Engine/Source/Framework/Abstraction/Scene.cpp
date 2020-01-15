@@ -328,6 +328,12 @@ namespace Grvt
 			Command.State = Actor.DrawingState;
 			Command.Material = &Actor.Material;
 
+			glm::mat3 TrInvModel = glm::transpose(glm::inverse(Model));
+
+			// Set the model matrix in here.
+			Command.Material->SetMatrix("Model", Model);
+			Command.Material->SetMatrix("TrInvModel", TrInvModel);
+
 			RenderNode Node;
 
 			for (GrvtMesh& Mesh : Actor.ModelPtr->Meshes)
@@ -390,6 +396,19 @@ namespace Grvt
 		* TODO(Afiq):
 		* Package for lights and shadow maps.
 		*/
+		glm::mat4 LightSrc;
+
+		for (DirLight& Light : DirectionalLights)
+		{
+			Light.Compute(LightSrc);
+			Buffer.Lights.Push(LightSrc);
+		}
+
+		for (PointLight& Light : PointLights)
+		{
+			Light.Compute(LightSrc);
+			Buffer.Lights.Push(LightSrc);
+		}
 
 		if (Sky.SrcModel && Sky.Render)
 		{

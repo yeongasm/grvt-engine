@@ -156,6 +156,32 @@ extern "C"
 			DemoScene->AddNewActor(ActorInfo);
 		}
 
+		Grvt::DirLight* DirLight1 = nullptr;
+
+		{
+			Grvt::LightCreationInfo LightInfo;
+			LightInfo.Brightness = 1.0f;
+			LightInfo.Position = glm::vec3(-100.0f, 100.0f, 100.0f);
+			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
+			LightInfo.Shadows = false;
+
+			DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);
+		}
+
+		Grvt::PointLight* PointLight1 = nullptr;
+
+		{
+			Grvt::LightCreationInfo LightInfo;
+			LightInfo.Brightness = 1.0f;
+			LightInfo.Position = glm::vec3(10.0f, 10.0f, 10.0f);
+			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
+			LightInfo.Colour = glm::vec3(1.0f, 0.0f, 0.0f);
+			LightInfo.Shadows = false;
+
+			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
+		}
+
+		PointLight1->UpdateByRadius(70.0f);
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 

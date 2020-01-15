@@ -54,7 +54,7 @@ namespace Grvt
 	* [2][0] - Colour->r.
 	* [2][1] - Colour->g.
 	* [2][2] - Colour->b.
-	* [2][3] - Brightness.
+	* [2][3] - Empty.
 	* [3][0] - 1.0f if Directional light else 0.0f.
 	* [3][1] - 1.0f if Point light else 0.0f.
 	* [3][2] - Empty.
@@ -72,8 +72,8 @@ namespace Grvt
 		float			 Brightness;
 		bool			 Enable;
 
-		LightSource();
-		virtual ~LightSource();
+		ENGINE_API LightSource();
+		ENGINE_API virtual ~LightSource();
 
 		LightSource(const LightSource& Other);
 		LightSource& operator= (const LightSource& Other);
@@ -106,8 +106,8 @@ namespace Grvt
 		float	Linear;
 		float	Quadratic;
 
-		PointLight();
-		~PointLight();
+		ENGINE_API PointLight();
+		ENGINE_API ~PointLight();
 
 		PointLight(const PointLight& Other);
 		PointLight& operator= (const PointLight& Other);
@@ -124,7 +124,7 @@ namespace Grvt
 		* The algorithm compares the radius with each key value in the entry table.
 		* It then takes the shortest one from the specified Radius and uses the values in there instead.
 		*/
-		void	UpdateByRadius(float32 Radius);
+		ENGINE_API void	UpdateByRadius(float32 Radius);
 	};
 
 }

@@ -13,13 +13,18 @@ namespace Grvt
 	private:
 
 		glm::vec3	BGColour;
-		uint32		LightUBO;
-
+		
 		/**
 		* Stores the index of the draw calls.
 		*/
 		Gfl::Array<size_t> SortedCommands;
 		Gfl::Array<size_t> SortedInstancedCommands;
+
+		
+		ObjHandle	ProjectionViewUBO;
+		ObjHandle	LightUBO;
+
+		uint32		TotalLights;
 
 		/**
 		* Updates the materials inside the render command.

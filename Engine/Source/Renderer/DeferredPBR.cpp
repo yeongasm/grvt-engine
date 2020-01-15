@@ -7,7 +7,14 @@
 namespace Grvt
 {
 
-	DeferredPBR::DeferredPBR() : BaseRenderer(), SortedCommands(), SortedInstancedCommands() {}
+	DeferredPBR::DeferredPBR() : 
+		BaseRenderer(),
+		BGColour(0.0f, 0.0f, 0.0f),
+		SortedCommands(), 
+		SortedInstancedCommands(),
+		ProjectionViewUBO(),
+		LightUBO(),
+		TotalLights(0) {}
 
 	
 	DeferredPBR::~DeferredPBR() {}
@@ -51,21 +58,21 @@ namespace Grvt
 				}
 			}
 
-			//if (Uniform.Type == GrvtShader_AttrType_Matrix)
-			//{
-			//	switch (Uniform.SubType)
-			//	{
-			//	case GrvtShader_AttrSubType_Matrix2:
-			//		BaseAPI::Shader::GrShaderSetMat2Float(Uniform.Location, &Uniform.Cast<glm::mat2>()[0][0]);
-			//		continue;
-			//	case GrvtShader_AttrSubType_Matrix3:
-			//		BaseAPI::Shader::GrShaderSetMat3Float(Uniform.Location, &Uniform.Cast<glm::mat3>()[0][0]);
-			//		continue;
-			//	case GrvtShader_AttrSubType_Matrix4:
-			//		BaseAPI::Shader::GrShaderSetMat4Float(Uniform.Location, &Uniform.Cast<glm::mat4>()[0][0]);
-			//		continue;
-			//	}
-			//}
+			if (Uniform.Type == GrvtShader_AttrType_Matrix)
+			{
+				switch (Uniform.SubType)
+				{
+				case GrvtShader_AttrSubType_Matrix2:
+					BaseAPI::Shader::GrShaderSetMat2Float(Uniform.Location, &Uniform.Cast<glm::mat2>()[0][0]);
+					continue;
+				case GrvtShader_AttrSubType_Matrix3:
+					BaseAPI::Shader::GrShaderSetMat3Float(Uniform.Location, &Uniform.Cast<glm::mat3>()[0][0]);
+					continue;
+				case GrvtShader_AttrSubType_Matrix4:
+					BaseAPI::Shader::GrShaderSetMat4Float(Uniform.Location, &Uniform.Cast<glm::mat4>()[0][0]);
+					continue;
+				}
+			}
 
 			if (Uniform.Type == GrvtShader_AttrType_Sampler)
 			{
@@ -162,6 +169,21 @@ namespace Grvt
 		FrontBuffer.Init();
 
 		BGColour = glm::vec3(0.169f, 0.169f, 0.169f);
+
+		BaseAPI::GrCreateBufferObject(ProjectionViewUBO, GL_UNIFORM_BUFFER);
+		BaseAPI::GrCreateBufferObject(LightUBO, GL_UNIFORM_BUFFER);
+
+		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
+		glBufferData(ProjectionViewUBO.Target, 128, nullptr, GL_STATIC_DRAW);
+		glBindBufferBase(ProjectionViewUBO.Target, 0, ProjectionViewUBO.Id);
+		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
+
+		TotalLights = 1000;
+
+		BaseAPI::GrBindBufferObject(LightUBO);
+		glBufferData(LightUBO.Target, sizeof(uint32) * (TotalLights * (uint32)64), nullptr, GL_STATIC_DRAW);
+		glBindBufferBase(LightUBO.Target, 1, LightUBO.Id);
+		BaseAPI::GrUnbindBufferObject(LightUBO);
 	}
 
 
@@ -169,6 +191,9 @@ namespace Grvt
 	{
 		SortedCommands.Release();
 		SortedInstancedCommands.Release();
+
+		BaseAPI::GrDeleteBufferObject(ProjectionViewUBO);
+		BaseAPI::GrDeleteBufferObject(LightUBO);
 	}
 
 
@@ -201,6 +226,17 @@ namespace Grvt
 		glClearColor(BGColour.x, BGColour.y, BGColour.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
+		glBufferSubData(ProjectionViewUBO.Target, 0, 64, &FrontBuffer.Projection[0][0]);
+		glBufferSubData(ProjectionViewUBO.Target, 64, 64, &FrontBuffer.View[0][0]);
+
+		size_t TotalLights = FrontBuffer.Lights.Length();
+
+		BaseAPI::GrBindBufferObject(LightUBO);
+		glBufferSubData(LightUBO.Target, 0, sizeof(uint32), &TotalLights);
+		glBufferSubData(LightUBO.Target, 16, TotalLights * 64, FrontBuffer.Lights.First());
+		BaseAPI::GrUnbindBufferObject(LightUBO);
+
 		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
 		StateCache.SetDepthFunc(DepthFunc_Less);
 		StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
@@ -208,15 +244,11 @@ namespace Grvt
 
 		// Sort render commands if they exist.
 		if (RenderCommands.Length())
-		{
 			SortCommand(RenderCommands, SortedCommands);
-		}
 
 		// Sort instanced commands if they exist.
 		if (InstancedCommands.Length())
-		{
 			SortCommand(InstancedCommands, SortedInstancedCommands);
-		}
 
 		RenderCommand* Command = nullptr;
 
@@ -225,19 +257,9 @@ namespace Grvt
 			Command = &RenderCommands[Index];	
 
 			if (ActiveShader != Command->Material->Shader)
-			{
 				ActiveShader = Command->Material->Shader;
-			}
 
 			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
-
-			// NOTE(Afiq):
-			// There has to be a better way than this.
-			// We shouldn't construct a string every single frame to update the Projection, View and Model uniforms.
-			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "Projection", &FrontBuffer.Projection[0][0]);
-			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "View", &FrontBuffer.View[0][0]);
-			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "Model", &Command->Transform[0][0]);
-
 			RenderPushedCommand(Command, true);
 		}
 
@@ -252,13 +274,15 @@ namespace Grvt
 			StateCache.SetCullFace(CacheState_None, CacheState_None);
 			StateCache.SetDepthFunc(DepthFunc_LEqual);
 
-			FrontBuffer.View = glm::mat4(glm::mat3(FrontBuffer.View));
+			glm::mat4 SkyBoxViewMat = glm::mat4(glm::mat3(FrontBuffer.View));
+
+			BaseAPI::GrBindBufferObject(ProjectionViewUBO);
+			glBufferSubData(ProjectionViewUBO.Target, 64, 64, &SkyBoxViewMat[0][0]);
+			BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
 			ActiveShader = SkyBox.Material->Shader;
-			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
-			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "Projection", &FrontBuffer.Projection[0][0]);
-			BaseAPI::Shader::GrShaderSetMat4FloatN(ActiveShader->Handle.Id, "View", &FrontBuffer.View[0][0]);
 
+			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 			RenderPushedCommand(&SkyBox, false);
 		}
 

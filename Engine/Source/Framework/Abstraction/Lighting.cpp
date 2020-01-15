@@ -231,6 +231,7 @@ namespace Grvt
 		Buffer[0][1] = Constant;
 		Buffer[0][2] = Linear;
 		Buffer[0][3] = Quadratic;
+		Buffer[3][0] = 0.0f;
 		Buffer[3][1] = 1.0f;
 	}
 
