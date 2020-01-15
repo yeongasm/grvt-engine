@@ -396,16 +396,17 @@ namespace Grvt
 		* TODO(Afiq):
 		* Package for lights and shadow maps.
 		*/
-		glm::mat4 LightSrc;
 
 		for (DirLight& Light : DirectionalLights)
 		{
+			glm::mat4 LightSrc;
 			Light.Compute(LightSrc);
 			Buffer.Lights.Push(LightSrc);
 		}
 
 		for (PointLight& Light : PointLights)
 		{
+			glm::mat4 LightSrc;
 			Light.Compute(LightSrc);
 			Buffer.Lights.Push(LightSrc);
 		}

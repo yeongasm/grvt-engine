@@ -137,22 +137,22 @@ extern "C"
 		{
 			Grvt::ActorCreationInfo ActorInfo;
 			ActorInfo.Identifier = "Mid";
-			ActorInfo.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+			ActorInfo.Position = glm::vec3(0.0f, 1.1f, 0.0f);
 			ActorInfo.SrcModel = Grvt::GetResourceManager()->GetModel("Cube");
 			ActorInfo.SrcMaterial = Grvt::GetResourceManager()->GetMaterial("BaseColourMaterial");
 
 			DemoScene->AddNewActor(ActorInfo);
 
 			ActorInfo.Identifier = "Right";
-			ActorInfo.Position = glm::vec3(10.0f, 0.0, 0.0f);
+			ActorInfo.Position = glm::vec3(10.0f, 1.1f, 0.0f);
 			DemoScene->AddNewActor(ActorInfo);
 
 			ActorInfo.Identifier = "Up";
-			ActorInfo.Position = glm::vec3(0.0f, 10.0, 0.0f);
+			ActorInfo.Position = glm::vec3(0.0f, 11.1f, 0.0f);
 			DemoScene->AddNewActor(ActorInfo);
 
 			ActorInfo.Identifier = "Front";
-			ActorInfo.Position = glm::vec3(0.0f, 0.0, 10.0f);
+			ActorInfo.Position = glm::vec3(0.0f, 1.1f, 10.0f);
 			DemoScene->AddNewActor(ActorInfo);
 		}
 

@@ -192,9 +192,7 @@ vec3 CalcDirectionalLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3 Diffused = LightColour * (Diff * texture(FloorTexture, TexCoord * Scale).rgb);
 	vec3 Specular = LightColour * 0.5f * (Spec * texture(FloorTexture, TexCoord * Scale).rgb);
 	
-	vec3 Result = (Ambient + Diffused + Specular) * Light[3][0];
-
-	return Result;
+	return (Ambient + Diffused + Specular) * Light[3][0];
 };
 
 vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
@@ -217,33 +215,29 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3 Diffused = LightColour * (Diff * texture(FloorTexture, TexCoord * Scale).rgb);
 	vec3 Specular = LightColour * 0.5f * (Spec * texture(FloorTexture, TexCoord * Scale).rgb);
 
-	Ambient *= Attenuation;
+	Ambient  *= Attenuation;
 	Diffused *= Attenuation;
 	Specular *= Attenuation;
 
-	vec3 Result = (Ambient + Diffused + Specular) * Light[3][1];
-
-	return Result;
+	return (Ambient + Diffused + Specular) * Light[3][1];
 };
 
 void main()
 {
 	float Blend = LinearizeDepth(gl_FragCoord.z) / Far;
 	Blend = 1.0f - Blend;
-	Blend = pow(Blend, 50.0f);
+	Blend = pow(Blend, 25.0f);
 	Scale = ScaleFactor * 5.0f;
 	
 	vec3 Norm = normalize(Normal);
 	vec3 ViewDirection = normalize(ViewPos - FragWorldPos);
-	vec4 Colour = vec4(0.0f);
+	vec3 Colour;
 	
 	for (int i = 0; i < NumLights; i++)
 	{
-		Colour += vec4(CalcDirectionalLighting(Lights[i], Norm, ViewDirection), 1.0f);
-		Colour = normalize(Colour);
-		Colour += vec4(CalcPointLighting(Lights[i], Norm, ViewDirection), 1.0f);
-		Colour = normalize(Colour);
+		Colour += CalcDirectionalLighting(Lights[i], Norm, ViewDirection);
+		Colour += CalcPointLighting(Lights[i], Norm, ViewDirection);
 	}
-	
-	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), Colour, Blend);
+
+	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Colour, 1.0f), Blend);
 })";

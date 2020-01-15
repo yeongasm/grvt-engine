@@ -107,6 +107,7 @@ namespace Grvt
 	void LightSource::Compute(glm::mat4& Buffer) 
 	{
 		Buffer[0][0] = Brightness;
+		Buffer[0][1] = 1.0f;
 		Buffer[1][0] = Position.x;
 		Buffer[1][1] = Position.y;
 		Buffer[1][2] = Position.z;
