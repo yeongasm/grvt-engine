@@ -9,7 +9,7 @@ namespace Grvt
 	ResourceHandle<GrvtModel>		g_ModelManager;
 	ResourceHandle<GrvtTexture>		g_TextureManager;
 	ResourceHandle<GrvtShader>		g_ShaderManager;
-	ResourceHandle<GrvtFramebuffer>	g_FramebufferManager;
+	//ResourceHandle<GrvtFramebuffer>	g_FramebufferManager;
 	ResourceHandle<GrvtMaterial>	g_MaterialManager;
 	ResourceHandle<GrvtScene>		g_SceneManager;
 
@@ -60,7 +60,7 @@ namespace Grvt
 		g_TextureManager.Alloc(Reserve);
 		g_ShaderManager.Alloc(Reserve);
 		g_MaterialManager.Alloc(Reserve);
-		g_FramebufferManager.Alloc(Reserve);
+		//g_FramebufferManager.Alloc(Reserve);
 		g_SceneManager.Alloc(Reserve);
 	}
 
@@ -87,9 +87,9 @@ namespace Grvt
 			case GrvtResource_Type_Material:
 				DeleteMaterial(It.first, true, false);
 				break;
-			case GrvtResource_Type_Framebuffer:
-				DeleteFramebuffer(It.first, true, false);
-				break;
+			//case GrvtResource_Type_Framebuffer:
+			//	DeleteFramebuffer(It.first, true, false);
+			//	break;
 			case GrvtResource_Type_Scene:
 				DeleteScene(It.first, true, false);
 				break;
@@ -104,7 +104,7 @@ namespace Grvt
 		g_TextureManager.Free();
 		g_ShaderManager.Free();
 		g_MaterialManager.Free();
-		g_FramebufferManager.Free();
+		//g_FramebufferManager.Free();
 	}
 
 
@@ -637,7 +637,7 @@ namespace Grvt
 	}
 
 
-	GrvtFramebuffer* ResourceManager::NewFramebuffer(const FramebufferCreationInfo& Info)
+	/*GrvtFramebuffer* ResourceManager::NewFramebuffer(const FramebufferCreationInfo& Info)
 	{
 		size_t id = GenerateResourceId<GrvtFramebuffer>(GrvtResource_Type_Framebuffer);
 		Resources.emplace(Info.Name, id);
@@ -728,7 +728,7 @@ namespace Grvt
 			return false;
 
 		return DeleteFramebuffer(g_FramebufferManager.Store[Id].Name, Force);
-	}
+	}*/
 
 
 	GrvtScene* ResourceManager::NewScene(const SceneCreationInfo& Info)

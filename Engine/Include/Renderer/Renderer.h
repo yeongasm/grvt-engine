@@ -5,6 +5,7 @@
 
 #include "RenderFoundation.h"
 #include "RenderCache.h"
+#include "Framework/Abstraction/Scene.h"
 
 namespace Grvt
 {
@@ -16,6 +17,9 @@ namespace Grvt
 	*/
 	struct BaseRenderer
 	{
+		friend struct	CommandBuffer;
+		friend class	GrvtScene;
+
 		CommandBuffer	BackBuffer;
 		CommandBuffer	FrontBuffer;
 		RenderCache		StateCache;

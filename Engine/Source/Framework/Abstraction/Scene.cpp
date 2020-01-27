@@ -1,5 +1,7 @@
 #include "GrvtPch.h"
+#include "Framework/Foundation/Interface.h"
 #include "Framework/Abstraction/Scene.h"
+#include "Renderer/RenderFoundation.h"
 #include "Manager/Manager.h"
 
 
@@ -10,13 +12,13 @@ namespace Grvt
 {
 
 	GrvtScene::GrvtScene() :
-		Name(), Camera(nullptr), Actors(), DirectionalLights(), PointLights() {}
+		Name(), Camera(nullptr), Renderer(nullptr), Actors(), DirectionalLights(), PointLights() {}
 
 
 	GrvtScene::~GrvtScene() {}
 
 
-	GrvtScene::GrvtScene(const GrvtScene& Other)
+	/*GrvtScene::GrvtScene(const GrvtScene& Other)
 	{
 		*this = Other;
 	}
@@ -59,7 +61,7 @@ namespace Grvt
 		}
 
 		return *this;
-	}
+	}*/
 
 
 	GrvtActor& GrvtScene::AddNewActor(const ActorCreationInfo& Info)
@@ -82,21 +84,6 @@ namespace Grvt
 		DirLight& Light = DirectionalLights.Insert(DirLight());
 		Light.Alloc(Info);
 
-		if (Info.Shadows)
-		{
-			/**
-			* TODO(Afiq):
-			* Make the shadow map's width and height be the same as the renderer's viewport size.
-			*/
-			FramebufferCreationInfo ShadowMapInfo;
-			ShadowMapInfo.Name = Gfl::String().Format("%s_DShadowMap_%d", Name.C_Str(), DirectionalLights.Length());
-			ShadowMapInfo.Width  = 800;
-			ShadowMapInfo.Height = 600;
-			ShadowMapInfo.AddAttachment(GrvtFramebuffer_AttachComponent_Texture, GrvtFramebuffer_Attachment_Depth);
-			
-			GetResourceManager()->NewFramebuffer(ShadowMapInfo);
-		}
-
 		return &Light;
 	}
 
@@ -111,20 +98,28 @@ namespace Grvt
 		PointLight& Light = PointLights.Insert(PointLight());
 		Light.Alloc(Info);
 
-		if (Info.Shadows)
+		/*if (Info.Shadows)
 		{
-			/**
-			* TODO(Afiq):
-			* Make the shadow map's width and height be the same as the renderer's viewport size.
-			*/
-			FramebufferCreationInfo ShadowMapInfo;
-			ShadowMapInfo.Name = Gfl::String().Format("%s_PShadowMap_%d", Name.C_Str(), PointLights.Length());
-			ShadowMapInfo.Width = 800;
-			ShadowMapInfo.Height = 600;
-			ShadowMapInfo.AddAttachment(GrvtFramebuffer_AttachComponent_Cubemap, GrvtFramebuffer_Attachment_Depth);
+			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = Light.ShadowMap.DepthAttachment;
+			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
+			
+			BaseAPI::FramebufferBuildData FBuild;
+			BaseAPI::TextureBuildData TBuild;
 
-			GetResourceManager()->NewFramebuffer(ShadowMapInfo);
-		}
+			TBuild.Target = GL_TEXTURE_CUBE_MAP;
+			TBuild.Type = GL_FLOAT;
+			TBuild.Format = GL_DEPTH_COMPONENT;
+			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
+			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE});
+
+			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
+
+			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&Light.ShadowMap.Handle, FBuild);
+		}*/
 
 		return &Light;
 	}
@@ -176,7 +171,8 @@ namespace Grvt
 		return true;
 	}
 
-
+	// TODO(Afiq):
+	// Delete Framebuffer when we're deleting the light source.
 	bool GrvtScene::DeleteDirLight(DirLight& DirectionalLight)
 	{
 		size_t Index = DirectionalLights.IndexOf(DirectionalLight);
@@ -392,23 +388,37 @@ namespace Grvt
 			Command.Empty();
 		}
 
-		/**
-		* TODO(Afiq):
-		* Package for lights and shadow maps.
-		*/
-
 		for (DirLight& Light : DirectionalLights)
 		{
+			if (!Light.Enable)
+				continue;
+
 			glm::mat4 LightSrc;
 			Light.Compute(LightSrc);
-			Buffer.Lights.Push(LightSrc);
+			Buffer.DirectionalLights.Push(LightSrc);
+
+			glm::mat4 LProjection = glm::ortho(-Camera->Width, Camera->Width, -Camera->Height, Camera->Height, 1.0f, Light.Position.y + 10.0f);
+			glm::mat4 LView = glm::lookAt(Light.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+			Buffer.LightSpaceTransforms.Push(LProjection* LView);
 		}
 
 		for (PointLight& Light : PointLights)
 		{
+			if (!Light.Enable)
+				continue;
+
 			glm::mat4 LightSrc;
 			Light.Compute(LightSrc);
-			Buffer.Lights.Push(LightSrc);
+			Buffer.PointLights.Push(LightSrc);
+
+			glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 		}
 
 		if (Sky.SrcModel && Sky.Render)

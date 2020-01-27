@@ -132,25 +132,26 @@ namespace Grvt
 
 	}
 
-
+	
+	// TODO(Afiq):
+	// Need to rework render cache.
 	void RenderCache::SetCullFace(uint32 Cull, uint32 Face)
 	{
 		if (Face)
 		{
+			if (CullFace != Cull || FrontFace != Face)
+			{
+				CullFace = Cull;
+				FrontFace = Face;
+			}
+
 			glEnable(GL_CULL_FACE);
+			glFrontFace(g_StateParams[FrontFace]);
+			glCullFace(g_StateParams[CullFace]);
 		}
 		else
 		{
 			glDisable(GL_CULL_FACE);
-		}
-
-		if (CullFace != Cull || FrontFace != Face)
-		{
-			CullFace = Cull;
-			FrontFace = Face;
-
-			glFrontFace(g_StateParams[FrontFace]);
-			glCullFace(g_StateParams[CullFace]);
 		}
 	}
 

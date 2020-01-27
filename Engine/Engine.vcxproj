@@ -240,12 +240,6 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     <ClCompile Include="Source\Core\ModelDefaults.cpp" />
     <ClCompile Include="Source\Core\ReloadModule.cpp" />
     <ClCompile Include="Source\Framework\Abstraction\Actor.cpp" />
-    <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Source\Framework\Abstraction\Lighting.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -276,6 +270,12 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Source\Framework\DefaultShaders\ShadowMaps.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Source\Framework\Foundation\Foundations.cpp" />
     <ClCompile Include="Source\Framework\Foundation\Interface.cpp" />
@@ -404,7 +404,6 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     <ClInclude Include="Include\Core\ModelDefaults.h" />
     <ClInclude Include="Include\Core\ReloadModule.h" />
     <ClInclude Include="Include\Framework\Abstraction\Actor.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h" />
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h" />
     <ClInclude Include="Include\Framework\Abstraction\Material.h" />
     <ClInclude Include="Include\Framework\Abstraction\Model.h" />
@@ -436,6 +435,7 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     <ClInclude Include="Include\Utility\Utility.h" />
     <ClInclude Include="EngineAPI.h" />
     <ClInclude Include="Minimal.h" />
+    <ClInclude Include="Include\Framework\DefaultShaders\ShadowMaps.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Orion.natvis" />

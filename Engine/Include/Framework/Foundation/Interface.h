@@ -99,7 +99,7 @@ namespace Grvt
 		using MeshPacket = ResourcePacket<GrvtMesh, BaseAPI::MeshBuildData>;
 		using TexturePacket = ResourcePacket<GrvtTexture, BaseAPI::TextureBuildData>;
 		using ShaderPacket = ResourcePacket<GrvtShader, BaseAPI::ShaderBuildData>;
-		using FramebufferPacket = ResourcePacket<GrvtFramebuffer, BaseAPI::FramebufferBuildData>;
+		using FramebufferPacket = ResourcePacket<ObjHandle, BaseAPI::FramebufferBuildData>;
 
 
 		/**
@@ -144,7 +144,7 @@ namespace Grvt
 			* [MIDDLEWARE]
 			* Adds a framebuffer to be built by OpenGL.
 			*/
-			void QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data);
+			void QueueFramebufferForBuild(ObjHandle* FramebufferHandle, BaseAPI::FramebufferBuildData Data);
 
 
 			/**
@@ -229,7 +229,7 @@ namespace Grvt
 		* [MIDDLEWARE]
 		* A mid level API to build framebuffers into the engine.
 		*/
-		void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc);
+		//void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc);
 
 		/**
 		* [MIDDLEWARE]

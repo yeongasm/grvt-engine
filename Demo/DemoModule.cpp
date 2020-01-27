@@ -21,7 +21,7 @@ Grvt::DeferredPBR*	m_Renderer	= nullptr;
 CameraSystem* CamSystem = nullptr;
 
 glm::vec3 StartPos = glm::vec3(0.0f, 20.0f, 50.0f);
-glm::vec3 EndPos = glm::vec3(50.0f, 20.0f, 0.0f);
+glm::vec3 EndPos = glm::vec3(50.0f, 5.0f, 0.0f);
 float Time = 0.0f;
 
 extern "C"
@@ -29,7 +29,7 @@ extern "C"
 
 	void OnStartUp(Grvt::GrvtEngine* EnginePtr)
 	{
-		m_Renderer = (Grvt::DeferredPBR*)Grvt::InitRenderer(new Grvt::DeferredPBR());
+		m_Renderer = (Grvt::DeferredPBR*)Grvt::GetRenderer();
 
 		// Register camera system.
 		CamSystem = (CameraSystem*)EnginePtr->RegisterSystem(GRSYSTEMCRED(CameraSystem), new CameraSystem());
@@ -42,6 +42,9 @@ extern "C"
 
 			Grvt::SetActiveScene(DemoScene);
 		}
+
+		DemoScene->Camera	= &CamSystem->Camera;
+		DemoScene->Renderer = m_Renderer;
 
 		{
 			Grvt::ShaderImportInfo ShaderInfo;
@@ -70,7 +73,6 @@ extern "C"
 			Manager->NewShaderProgram(ShaderInfo);
 		}
 
-
 		{
 			Grvt::TextureImportInfo CubemapInfo;
 			CubemapInfo.Name = "DemoCubeMap";
@@ -94,7 +96,6 @@ extern "C"
 			Manager->NewImportTexture(Info);
 		}
 
-		DemoScene->Camera = &CamSystem->Camera;
 	}
 
 	void OnLoad(Grvt::GrvtEngine* EnginePtr)
@@ -163,9 +164,10 @@ extern "C"
 			LightInfo.Brightness = 1.0f;
 			LightInfo.Position = glm::vec3(-100.0f, 100.0f, 100.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
-			LightInfo.Shadows = false;
+			//LightInfo.Shadows = false;
 
-			DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);
+			//DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);
+			//DirLight1->Enable = false;
 		}
 
 		Grvt::PointLight* PointLight1 = nullptr;
@@ -173,15 +175,15 @@ extern "C"
 		{
 			Grvt::LightCreationInfo LightInfo;
 			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(10.0f, 10.0f, 10.0f);
+			LightInfo.Position = glm::vec3(10.0f, 5.0f, 10.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			LightInfo.Colour = glm::vec3(1.0f, 0.0f, 0.0f);
+			LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
 			LightInfo.Shadows = false;
 
 			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
 		}
 
-		PointLight1->UpdateByRadius(70.0f);
+		PointLight1->UpdateByRadius(100.0f);
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
@@ -197,21 +199,29 @@ extern "C"
 		Grvt::GrvtActor* Up		= Grvt::GetActiveScene()->GetActor("Up");
 		Grvt::GrvtActor* Front	= Grvt::GetActiveScene()->GetActor("Front");
 
+		Mid->Material.SetFloat("Far", Camera->Far);
+		Mid->Material.SetFloat("Near", Camera->Near);
+		Mid->Material.SetFloat("Shininess", 1.0f);
 		Mid->Material.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
-		Mid->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
-		Mid->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+		Mid->Material.SetVector("ViewPos", Camera->Position);
 
+		Right->Material.SetFloat("Far",	Camera->Far);
+		Right->Material.SetFloat("Near", Camera->Near);
+		Right->Material.SetFloat("Shininess", 1.0f);
 		Right->Material.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
-		Right->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
-		Right->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+		Right->Material.SetVector("ViewPos", Camera->Position);
 
+		Up->Material.SetFloat("Far", Camera->Far);
+		Up->Material.SetFloat("Near", Camera->Near);
+		Up->Material.SetFloat("Shininess", 1.0f);
 		Up->Material.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
-		Up->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
-		Up->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+		Up->Material.SetVector("ViewPos", Camera->Position);
 
+		Front->Material.SetFloat("Far", Camera->Far);
+		Front->Material.SetFloat("Near", Camera->Near);
+		Front->Material.SetFloat("Shininess", 1.0f);
 		Front->Material.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
-		Front->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
-		Front->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
+		Front->Material.SetVector("ViewPos", Camera->Position);
 
 		if (m_IO->IsKeyPressed(GLFW_KEY_P))
 			Animate ^= true;
@@ -236,7 +246,7 @@ extern "C"
 			Camera->Yaw = (1.0f - T) * 0.0f + T * -90.0f;
 			Camera->UpdateOrientation();
 
-			Time += 1.0f * m_Engine->DeltaTime;
+			Time += 1.0f * m_Engine->DeltaTime; 
 
 			if (Camera->Position.x >= EndPos.x)
 				InitAnim = true;

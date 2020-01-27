@@ -24,7 +24,7 @@ namespace Grvt
 		GrvtResource_Type_Texture		= 0x01,
 		GrvtResource_Type_Shader		= 0x02,
 		GrvtResource_Type_Material		= 0x03,
-		GrvtResource_Type_Framebuffer	= 0x04,
+		//GrvtResource_Type_Framebuffer	= 0x04,
 		GrvtResource_Type_Scene			= 0x05,
 		GrvtResource_Max
 	};
@@ -358,39 +358,39 @@ namespace Grvt
 		* Creates a new framebuffer and stores it in the engine.
 		* Resource is also allocated on the GPU.
 		*/
-		ENGINE_API GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
+		//ENGINE_API GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
 
 		/**
 		* Retrieves the framebuffer specified by the identifier from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		ENGINE_API GrvtFramebuffer* GetFramebuffer(const Gfl::String& Identifier, bool Safe = true);
+		//ENGINE_API GrvtFramebuffer* GetFramebuffer(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Retrieves the framebuffer specified by the id from the engine.
 		* Safe mode will check if the resource with such identifier exist and only return if it does.
 		*/
-		ENGINE_API GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
+		//ENGINE_API GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
 
 		/**
 		* Retrieve's the post processing's handler.
 		* Safe mode will check if the specified identifier provided exists and only return if it does.
 		*/
-		ENGINE_API EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const Gfl::String& Identifier, bool Safe = true);
+		//ENGINE_API EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const Gfl::String& Identifier, bool Safe = true);
 
 		/**
 		* Deletes a framebuffer with the specified identifier.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		ENGINE_API bool DeleteFramebuffer(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
+		//ENGINE_API bool DeleteFramebuffer(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
 
 		/**
 		* Deletes a framebuffer with the specified id.
 		* Deletes the object from the GPU as well.
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
-		ENGINE_API bool DeleteFramebuffer(size_t Id, bool Force = false, bool Remove = true);
+		//ENGINE_API bool DeleteFramebuffer(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new scene into the engine.

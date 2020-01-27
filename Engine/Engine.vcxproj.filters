@@ -54,9 +54,6 @@
     <ClCompile Include="Source\Utility\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Abstraction\Framebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Framework\Abstraction\Lighting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,11 +129,11 @@
     <ClCompile Include="Source\Library\GrvtAlgorithms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Framework\DefaultShaders\ShadowMaps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Include\Framework\Abstraction\Framebuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -249,6 +246,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Systems\BaseSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Framework\DefaultShaders\ShadowMaps.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

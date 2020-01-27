@@ -25,7 +25,7 @@ namespace Grvt
 		ObjHandle();
 		~ObjHandle();
 
-		ObjHandle(const ObjHandle& Rhs) = delete;
+		ObjHandle(const ObjHandle& Rhs)				= delete;
 		ObjHandle& operator= (const ObjHandle& Rhs) = delete;
 
 		ObjHandle(ObjHandle&& Rhs);

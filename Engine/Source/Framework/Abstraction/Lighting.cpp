@@ -25,18 +25,18 @@ namespace Grvt
 
 
 	LightSource::LightSource() :
-		ShadowMap(nullptr),
 		Position(0.0f, 0.0f, 0.0f),
 		Colour(0.0f, 0.0f, 0.0f),
 		Type(GrvtLight_Type_None),
 		Brightness(0.0f),
+		PCF(0.0f),
 		Enable(true) {}
 
 
 	LightSource::~LightSource() {}
 
 
-	LightSource::LightSource(const LightSource& Other)
+	/*LightSource::LightSource(const LightSource& Other)
 	{
 		*this = Other;
 	}
@@ -57,7 +57,7 @@ namespace Grvt
 		}
 
 		return *this;
-	}
+	}*/
 
 
 	LightSource::LightSource(LightSource&& Other)
@@ -72,12 +72,11 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			ShadowMap	= Other.ShadowMap;
-			Position	= Other.Position;
-			Colour		= Other.Colour;
-			Type		= Other.Type;
-			Brightness	= Other.Brightness;
-			Enable		= Other.Enable;
+			Position	= Gfl::Move(Other.Position);
+			Colour		= Gfl::Move(Other.Colour);
+			Type		= Gfl::Move(Other.Type);
+			Brightness	= Gfl::Move(Other.Brightness);
+			Enable		= Gfl::Move(Other.Enable);
 
 			new (&Other) LightSource();
 		}
@@ -111,6 +110,7 @@ namespace Grvt
 		Buffer[1][0] = Position.x;
 		Buffer[1][1] = Position.y;
 		Buffer[1][2] = Position.z;
+		Buffer[1][3] = PCF;
 		Buffer[2][0] = Colour.x;
 		Buffer[2][1] = Colour.y;
 		Buffer[2][2] = Colour.z;
@@ -128,7 +128,7 @@ namespace Grvt
 	PointLight::~PointLight() {}
 
 
-	PointLight::PointLight(const PointLight &Other) 
+	/*PointLight::PointLight(const PointLight &Other) 
 	{ 
 		*this = Other; 
 	}
@@ -147,7 +147,7 @@ namespace Grvt
 		}
 
 		return *this;
-	}
+	}*/
 
 
 	PointLight::PointLight(PointLight &&Other) 

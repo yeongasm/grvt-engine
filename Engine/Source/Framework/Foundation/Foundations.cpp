@@ -183,7 +183,7 @@ namespace Grvt
 
 		void GrUnbindFramebuffer(ObjHandle& Handle)
 		{
-			glBindFramebuffer(Handle.Target, Handle.Id);
+			glBindFramebuffer(Handle.Target, 0);
 		}
 
 

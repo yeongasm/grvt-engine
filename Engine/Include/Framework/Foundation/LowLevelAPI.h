@@ -81,7 +81,6 @@ namespace Grvt
 		*
 		* @param [REQUIRED] (void*)							DataPtr - Texture's data. The type of pointer assigned needs to be the same as the type specified in TextureCreationInfo's type parameter.
 		* @param [REQUIRED] (bool)			Default = 1;	Mipmap	- Generate mipmaps for OpenGL texture.
-		* @param [OPTIONAL] (bool)			Default = 0;	Cubemap - Setting this to true would make the texture into a cubemap texture.
 		* @param [OPTIONAL] (bool)			Default = 1;	Flip	- Flips the image and makes the 0.0 coordinate on the Y-axis be on the bottom side.
 		* @param [OPTIONAL] (int)			Default = 0;	Width	- Texture's width. Use only when creating an empty texture.
 		* @param [OPTIONAL] (int)			Default = 0;	Height	- Texture's height. Use only when creating an empty texture.
@@ -93,16 +92,22 @@ namespace Grvt
 		struct TextureBuildData
 		{
 			Gfl::Array<Gfl::Pair<uint32, uint32>>	Parameters;
-			uint32	Target;
-			uint32	Type;
-			uint32	Format;
-			uint32	InternalFormat;
-			int32	Width;
-			int32	Height;
-			bool	Mipmap;
-			bool	Flip;
-			void*	DataPtr;
-			void*	CubemapDataPtr[6];
+			float	BorderColour[4] = {0.0f};	/** Default: Black. Will not call glTexParameterfv by default. */
+
+			uint32	Target;				/** Default: GL_TEXTURE_2D		*/
+			uint32	Type;				/** Default: GL_UNSIGNED_BYTE	*/
+			uint32	Format;				/** Default: Unspecified		*/
+			uint32	InternalFormat;		/** Default: Unspecified		*/
+			int32	Width;				/** Default: 0					*/
+			int32	Height;				/** Default: 0					*/
+			bool	Mipmap;				/** Default: True				*/
+			bool	Flip;				/** Default: True				*/
+
+			union
+			{
+				void* CubemapDataPtr[6]	= {nullptr};
+				void* DataPtr;
+			};
 
 
 			ENGINE_API TextureBuildData();
@@ -168,22 +173,22 @@ namespace Grvt
 		* FramebufferAttachment data structure.
 		* Specify the attachment that is to be attached onto a Framebuffer.
 		*/
-		struct FramebufferAttachment
+		struct TextureAttachment
 		{
-			ObjHandle*		Handle;
-			uint32			Type;
-			uint32			Component;
+			TextureBuildData BuildData;
+			ObjHandle*		 Handle;
+			uint32			 Type;
 
-			FramebufferAttachment();
-			~FramebufferAttachment();
+			TextureAttachment();
+			~TextureAttachment();
 
-			FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Component);
+			TextureAttachment(ObjHandle* SrcHandle, uint32 Type, TextureBuildData BuilData);
 
-			FramebufferAttachment(const FramebufferAttachment& Rhs);
-			FramebufferAttachment& operator= (const FramebufferAttachment& Rhs);
+			TextureAttachment(const TextureAttachment& Rhs);
+			TextureAttachment& operator= (const TextureAttachment& Rhs);
 
-			FramebufferAttachment(FramebufferAttachment&& Rhs);
-			FramebufferAttachment& operator= (FramebufferAttachment&& Rhs);
+			TextureAttachment(TextureAttachment&& Rhs);
+			TextureAttachment& operator= (TextureAttachment&& Rhs);
 		};
 
 
@@ -195,9 +200,9 @@ namespace Grvt
 		*/
 		struct FramebufferBuildData
 		{
-			Gfl::Array<FramebufferAttachment> Attachments;
-			int32 Width;
-			int32 Height;
+			Gfl::Array<TextureAttachment> Attachments;
+			int32	Width;
+			int32	Height;
 
 			FramebufferBuildData();
 			~FramebufferBuildData();

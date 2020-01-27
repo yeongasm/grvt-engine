@@ -74,9 +74,9 @@ namespace Grvt
 		}
 
 
-		void ResourceBuildQueue::QueueFramebufferForBuild(GrvtFramebuffer* Framebuffer, BaseAPI::FramebufferBuildData Data)
+		void ResourceBuildQueue::QueueFramebufferForBuild(ObjHandle* FramebufferHandle, BaseAPI::FramebufferBuildData Data)
 		{
-			FramebufferQueue.push_back(FramebufferPacket(Framebuffer, Data));
+			FramebufferQueue.push_back(FramebufferPacket(FramebufferHandle, Data));
 		}
 
 
@@ -101,14 +101,6 @@ namespace Grvt
 			for (TexturePacket& Packet : TextureQueue)
 			{
 				BaseAPI::BuildTexture(Packet.ResourcePtr->Handle, Packet.BuildData);
-				//if (Packet.BuildData.CubemapDataPtr)
-				//{
-				//	free(Packet.BuildData.CubemapDataPtr);
-				//}
-				//else
-				//{
-				//	free(Packet.BuildData.DataPtr);
-				//}
 				TextureQueue.pop_front();
 			}
 
@@ -138,11 +130,10 @@ namespace Grvt
 				ShaderQueue.pop_front();
 			}
 
-
 			// Build framebuffers that are in the queue.
 			for (FramebufferPacket& Packet : FramebufferQueue)
 			{
-				BaseAPI::BuildFramebuffer(Packet.ResourcePtr->Handle, Packet.BuildData);
+				BaseAPI::BuildFramebuffer(*Packet.ResourcePtr, Packet.BuildData);
 				FramebufferQueue.pop_front();
 			}
 
@@ -376,7 +367,7 @@ namespace Grvt
 		}
 
 
-		void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc)
+		/*void PackageFramebufferForBuild(GrvtFramebuffer* FramebufferSrc)
 		{
 			uint32 Type = GL_NONE;
 			BaseAPI::FramebufferBuildData buildData;
@@ -402,7 +393,7 @@ namespace Grvt
 			}
 
 			GetBuildQueue()->QueueFramebufferForBuild(FramebufferSrc, buildData);
-		}
+		}*/
 
 
 		void GetUniformType(uint32 Type, uint32& AttributeType, uint32& AttributeSubType)

@@ -61,13 +61,31 @@ namespace Grvt
 		* If the specified attachment type already exists, then Gravity will ignore it and use the existing one unless the specified type is popped away first.
 		* The statement above is only true for attachments of type Depth and DepthStencil.
 		*/
-		bool AddAttachment(AttachComponent Component, AttachmentType Type);
+		ENGINE_API bool AddAttachment(AttachComponent Component, AttachmentType Type);
 
 		/**
 		* Pops a previously added attachment from the to be created framebuffer.
 		* Default count is 1.
 		*/
-		void PopAttachment(AttachmentType Type, size_t Count = 1);
+		ENGINE_API void PopAttachment(AttachmentType Type, size_t Count = 1);
+	};
+
+
+	struct FrmBfrAttachment
+	{
+		ObjHandle		Handle;
+		AttachComponent Component;
+		AttachmentType	Type;
+		bool			Floats;
+
+		FrmBfrAttachment();
+		~FrmBfrAttachment();
+
+		FrmBfrAttachment(const FrmBfrAttachment& Other)					= delete;
+		FrmBfrAttachment& operator= (const FrmBfrAttachment& Other)		= delete;
+
+		FrmBfrAttachment(FrmBfrAttachment&& Other);
+		FrmBfrAttachment& operator= (FrmBfrAttachment&& Other);
 	};
 
 
@@ -80,26 +98,13 @@ namespace Grvt
 
 		friend class ResourceManager;
 
-		struct Attachment
-		{
-			ObjHandle		Handle;
-			AttachComponent Component;
-			AttachmentType	Type;
-			uint32			Count;
-
-			Attachment();
-			~Attachment();
-
-			Attachment(const Attachment& Rhs) = delete;
-			Attachment& operator= (const Attachment& Rhs) = delete;
-
-			Attachment(Attachment&& Rhs);
-			Attachment& operator= (Attachment&& Rhs);
-		};
+		using FramebufferAttachments = Gfl::Array<FrmBfrAttachment>;
 
 	public:
 
-		Gfl::Array<Attachment>	Attachments;
+		FramebufferAttachments	ColourAttachments;
+		FrmBfrAttachment		DepthAttachment;
+		FrmBfrAttachment		DepthStencilAttachment;
 		ObjHandle				Handle;
 		uint32					Width;
 		uint32					Height;
@@ -112,11 +117,11 @@ namespace Grvt
 
 	private:
 
-		GrvtFramebuffer(const GrvtFramebuffer& Rhs) = delete;
+		GrvtFramebuffer(const GrvtFramebuffer& Rhs)				= delete;
 		GrvtFramebuffer& operator= (const GrvtFramebuffer& Rhs) = delete;
 
-		GrvtFramebuffer(GrvtFramebuffer&& Rhs) = delete;
-		GrvtFramebuffer& operator= (GrvtFramebuffer&& Rhs) = delete;
+		GrvtFramebuffer(GrvtFramebuffer&& Rhs)					= delete;
+		GrvtFramebuffer& operator= (GrvtFramebuffer&& Rhs)		= delete;
 
 	};
 

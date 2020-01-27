@@ -69,21 +69,33 @@ namespace Grvt
 	};
 
 
+	enum RenderTargetAttachPoints : uint32
+	{
+		RenderTarget_AttachPoint_None			= 0x00,
+		RenderTarget_AttachPoint_Depth			= 0x01,
+		RenderTarget_AttachPoint_DepthStencil	= 0x02,
+		RenderTarget_AttachPoint_Colour			= 0x03
+	};
+
 	/**
 	* RenderTarget data structure.
+	* Width and Height will follow renderer's dimensions when it is not specified.
 	*/
 	struct RenderTarget
 	{
-		ObjHandle*	Handle;
+		using AttachmentPoint  = Gfl::Pair<uint32, ObjHandle>;
+		using AttachmentPoints = Gfl::Array<AttachmentPoint>;
+
+		AttachmentPoints ColourAttachments;
+		AttachmentPoint	 DepthAttachment;
+		AttachmentPoint	 DepthStencilAttachment;
+
+		ObjHandle	Handle;
 		uint32		Width;
 		uint32		Height;
-		uint8		AttachmentBitMask;
 
 		RenderTarget();
 		~RenderTarget();
-
-		RenderTarget(const RenderTarget& Other);
-		RenderTarget& operator= (const RenderTarget& Other);
 
 		RenderTarget(RenderTarget&& Other);
 		RenderTarget& operator= (RenderTarget&& Other);
@@ -100,11 +112,13 @@ namespace Grvt
 
 		glm::mat4 Projection;
 		glm::mat4 View;
-		Gfl::Array<glm::mat4>		Lights;
-		Gfl::Array<RenderTarget>	ShadowMaps;
+
+		Gfl::Array<glm::mat4>		DirectionalLights;
+		Gfl::Array<glm::mat4>		PointLights;
+		Gfl::Array<glm::mat4>		LightSpaceTransforms;
+
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
-		CustomCommandsList			CustomCommands;
 		RenderCommand				SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
 		bool IsEmpty;
 

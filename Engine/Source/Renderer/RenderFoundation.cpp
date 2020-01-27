@@ -133,39 +133,18 @@ namespace Grvt
 
 
 	RenderTarget::RenderTarget() :
-		Handle(nullptr), Width(0), Height(0), AttachmentBitMask(0) {}
+		ColourAttachments(), DepthAttachment(), DepthStencilAttachment(), Handle(), Width(0), Height(0) {}
 
 
 	RenderTarget::~RenderTarget()
 	{
-		Handle = nullptr;
-		Width = Height = 0;
-		AttachmentBitMask = 0;
+		Width  = 0;
+		Height = 0;
+		ColourAttachments.Release();
 	}
 
-
-	RenderTarget::RenderTarget(const RenderTarget& Other) {
-		*this = Other;
-	}
-
-
-	RenderTarget& RenderTarget::operator= (const RenderTarget& Other)
+	RenderTarget::RenderTarget(RenderTarget&& Other) 
 	{
-		_ASSERTE(this != &Other);
-
-		if (this != &Other)
-		{
-			Handle = Other.Handle;
-			Width = Other.Width;
-			Height = Other.Height;
-			AttachmentBitMask = Other.AttachmentBitMask;
-		}
-
-		return *this;
-	}
-
-
-	RenderTarget::RenderTarget(RenderTarget&& Other) {
 		*this = Gfl::Move(Other);
 	}
 
@@ -175,11 +154,10 @@ namespace Grvt
 		_ASSERTE(this != &Other);
 
 		if (this != &Other) {
-			Handle = Other.Handle;
-			Width = Other.Width;
-			Height = Other.Height;
-			AttachmentBitMask = Other.AttachmentBitMask;
-
+			Handle	= Gfl::Move(Other.Handle);
+			Width	= Gfl::Move(Other.Width);
+			Height	= Gfl::Move(Other.Height);
+			
 			new (&Other) RenderTarget();
 		}
 
@@ -188,13 +166,21 @@ namespace Grvt
 
 
 	CommandBuffer::CommandBuffer() :
-		Projection(0.0f), View(0.0f), Lights(), ShadowMaps(), RenderCommands(), InstancedCommands(), IsEmpty(true) {}
+		Projection(0.0f),
+		View(0.0f),
+		DirectionalLights(),
+		PointLights(),
+		LightSpaceTransforms(),
+		RenderCommands(), 
+		InstancedCommands(), 
+		IsEmpty(true) {}
 
 
 	CommandBuffer::~CommandBuffer()
 	{
-		Lights.Release();
-		ShadowMaps.Release();
+		DirectionalLights.Release();
+		PointLights.Release();
+		LightSpaceTransforms.Release();
 		RenderCommands.Release();
 		InstancedCommands.Release();
 	}
@@ -214,11 +200,11 @@ namespace Grvt
 		{
 			Projection		= Other.Projection;
 			View			= Other.View;
-			Lights			= Other.Lights;
-			ShadowMaps		= Other.ShadowMaps;
+			DirectionalLights = Other.DirectionalLights;
+			PointLights = Other.PointLights;
+			LightSpaceTransforms = Other.LightSpaceTransforms;
 			RenderCommands	= Other.RenderCommands;
 			InstancedCommands = Other.InstancedCommands;
-			CustomCommands	= Other.CustomCommands;
 			SkyBox			= Other.SkyBox;
 			IsEmpty = Other.IsEmpty;
 		}
@@ -239,13 +225,13 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Projection			= Gfl::Move(Projection);
-			View				= Gfl::Move(View);
-			Lights				= Gfl::Move(Other.Lights);
-			ShadowMaps			= Gfl::Move(Other.ShadowMaps);
+			Projection			= Gfl::Move(Other.Projection);
+			View				= Gfl::Move(Other.View);
+			DirectionalLights	= Gfl::Move(Other.DirectionalLights);
+			PointLights			= Gfl::Move(Other.PointLights);
+			LightSpaceTransforms = Gfl::Move(Other.LightSpaceTransforms);
 			RenderCommands		= Gfl::Move(Other.RenderCommands);
 			InstancedCommands	= Gfl::Move(Other.InstancedCommands);
-			CustomCommands		= Gfl::Move(Other.CustomCommands);
 			SkyBox				= Gfl::Move(Other.SkyBox);
 			IsEmpty = Other.IsEmpty;
 
@@ -258,8 +244,9 @@ namespace Grvt
 
 	void CommandBuffer::Init()
 	{
-		Lights.Reserve(64);
-		ShadowMaps.Reserve(64);
+		DirectionalLights.Reserve(64);
+		PointLights.Reserve(64);
+		LightSpaceTransforms.Reserve(64);
 		RenderCommands.Reserve(64);
 		InstancedCommands.Reserve(64);
 	}
@@ -269,22 +256,22 @@ namespace Grvt
 	{
 		Projection = glm::mat4();
 		View = glm::mat4();
-		Lights.Release();
-		ShadowMaps.Release();
+		DirectionalLights.Release();
+		PointLights.Release();
+		LightSpaceTransforms.Release();
 		RenderCommands.Release();
 		InstancedCommands.Release();
-		CustomCommands.clear();
 		SkyBox.Empty();
 	}
 
 
 	void CommandBuffer::Clear()
 	{
-		Lights.Empty();
-		ShadowMaps.Empty();
+		DirectionalLights.Empty();
+		PointLights.Empty();
+		LightSpaceTransforms.Empty();
 		RenderCommands.Empty();
 		InstancedCommands.Empty();
-		CustomCommands.clear();
 		SkyBox.Empty();
 
 		IsEmpty = true;

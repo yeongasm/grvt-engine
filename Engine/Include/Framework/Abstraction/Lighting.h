@@ -4,7 +4,7 @@
 #define GRAVITY_ABSTRACTION_LIGHTING
 
 #include "Minimal.h"
-#include "Framebuffer.h"
+#include "Renderer/RenderFoundation.h"
 
 namespace Grvt
 {
@@ -50,7 +50,7 @@ namespace Grvt
 	* [1][0] - Position->x.
 	* [1][1] - Position->y.
 	* [1][2] - Position->z.
-	* [1][3] - Empty.
+	* [1][3] - PCF.
 	* [2][0] - Colour->r.
 	* [2][1] - Colour->g.
 	* [2][2] - Colour->b.
@@ -65,26 +65,26 @@ namespace Grvt
 	*/
 	struct LightSource
 	{
-		GrvtFramebuffer* ShadowMap;
-		glm::vec3		 Position;
-		glm::vec3		 Colour;
-		LightType		 Type;
-		float			 Brightness;
-		bool			 Enable;
+		glm::vec3		Position;
+		glm::vec3		Colour;
+		LightType		Type;
+		float32			Brightness;
+		float32			PCF;
+		bool			Enable;
 
 		ENGINE_API LightSource();
 		ENGINE_API virtual ~LightSource();
 
-		LightSource(const LightSource& Other);
-		LightSource& operator= (const LightSource& Other);
+		LightSource(const LightSource& Other)				= delete;
+		LightSource& operator= (const LightSource& Other)	= delete;
 
 		LightSource(LightSource&& Other);
 		LightSource& operator= (LightSource&& Other);
 
-		virtual void	Alloc	(const LightCreationInfo& Info);
-		virtual void	Free	();
+		virtual void	Alloc		(const LightCreationInfo& Info);
+		virtual void	Free		();
 
-		virtual void	Compute	(glm::mat4& Buffer);
+		virtual void	Compute		(glm::mat4& Buffer);
 	};
 
 
@@ -109,8 +109,8 @@ namespace Grvt
 		ENGINE_API PointLight();
 		ENGINE_API ~PointLight();
 
-		PointLight(const PointLight& Other);
-		PointLight& operator= (const PointLight& Other);
+		PointLight(const PointLight& Other)				= delete;
+		PointLight& operator= (const PointLight& Other)	= delete;
 
 		PointLight(PointLight&& Other);
 		PointLight& operator= (PointLight&& Other);

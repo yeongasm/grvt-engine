@@ -11,7 +11,7 @@ namespace Grvt
 	class DeferredPBR : public BaseRenderer
 	{
 	private:
-
+		
 		glm::vec3	BGColour;
 		
 		/**
@@ -20,11 +20,11 @@ namespace Grvt
 		Gfl::Array<size_t> SortedCommands;
 		Gfl::Array<size_t> SortedInstancedCommands;
 
-		
+		GrvtModel*		ScreenQuad;
+		RenderTarget	DepthMap;
+
 		ObjHandle	ProjectionViewUBO;
 		ObjHandle	LightUBO;
-
-		uint32		TotalLights;
 
 		/**
 		* Updates the materials inside the render command.

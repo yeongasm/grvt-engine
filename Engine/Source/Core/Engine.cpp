@@ -3,6 +3,7 @@
 #include "Profiler/FrameTime.h"
 #include "Framework/Abstraction/Scene.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/DeferredPBR.h"
 
 
 extern Grvt::GrvtScene* g_ActiveScene;
@@ -45,7 +46,7 @@ namespace Grvt
 		EngineIO* Io = g_Engine->GetIO();
 
 		g_Engine->InitModule();
-
+		
 		while (g_Engine->Running())
 		{
 			g_Engine->NewFrame();
@@ -172,6 +173,8 @@ namespace Grvt
 
 		Module.DllFile		= "Demo.dll";
 		Module.DllTempFile	= "DemoReload.dll";
+
+		g_Renderer = (DeferredPBR*)InitRenderer(new DeferredPBR());
 
 		Module.LoadModuleDll(true);
 
@@ -374,14 +377,15 @@ namespace Grvt
 			* This should probably move into it's own thread.
 			* Still needs to test if 100ms is significant enough to cause the frame to lag.
 			*/
-			Sleep(10);
 			Module.UnloadModuleDll();
 			Module.LoadModuleDll();
 			Module.DllLastWriteTime = NewDllLastWrite;
+			Sleep(10);
 		}
 
 #endif
-
+		
+		// NOTE(Afiq): This part of the code still causes a crash from time to time.
 		for (BaseSystem* System : Systems)
 		{
 			System->Tick();

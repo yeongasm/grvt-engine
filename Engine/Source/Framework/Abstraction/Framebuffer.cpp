@@ -44,31 +44,31 @@ namespace Grvt
 	}
 
 
-	GrvtFramebuffer::Attachment::Attachment() :
-		Handle(), Component(GrvtFramebuffer_AttachComponent_None), Type(GrvtFramebuffer_Attachment_None), Count(0) {}
+	FrmBfrAttachment::FrmBfrAttachment() :
+		Handle(), Component(GrvtFramebuffer_AttachComponent_None), Type(GrvtFramebuffer_Attachment_None), Floats(false) {}
 
 
-	GrvtFramebuffer::Attachment::~Attachment() {}
+	FrmBfrAttachment::~FrmBfrAttachment() {}
 
 
-	GrvtFramebuffer::Attachment::Attachment(GrvtFramebuffer::Attachment&& Rhs)
+	FrmBfrAttachment::FrmBfrAttachment(FrmBfrAttachment&& Other)
 	{
-		*this = Gfl::Move(Rhs);
+		*this = Gfl::Move(Other);
 	}
 
 
-	GrvtFramebuffer::Attachment& GrvtFramebuffer::Attachment::operator= (GrvtFramebuffer::Attachment&& Rhs)
+	FrmBfrAttachment& FrmBfrAttachment::operator= (FrmBfrAttachment&& Other)
 	{
-		_ASSERTE(this != &Rhs);
+		_ASSERTE(this != &Other);
 
-		if (this != &Rhs)
+		if (this != &Other)
 		{
-			Handle = Gfl::Move(Rhs.Handle);
-			Component = Rhs.Component;
-			Type = Rhs.Type;
-			Count = Rhs.Count;
+			Handle		= Gfl::Move(Other.Handle);
+			Component	= Gfl::Move(Other.Component);
+			Type		= Gfl::Move(Other.Type);
+			Floats		= Gfl::Move(Other.Floats);
 
-			new (&Rhs) GrvtFramebuffer::Attachment();
+			new (&Other) FrmBfrAttachment();
 		}
 
 		return *this;
@@ -76,7 +76,7 @@ namespace Grvt
 
 
 	GrvtFramebuffer::GrvtFramebuffer() :
-		Attachments(), Handle(), Width(0), Height(0) {}
+		ColourAttachments(), DepthAttachment(), DepthStencilAttachment(), Handle(), Width(0), Height(0) {}
 
 
 	GrvtFramebuffer::~GrvtFramebuffer() {}
@@ -84,24 +84,42 @@ namespace Grvt
 
 	void GrvtFramebuffer::Alloc(const FramebufferCreationInfo& Info)
 	{
-		Width = Info.Width;
+		Width  = Info.Width;
 		Height = Info.Height;
-		size_t Count = 0;
 
-		for (Gfl::Pair<AttachComponent, AttachmentType>& Attach : Info.Attachments)
+		for (Gfl::Pair<AttachComponent, AttachmentType>& Attachment : Info.Attachments)
 		{
-			Attachment& AttachPoint = Attachments.Insert(Attachment());
+			if (Attachment.Value == GrvtFramebuffer_Attachment_Colour)
+			{
+				FrmBfrAttachment& Colour = ColourAttachments.Insert(FrmBfrAttachment());
+				Colour.Component = Attachment.Key;
+				Colour.Type = Attachment.Value;
 
-			AttachPoint.Component = Attach.Key;
-			AttachPoint.Type = Attach.Value;
-			AttachPoint.Count = (Attach.Value == GrvtFramebuffer_Attachment_Colour) ? (uint32)Count++ : 0;
+				continue;
+			}
+
+			if (Attachment.Value == GrvtFramebuffer_Attachment_Depth)
+			{
+				DepthAttachment.Component = Attachment.Key;
+				DepthAttachment.Type = Attachment.Value;
+
+				continue;
+			}
+
+			if (Attachment.Value == GrvtFramebuffer_Attachment_DepthStencil)
+			{
+				DepthStencilAttachment.Component = Attachment.Key;
+				DepthStencilAttachment.Type = Attachment.Value;
+
+				continue;
+			}
 		}
 	}
 
 
 	void GrvtFramebuffer::Free()
 	{
-		Attachments.Release();
+		ColourAttachments.Release();
 	}
 
 }

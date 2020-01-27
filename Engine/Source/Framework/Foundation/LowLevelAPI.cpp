@@ -132,8 +132,8 @@ namespace Grvt
 
 
 		TextureBuildData::TextureBuildData() :
-			DataPtr(nullptr), CubemapDataPtr{nullptr}, Mipmap(1), Flip(1), Width(0), 
-			Height(0), Target(0), Type(0), Format(0), InternalFormat(0), Parameters() {}
+			CubemapDataPtr{nullptr}, Mipmap(1), Flip(1), Width(0),
+			Height(0), Target(GL_TEXTURE_2D), Type(GL_UNSIGNED_BYTE), Format(0), InternalFormat(0), Parameters() {}
 
 
 		TextureBuildData::~TextureBuildData() 
@@ -154,7 +154,6 @@ namespace Grvt
 
 			if (this != &Rhs) 
 			{
-				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
@@ -171,6 +170,11 @@ namespace Grvt
 					{
 						CubemapDataPtr[i] = Rhs.CubemapDataPtr[i];
 					}
+				}
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					BorderColour[i] = Rhs.BorderColour[i];
 				}
 			}
 
@@ -192,7 +196,6 @@ namespace Grvt
 			{
 				new (this) TextureBuildData();
 
-				DataPtr = Rhs.DataPtr;
 				Mipmap = Rhs.Mipmap;
 				Flip = Rhs.Flip;
 				Width = Rhs.Width;
@@ -209,6 +212,11 @@ namespace Grvt
 					{
 						CubemapDataPtr[i] = Rhs.CubemapDataPtr[i];
 					}
+				}
+
+				for (size_t i = 0; i < 4; i++)
+				{
+					BorderColour[i] = Rhs.BorderColour[i];
 				}
 
 				new (&Rhs) TextureBuildData();
@@ -270,55 +278,56 @@ namespace Grvt
 		}
 
 
-		FramebufferAttachment::FramebufferAttachment() : Handle(), Type(0), Component(0) {}
+		TextureAttachment::TextureAttachment() : Handle(nullptr), Type(0) {}
 
 
-		FramebufferAttachment::~FramebufferAttachment() 
+		TextureAttachment::~TextureAttachment()
 		{
-			Type = Component = 0;
+			Handle		= nullptr;
+			Type		= 0;
 		}
 
 
-		FramebufferAttachment::FramebufferAttachment(ObjHandle* SrcHandle, uint32 SourceAttachment, uint32 Component) :
-			Handle(SrcHandle), Type(SourceAttachment), Component(Component) {}
+		TextureAttachment::TextureAttachment(ObjHandle* SrcHandle, uint32 Type, TextureBuildData BuildData) :
+			Handle(SrcHandle), Type(Type), BuildData(BuildData) {}
 
 
-		FramebufferAttachment::FramebufferAttachment(const FramebufferAttachment& Rhs) 
+		TextureAttachment::TextureAttachment(const TextureAttachment& Rhs)
 		{
 			*this = Rhs;
 		}
 
 
-		FramebufferAttachment& FramebufferAttachment::operator= (const FramebufferAttachment& Rhs) 
+		TextureAttachment& TextureAttachment::operator= (const TextureAttachment& Rhs)
 		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs) {
-				Handle = Rhs.Handle;
-				Type = Rhs.Type;
-				Component = Rhs.Component;
+				BuildData	= Rhs.BuildData;
+				Handle		= Rhs.Handle;
+				Type		= Rhs.Type;
 			}
 
 			return *this;
 		}
 
 
-		FramebufferAttachment::FramebufferAttachment(FramebufferAttachment&& Rhs)
+		TextureAttachment::TextureAttachment(TextureAttachment&& Rhs)
 		{
 			*this = Gfl::Move(Rhs);
 		}
 
 
-		FramebufferAttachment& FramebufferAttachment::operator= (FramebufferAttachment&& Rhs) 
+		TextureAttachment& TextureAttachment::operator= (TextureAttachment&& Rhs)
 		{
 			_ASSERTE(this != &Rhs);
 
 			if (this != &Rhs) {
-				Handle = Rhs.Handle;
-				Type = Rhs.Type;
-				Component = Rhs.Component;
+				BuildData	= Gfl::Move(Rhs.BuildData);
+				Handle		= Gfl::Move(Rhs.Handle);
+				Type		= Gfl::Move(Rhs.Type);
 
-				new (&Rhs) FramebufferAttachment();
+				new (&Rhs) TextureAttachment();
 			}
 
 			return *this;
@@ -349,6 +358,8 @@ namespace Grvt
 			if (this != &Rhs)
 			{
 				Attachments = Rhs.Attachments;
+				Width = Rhs.Width;
+				Height = Rhs.Height;
 			}
 
 			return *this;
@@ -368,6 +379,8 @@ namespace Grvt
 			if (this != &Rhs)
 			{
 				Attachments = Rhs.Attachments;
+				Width = Rhs.Width;
+				Height = Rhs.Height;
 
 				new (&Rhs) FramebufferBuildData();
 			}
@@ -435,7 +448,14 @@ namespace Grvt
 			}
 
 			for (Gfl::Pair<uint32, uint32>& Param : Data.Parameters)
+			{
 				glTexParameteri(Handle.Target, Param.Key, Param.Value);
+			}
+			
+			if (Data.BorderColour[0] || Data.BorderColour[1] || Data.BorderColour[2] || Data.BorderColour[3])
+			{
+				glTexParameterfv(Handle.Target, GL_TEXTURE_BORDER_COLOR, Data.BorderColour);
+			}
 
 			GrUnbindTexture(Handle);
 		}
@@ -469,12 +489,13 @@ namespace Grvt
 		void BuildShaderProgram(ObjHandle& Handle, ShaderBuildData& Data)
 		{
 			int32 Link = 0;
-			size_t Index = 0;
+			size_t Total = 0;
 			Gfl::Array<ObjHandle> Handles(Data.BuildInfo.Length());
 
 			GrCreateShaderProgram(Handle);
 
-			for (ShaderInfo& Info : Data.BuildInfo) {
+			for (ShaderInfo& Info : Data.BuildInfo) 
+			{
 				uint32 type = 0;
 				switch (Info.Type) {
 				case GrvtFoundations_ShaderType_Vertex:
@@ -488,18 +509,18 @@ namespace Grvt
 					break;
 				}
 
-				if (!CompileShader(Handles[Index], type, Info.SourceCode))
+				if (!CompileShader(Handles[Total], type, Info.SourceCode))
 					_ASSERTE(false); // Failed to compile shader.
 
-				glAttachShader(Handle.Id, Handles[Index].Id);
-				Index++;
+				glAttachShader(Handle.Id, Handles[Total].Id);
+				Total++;
 			}
 
 			// Unlike other graphic objects, shaders are not allowed to be linked twice.
 			// Hence there is really no point use the same shader.
 			glLinkProgram(Handle.Id);
 			glGetProgramiv(Handle.Id, GL_LINK_STATUS, &Link);
-
+			
 			if (!Link)
 			{
 				char Buf[1024];
@@ -508,9 +529,10 @@ namespace Grvt
 				_ASSERTE(false); // Failed to create a shader.
 			}
 
-			while (Index > 0) {
-				glDeleteShader(Handles[Index].Id);
-				Index--;
+			while (Total > 0) 
+			{
+				glDeleteShader(Handles[Total - 1].Id);
+				Total--;
 			}
 		}
 
@@ -549,75 +571,43 @@ namespace Grvt
 
 			uint32				ColourCount = 0;
 			bool				hasImage = false;
-			Gfl::Array<uint32>	drawBuffers;
+			Gfl::Array<uint32>	DrawBuffers;
 
 			GrBindFramebuffer(Handle);
 
-			TextureBuildData buildData;
-			buildData.DataPtr = 0;
-			buildData.Mipmap = false;
-			buildData.Width = Data.Width;
-			buildData.Height = Data.Height;
-
-			for (FramebufferAttachment& Attachment : Data.Attachments)
+			for (TextureAttachment& Texture : Data.Attachments)
 			{
-				if (Attachment.Component == GrvtFramebuffer_AttachComponent_Cubemap)
+				if (Texture.Type == GL_COLOR_ATTACHMENT0 + ColourCount)
 				{
-					buildData.Target = GL_TEXTURE_CUBE_MAP;
-					buildData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
-					buildData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
-					buildData.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
-					buildData.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
-					buildData.Parameters.Push({GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE});
+					DrawBuffers.Push(Texture.Type);
+					ColourCount++;
+				}
+
+				BuildTexture(*Texture.Handle, Texture.BuildData);
+
+				if (Texture.BuildData.Target == GL_TEXTURE_CUBE_MAP)
+				{
+					glFramebufferTexture(Handle.Target, Texture.Type, Texture.Handle->Id, 0);
 				}
 				else
 				{
-					buildData.Target = GL_TEXTURE_2D;
-					buildData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
-					buildData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
-					buildData.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
-					buildData.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+					glFramebufferTexture2D(Handle.Target, Texture.Type, Texture.Handle->Target, Texture.Handle->Id, 0);
 				}
-
-				if (Attachment.Type == GL_DEPTH_ATTACHMENT)
-				{
-					buildData.Type = GL_FLOAT;
-					buildData.InternalFormat = GL_DEPTH_COMPONENT;
-					buildData.Format = GL_DEPTH_COMPONENT;
-				}
-
-				if (Attachment.Type == GL_DEPTH_STENCIL_ATTACHMENT)
-				{
-					buildData.Type = GL_UNSIGNED_INT_24_8;
-					buildData.InternalFormat = GL_DEPTH_STENCIL;
-					buildData.Format = GL_DEPTH_STENCIL;
-				}
-
-				if (Attachment.Type == GL_COLOR_ATTACHMENT0 + ColourCount++)
-				{
-					hasImage = true;
-					buildData.Type = GL_UNSIGNED_BYTE;
-					buildData.InternalFormat = GL_RGBA;
-					buildData.Format = GL_RGBA;
-					drawBuffers.Insert(Attachment.Type);
-				}
-
-				BuildTexture(*Attachment.Handle, buildData);
-				glFramebufferTexture2D(Handle.Target, Attachment.Type, Attachment.Handle->Target, Attachment.Handle->Id, 0);
-				GrBindTexture(Handle);
-				buildData.Parameters.Empty();
 			}
 
-			if (!hasImage) {
-				glDrawBuffer(GL_NONE);
-				glReadBuffer(GL_NONE);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+
+			if (DrawBuffers.Length())
+			{
+				glDrawBuffers((int32)DrawBuffers.Length(), DrawBuffers.First());
 			}
 
-			if (drawBuffers.Length())
-				glDrawBuffers((GLsizei)drawBuffers.Length(), drawBuffers.First());
-
-			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-				_ASSERTE(false);	// Building Framebuffer process failed.
+			if (glCheckFramebufferStatus(Handle.Target) != GL_FRAMEBUFFER_COMPLETE)
+			{
+				printf("Framebuffer is incomplete because it's size is not a power of 2 most likely ...\n");
+				//_ASSERTE(false);	// Building Framebuffer process failed.
+			}
 
 			GrUnbindFramebuffer(Handle);
 		}

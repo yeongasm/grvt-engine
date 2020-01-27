@@ -29,10 +29,12 @@ namespace Grvt
 
 		float32				DeltaTime;
 
-	private:
 
 		int32				Width;
 		int32				Height;
+
+	private:
+
 		int32				VersionMajor;
 		int32				VersionMinor;
 

@@ -8,6 +8,7 @@
 #include "Lighting.h"
 #include "Camera/Camera.h"
 #include "Renderer/RenderFoundation.h"
+#include "Renderer/Renderer.h"
 
 namespace Grvt
 {
@@ -18,10 +19,10 @@ namespace Grvt
 
 	struct SceneCreationInfo
 	{
-		Gfl::String Name;
-		size_t		ActorReserves		= 32;
-		size_t		DirLightReserves	= 4;
-		size_t		PointLightReserves	= 128;
+		Gfl::String		Name;
+		size_t			ActorReserves		= 32;
+		size_t			DirLightReserves	= 4;
+		size_t			PointLightReserves	= 128;
 	};
 
 
@@ -52,6 +53,7 @@ namespace Grvt
 
 		Gfl::String	Name;
 		BaseCamera* Camera;
+		BaseRenderer* Renderer;
 
 	private:
 
@@ -74,11 +76,11 @@ namespace Grvt
 		GrvtScene();
 		~GrvtScene();
 
-		GrvtScene(const GrvtScene& Other);
-		GrvtScene& operator= (const GrvtScene& Other);
+		GrvtScene(const GrvtScene& Other)				= delete;
+		GrvtScene& operator= (const GrvtScene& Other)	= delete;
 
-		GrvtScene(GrvtScene&& Other);
-		GrvtScene& operator= (GrvtScene&& Other);
+		GrvtScene(GrvtScene&& Other)					= delete;
+		GrvtScene& operator= (GrvtScene&& Other)		= delete;
 
 		/**
 		* Adds a new actor into the scene.

@@ -1,20 +1,26 @@
 #include "GrvtPch.h"
 #include "Framework/Foundation/Foundations.h"
+#include "Framework/DefaultShaders/ShadowMaps.h"
 #include "Renderer/DeferredPBR.h"
 #include "Library/GrvtAlgorithms.h"
+#include "Manager/Manager.h"
 
 
 namespace Grvt
 {
 
-	DeferredPBR::DeferredPBR() : 
+	static uint32 PreviousWidth		= 0;
+	static uint32 PreviousHeight	= 0;
+
+	DeferredPBR::DeferredPBR() :
 		BaseRenderer(),
+		ScreenQuad(nullptr),
+		DepthMap(),
 		BGColour(0.0f, 0.0f, 0.0f),
 		SortedCommands(), 
 		SortedInstancedCommands(),
 		ProjectionViewUBO(),
-		LightUBO(),
-		TotalLights(0) {}
+		LightUBO() {}
 
 	
 	DeferredPBR::~DeferredPBR() {}
@@ -102,7 +108,7 @@ namespace Grvt
 		}
 
 		UpdateMaterial(Material);
-
+		
 		for (RenderNode& Node : Command->Nodes)
 		{
 			RenderMesh(&Node);
@@ -178,17 +184,44 @@ namespace Grvt
 		glBindBufferBase(ProjectionViewUBO.Target, 0, ProjectionViewUBO.Id);
 		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
-		TotalLights = 1000;
-
 		BaseAPI::GrBindBufferObject(LightUBO);
-		glBufferData(LightUBO.Target, sizeof(uint32) * (TotalLights * (uint32)64), nullptr, GL_STATIC_DRAW);
+		size_t TotalSize = sizeof(uint32) + sizeof(uint32) + (64 * 8) + (64 * 1000);
+		glBufferData(LightUBO.Target, TotalSize, nullptr, GL_STATIC_DRAW);
 		glBindBufferBase(LightUBO.Target, 1, LightUBO.Id);
 		BaseAPI::GrUnbindBufferObject(LightUBO);
+
+		ScreenQuad = Grvt::GetResourceManager()->GetModel("Quad");
+
+		// Set up shadow map for directional lighting.
+		{
+			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = DepthMap.DepthAttachment;
+			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
+
+			BaseAPI::FramebufferBuildData FBuild;
+			BaseAPI::TextureBuildData TBuild;
+
+			TBuild.Type = GL_FLOAT;
+			TBuild.Format = GL_DEPTH_COMPONENT;
+			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
+			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER});
+			TBuild.BorderColour[0] = 1.0f;
+			TBuild.BorderColour[1] = 1.0f;
+			TBuild.BorderColour[2] = 1.0f;
+			TBuild.BorderColour[3] = 1.0f;
+
+			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
+
+			BaseAPI::BuildFramebuffer(DepthMap.Handle, FBuild);
+		}
 	}
 
 
 	void DeferredPBR::Shutdown()
 	{
+		ScreenQuad = nullptr;
 		SortedCommands.Release();
 		SortedInstancedCommands.Release();
 
@@ -215,6 +248,45 @@ namespace Grvt
 			return;
 		}
 
+		// Dynamically update shadow map's render target size.
+		if (PreviousWidth != Width && PreviousHeight != Height)
+		{
+			/*for (RenderTarget* Framebuffer : FrontBuffer.ShadowMaps)
+			{
+				if (Framebuffer->DepthAttachment.Value.Target == GL_TEXTURE_2D)
+				{
+					BaseAPI::GrBindTexture(Framebuffer->DepthAttachment.Value);
+					glTexImage2D(Framebuffer->DepthAttachment.Value.Target, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (uint8*)nullptr);
+					BaseAPI::GrUnbindTexture(Framebuffer->DepthAttachment.Value);
+
+					BaseAPI::GrBindFramebuffer(Framebuffer->Handle);
+					glFramebufferTexture2D(Framebuffer->Handle.Target, GL_DEPTH_ATTACHMENT, Framebuffer->DepthAttachment.Value.Target, Framebuffer->DepthAttachment.Value.Id, 0);
+					BaseAPI::GrUnbindFramebuffer(Framebuffer->Handle);
+				}
+
+				if (Framebuffer->DepthAttachment.Value.Target == GL_TEXTURE_CUBE_MAP)
+				{
+					BaseAPI::GrBindTexture(Framebuffer->DepthAttachment.Value);
+					for (uint32 i = 0; i < 6; i++)
+					{
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (uint8*)nullptr);
+					}
+					BaseAPI::GrUnbindTexture(Framebuffer->DepthAttachment.Value);
+
+					BaseAPI::GrBindFramebuffer(Framebuffer->Handle);
+					glFramebufferTexture(Framebuffer->Handle.Target, GL_DEPTH_ATTACHMENT, Framebuffer->DepthAttachment.Value.Id, 0);
+					BaseAPI::GrUnbindFramebuffer(Framebuffer->Handle);
+				}
+
+				Framebuffer->Width = Width;
+				Framebuffer->Height = Height;
+			}*/
+
+			PreviousWidth  = Width;
+			PreviousHeight = Height;
+		}
+
+
 		Gfl::Array<RenderCommand>& RenderCommands	 = FrontBuffer.RenderCommands;
 		Gfl::Array<RenderCommand>& InstancedCommands = FrontBuffer.InstancedCommands;
 
@@ -227,14 +299,17 @@ namespace Grvt
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
-		glBufferSubData(ProjectionViewUBO.Target, 0, 64, &FrontBuffer.Projection[0][0]);
-		glBufferSubData(ProjectionViewUBO.Target, 64, 64, &FrontBuffer.View[0][0]);
+		glBufferSubData(ProjectionViewUBO.Target,  0, 64, &FrontBuffer.Projection[0][0]);
+		glBufferSubData(ProjectionViewUBO.Target, 64, 64,       &FrontBuffer.View[0][0]);
 
-		size_t TotalLights = FrontBuffer.Lights.Length();
+		size_t TotalDirLights = FrontBuffer.DirectionalLights.Length();
+		size_t TotalPointLights = FrontBuffer.PointLights.Length();
 
 		BaseAPI::GrBindBufferObject(LightUBO);
-		glBufferSubData(LightUBO.Target, 0, sizeof(uint32), &TotalLights);
-		glBufferSubData(LightUBO.Target, 16, TotalLights * 64, FrontBuffer.Lights.First());
+		glBufferSubData(LightUBO.Target,   0,        sizeof(uint32),					   &TotalDirLights);
+		glBufferSubData(LightUBO.Target,   4,        sizeof(uint32),					 &TotalPointLights);
+		glBufferSubData(LightUBO.Target,  16,   TotalDirLights * 64, FrontBuffer.DirectionalLights.First());
+		glBufferSubData(LightUBO.Target, 528, TotalPointLights * 64,	   FrontBuffer.PointLights.First());
 		BaseAPI::GrUnbindBufferObject(LightUBO);
 
 		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
@@ -252,6 +327,7 @@ namespace Grvt
 
 		RenderCommand* Command = nullptr;
 
+		// Render scene
 		for (size_t Index : SortedCommands)
 		{
 			Command = &RenderCommands[Index];	
@@ -264,7 +340,7 @@ namespace Grvt
 		}
 
 		StateCache.SetPolygonMode(PolygonFace_Front_And_Back, PolygonMode_Fill);
-
+		
 		// Render Sky boxes last if it exists.
 		if (FrontBuffer.SkyBox.Nodes.Length())
 		{
