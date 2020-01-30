@@ -12,8 +12,8 @@ out vec3 Normal;
 
 layout (std140, binding = 0) uniform Matrices
 {
-	uniform mat4 Projection;
-	uniform mat4 View;
+	mat4 Projection;
+	mat4 View;
 };
 
 uniform mat4 Model;
@@ -78,7 +78,7 @@ vec3 CalcDirectionalLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Diffused *= Light[0][0];
 	Specular *= Light[0][0];
 	
-	return (Ambient + Diffused + Specular) * Light[3][0];
+	return Ambient + Diffused + Specular;
 };
 
 vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
@@ -107,7 +107,7 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Diffused *= Light[0][0];
 	Specular *= Light[0][0];
 
-	return (Ambient + Diffused + Specular) * Light[3][1];
+	return Ambient + Diffused + Specular;
 };
 
 void main()
@@ -174,8 +174,8 @@ out vec3 TexCoord;
 
 layout (std140, binding = 0) uniform Matrices
 {
-	uniform mat4 Projection;
-	uniform mat4 View;
+	mat4 Projection;
+	mat4 View;
 };
 
 void main()
@@ -213,8 +213,8 @@ out vec3 Normal;
 
 layout (std140, binding = 0) uniform MatricesUBO
 {
-	uniform mat4 Projection;
-	uniform mat4 View;
+	mat4 Projection;
+	mat4 View;
 };
 
 uniform mat4 Model;
@@ -287,7 +287,7 @@ vec3 CalcDirectionalLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Diffused *= Light[0][0];
 	Specular *= Light[0][0];
 	
-	return (Ambient + Diffused + Specular) * Light[3][0];
+	return Ambient + Diffused + Specular;
 };
 
 vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
@@ -316,7 +316,7 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Diffused *= Light[0][0];
 	Specular *= Light[0][0];
 
-	return (Ambient + Diffused + Specular) * Light[3][1];
+	return Ambient + Diffused + Specular;
 };
 
 void main()

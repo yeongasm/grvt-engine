@@ -132,6 +132,9 @@
     <ClCompile Include="Source\Framework\DefaultShaders\ShadowMaps.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Framework\DefaultShaders\SimpleDebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h">
@@ -249,6 +252,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Framework\DefaultShaders\ShadowMaps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Framework\DefaultShaders\SimpleDebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

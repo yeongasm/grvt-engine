@@ -37,7 +37,6 @@ namespace Grvt
 		float		Constant	= 1.0f;
 		float		Linear		= 0.0f;
 		float		Quadratic	= 0.0f;
-		bool		Shadows		= true;
 	};
 
 	/**
@@ -55,8 +54,8 @@ namespace Grvt
 	* [2][1] - Colour->g.
 	* [2][2] - Colour->b.
 	* [2][3] - Empty.
-	* [3][0] - 1.0f if Directional light else 0.0f.
-	* [3][1] - 1.0f if Point light else 0.0f.
+	* [3][0] - Empty.
+	* [3][1] - Empty.
 	* [3][2] - Empty.
 	* [3][3] - Empty.
 	*/

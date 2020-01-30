@@ -12,6 +12,8 @@ namespace Grvt
 	{
 	private:
 		
+		RenderTarget DepthMap;
+
 		glm::vec3	BGColour;
 		
 		/**
@@ -20,11 +22,13 @@ namespace Grvt
 		Gfl::Array<size_t> SortedCommands;
 		Gfl::Array<size_t> SortedInstancedCommands;
 
-		GrvtModel*		ScreenQuad;
-		RenderTarget	DepthMap;
+		GrvtModel*	ScreenQuad;
+		GrvtShader* DepthPassShader;
+		GrvtShader* SimpleDepthDebug;
 
 		ObjHandle	ProjectionViewUBO;
 		ObjHandle	LightUBO;
+		ObjHandle	DirLightTransformUBO;
 
 		/**
 		* Updates the materials inside the render command.
@@ -45,6 +49,11 @@ namespace Grvt
 		* Sort commands that are pushed into the renderer.
 		*/
 		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<size_t>& SortedCommand);
+
+		/**
+		* Render to depth map.
+		*/
+		void RenderDirectionalLightingPass(const RenderCommand* Command);
 
 	public:
 

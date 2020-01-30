@@ -171,13 +171,6 @@ namespace Grvt
 		Middleware::InitialiseBuildQueue();
 		ResourceMgrPtr = InitialiseResourceManager();
 
-		Module.DllFile		= "Demo.dll";
-		Module.DllTempFile	= "DemoReload.dll";
-
-		g_Renderer = (DeferredPBR*)InitRenderer(new DeferredPBR());
-
-		Module.LoadModuleDll(true);
-
 		// NOTE(Afiq):
 		// The engine shouldn't really contain default models.
 		// Let the module import the models on StartUp.
@@ -224,6 +217,13 @@ namespace Grvt
 			Info.Path = Gfl::String("Data\\Model\\Floor.fbx");
 			ResourceMgrPtr->NewImportModel(Info);
 		}
+
+		Module.DllFile		= "Demo.dll";
+		Module.DllTempFile	= "DemoReload.dll";
+
+		Module.LoadModuleDll(true);
+
+		g_Renderer = (DeferredPBR*)InitRenderer(new DeferredPBR());
 	}
 
 

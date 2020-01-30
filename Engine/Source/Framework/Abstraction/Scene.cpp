@@ -397,7 +397,8 @@ namespace Grvt
 			Light.Compute(LightSrc);
 			Buffer.DirectionalLights.Push(LightSrc);
 
-			glm::mat4 LProjection = glm::ortho(-Camera->Width, Camera->Width, -Camera->Height, Camera->Height, 1.0f, Light.Position.y + 10.0f);
+			glm::mat4 LProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 7.5f);
+
 			glm::mat4 LView = glm::lookAt(Light.Position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 			Buffer.LightSpaceTransforms.Push(LProjection* LView);

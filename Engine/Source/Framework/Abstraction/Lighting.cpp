@@ -114,7 +114,6 @@ namespace Grvt
 		Buffer[2][0] = Colour.x;
 		Buffer[2][1] = Colour.y;
 		Buffer[2][2] = Colour.z;
-		Buffer[3][0] = 1.0f;
 	}
 
 
@@ -232,8 +231,6 @@ namespace Grvt
 		Buffer[0][1] = Constant;
 		Buffer[0][2] = Linear;
 		Buffer[0][3] = Quadratic;
-		Buffer[3][0] = 0.0f;
-		Buffer[3][1] = 1.0f;
 	}
 
 }
