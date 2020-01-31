@@ -399,15 +399,11 @@ namespace Grvt
 
 			glm::mat4 LProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 100.0f);
 
-			glm::vec3 NewPos = Light.Position + Camera->MoveDelta;
-			printf("NewPos x: %.3f y: %.3f z: %.3f\n", NewPos.x, NewPos.y, NewPos.z);
-			glm::vec3 NormalisedPos = glm::normalize(NewPos);
+			// The multiplier would be a value that keeps the target inside the projection's frustrum.
+			vec3 tgt = Camera->Position + Camera->Forward * 20.0f;
+			vec3 Orientation = normalize(vec3(1, -1, 1));
 
-			glm::vec3 Right = glm::normalize(glm::cross(NormalisedPos, glm::vec3(0.0f, 1.0f, 0.0f)));
-			glm::vec3 Up	= glm::normalize(glm::cross(Right, NormalisedPos));
-			glm::vec3 Front = glm::normalize(glm::cross(Up, Right));
-
-			glm::mat4 LView = glm::lookAt(NormalisedPos * 50.0f, glm::normalize(Camera->Position + Camera->Forward), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::mat4 LView = glm::lookAt(tgt - Orientation * 50.0f, tgt, glm::vec3(0.0f, 1.0f, 0.0f));
 
 			Buffer.LightSpaceTransforms.Push(LProjection* LView);
 		}
