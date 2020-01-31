@@ -250,10 +250,10 @@ namespace Grvt
 			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER});
-			//TBuild.BorderColour[0] = 1.0f;
-			//TBuild.BorderColour[1] = 1.0f;
-			//TBuild.BorderColour[2] = 1.0f;
-			//TBuild.BorderColour[3] = 1.0f;
+			TBuild.BorderColour[0] = 1.0f;
+			TBuild.BorderColour[1] = 1.0f;
+			TBuild.BorderColour[2] = 1.0f;
+			TBuild.BorderColour[3] = 1.0f;
 
 			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
 
@@ -418,6 +418,11 @@ namespace Grvt
 		// Render To Screen Quad.
 		BaseAPI::GrBindShaderProgram(SimpleDepthDebug->Handle);
 
+		glm::mat4 transform(1.0f);
+		transform = glm::scale(transform, glm::vec3(0.5f));
+		transform = glm::translate(transform, glm::vec3(5.0, -5.0f, 0.0f));
+
+		//BaseAPI::Shader::GrShaderSetMat4Float(0, &transform[0][0]);
 		BaseAPI::Shader::GrShaderSetInt(0, 0);
 
 		glActiveTexture(GL_TEXTURE0);

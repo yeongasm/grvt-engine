@@ -159,15 +159,17 @@ namespace Grvt
 	{
 		float Velocity = MoveSpeed * DeltaTime;
 
+		glm::vec3 OldPos = Position;
 		Position += Direction * Velocity;
+		MoveDelta = Position - OldPos;
 	}
 
 
 	void BaseCamera::Rotate(const glm::vec3& Angle, float DeltaTime)
 	{
 		float Horizontal = Angle.x * Sensitivity * DeltaTime;
-		float Vertical = Angle.y * Sensitivity * DeltaTime;
-		float ZRotation = Angle.z * Sensitivity * DeltaTime;
+		float Vertical   = Angle.y * Sensitivity * DeltaTime;
+		float ZRotation  = Angle.z * Sensitivity * DeltaTime;
 
 		Yaw		+= Horizontal;
 		Pitch	+= Vertical;

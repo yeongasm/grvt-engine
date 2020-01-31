@@ -67,6 +67,8 @@ vec3 CalcDirectionalLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3	LightDir	= normalize(LightPos - FragWorldPos);
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 	
+	LightDir = normalize(-LightDir);
+
 	float Diff = max(dot(LightDir, Normal), 0);
 	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
 
@@ -130,7 +132,7 @@ void main()
 		Result += CalcPointLighting(PointLights[i], Norm, ViewDirection);
 	}
 
-	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Result, 1.0f), Blend);;
+	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Result, 1.0f), Blend);
 }
 )";
 
@@ -276,6 +278,8 @@ vec3 CalcDirectionalLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3	LightDir	= normalize(LightPos - FragWorldPos);
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 	
+	LightDir = normalize(-LightDir);
+
 	float Diff = max(dot(LightDir, Normal), 0);
 	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
 

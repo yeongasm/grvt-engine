@@ -58,6 +58,7 @@ namespace Grvt
 		glm::vec3	Forward;
 		glm::vec3	Up;
 		glm::vec3	Right;
+		glm::vec3	MoveDelta;
 
 	protected:
 

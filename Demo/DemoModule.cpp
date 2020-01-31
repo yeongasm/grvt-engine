@@ -162,7 +162,7 @@ extern "C"
 		{
 			Grvt::LightCreationInfo LightInfo;
 			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(-5.0f, 4.0f, -1.0f);
+			LightInfo.Position = glm::vec3(0.0f, 4.0f, 5.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
 			
 			DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);

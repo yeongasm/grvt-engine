@@ -12,7 +12,9 @@ out vec2 TexCoords;
 void main()
 {
 	TexCoords = aTexCoords;
-	gl_Position = vec4(aPos, 1.0f);
+	vec3 A = aPos * 0.35f;
+	A += vec3(0.55f, 0.55f, 0.0f);
+	gl_Position = vec4(A, 1.0f);
 }
 )";
 
