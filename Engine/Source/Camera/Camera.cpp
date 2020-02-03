@@ -159,9 +159,7 @@ namespace Grvt
 	{
 		float Velocity = MoveSpeed * DeltaTime;
 
-		glm::vec3 OldPos = Position;
 		Position += Direction * Velocity;
-		MoveDelta = Position - OldPos;
 	}
 
 

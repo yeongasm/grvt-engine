@@ -33,7 +33,9 @@ namespace Grvt
 		GrvtTexture_Type_Reflection		= 0x09,
 		GrvtTexture_Type_Emissive		= 0x0A,
 		GrvtTexture_Type_Opacity		= 0x0B,
-		GrvtTexture_Type_Cubemap		= 0x0C
+		GrvtTexture_Type_Cubemap		= 0x0C,
+		GrvtTexture_Type_ShadowMap		= 0x0D,
+		GrvtTexture_Type_OmniShadowMap	= 0x0E
 	};
 
 

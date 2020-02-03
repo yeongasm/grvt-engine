@@ -30,13 +30,15 @@ namespace Grvt
 	*/
 	struct LightCreationInfo
 	{
-		glm::vec3	Position	= glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3	Orientation = glm::vec3(0.0f);
+		glm::vec3	Position	= glm::vec3(0.0f);
 		glm::vec3	Colour		= glm::vec3(1.0f, 1.0f, 1.0f);
 		LightType	Type		= GrvtLight_Type_Directional;
 		float		Brightness	= 1.0f;
 		float		Constant	= 1.0f;
 		float		Linear		= 0.0f;
 		float		Quadratic	= 0.0f;
+		bool		Shadows		= true;
 	};
 
 	/**
@@ -54,9 +56,9 @@ namespace Grvt
 	* [2][1] - Colour->g.
 	* [2][2] - Colour->b.
 	* [2][3] - Empty.
-	* [3][0] - Empty.
-	* [3][1] - Empty.
-	* [3][2] - Empty.
+	* [3][0] - Orientation->x.
+	* [3][1] - Orientation->y.
+	* [3][2] - Orientation->z.
 	* [3][3] - Empty.
 	*/
 
@@ -64,12 +66,15 @@ namespace Grvt
 	*/
 	struct LightSource
 	{
+		RenderTarget	DepthMap;
+		glm::vec3		Orientation;
 		glm::vec3		Position;
 		glm::vec3		Colour;
 		LightType		Type;
 		float32			Brightness;
-		float32			PCF;
+		float32			Bias;
 		bool			Enable;
+		bool			Shadows;
 
 		ENGINE_API LightSource();
 		ENGINE_API virtual ~LightSource();

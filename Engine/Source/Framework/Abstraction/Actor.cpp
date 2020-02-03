@@ -15,7 +15,8 @@ namespace Grvt
 		ModelPtr(nullptr),
 		Mode(GL_TRIANGLES),
 		Instanced(false),
-		Render(true) {}
+		Render(true),
+		Sort(true) {}
 
 
 	GrvtActor::~GrvtActor() {}
@@ -49,6 +50,8 @@ namespace Grvt
 			Rotation = Other.Rotation;
 			Scale = Other.Scale;
 			Instanced = Other.Instanced;
+			Render = Other.Render;
+			Sort = Other.Sort;
 		}
 		
 		return *this;
@@ -75,6 +78,8 @@ namespace Grvt
 			Rotation = Other.Rotation;
 			Scale = Other.Scale;
 			Instanced = Other.Instanced;
+			Render = Other.Render;
+			Sort = Other.Sort;
 
 			new (&Other) GrvtActor();
 		}

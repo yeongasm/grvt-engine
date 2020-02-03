@@ -12,7 +12,12 @@ namespace Grvt
 {
 
 	GrvtScene::GrvtScene() :
-		Name(), Camera(nullptr), Renderer(nullptr), Actors(), DirectionalLights(), PointLights() {}
+		Name(), 
+		Camera(nullptr), 
+		Renderer(nullptr), 
+		Actors(), 
+		PointLights(), 
+		DirectionalLight(nullptr) {}
 
 
 	GrvtScene::~GrvtScene() {}
@@ -76,15 +81,42 @@ namespace Grvt
 
 	DirLight* GrvtScene::AddNewDirectionalLight(const LightCreationInfo& Info)
 	{
-		if (DirectionalLights.Length() == MAX_DIRECTIONAL_LIGHTS)
+		if (DirectionalLight)
 		{
-			return nullptr;
+			return DirectionalLight;
 		}
 
-		DirLight& Light = DirectionalLights.Insert(DirLight());
-		Light.Alloc(Info);
+		DirectionalLight = new DirLight();
+		DirectionalLight->Alloc(Info);
 
-		return &Light;
+		if (Info.Shadows)
+		{
+			// Set up shadow map for directional lighting.
+			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = DirectionalLight->DepthMap.DepthAttachment;
+
+			// This currently has no purpose.
+			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
+
+			BaseAPI::FramebufferBuildData FBuild;
+			BaseAPI::TextureBuildData TBuild;
+
+			TBuild.Type = GL_FLOAT;
+			TBuild.Format = GL_DEPTH_COMPONENT;
+			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
+			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER});
+			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER});
+			TBuild.BorderColour[0] = 1.0f;
+			TBuild.BorderColour[1] = 1.0f;
+			TBuild.BorderColour[2] = 1.0f;
+			TBuild.BorderColour[3] = 1.0f;
+
+			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
+			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&DirectionalLight->DepthMap.Handle, FBuild);
+		}
+
+		return DirectionalLight;
 	}
 
 	
@@ -95,8 +127,8 @@ namespace Grvt
 			return nullptr;
 		}
 		
-		PointLight& Light = PointLights.Insert(PointLight());
-		Light.Alloc(Info);
+		PointLight* LightPtr = PointLights.Insert(new PointLight());
+		LightPtr->Alloc(Info);
 
 		/*if (Info.Shadows)
 		{
@@ -121,7 +153,7 @@ namespace Grvt
 			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&Light.ShadowMap.Handle, FBuild);
 		}*/
 
-		return &Light;
+		return LightPtr;
 	}
 
 
@@ -173,29 +205,63 @@ namespace Grvt
 
 	// TODO(Afiq):
 	// Delete Framebuffer when we're deleting the light source.
-	bool GrvtScene::DeleteDirLight(DirLight& DirectionalLight)
+	bool GrvtScene::DeleteDirLight()
 	{
-		size_t Index = DirectionalLights.IndexOf(DirectionalLight);
-
-		if (Index == -1)
-		{
+		if (!DirectionalLight)
 			return false;
+
+		RenderTarget& Framebuffer = DirectionalLight->DepthMap;
+
+		if (Framebuffer.DepthAttachment.Value.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthAttachment.Value), Middleware::GrvtGfx_Type_Texture);
+
+		if (Framebuffer.DepthStencilAttachment.Value.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthStencilAttachment.Value), Middleware::GrvtGfx_Type_Texture);
+
+		for (Gfl::Pair<uint32, ObjHandle>& ColourAttachment : Framebuffer.ColourAttachments)
+		{
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(ColourAttachment.Value), Middleware::GrvtGfx_Type_Texture);
 		}
 
-		DirectionalLights.PopAt(Index);
+		if (Framebuffer.Handle.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.Handle), Middleware::GrvtGfx_Type_Framebuffer);
+
+		delete DirectionalLight;
+		DirectionalLight = nullptr;
 
 		return true;
 	}
 
 
-	bool GrvtScene::DeletePointLight(PointLight& PointLight)
+	bool GrvtScene::DeletePointLight(PointLight** PointLight)
 	{
-		size_t Index = PointLights.IndexOf(PointLight);
+		size_t Index = PointLights.Find(*PointLight);
 
 		if (Index == -1)
 		{
 			return false;
 		}
+
+		RenderTarget& Framebuffer = (*PointLight)->DepthMap;
+
+		if (Framebuffer.DepthAttachment.Value.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthAttachment.Value), Middleware::GrvtGfx_Type_Texture);
+
+		if (Framebuffer.DepthStencilAttachment.Value.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthStencilAttachment.Value), Middleware::GrvtGfx_Type_Texture);
+
+		for (Gfl::Pair<uint32, ObjHandle>& ColourAttachment : Framebuffer.ColourAttachments)
+		{
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(ColourAttachment.Value), Middleware::GrvtGfx_Type_Texture);
+		}
+
+		if (Framebuffer.Handle.Id)
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.Handle), Middleware::GrvtGfx_Type_Framebuffer);
+
+		delete PointLights[Index];
+		PointLights[Index] = nullptr;
+
+		PointLight = nullptr;
 
 		PointLights.PopAt(Index);
 
@@ -207,7 +273,6 @@ namespace Grvt
 	{
 		Name = Info.Name;
 		Actors.Reserve(Info.ActorReserves);
-		DirectionalLights.Reserve(Info.DirLightReserves);
 		PointLights.Reserve(Info.PointLightReserves);
 	}
 
@@ -215,9 +280,11 @@ namespace Grvt
 	void GrvtScene::Free()
 	{
 		Camera = nullptr;
+
+		DeleteAllLights();
+
 		Name.Release();
 		Actors.Release();
-		DirectionalLights.Release();
 		PointLights.Release();
 	}
 
@@ -227,22 +294,27 @@ namespace Grvt
 		Actors.Empty();
 	}
 
-	
-	void GrvtScene::DeleteAllDirLights()
-	{
-		DirectionalLights.Empty();
-	}
-
 
 	void GrvtScene::DeleteAllPointLights()
 	{
+		PointLight* Temp = nullptr;
+
+		if (PointLights.Length())
+			Temp = PointLights[0];
+
+		for (size_t i = PointLights.Length() - 1; PointLights.Length(); i--)
+		{
+			Temp = PointLights[i];
+			DeletePointLight(&Temp);
+		}
+
 		PointLights.Empty();
 	}
 
 
 	void GrvtScene::DeleteAllLights()
 	{
-		DeleteAllDirLights();
+		DeleteDirLight();
 		DeleteAllPointLights();
 	}
 
@@ -280,6 +352,50 @@ namespace Grvt
 		if (!Buffer.IsEmpty)
 		{
 			return;
+		}
+
+		if (DirectionalLight)
+		{
+			if (DirectionalLight->Enable)
+			{
+				DirectionalLight->Compute(Buffer.DirectionalLight);
+
+				Buffer.DepthMap = &DirectionalLight->DepthMap;
+
+				glm::mat4 LtProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 150.0f);
+
+				// The multiplier would be a value that keeps the target inside of the projection's frustrum.
+				glm::vec3 Target = Camera->Position + Camera->Forward * 20.0f;
+				glm::mat4 LtView = glm::lookAt(Target - DirectionalLight->Orientation * 50.0f, Target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+				size_t Index = Buffer.LightSpaceTransforms.Push(LtProjection * LtView);
+			}
+		}
+		else
+		{
+			Buffer.LightSpaceTransforms.Push(glm::mat4(0.0f));
+		}
+
+		for (PointLight* LightPtr : PointLights)
+		{
+			if (!LightPtr->Enable)
+				continue;
+
+			glm::mat4& PointLight = Buffer.PointLights.Insert(glm::mat4(0.0f));
+			LightPtr->Compute(PointLight);
+
+			/*
+			if (Light->DepthMap.Handle.Id)
+				Buffer.OmniDepthMaps.Push(&Light->DepthMap);
+
+			glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			*/
 		}
 		
 		// Pass in the final projection and view matrix.
@@ -321,14 +437,29 @@ namespace Grvt
 				Model = glm::rotate(Model, glm::radians(Actor.Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 			}
 
-			Command.State = Actor.DrawingState;
+			Command.State	 = Actor.DrawingState;
 			Command.Material = &Actor.Material;
+			Command.Sort	 = Actor.Sort;
 
 			glm::mat3 TrInvModel = glm::transpose(glm::inverse(Model));
 
 			// Set the model matrix in here.
 			Command.Material->SetMatrix("Model", Model);
 			Command.Material->SetMatrix("TrInvModel", TrInvModel);
+			Command.Material->SetInt("TotalLights", (int32)Buffer.LightSpaceTransforms.Length());
+
+			if (DirectionalLight)
+			{
+				Command.Material->SetTexture("DepthMap", GrvtTexture_Type_ShadowMap);
+			}
+
+			Gfl::String Uniform;
+			for (size_t i = 0; i < PointLights.Length(); i++)
+			{
+				Uniform.Format("OmniDepthMap[%d]", i);
+				Command.Material->SetTexture(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
+				Uniform.Empty();
+			}
 
 			RenderNode Node;
 
@@ -386,44 +517,6 @@ namespace Grvt
 			}
 
 			Command.Empty();
-		}
-
-		for (DirLight& Light : DirectionalLights)
-		{
-			if (!Light.Enable)
-				continue;
-
-			glm::mat4 LightSrc;
-			Light.Compute(LightSrc);
-			Buffer.DirectionalLights.Push(LightSrc);
-
-			glm::mat4 LProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 100.0f);
-
-			// The multiplier would be a value that keeps the target inside the projection's frustrum.
-			vec3 tgt = Camera->Position + Camera->Forward * 20.0f;
-			vec3 Orientation = normalize(vec3(1, -1, 1));
-
-			glm::mat4 LView = glm::lookAt(tgt - Orientation * 50.0f, tgt, glm::vec3(0.0f, 1.0f, 0.0f));
-
-			Buffer.LightSpaceTransforms.Push(LProjection* LView);
-		}
-
-		for (PointLight& Light : PointLights)
-		{
-			if (!Light.Enable)
-				continue;
-
-			glm::mat4 LightSrc;
-			Light.Compute(LightSrc);
-			Buffer.PointLights.Push(LightSrc);
-
-			glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light.Position, Light.Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 		}
 
 		if (Sky.SrcModel && Sky.Render)

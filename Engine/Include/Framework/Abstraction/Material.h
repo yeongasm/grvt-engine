@@ -135,6 +135,13 @@ namespace Grvt
 		* Returns false if uniform with the specified name is not found.
 		*/
 		ENGINE_API bool SetTexture(const Gfl::String& Uniform, TextureType Type);
+
+		/**
+		* Sets a texture with it's sampling unit to the specified uniform.
+		* Does not update the value that's in the shader.
+		* Returns false if uniform with the specified name is not found.
+		*/
+		ENGINE_API bool SetTexture(const Gfl::String& Uniform, int32 Unit);
 	};
 
 }

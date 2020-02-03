@@ -15,7 +15,6 @@ namespace Grvt
 
 	DeferredPBR::DeferredPBR() :
 		BaseRenderer(),
-		DepthMap(),
 		BGColour(0.0f, 0.0f, 0.0f),
 		SortedCommands(), 
 		SortedInstancedCommands(),
@@ -23,8 +22,7 @@ namespace Grvt
 		DepthPassShader(nullptr),
 		SimpleDepthDebug(nullptr),
 		ProjectionViewUBO(),
-		LightUBO(),
-		DirLightTransformUBO() {}
+		LightUBO() {}
 
 	
 	DeferredPBR::~DeferredPBR() {}
@@ -111,6 +109,18 @@ namespace Grvt
 			BaseAPI::GrBindTexture(*Pair.Value);
 		}
 
+		if (FrontBuffer.DepthMap)
+		{
+			glActiveTexture(GL_TEXTURE0 + GrvtTexture_Type_ShadowMap);
+			BaseAPI::GrBindTexture(FrontBuffer.DepthMap->DepthAttachment.Value);
+		}
+
+		for (size_t i = 0; i < FrontBuffer.OmniDepthMaps.Length(); i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + GrvtTexture_Type_OmniShadowMap + (uint32)i);
+			BaseAPI::GrBindTexture(FrontBuffer.OmniDepthMaps[i]->DepthAttachment.Value);
+		}
+
 		UpdateMaterial(Material);
 		
 		for (RenderNode& Node : Command->Nodes)
@@ -144,6 +154,13 @@ namespace Grvt
 		for (RenderCommand& Command : Commands)
 		{
 			size_t Index = Commands.IndexOf(Command);
+
+			if (!Command.Sort)
+			{
+				UnsortedCommands.Push(Index);
+				continue;
+			}
+
 			uint64 Weight = ((uint64)Command.Material->Shader->Handle.Id << 52)
 							| ((uint64)Command.State.PolygonFace		<< 48)		
 							| ((uint64)Command.State.PolygonMode		<< 44)
@@ -175,9 +192,9 @@ namespace Grvt
 
 	void DeferredPBR::RenderDirectionalLightingPass(const RenderCommand* Command)
 	{
-		// Update Model uniform.
 		glm::mat4 CommandTransform = Command->Transform;
 
+		BaseAPI::Shader::GrShaderSetMat4Float(0, &FrontBuffer.LightSpaceTransforms[0][0][0]);
 		BaseAPI::Shader::GrShaderSetMat4Float(1, &CommandTransform[0][0]);
 		
 		for (RenderNode& Node : Command->Nodes)
@@ -196,24 +213,16 @@ namespace Grvt
 
 		BaseAPI::GrCreateBufferObject(ProjectionViewUBO, GL_UNIFORM_BUFFER);
 		BaseAPI::GrCreateBufferObject(LightUBO, GL_UNIFORM_BUFFER);
-		BaseAPI::GrCreateBufferObject(DirLightTransformUBO, GL_UNIFORM_BUFFER);
 
 		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
-		glBufferData(ProjectionViewUBO.Target, 128, nullptr, GL_STATIC_DRAW);
+		glBufferData(ProjectionViewUBO.Target, 1152, nullptr, GL_STATIC_DRAW);
 		glBindBufferBase(ProjectionViewUBO.Target, 0, ProjectionViewUBO.Id);
 		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
 		BaseAPI::GrBindBufferObject(LightUBO);
-		size_t TotalSize = sizeof(uint32) + sizeof(uint32) + (64 * 8) + (64 * 1000);
-		glBufferData(LightUBO.Target, TotalSize, nullptr, GL_STATIC_DRAW);
+		glBufferData(LightUBO.Target, 1028, nullptr, GL_STATIC_DRAW);
 		glBindBufferBase(LightUBO.Target, 1, LightUBO.Id);
 		BaseAPI::GrUnbindBufferObject(LightUBO);
-
-		BaseAPI::GrBindBufferObject(DirLightTransformUBO);
-		TotalSize = sizeof(uint32) * 64 * 8;
-		glBufferData(DirLightTransformUBO.Target, TotalSize, nullptr, GL_STATIC_DRAW);
-		glBindBufferBase(DirLightTransformUBO.Target, 2, DirLightTransformUBO.Id);
-		BaseAPI::GrUnbindBufferObject(DirLightTransformUBO);
 
 		ScreenQuad = Grvt::GetResourceManager()->GetModel("Quad");
 
@@ -233,31 +242,6 @@ namespace Grvt
 			SInfo.AddShaderToProgram(SimpleDebugShader::FragmentShader, GrvtShader_SourceType_Fragment);
 
 			SimpleDepthDebug = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
-		}
-
-		// Set up shadow map for directional lighting.
-		{
-			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = DepthMap.DepthAttachment;
-			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
-
-			BaseAPI::FramebufferBuildData FBuild;
-			BaseAPI::TextureBuildData TBuild;
-
-			TBuild.Type = GL_FLOAT;
-			TBuild.Format = GL_DEPTH_COMPONENT;
-			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
-			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER});
-			TBuild.BorderColour[0] = 1.0f;
-			TBuild.BorderColour[1] = 1.0f;
-			TBuild.BorderColour[2] = 1.0f;
-			TBuild.BorderColour[3] = 1.0f;
-
-			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
-
-			BaseAPI::BuildFramebuffer(DepthMap.Handle, FBuild);
 		}
 	}
 
@@ -294,20 +278,28 @@ namespace Grvt
 		// Dynamically update shadow map's render target size.
 		if (PreviousWidth != Width && PreviousHeight != Height)
 		{
-			BaseAPI::GrBindFramebuffer(DepthMap.Handle);
-			BaseAPI::GrBindTexture(DepthMap.DepthAttachment.Value);
-			glTexImage2D(DepthMap.DepthAttachment.Value.Target, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			if (FrontBuffer.DepthMap)
+			{
+				if (!FrontBuffer.DepthMap->Handle.Id)
+					goto UpdateGlobalUBOs;
 
-			glFramebufferTexture2D(DepthMap.Handle.Target, GL_DEPTH_ATTACHMENT, DepthMap.DepthAttachment.Value.Target, DepthMap.DepthAttachment.Value.Id, 0);
-			BaseAPI::GrUnbindTexture(DepthMap.DepthAttachment.Value);
-			BaseAPI::GrUnbindFramebuffer(DepthMap.Handle);
-			
-			DepthMap.Width  = Width;
-			DepthMap.Height = Height;
+				BaseAPI::GrBindFramebuffer(FrontBuffer.DepthMap->Handle);
+				BaseAPI::GrBindTexture(FrontBuffer.DepthMap->DepthAttachment.Value);
+				glTexImage2D(FrontBuffer.DepthMap->DepthAttachment.Value.Target, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+				glFramebufferTexture2D(FrontBuffer.DepthMap->Handle.Target, GL_DEPTH_ATTACHMENT, FrontBuffer.DepthMap->DepthAttachment.Value.Target, FrontBuffer.DepthMap->DepthAttachment.Value.Id, 0);
+				BaseAPI::GrUnbindTexture(FrontBuffer.DepthMap->DepthAttachment.Value);
+				BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
+
+				FrontBuffer.DepthMap->Width  = Width;
+				FrontBuffer.DepthMap->Height = Height;
+			}
 
 			PreviousWidth  = Width;
 			PreviousHeight = Height;
 		}
+
+UpdateGlobalUBOs:
 
 		Gfl::Array<RenderCommand>& RenderCommands	 = FrontBuffer.RenderCommands;
 		Gfl::Array<RenderCommand>& InstancedCommands = FrontBuffer.InstancedCommands;
@@ -320,17 +312,18 @@ namespace Grvt
 		glClearColor(BGColour.x, BGColour.y, BGColour.z, 1.0f);
 		
 		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
-		glBufferSubData(ProjectionViewUBO.Target,  0, 64, &FrontBuffer.Projection[0][0]);
-		glBufferSubData(ProjectionViewUBO.Target, 64, 64,       &FrontBuffer.View[0][0]);
+		uint32 Total = (uint32)(FrontBuffer.LightSpaceTransforms.Length() * 64);
+		glBufferSubData(ProjectionViewUBO.Target,   0,	  64,			   &FrontBuffer.Projection[0][0]);
+		glBufferSubData(ProjectionViewUBO.Target,  64,    64,					 &FrontBuffer.View[0][0]);
+		glBufferSubData(ProjectionViewUBO.Target, 128, Total,	FrontBuffer.LightSpaceTransforms.First());
+		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
-		size_t TotalDirLights = FrontBuffer.DirectionalLights.Length();
 		size_t TotalPointLights = FrontBuffer.PointLights.Length();
 
 		BaseAPI::GrBindBufferObject(LightUBO);
-		glBufferSubData(LightUBO.Target,   0,        sizeof(uint32),					   &TotalDirLights);
-		glBufferSubData(LightUBO.Target,   4,        sizeof(uint32),					 &TotalPointLights);
-		glBufferSubData(LightUBO.Target,  16,   TotalDirLights * 64, FrontBuffer.DirectionalLights.First());
-		glBufferSubData(LightUBO.Target, 528, TotalPointLights * 64,	   FrontBuffer.PointLights.First());
+		glBufferSubData(LightUBO.Target,   0,        sizeof(uint32),					 &TotalPointLights);
+		glBufferSubData(LightUBO.Target,  16,					 64,   &FrontBuffer.DirectionalLight[0][0]);
+		glBufferSubData(LightUBO.Target,  80, TotalPointLights * 64,	   FrontBuffer.PointLights.First());
 		BaseAPI::GrUnbindBufferObject(LightUBO);
 
 		// Sort render commands if they exist.
@@ -344,22 +337,29 @@ namespace Grvt
 		RenderCommand* Command = nullptr;
 
 		// Render scene from directional light's perspective.
-		size_t NumDirectionalLights = FrontBuffer.DirectionalLights.Length();
-
-		if (ActiveShader != DepthPassShader)
-			ActiveShader = DepthPassShader;
-		BaseAPI::GrBindFramebuffer(DepthMap.Handle);
-		glClear(GL_DEPTH_BUFFER_BIT);
-		//BaseAPI::GrBindBufferObject(DirLightTransformUBO);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
-		BaseAPI::Shader::GrShaderSetMat4Float(0, &FrontBuffer.LightSpaceTransforms[0][0][0]);
-		for (size_t i = 0; i < NumDirectionalLights; i++)
+		if (FrontBuffer.DepthMap)
 		{
-			//glBufferSubData(DirLightTransformUBO.Target, 0, 4, &i);
-			//glBufferSubData(DirLightTransformUBO.Target, 16, NumDirectionalLights * 64, FrontBuffer.LightSpaceTransforms.First());
+			if (!FrontBuffer.DepthMap->Handle.Id)
+				goto SkipDirectionalLightingPass;
+
+			if (ActiveShader != DepthPassShader)
+				ActiveShader = DepthPassShader;
+
+			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+
+			StateCache.SetDepthFunc(DepthFunc_Less);
+
+			BaseAPI::GrBindFramebuffer(FrontBuffer.DepthMap->Handle);
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			for (size_t Index : UnsortedCommands)
+			{
+				Command = &RenderCommands[Index];
+
+				RenderDirectionalLightingPass(Command);
+			}
+
+			StateCache.SetCullFace(CullFace_Front, FrontFace_CCW);
 
 			for (size_t Index : SortedCommands)
 			{
@@ -367,18 +367,32 @@ namespace Grvt
 
 				RenderDirectionalLightingPass(Command);
 			}
+
+			StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
+
+			BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
+			BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 		}
+		
+SkipDirectionalLightingPass:
 
-		//BaseAPI::GrUnbindBufferObject(DirLightTransformUBO);
-		BaseAPI::GrUnbindFramebuffer(DepthMap.Handle);
-		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
 		StateCache.SetDepthFunc(DepthFunc_Less);
 		StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
 		StateCache.SetPolygonMode(PolygonFace_Front_And_Back, PolygonMode_Fill);
+
+		for (size_t Index : UnsortedCommands)
+		{
+			Command = &RenderCommands[Index];
+
+			if (ActiveShader != Command->Material->Shader)
+				ActiveShader = Command->Material->Shader;
+
+			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+			RenderPushedCommand(Command, true);
+		}
 
 		// Render scene
 		for (size_t Index : SortedCommands)
@@ -416,28 +430,33 @@ namespace Grvt
 		}
 
 		// Render To Screen Quad.
-		BaseAPI::GrBindShaderProgram(SimpleDepthDebug->Handle);
-
-		glm::mat4 transform(1.0f);
-		transform = glm::scale(transform, glm::vec3(0.5f));
-		transform = glm::translate(transform, glm::vec3(5.0, -5.0f, 0.0f));
-
-		//BaseAPI::Shader::GrShaderSetMat4Float(0, &transform[0][0]);
-		BaseAPI::Shader::GrShaderSetInt(0, 0);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, DepthMap.DepthAttachment.Value.Id);
-
-		for (GrvtMesh& Mesh : ScreenQuad->Meshes)
+		if (FrontBuffer.DepthMap)
 		{
-			glBindVertexArray(Mesh.Vao.Id);
-			glDrawElements(GL_TRIANGLES, Mesh.Size, GL_UNSIGNED_INT, 0);
-			glBindVertexArray(0);
+			BaseAPI::GrBindShaderProgram(SimpleDepthDebug->Handle);
+
+			glm::mat4 transform(1.0f);
+			transform = glm::scale(transform, glm::vec3(0.5f));
+			transform = glm::translate(transform, glm::vec3(5.0, -5.0f, 0.0f));
+
+			//BaseAPI::Shader::GrShaderSetMat4Float(0, &transform[0][0]);
+			BaseAPI::Shader::GrShaderSetInt(0, 0);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, FrontBuffer.DepthMap->DepthAttachment.Value.Id);
+
+			for (GrvtMesh& Mesh : ScreenQuad->Meshes)
+			{
+				glBindVertexArray(Mesh.Vao.Id);
+				glDrawElements(GL_TRIANGLES, Mesh.Size, GL_UNSIGNED_INT, 0);
+				glBindVertexArray(0);
+			}
+
+			BaseAPI::GrUnbindShaderProgram(SimpleDepthDebug->Handle);
 		}
 
-		BaseAPI::GrUnbindShaderProgram(SimpleDepthDebug->Handle);
-
+		UnsortedCommands.Empty();
 		SortedCommands.Empty();
+		UnsortedInstacedCommands.Empty();
 		SortedInstancedCommands.Empty();
 		FrontBuffer.Clear();
 	}

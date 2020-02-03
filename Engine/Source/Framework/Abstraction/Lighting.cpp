@@ -25,12 +25,14 @@ namespace Grvt
 
 
 	LightSource::LightSource() :
-		Position(0.0f, 0.0f, 0.0f),
-		Colour(0.0f, 0.0f, 0.0f),
+		Orientation(0.0f),
+		Position(0.0f),
+		Colour(0.0f),
 		Type(GrvtLight_Type_None),
 		Brightness(0.0f),
-		PCF(0.0f),
-		Enable(true) {}
+		Bias(0.005f),
+		Enable(true),
+		Shadows(true) {}
 
 
 	LightSource::~LightSource() {}
@@ -72,11 +74,14 @@ namespace Grvt
 
 		if (this != &Other)
 		{
+			Orientation = Gfl::Move(Other.Orientation);
 			Position	= Gfl::Move(Other.Position);
 			Colour		= Gfl::Move(Other.Colour);
 			Type		= Gfl::Move(Other.Type);
 			Brightness	= Gfl::Move(Other.Brightness);
+			Bias		= Gfl::Move(Other.Bias);
 			Enable		= Gfl::Move(Other.Enable);
+			Shadows		= Gfl::Move(Other.Shadows);
 
 			new (&Other) LightSource();
 		}
@@ -87,10 +92,12 @@ namespace Grvt
 
 	void LightSource::Alloc(const LightCreationInfo& Info) 
 	{
+		Orientation = Info.Orientation;
 		Position	= Info.Position;
 		Colour		= Info.Colour;
 		Type		= Info.Type;
 		Brightness	= Info.Brightness;
+		Shadows		= Info.Shadows;
 	}
 
 
@@ -98,8 +105,9 @@ namespace Grvt
 	{
 		Brightness = 0.0f;
 		Type = GrvtLight_Type_None;
-		Position = glm::vec3(0.0f);
-		Colour = glm::vec3(0.0f);
+		Orientation = glm::vec3(0.0f),
+		Position	= glm::vec3(0.0f);
+		Colour		= glm::vec3(0.0f);
 	}
 
 
@@ -110,10 +118,13 @@ namespace Grvt
 		Buffer[1][0] = Position.x;
 		Buffer[1][1] = Position.y;
 		Buffer[1][2] = Position.z;
-		Buffer[1][3] = PCF;
+		Buffer[1][3] = Bias;
 		Buffer[2][0] = Colour.x;
 		Buffer[2][1] = Colour.y;
 		Buffer[2][2] = Colour.z;
+		Buffer[3][0] = Orientation.x;
+		Buffer[3][1] = Orientation.y;
+		Buffer[3][2] = Orientation.z;
 	}
 
 

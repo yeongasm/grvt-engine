@@ -55,6 +55,7 @@ namespace Grvt
 		glm::mat4				Transform;
 		RenderState				State;
 		GrvtMaterial*			Material;
+		bool					Sort;
 
 		RenderCommand();
 		~RenderCommand();
@@ -113,13 +114,18 @@ namespace Grvt
 		glm::mat4 Projection;
 		glm::mat4 View;
 
-		Gfl::Array<glm::mat4>		DirectionalLights;
+		glm::mat4 DirectionalLight;
+
 		Gfl::Array<glm::mat4>		PointLights;
 		Gfl::Array<glm::mat4>		LightSpaceTransforms;
+		Gfl::Array<RenderTarget*>	OmniDepthMaps;
 
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
 		RenderCommand				SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
+		
+		RenderTarget* DepthMap;
+		
 		bool IsEmpty;
 
 

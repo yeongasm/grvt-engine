@@ -33,6 +33,7 @@ namespace Grvt
 		uint32			Mode;
 		bool			Instanced;
 		bool			Render;
+		bool			Sort;
 
 		GrvtActor();
 		~GrvtActor();

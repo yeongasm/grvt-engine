@@ -256,4 +256,20 @@ namespace Grvt
 
 		return true;
 	}
+
+
+	bool GrvtMaterial::SetTexture(const Gfl::String& Uniform, int32 Unit)
+	{
+		size_t Index = FindUniform(Uniform);
+
+		if (Index == -1)
+			return false;
+
+		if (Uniforms[Index].Type != GrvtShader_AttrType_Sampler)
+			return false;
+
+		Uniforms[Index].UpdateValue(Unit);
+
+		return true;
+	}
 }

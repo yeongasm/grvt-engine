@@ -54,7 +54,7 @@ extern "C"
 
 			Manager->NewShaderProgram(ShaderInfo);
 		}
-
+		
 		{
 			Grvt::ShaderImportInfo ShaderInfo;
 			ShaderInfo.Name = "FloorShader";
@@ -63,7 +63,7 @@ extern "C"
 
 			Manager->NewShaderProgram(ShaderInfo);
 		}
-
+		
 		{
 			Grvt::ShaderImportInfo ShaderInfo;
 			ShaderInfo.Name = "BasicColour";
@@ -115,7 +115,7 @@ extern "C"
 
 			Grvt::GetResourceManager()->NewMaterial(MaterialInfo);
 		}
-
+		
 		{
 			Grvt::GrvtTexture* FloorTile = Grvt::GetResourceManager()->GetTexture("FloorTileTexture");
 
@@ -126,7 +126,7 @@ extern "C"
 
 			Grvt::GetResourceManager()->NewMaterial(FloorMat);
 		}
-
+		
 		{
 			Grvt::MaterialCreationInfo BColourMat;
 			BColourMat.Name = "BaseColourMaterial";
@@ -161,12 +161,11 @@ extern "C"
 
 		{
 			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(0.0f, 4.0f, 5.0f);
+			LightInfo.Brightness = 0.8f;
+			LightInfo.Orientation = glm::vec3(1.0f, -1.0f, -1.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
 			
 			DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);
-			//DirLight1->Enable = false;
 		}
 
 		Grvt::PointLight* PointLight1 = nullptr;

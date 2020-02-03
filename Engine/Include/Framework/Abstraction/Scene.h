@@ -13,15 +13,13 @@
 namespace Grvt
 {
 
-#define MAX_DIRECTIONAL_LIGHTS	8
-#define MAX_POINT_LIGHTS		1024
+#define MAX_POINT_LIGHTS 1024
 
 
 	struct SceneCreationInfo
 	{
 		Gfl::String		Name;
 		size_t			ActorReserves		= 32;
-		size_t			DirLightReserves	= 4;
 		size_t			PointLightReserves	= 128;
 	};
 
@@ -63,8 +61,9 @@ namespace Grvt
 		friend ENGINE_API void	ExecuteEngine();
 
 		Gfl::Array<GrvtActor>	Actors;
-		Gfl::Array<DirLight>	DirectionalLights;
-		Gfl::Array<PointLight>	PointLights;
+		Gfl::Array<PointLight*>	PointLights;
+
+		DirLight* DirectionalLight;
 
 		void	Alloc(const SceneCreationInfo& Info);
 		void	Free();
@@ -117,24 +116,18 @@ namespace Grvt
 		/**
 		* Deletes a directional light by reference from the scene.
 		*/
-		ENGINE_API bool		DeleteDirLight			(DirLight& DirectionalLight);
+		ENGINE_API bool		DeleteDirLight			();
 
 		/**
 		* Deletes a point light by reference from the scene.
 		*/
-		ENGINE_API bool		DeletePointLight		(PointLight& PointLight);
+		ENGINE_API bool		DeletePointLight		(PointLight** PointLight);
 
 		/**
 		* Clears all actors from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
 		ENGINE_API void		DeleteAllActors			();
-
-		/**
-		* Clears all directional lights from the scene.
-		* Does not release memory that was once allocated for it.
-		*/
-		ENGINE_API void		DeleteAllDirLights		();
 
 		/**
 		* Clears all point lights from the scene.

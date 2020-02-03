@@ -5,7 +5,6 @@ Gfl::String DDepthMapShader::VertexShader = R"(
 #version 430 core
 layout (location = 0) in vec3 aPos;
 
-#define MAX_DIR_LIGHT 8
 
 uniform mat4 LightSpaceTransform;
 uniform mat4 Model;
