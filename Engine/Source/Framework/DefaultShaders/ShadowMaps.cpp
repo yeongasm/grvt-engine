@@ -34,15 +34,15 @@ uniform mat4 Model;
 
 void main()
 {
-	gl_Position = model * vec3(aPos, 1.0f);
+	gl_Position = Model * vec4(aPos, 1.0f);
 }
 )";
 
 
 Gfl::String ODepthMapShader::GeometryShader = R"(
 #version 430 core
-layout (triangles) in
-layout (triangle_strip, max_vertices = 18) out;
+layout (triangles) in;
+layout (triangle_strip, max_vertices=18) out;
 
 uniform mat4 ShadowMatrices[6];
 
@@ -52,7 +52,7 @@ void main()
 {
 	for (int Face = 0; Face < 6; Face++)
 	{
-		gl_Layer = face;
+		gl_Layer = Face;
 		for (int i = 0; i < 3; i++)
 		{
 			FragPos = gl_in[i].gl_Position;

@@ -48,18 +48,18 @@ namespace Grvt
 	* [0][1] - Constant.
 	* [0][2] - Linear.
 	* [0][3] - Quadratic.
-	* [1][0] - Position->x.
-	* [1][1] - Position->y.
-	* [1][2] - Position->z.
+	* [1][0] - Position / Orientation->x.
+	* [1][1] - Position / Orientation->y.
+	* [1][2] - Position / Orientation->z.
 	* [1][3] - PCF.
 	* [2][0] - Colour->r.
 	* [2][1] - Colour->g.
 	* [2][2] - Colour->b.
 	* [2][3] - Empty.
-	* [3][0] - Orientation->x.
-	* [3][1] - Orientation->y.
-	* [3][2] - Orientation->z.
-	* [3][3] - Empty.
+	* [3][0] - Empty.
+	* [3][1] - Empty.
+	* [3][2] - Shadow Near.
+	* [3][3] - Shadow Far.
 	*/
 
 	/**
@@ -73,6 +73,8 @@ namespace Grvt
 		LightType		Type;
 		float32			Brightness;
 		float32			Bias;
+		float32			ShadowNear;
+		float32			ShadowFar;
 		bool			Enable;
 		bool			Shadows;
 

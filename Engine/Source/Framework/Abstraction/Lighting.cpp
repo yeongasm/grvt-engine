@@ -31,6 +31,8 @@ namespace Grvt
 		Type(GrvtLight_Type_None),
 		Brightness(0.0f),
 		Bias(0.005f),
+		ShadowNear(0.0f),
+		ShadowFar(0.0f),
 		Enable(true),
 		Shadows(true) {}
 
@@ -115,16 +117,15 @@ namespace Grvt
 	{
 		Buffer[0][0] = Brightness;
 		Buffer[0][1] = 1.0f;
-		Buffer[1][0] = Position.x;
-		Buffer[1][1] = Position.y;
-		Buffer[1][2] = Position.z;
+		Buffer[1][0] = Orientation.x;
+		Buffer[1][1] = Orientation.y;
+		Buffer[1][2] = Orientation.z;
 		Buffer[1][3] = Bias;
 		Buffer[2][0] = Colour.x;
 		Buffer[2][1] = Colour.y;
 		Buffer[2][2] = Colour.z;
-		Buffer[3][0] = Orientation.x;
-		Buffer[3][1] = Orientation.y;
-		Buffer[3][2] = Orientation.z;
+		Buffer[3][2] = ShadowNear;
+		Buffer[3][3] = ShadowFar;
 	}
 
 

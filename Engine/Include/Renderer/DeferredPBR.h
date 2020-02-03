@@ -24,6 +24,7 @@ namespace Grvt
 
 		GrvtModel*	ScreenQuad;
 		GrvtShader* DepthPassShader;
+		GrvtShader* OmniDepthPassShader;
 		GrvtShader* SimpleDepthDebug;
 
 		ObjHandle	ProjectionViewUBO;
@@ -52,7 +53,12 @@ namespace Grvt
 		/**
 		* Render to depth map.
 		*/
-		void RenderDirectionalLightingPass(const RenderCommand* Command);
+		void RenderDirectionalLightingPass(RenderCommand* Command);
+
+		/**
+		* Render to omni depth map.
+		*/
+		void RenderPointLightsPass(size_t Index, size_t TransformIndex, RenderCommand* Command);
 
 	public:
 

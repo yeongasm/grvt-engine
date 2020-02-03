@@ -157,7 +157,7 @@ extern "C"
 			DemoScene->AddNewActor(ActorInfo);
 		}
 
-		Grvt::DirLight* DirLight1 = nullptr;
+		Grvt::DirLight* DirLight = nullptr;
 
 		{
 			Grvt::LightCreationInfo LightInfo;
@@ -165,7 +165,9 @@ extern "C"
 			LightInfo.Orientation = glm::vec3(1.0f, -1.0f, -1.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
 			
-			DirLight1 = DemoScene->AddNewDirectionalLight(LightInfo);
+			DirLight = DemoScene->AddNewDirectionalLight(LightInfo);
+			DirLight->ShadowNear = 1.0f;
+			DirLight->ShadowFar  = 150.0f;
 		}
 
 		Grvt::PointLight* PointLight1 = nullptr;
@@ -176,9 +178,10 @@ extern "C"
 			LightInfo.Position = glm::vec3(10.0f, 5.0f, 10.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
 			LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
-			//LightInfo.Shadows = false;
-
+			
 			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
+			PointLight1->ShadowNear = 1.0f;
+			PointLight1->ShadowFar  = 25.0f;
 		}
 
 		PointLight1->UpdateByRadius(100.0f);

@@ -362,7 +362,7 @@ namespace Grvt
 
 				Buffer.DepthMap = &DirectionalLight->DepthMap;
 
-				glm::mat4 LtProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, 1.0f, 150.0f);
+				glm::mat4 LtProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, DirectionalLight->ShadowNear, DirectionalLight->ShadowFar);
 
 				// The multiplier would be a value that keeps the target inside of the projection's frustrum.
 				glm::vec3 Target = Camera->Position + Camera->Forward * 20.0f;
@@ -384,12 +384,13 @@ namespace Grvt
 			glm::mat4& PointLight = Buffer.PointLights.Insert(glm::mat4(0.0f));
 			LightPtr->Compute(PointLight);
 
+			Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
 			
 			if (LightPtr->DepthMap.Handle.Id)
 			{
-				Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
+				//Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
 
-				glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
+				glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), 1024.0f / 1024.0f, LightPtr->ShadowNear, LightPtr->ShadowFar);
 				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));

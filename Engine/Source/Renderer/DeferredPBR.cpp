@@ -20,6 +20,7 @@ namespace Grvt
 		SortedInstancedCommands(),
 		ScreenQuad(nullptr),
 		DepthPassShader(nullptr),
+		OmniDepthPassShader(nullptr),
 		SimpleDepthDebug(nullptr),
 		ProjectionViewUBO(),
 		LightUBO() {}
@@ -190,13 +191,29 @@ namespace Grvt
 	}
 
 
-	void DeferredPBR::RenderDirectionalLightingPass(const RenderCommand* Command)
+	void DeferredPBR::RenderDirectionalLightingPass(RenderCommand* Command)
 	{
-		glm::mat4 CommandTransform = Command->Transform;
-
 		BaseAPI::Shader::GrShaderSetMat4Float(0, &FrontBuffer.LightSpaceTransforms[0][0][0]);
-		BaseAPI::Shader::GrShaderSetMat4Float(1, &CommandTransform[0][0]);
+		BaseAPI::Shader::GrShaderSetMat4Float(1, &Command->Transform[0][0]);
 		
+		for (RenderNode& Node : Command->Nodes)
+		{
+			RenderMesh(&Node);
+		}
+	}
+
+
+	void DeferredPBR::RenderPointLightsPass(size_t Index, size_t TransformIndex, RenderCommand* Command)
+	{
+		BaseAPI::Shader::GrShaderSetFloat(0, FrontBuffer.PointLights[Index][3][3]);
+		BaseAPI::Shader::GrShaderSetVec3Float(1, &FrontBuffer.PointLights[Index][1][0]);
+		BaseAPI::Shader::GrShaderSetMat4Float(2, &Command->Transform[0][0]);
+
+		for (size_t i = TransformIndex; i < TransformIndex + 6; i++)
+		{
+			BaseAPI::Shader::GrShaderSetMat4Float((uint32)(3 + i), &FrontBuffer.LightSpaceTransforms[i][0][0]);
+		}
+
 		for (RenderNode& Node : Command->Nodes)
 		{
 			RenderMesh(&Node);
@@ -233,6 +250,16 @@ namespace Grvt
 			SInfo.AddShaderToProgram(DDepthMapShader::FragmentShader, GrvtShader_SourceType_Fragment);
 
 			DepthPassShader = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
+		}
+
+		{
+			ShaderImportInfo SInfo;
+			SInfo.Name = "RenderToOmniDepthMap";
+			SInfo.AddShaderToProgram(ODepthMapShader::VertexShader, GrvtShader_SourceType_Vertex);
+			SInfo.AddShaderToProgram(ODepthMapShader::GeometryShader, GrvtShader_SourceType_Geometry);
+			SInfo.AddShaderToProgram(ODepthMapShader::FragmentShader, GrvtShader_SourceType_Fragment);
+
+			OmniDepthPassShader = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
 		}
 
 		{
@@ -293,6 +320,31 @@ namespace Grvt
 
 				FrontBuffer.DepthMap->Width  = Width;
 				FrontBuffer.DepthMap->Height = Height;
+			}
+
+			for (RenderTarget* OmniDepthMap : FrontBuffer.OmniDepthMaps)
+			{
+				if (!OmniDepthMap->Handle.Id)
+					goto UpdateGlobalUBOs;
+
+				BaseAPI::GrBindFramebuffer(OmniDepthMap->Handle);
+				BaseAPI::GrBindTexture(OmniDepthMap->DepthAttachment.Value);
+
+				for (uint32 i = 0; i < 6; i++)
+				{
+					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+				}
+
+				glFramebufferTexture(OmniDepthMap->Handle.Target, GL_DEPTH_ATTACHMENT, OmniDepthMap->DepthAttachment.Value.Id, 0);
+				
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+
+				BaseAPI::GrUnbindTexture(OmniDepthMap->DepthAttachment.Value);
+				BaseAPI::GrUnbindFramebuffer(OmniDepthMap->Handle);
+
+				OmniDepthMap->Width = Width;
+				OmniDepthMap->Height = Height;
 			}
 
 			PreviousWidth  = Width;
@@ -373,8 +425,44 @@ UpdateGlobalUBOs:
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
 			BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 		}
-		
+
 SkipDirectionalLightingPass:
+		// TODO(Afiq): We have to figure out a better method than this. Perhaps point lights and it's light space transform should be coupled.
+		size_t TransformIndex = 0;
+
+		if (ActiveShader != OmniDepthPassShader)
+			ActiveShader = OmniDepthPassShader;
+
+		BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+
+		for (size_t i = 0; i < FrontBuffer.PointLights.Length(); i++)
+		{
+			if (!FrontBuffer.OmniDepthMaps[i]->Handle.Id)
+				continue;
+
+			BaseAPI::GrBindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			for (size_t Index : UnsortedCommands)
+			{
+				Command = &RenderCommands[Index];
+
+				RenderPointLightsPass(i, TransformIndex, Command);
+			}
+
+			for (size_t Index : SortedCommands)
+			{
+				Command = &RenderCommands[Index];
+
+				RenderPointLightsPass(i, TransformIndex, Command);
+			}
+
+			TransformIndex += 6;
+
+			BaseAPI::GrUnbindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
+		}
+
+		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
