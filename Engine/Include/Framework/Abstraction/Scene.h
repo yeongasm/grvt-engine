@@ -60,10 +60,14 @@ namespace Grvt
 		friend class	DeferredPBR;
 		friend ENGINE_API void	ExecuteEngine();
 
+	public:
+
 		Gfl::Array<GrvtActor>	Actors;
 		Gfl::Array<PointLight*>	PointLights;
 
 		DirLight* DirectionalLight;
+
+	private:
 
 		void	Alloc(const SceneCreationInfo& Info);
 		void	Free();

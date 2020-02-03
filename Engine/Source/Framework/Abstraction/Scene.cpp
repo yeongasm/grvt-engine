@@ -130,9 +130,9 @@ namespace Grvt
 		PointLight* LightPtr = PointLights.Insert(new PointLight());
 		LightPtr->Alloc(Info);
 
-		/*if (Info.Shadows)
+		if (Info.Shadows)
 		{
-			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = Light.ShadowMap.DepthAttachment;
+			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = LightPtr->DepthMap.DepthAttachment;
 			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
 			
 			BaseAPI::FramebufferBuildData FBuild;
@@ -150,8 +150,8 @@ namespace Grvt
 
 			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
 
-			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&Light.ShadowMap.Handle, FBuild);
-		}*/
+			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&LightPtr->DepthMap.Handle, FBuild);
+		}
 
 		return LightPtr;
 	}
@@ -384,18 +384,19 @@ namespace Grvt
 			glm::mat4& PointLight = Buffer.PointLights.Insert(glm::mat4(0.0f));
 			LightPtr->Compute(PointLight);
 
-			/*
-			if (Light->DepthMap.Handle.Id)
-				Buffer.OmniDepthMaps.Push(&Light->DepthMap);
+			
+			if (LightPtr->DepthMap.Handle.Id)
+			{
+				Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
 
-			glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(Light->Position, Light->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			*/
+				glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), Camera->Width / Camera->Height, Camera->Near, Camera->Far);
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			}
 		}
 		
 		// Pass in the final projection and view matrix.

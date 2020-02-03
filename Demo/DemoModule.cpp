@@ -21,7 +21,7 @@ Grvt::DeferredPBR*	m_Renderer	= nullptr;
 CameraSystem* CamSystem = nullptr;
 
 glm::vec3 StartPos = glm::vec3(0.0f, 20.0f, 50.0f);
-glm::vec3 EndPos = glm::vec3(50.0f, 5.0f, 0.0f);
+glm::vec3 EndPos = glm::vec3(-30.0f, 5.0f, 0.0f);
 float Time = 0.0f;
 
 extern "C"
@@ -178,10 +178,10 @@ extern "C"
 			LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
 			//LightInfo.Shadows = false;
 
-			//PointLight1 = DemoScene->AddNewPointLight(LightInfo);
+			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
 		}
 
-		//PointLight1->UpdateByRadius(100.0f);
+		PointLight1->UpdateByRadius(100.0f);
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
@@ -190,6 +190,8 @@ extern "C"
 		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
 		static bool Animate = false;
 		static bool InitAnim = true;
+		static glm::vec3 InitOrientation = glm::vec3(1.0f, -1.0f, -1.0f);
+		static glm::vec3 EndOrientation = glm::vec3(-1.0f, -1.0f, -1.0f);
 		RenderFloorGrid();
 
 		Grvt::GrvtActor* Mid	= Grvt::GetActiveScene()->GetActor("Mid");
@@ -233,6 +235,7 @@ extern "C"
 				Time = 0.0f;
 				Camera->Yaw = 0.0f;
 				Camera->Position.x = StartPos.x;
+				DemoScene->DirectionalLight->Orientation = InitOrientation;
 				InitAnim = false;
 			}
 
@@ -240,14 +243,23 @@ extern "C"
 			float Velocity = Camera->MoveSpeed * m_Engine->DeltaTime;
 			float T = (Time * m_Engine->DeltaTime) / (5.0f * m_Engine->DeltaTime);
 			
+			if (DemoScene->DirectionalLight)
+			{
+				DemoScene->DirectionalLight->Orientation = (1.0f - T) * InitOrientation + T * EndOrientation;
+			}
 			Camera->Position = (1.0f - T) * StartPos + T * EndPos;
-			Camera->Yaw = (1.0f - T) * 0.0f + T * -90.0f;
+			Camera->Yaw = (1.0f - T) * 0.0f + T * 90.0f;
+			Camera->Pitch = (1.0f - T) * 25.0f + T * 5.0f;
 			Camera->UpdateOrientation();
 
 			Time += 1.0f * m_Engine->DeltaTime; 
 
-			if (Camera->Position.x >= EndPos.x)
+			if (Camera->Position.x <= EndPos.x)
 				InitAnim = true;
+
+			if (DemoScene->DirectionalLight)
+				if (DemoScene->DirectionalLight->Orientation.x <= -1.0f)
+					InitAnim = true;
 		}
 	}
 
