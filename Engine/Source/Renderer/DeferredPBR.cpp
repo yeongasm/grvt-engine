@@ -209,9 +209,9 @@ namespace Grvt
 		BaseAPI::Shader::GrShaderSetVec3Float(1, &FrontBuffer.PointLights[Index][1][0]);
 		BaseAPI::Shader::GrShaderSetMat4Float(2, &Command->Transform[0][0]);
 
-		for (size_t i = TransformIndex; i < TransformIndex + 6; i++)
+		for (uint32 i = 0; i < 6; i++)
 		{
-			BaseAPI::Shader::GrShaderSetMat4Float((uint32)(3 + i), &FrontBuffer.LightSpaceTransforms[i][0][0]);
+			BaseAPI::Shader::GrShaderSetMat4Float(3 + i, glm::value_ptr(FrontBuffer.LightSpaceTransforms[i]));
 		}
 
 		for (RenderNode& Node : Command->Nodes)
@@ -303,6 +303,8 @@ namespace Grvt
 		}
 
 		// Dynamically update shadow map's render target size.
+		// Not needed for a omni depth map since cube maps need to be identical in width & height.
+		// Hence they are set upon creation.
 		if (PreviousWidth != Width && PreviousHeight != Height)
 		{
 			if (FrontBuffer.DepthMap)
@@ -322,32 +324,6 @@ namespace Grvt
 				FrontBuffer.DepthMap->Height = Height;
 			}
 
-			// NOTE(Afiq): Could this part of the code be irrelevant?
-			//for (RenderTarget* OmniDepthMap : FrontBuffer.OmniDepthMaps)
-			//{
-			//	if (!OmniDepthMap->Handle.Id)
-			//		goto UpdateGlobalUBOs;
-
-			//	BaseAPI::GrBindFramebuffer(OmniDepthMap->Handle);
-			//	BaseAPI::GrBindTexture(OmniDepthMap->DepthAttachment.Value);
-
-			//	for (uint32 i = 0; i < 6; i++)
-			//	{
-			//		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-			//	}
-
-			//	glFramebufferTexture(OmniDepthMap->Handle.Target, GL_DEPTH_ATTACHMENT, OmniDepthMap->DepthAttachment.Value.Id, 0);
-			//	
-			//	glDrawBuffer(GL_NONE);
-			//	glReadBuffer(GL_NONE);
-
-			//	BaseAPI::GrUnbindTexture(OmniDepthMap->DepthAttachment.Value);
-			//	BaseAPI::GrUnbindFramebuffer(OmniDepthMap->Handle);
-
-			//	OmniDepthMap->Width = Width;
-			//	OmniDepthMap->Height = Height;
-			//}
-
 			PreviousWidth  = Width;
 			PreviousHeight = Height;
 		}
@@ -359,7 +335,8 @@ UpdateGlobalUBOs:
 
 		// NOTE(Afiq):
 		// Get rid of this once we've learned about some anti-aliasing techniques.
-		glEnable(GL_MULTISAMPLE);
+		//glEnable(GL_MULTISAMPLE);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, Width, Height);
 		//glViewport(PosX, PosY, Width, Height);
 		glClearColor(BGColour.x, BGColour.y, BGColour.z, 1.0f);
@@ -400,19 +377,17 @@ UpdateGlobalUBOs:
 
 			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 
-			StateCache.SetDepthFunc(DepthFunc_Less);
-
 			BaseAPI::GrBindFramebuffer(FrontBuffer.DepthMap->Handle);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
 			for (size_t Index : UnsortedCommands)
 			{
 				Command = &RenderCommands[Index];
-
+			
 				RenderDirectionalLightingPass(Command);
 			}
 
-			StateCache.SetCullFace(CullFace_Front, FrontFace_CCW);
+			//StateCache.SetCullFace(CullFace_Front, FrontFace_CW);
 
 			for (size_t Index : SortedCommands)
 			{
@@ -421,33 +396,38 @@ UpdateGlobalUBOs:
 				RenderDirectionalLightingPass(Command);
 			}
 
-			StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
+			//StateCache.SetCullFace(CullFace_Back, FrontFace_CW);
 
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
 			BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 		}
 
 SkipDirectionalLightingPass:
+
+		//StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
+		//StateCache.SetCullFace(CullFace_Front, FrontFace_CCW);
+
 		// TODO(Afiq): We have to figure out a better method than this. Perhaps point lights and it's light space transform should be coupled.
+		// TODO(Afiq): Shadow maps can't just render everything that's in the command buffer. There needs to be a separate array containing objects that only emit shadows.
 		size_t TransformIndex = 0;
 
 		if (ActiveShader != OmniDepthPassShader)
 			ActiveShader = OmniDepthPassShader;
-
-		BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 
 		for (size_t i = 0; i < FrontBuffer.PointLights.Length(); i++)
 		{
 			if (!FrontBuffer.OmniDepthMaps[i]->Handle.Id)
 				continue;
 
+			glViewport(0, 0, FrontBuffer.OmniDepthMaps[i]->Width, FrontBuffer.OmniDepthMaps[i]->Height);
 			BaseAPI::GrBindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
 			glClear(GL_DEPTH_BUFFER_BIT);
+			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 
 			for (size_t Index : UnsortedCommands)
 			{
 				Command = &RenderCommands[Index];
-
+			
 				RenderPointLightsPass(i, TransformIndex, Command);
 			}
 
@@ -465,6 +445,7 @@ SkipDirectionalLightingPass:
 
 		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 
+		glViewport(0, 0, Width, Height);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
@@ -519,7 +500,7 @@ SkipDirectionalLightingPass:
 		}
 
 		// Render To Screen Quad.
-		if (FrontBuffer.DepthMap)
+		/*if (FrontBuffer.DepthMap)
 		{
 			BaseAPI::GrBindShaderProgram(SimpleDepthDebug->Handle);
 
@@ -541,7 +522,7 @@ SkipDirectionalLightingPass:
 			}
 
 			BaseAPI::GrUnbindShaderProgram(SimpleDepthDebug->Handle);
-		}
+		}*/
 
 		UnsortedCommands.Empty();
 		SortedCommands.Empty();

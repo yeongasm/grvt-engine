@@ -71,7 +71,7 @@ uniform vec3  Colour;
 uniform vec3  ViewPos;
 
 uniform sampler2D DepthMap;
-uniform sampler2D OmniDepthMaps[MAX_POINT_LIGHTS];
+uniform samplerCube OmniDepthMaps[MAX_POINT_LIGHTS];
 
 layout (std140, binding = 1) uniform LightUBO
 {
@@ -101,7 +101,7 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 	float CurrentDepth = ProjCoord.z;
 
 	vec3 Normal = normalize(fs_in.Normal);
-	vec3 LightDir = normalize(-vec3(DirectionalLight[3][0], DirectionalLight[3][1], DirectionalLight[3][2]));
+	vec3 LightDir = normalize(-vec3(DirectionalLight[1][0], DirectionalLight[1][1], DirectionalLight[1][2]));
 	float Bias = max(0.05f * (1.0f - dot(Normal, LightDir)), DirectionalLight[1][3]); 
 
 	float Shadow = 0.0f;
@@ -124,31 +124,46 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 	return Shadow;
 };
 
+float OShadowCalculation(int Index, vec3 LightPos, float FarPlane)
+{
+	vec3 FragToLight = fs_in.FragWorldPos - LightPos;
+	float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
+	ClosestDepth *= FarPlane;
+	float CurrentDepth = length(FragToLight);
+	float Bias = 0.05f;
+	float Shadow = 0.0f;
+
+	if (CurrentDepth - Bias > ClosestDepth)
+		Shadow = 1.0f;
+
+	return Shadow;
+};
+
 vec3 CalcDirectionalLighting(vec3 Normal, vec3 ViewDir)
 {
 	float	Brightness  = DirectionalLight[0][0];
+	vec3	LightDir	= vec3(DirectionalLight[1][0], DirectionalLight[1][1], DirectionalLight[1][2]);
 	vec3	LightColour = vec3(DirectionalLight[2][0], DirectionalLight[2][1], DirectionalLight[2][2]);
-	vec3	LightDir	= vec3(DirectionalLight[3][0], DirectionalLight[3][1], DirectionalLight[3][2]);
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 	
 	LightDir = normalize(-LightDir);
 
 	float Diff = max(dot(LightDir, Normal), 0);
-	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
+	float Spec = pow(max(dot(Normal, HalfWayDir), 0.0f), Shininess);
 
-	vec3 Ambient  = LightColour * (Colour * 1.0f);
-	vec3 Diffused = LightColour * (Diff * Colour);
-	vec3 Specular = LightColour * 0.5f * (Spec * Colour);
+	vec3 Ambient  = LightColour * Colour * 0.3f;
+	vec3 Diffused = LightColour * Diff * Colour;
+	vec3 Specular = LightColour * Spec * Colour;
 
 	Ambient  *= Brightness;
 	Diffused *= Brightness;
 	Specular *= Brightness;
 	
 	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace[0]);
-	return (Ambient + (1.0f - Shadow)) * Diffused + Specular;
+	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * Colour;
 };
 
-vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
+vec3 CalcPointLighting(int Index, mat4 Light, vec3 Normal, vec3 ViewDir)
 {
 	float	Brightness	= Light[0][0];
 	vec3	LightPos	= vec3(Light[1][0], Light[1][1], Light[1][2]);
@@ -157,15 +172,15 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 
 	float Diff = max(dot(LightDir, Normal), 0.0f);
-	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
+	float Spec = pow(max(dot(Normal, HalfWayDir), 0.0f), Shininess);
 
 	// Attenuation
 	float Distance = length(LightPos - fs_in.FragWorldPos);
 	float Attenuation = 1.0f / (Light[0][1] + Light[0][2] * Distance + Light[0][3] * (Distance * Distance));
 
-	vec3 Ambient  = LightColour * (Colour * 1.0f);
-	vec3 Diffused = LightColour * (Diff * Colour);
-	vec3 Specular = LightColour * 0.5f * (Spec * Colour);
+	vec3 Ambient  = Colour * 0.3f;
+	vec3 Diffused = LightColour * Diff * Colour;
+	vec3 Specular = LightColour * Spec * Colour;
 
 	Ambient  *= Attenuation;
 	Diffused *= Attenuation;
@@ -174,8 +189,10 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Ambient  *= Brightness;
 	Diffused *= Brightness;
 	Specular *= Brightness;
+	
+	float Shadow = OShadowCalculation(Index, LightPos, Light[3][3]);
 
-	return Ambient + Diffused + Specular;
+	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * Colour;
 };
 
 void main()
@@ -192,10 +209,11 @@ void main()
 
 	for (int i = 0; i < TotalPointLight; i++)
 	{
-		Result += CalcPointLighting(PointLights[i], Norm, ViewDirection);
+		Result += CalcPointLighting(i, PointLights[i], Norm, ViewDirection);
 	}
 
-	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Result, 1.0f), Blend);
+	//FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Result, 1.0f), Blend);
+	FragColour = vec4(Result, 1.0f);
 }
 )";
 
@@ -337,7 +355,7 @@ layout (std140, binding = 1) uniform LightUBO
 };
 
 uniform sampler2D DepthMap;
-uniform sampler2D OmniDepthMaps[MAX_POINT_LIGHTS];
+uniform samplerCube OmniDepthMaps[MAX_POINT_LIGHTS];
 
 uniform float Near;
 uniform float Far;
@@ -370,7 +388,7 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 	float CurrentDepth = ProjCoord.z;
 
 	vec3 Normal = normalize(fs_in.Normal);
-	vec3 LightDir = normalize(-vec3(DirectionalLight[3][0], DirectionalLight[3][1], DirectionalLight[3][2]));
+	vec3 LightDir = normalize(-vec3(DirectionalLight[1][0], DirectionalLight[1][1], DirectionalLight[1][2]));
 	float Bias = max(0.05f * (1.0f - dot(Normal, LightDir)), DirectionalLight[1][3]); 
 
 	float Shadow = 0.0f;
@@ -393,31 +411,46 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 	return Shadow;
 };
 
+float OShadowCalculation(int Index, vec3 LightPos, float FarPlane)
+{
+	vec3 FragToLight = fs_in.FragWorldPos - LightPos;
+	float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
+	ClosestDepth *= FarPlane;
+	float CurrentDepth = length(FragToLight);
+	float Bias = 0.05f;
+	float Shadow = 0.0f;
+
+	if (CurrentDepth - Bias > ClosestDepth)
+		Shadow = 1.0f;
+
+	return Shadow;
+};
+
 vec3 CalcDirectionalLighting(vec3 Normal, vec3 ViewDir)
 {
 	float	Brightness  = DirectionalLight[0][0];
+	vec3	LightDir	= vec3(DirectionalLight[1][0], DirectionalLight[1][1], DirectionalLight[1][2]);
 	vec3	LightColour = vec3(DirectionalLight[2][0], DirectionalLight[2][1], DirectionalLight[2][2]);
-	vec3	LightDir	= vec3(DirectionalLight[3][0], DirectionalLight[3][1], DirectionalLight[3][2]);
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 	
 	LightDir = normalize(-LightDir);
 
 	float Diff = max(dot(LightDir, Normal), 0);
-	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
+	float Spec = pow(max(dot(Normal, HalfWayDir), 0.0f), Shininess);
 
-	vec3 Ambient  = LightColour * (texture(FloorTexture, fs_in.TexCoord * Scale).rgb * 1.0f);
-	vec3 Diffused = LightColour * (Diff * texture(FloorTexture, fs_in.TexCoord * Scale).rgb);
-	vec3 Specular = LightColour * 0.0f * (Spec * texture(FloorTexture, fs_in.TexCoord * Scale).rgb);
+	vec3 Ambient  = LightColour * texture(FloorTexture, fs_in.TexCoord * Scale).rgb * 0.3f;
+	vec3 Diffused = LightColour * Diff * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
+	vec3 Specular = LightColour * Spec * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
 	
 	Ambient  *= Brightness;
 	Diffused *= Brightness;
 	Specular *= Brightness;
 	
 	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace[0]);
-	return (Ambient + (1.0f - Shadow)) * Diffused + Specular;
+	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
 };
 
-vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
+vec3 CalcPointLighting(int Index, mat4 Light, vec3 Normal, vec3 ViewDir)
 {
 	float	Brightness	= Light[0][0];
 	vec3	LightPos	= vec3(Light[1][0], Light[1][1], Light[1][2]);
@@ -426,15 +459,15 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	vec3	HalfWayDir	= normalize(LightDir + ViewDir);
 
 	float Diff = max(dot(LightDir, Normal), 0.0f);
-	float Spec = pow(max(dot(ViewDir, HalfWayDir), 0.0f), Shininess);
+	float Spec = pow(max(dot(Normal, HalfWayDir), 0.0f), Shininess);
 
 	// Attenuation
 	float Distance = length(LightPos - fs_in.FragWorldPos);
 	float Attenuation = 1.0f / (Light[0][1] + Light[0][2] * Distance + Light[0][3] * (Distance * Distance));
 
-	vec3 Ambient  = LightColour * (texture(FloorTexture, fs_in.TexCoord * Scale).rgb * 1.0f);
-	vec3 Diffused = LightColour * (Diff * texture(FloorTexture, fs_in.TexCoord * Scale).rgb);
-	vec3 Specular = LightColour * 0.5f * (Spec * texture(FloorTexture, fs_in.TexCoord * Scale).rgb);
+	vec3 Ambient  = LightColour * texture(FloorTexture, fs_in.TexCoord * Scale).rgb * 0.3f;
+	vec3 Diffused = LightColour * Diff * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
+	vec3 Specular = LightColour * Spec * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
 
 	Ambient  *= Attenuation;
 	Diffused *= Attenuation;
@@ -444,7 +477,9 @@ vec3 CalcPointLighting(mat4 Light, vec3 Normal, vec3 ViewDir)
 	Diffused *= Brightness;
 	Specular *= Brightness;
 
-	return Ambient + Diffused + Specular;
+	float Shadow = OShadowCalculation(Index, LightPos, Light[3][3]);
+	//return Ambient + Diffused + Specular;	
+	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
 };
 
 void main()
@@ -462,8 +497,8 @@ void main()
 
 	for (int i = 0; i < TotalPointLight; i++)
 	{
-		Colour += CalcPointLighting(PointLights[i], Norm, ViewDirection);
+		Colour += CalcPointLighting(i, PointLights[i], Norm, ViewDirection);
 	}
 
-	FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Colour, 1.0f), Blend);
+	FragColour = vec4(Colour, 1.0f);
 })";

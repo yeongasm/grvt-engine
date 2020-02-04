@@ -28,6 +28,7 @@ void RenderFloorGrid()
 		Floor = &Grvt::GetActiveScene()->AddNewActor(Info);
 	}
 
+	Floor->Sort = false;
 	Floor->Scale = glm::vec3(10.0f);
 	Floor->Position.x = Grvt::GetActiveScene()->Camera->Position.x;
 	Floor->Position.z = Grvt::GetActiveScene()->Camera->Position.z;
@@ -48,5 +49,5 @@ void RenderFloorGrid()
 	Floor->Material.SetVector("ViewPos", Grvt::GetActiveScene()->Camera->Position);
 	Floor->Material.SetFloat("Near", Grvt::GetActiveScene()->Camera->Near);
 	Floor->Material.SetFloat("Far", Grvt::GetActiveScene()->Camera->Far);
-	Floor->Material.SetFloat("Shininess", 128.0f);
+	Floor->Material.SetFloat("Shininess", 64.0f);
 }

@@ -138,18 +138,21 @@ namespace Grvt
 			BaseAPI::FramebufferBuildData FBuild;
 			BaseAPI::TextureBuildData TBuild;
 
+			LightPtr->DepthMap.Width  = 1024;
+			LightPtr->DepthMap.Height = 1024;
+
 			TBuild.Target = GL_TEXTURE_CUBE_MAP;
 			TBuild.Type = GL_FLOAT;
 			TBuild.Format = GL_DEPTH_COMPONENT;
 			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
-			TBuild.Width  = 1024;
-			TBuild.Height = 1024;
 			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
 			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE});
 
+			FBuild.Width  = LightPtr->DepthMap.Width;
+			FBuild.Height = LightPtr->DepthMap.Height;
 			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
 
 			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&LightPtr->DepthMap.Handle, FBuild);
@@ -370,7 +373,7 @@ namespace Grvt
 				glm::vec3 Target = Camera->Position + Camera->Forward * 20.0f;
 				glm::mat4 LtView = glm::lookAt(Target - DirectionalLight->Orientation * 50.0f, Target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-				size_t Index = Buffer.LightSpaceTransforms.Push(LtProjection * LtView);
+				Buffer.LightSpaceTransforms.Push(LtProjection * LtView);
 			}
 		}
 		else
@@ -390,8 +393,6 @@ namespace Grvt
 			
 			if (LightPtr->DepthMap.Handle.Id)
 			{
-				//Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
-
 				glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), 1024.0f / 1024.0f, LightPtr->ShadowNear, LightPtr->ShadowFar);
 				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
@@ -460,7 +461,7 @@ namespace Grvt
 			Gfl::String Uniform;
 			for (size_t i = 0; i < PointLights.Length(); i++)
 			{
-				Uniform.Format("OmniDepthMap[%d]", i);
+				Uniform.Format("OmniDepthMaps[%d]", i);
 				Command.Material->SetTexture(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
 				Uniform.Empty();
 			}

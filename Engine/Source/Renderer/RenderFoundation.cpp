@@ -82,11 +82,12 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Nodes = Other.Nodes;
-			Instances = Other.Instances;
-			Transform = Other.Transform;
-			State = Other.State;
-			Material = Other.Material;
+			Nodes		= Other.Nodes;
+			Instances	= Other.Instances;
+			Transform	= Other.Transform;
+			State		= Other.State;
+			Material	= Other.Material;
+			Sort		= Other.Sort;
 		}
 
 		return *this;
@@ -104,11 +105,12 @@ namespace Grvt
 
 		if (this != &Other)
 		{
-			Nodes = Gfl::Move(Other.Nodes);
-			Instances = Gfl::Move(Other.Instances);
-			Transform = Gfl::Move(Other.Transform);
-			State = Gfl::Move(Other.State);
-			Material = Gfl::Move(Other.Material);
+			Nodes		= Gfl::Move(Other.Nodes);
+			Instances	= Gfl::Move(Other.Instances);
+			Transform	= Gfl::Move(Other.Transform);
+			State		= Gfl::Move(Other.State);
+			Material	= Gfl::Move(Other.Material);
+			Sort		= Gfl::Move(Other.Sort);
 
 			new (&Other) RenderCommand();
 		}

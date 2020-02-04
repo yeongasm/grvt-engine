@@ -328,6 +328,12 @@ namespace Grvt
 			*/
 			void GrShaderSetMat4Double(uint32 Location, float64* Value);
 
+			/**
+			* [BASEAPI][Shader]
+			* Gets a location of a uniform from a shader.
+			*/
+			uint32 GrGetUniformLocation(ObjHandle& Handle, const char* Uniform);
+
 		}
 
 	}

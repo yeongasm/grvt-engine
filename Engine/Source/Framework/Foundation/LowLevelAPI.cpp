@@ -583,6 +583,8 @@ namespace Grvt
 					ColourCount++;
 				}
 
+				Texture.BuildData.Width  = Data.Width;
+				Texture.BuildData.Height = Data.Height;
 				BuildTexture(*Texture.Handle, Texture.BuildData);
 
 				if (Texture.BuildData.Target == GL_TEXTURE_CUBE_MAP)

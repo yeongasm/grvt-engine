@@ -326,6 +326,12 @@ namespace Grvt
 
 				GrShaderSetMat4Float(Location, Value);
 			}
+
+
+			uint32 GrGetUniformLocation(ObjHandle& Handle, const char* Uniform)
+			{
+				return glGetUniformLocation(Handle.Id, Uniform);
+			}
 		}
 	}
 

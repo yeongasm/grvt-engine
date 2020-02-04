@@ -243,6 +243,10 @@ namespace Grvt
 		Buffer[0][1] = Constant;
 		Buffer[0][2] = Linear;
 		Buffer[0][3] = Quadratic;
+
+		Buffer[1][0] = Position.x;
+		Buffer[1][1] = Position.y;
+		Buffer[1][2] = Position.z;
 	}
 
 }

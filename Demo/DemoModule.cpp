@@ -165,9 +165,9 @@ extern "C"
 			LightInfo.Orientation = glm::vec3(1.0f, -1.0f, -1.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
 			
-			DirLight = DemoScene->AddNewDirectionalLight(LightInfo);
-			DirLight->ShadowNear = 1.0f;
-			DirLight->ShadowFar  = 150.0f;
+			//DirLight = DemoScene->AddNewDirectionalLight(LightInfo);
+			//DirLight->ShadowNear = 1.0f;
+			//DirLight->ShadowFar  = 150.0f;
 		}
 
 		Grvt::PointLight* PointLight1 = nullptr;
@@ -175,9 +175,9 @@ extern "C"
 		{
 			Grvt::LightCreationInfo LightInfo;
 			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(10.0f, 5.0f, 10.0f);
+			LightInfo.Position = glm::vec3(2.5f, 5.0f, 0.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
+			LightInfo.Colour = glm::vec3(1.0f, 0.8f, 0.0f);
 			
 			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
 			PointLight1->ShadowNear = 1.0f;
@@ -207,25 +207,25 @@ extern "C"
 		Mid->Material.SetFloat("Shininess", 1.0f);
 		Mid->Material.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
 		Mid->Material.SetVector("ViewPos", Camera->Position);
-
+		
 		Right->Material.SetFloat("Far",	Camera->Far);
 		Right->Material.SetFloat("Near", Camera->Near);
 		Right->Material.SetFloat("Shininess", 1.0f);
 		Right->Material.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
 		Right->Material.SetVector("ViewPos", Camera->Position);
-
+		
 		Up->Material.SetFloat("Far", Camera->Far);
 		Up->Material.SetFloat("Near", Camera->Near);
 		Up->Material.SetFloat("Shininess", 1.0f);
 		Up->Material.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
 		Up->Material.SetVector("ViewPos", Camera->Position);
-
+		
 		Front->Material.SetFloat("Far", Camera->Far);
 		Front->Material.SetFloat("Near", Camera->Near);
 		Front->Material.SetFloat("Shininess", 1.0f);
 		Front->Material.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
 		Front->Material.SetVector("ViewPos", Camera->Position);
-
+		
 		if (m_IO->IsKeyPressed(GLFW_KEY_P))
 			Animate ^= true;
 
