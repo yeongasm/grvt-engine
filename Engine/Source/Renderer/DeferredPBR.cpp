@@ -322,30 +322,31 @@ namespace Grvt
 				FrontBuffer.DepthMap->Height = Height;
 			}
 
-			for (RenderTarget* OmniDepthMap : FrontBuffer.OmniDepthMaps)
-			{
-				if (!OmniDepthMap->Handle.Id)
-					goto UpdateGlobalUBOs;
+			// NOTE(Afiq): Could this part of the code be irrelevant?
+			//for (RenderTarget* OmniDepthMap : FrontBuffer.OmniDepthMaps)
+			//{
+			//	if (!OmniDepthMap->Handle.Id)
+			//		goto UpdateGlobalUBOs;
 
-				BaseAPI::GrBindFramebuffer(OmniDepthMap->Handle);
-				BaseAPI::GrBindTexture(OmniDepthMap->DepthAttachment.Value);
+			//	BaseAPI::GrBindFramebuffer(OmniDepthMap->Handle);
+			//	BaseAPI::GrBindTexture(OmniDepthMap->DepthAttachment.Value);
 
-				for (uint32 i = 0; i < 6; i++)
-				{
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-				}
+			//	for (uint32 i = 0; i < 6; i++)
+			//	{
+			//		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, Width, Height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+			//	}
 
-				glFramebufferTexture(OmniDepthMap->Handle.Target, GL_DEPTH_ATTACHMENT, OmniDepthMap->DepthAttachment.Value.Id, 0);
-				
-				glDrawBuffer(GL_NONE);
-				glReadBuffer(GL_NONE);
+			//	glFramebufferTexture(OmniDepthMap->Handle.Target, GL_DEPTH_ATTACHMENT, OmniDepthMap->DepthAttachment.Value.Id, 0);
+			//	
+			//	glDrawBuffer(GL_NONE);
+			//	glReadBuffer(GL_NONE);
 
-				BaseAPI::GrUnbindTexture(OmniDepthMap->DepthAttachment.Value);
-				BaseAPI::GrUnbindFramebuffer(OmniDepthMap->Handle);
+			//	BaseAPI::GrUnbindTexture(OmniDepthMap->DepthAttachment.Value);
+			//	BaseAPI::GrUnbindFramebuffer(OmniDepthMap->Handle);
 
-				OmniDepthMap->Width = Width;
-				OmniDepthMap->Height = Height;
-			}
+			//	OmniDepthMap->Width = Width;
+			//	OmniDepthMap->Height = Height;
+			//}
 
 			PreviousWidth  = Width;
 			PreviousHeight = Height;

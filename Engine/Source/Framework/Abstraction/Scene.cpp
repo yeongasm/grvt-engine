@@ -142,6 +142,8 @@ namespace Grvt
 			TBuild.Type = GL_FLOAT;
 			TBuild.Format = GL_DEPTH_COMPONENT;
 			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
+			TBuild.Width  = 1024;
+			TBuild.Height = 1024;
 			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
 			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
 			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
