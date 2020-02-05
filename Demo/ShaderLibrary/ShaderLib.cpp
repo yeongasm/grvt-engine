@@ -10,24 +10,20 @@ layout (location = 2) in vec2 aTexCoord;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 
-#define MAX_LIGHTS 16
-
 out VS_OUT
 {
 	vec3 Normal;
 	vec3 FragWorldPos;
 	vec2 TexCoord;
-	vec4 FragPosLightSpace[MAX_LIGHTS];
+	vec4 FragPosLightSpace;
 } vs_out;
 
 layout (std140, binding = 0) uniform Matrices
 {
 	mat4 Projection;
 	mat4 View;
-	mat4 LightSpaceMatrix[MAX_LIGHTS];
+	mat4 LightSpaceMatrix;
 };
-
-uniform int TotalLights;
 
 uniform mat3 TrInvModel;
 uniform mat4 Model;
@@ -37,12 +33,8 @@ void main()
 	vs_out.FragWorldPos = vec3(Model * vec4(aPos, 1.0f));
 	vs_out.Normal = TrInvModel * aNormal;
 	vs_out.TexCoord = aTexCoord;
-
-	for (int i = 0; i < TotalLights; i++)
-	{
-		vs_out.FragPosLightSpace[i] = LightSpaceMatrix[i] * vec4(vs_out.FragWorldPos, 1.0f);
-	}
-
+	vs_out.FragPosLightSpace = LightSpaceMatrix * vec4(vs_out.FragWorldPos, 1.0f);
+	
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
 }
 )";
@@ -51,8 +43,7 @@ void main()
 Gfl::String TestColourShader::FragmentShader = R"(
 #version 430 core
 
-#define MAX_LIGHTS 16
-#define MAX_POINT_LIGHTS 15
+#define MAX_LIGHTS 15
 
 out vec4 FragColour;
 
@@ -61,7 +52,7 @@ in VS_OUT
 	vec3 Normal;
 	vec3 FragWorldPos;
 	vec2 TexCoord;
-	vec4 FragPosLightSpace[MAX_LIGHTS];
+	vec4 FragPosLightSpace;
 } fs_in;
 
 uniform float Near;
@@ -71,13 +62,13 @@ uniform vec3  Colour;
 uniform vec3  ViewPos;
 
 uniform sampler2D DepthMap;
-uniform samplerCube OmniDepthMaps[MAX_POINT_LIGHTS];
+uniform samplerCube OmniDepthMaps[MAX_LIGHTS];
 
 layout (std140, binding = 1) uniform LightUBO
 {
 	int  TotalPointLight;
 	mat4 DirectionalLight;
-	mat4 PointLights[MAX_POINT_LIGHTS];
+	mat4 PointLights[MAX_LIGHTS];
 };
 
 float LinearizeDepth(float Depth)
@@ -159,7 +150,7 @@ vec3 CalcDirectionalLighting(vec3 Normal, vec3 ViewDir)
 	Diffused *= Brightness;
 	Specular *= Brightness;
 	
-	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace[0]);
+	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace);
 	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * Colour;
 };
 
@@ -290,24 +281,20 @@ layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoord;
 
-#define MAX_LIGHTS 16
-
 out VS_OUT
 {
 	vec3 Normal;
 	vec3 FragWorldPos;
 	vec2 TexCoord;
-	vec4 FragPosLightSpace[MAX_LIGHTS];
+	vec4 FragPosLightSpace;
 } vs_out;
 
 layout (std140, binding = 0) uniform MatricesUBO
 {
 	mat4 Projection;
 	mat4 View;
-	mat4 LightSpaceMatrix[MAX_LIGHTS];
+	mat4 LightSpaceMatrix;
 };
-
-uniform int TotalLights;
 
 uniform mat4 Model;
 uniform mat3 TrInvModel;
@@ -320,11 +307,7 @@ void main()
 	vs_out.Normal = TrInvModel * aNormal;
 	vs_out.FragWorldPos = vec3(Model * vec4(aPos, 1.0f));
 	vs_out.TexCoord = aTexCoord.xy + vec2(ViewPos.x, -ViewPos.z) * (1.0f / ScaleFactor * 0.05f);
-
-	for (int i = 0; i < TotalLights; i++)
-	{
-		vs_out.FragPosLightSpace[i] = LightSpaceMatrix[i] * vec4(vs_out.FragWorldPos, 1.0f);
-	}
+	vs_out.FragPosLightSpace = LightSpaceMatrix * vec4(vs_out.FragWorldPos, 1.0f);
 
 	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
 })";
@@ -333,9 +316,7 @@ void main()
 Gfl::String FloorShader::FragmentShader = R"(
 #version 430 core
 
-#define MAX_POINT_LIGHTS 15
-
-#define MAX_LIGHTS 16
+#define MAX_LIGHTS 15
 
 out vec4 FragColour;
 
@@ -344,18 +325,18 @@ in VS_OUT
 	vec3 Normal;
 	vec3 FragWorldPos;
 	vec2 TexCoord;
-	vec4 FragPosLightSpace[MAX_LIGHTS];
+	vec4 FragPosLightSpace;
 } fs_in;
 
 layout (std140, binding = 1) uniform LightUBO
 {
 	int TotalPointLight;
 	mat4 DirectionalLight;
-	mat4 PointLights[MAX_POINT_LIGHTS];
+	mat4 PointLights[MAX_LIGHTS];
 };
 
 uniform sampler2D DepthMap;
-uniform samplerCube OmniDepthMaps[MAX_POINT_LIGHTS];
+uniform samplerCube OmniDepthMaps[MAX_LIGHTS];
 
 uniform float Near;
 uniform float Far;
@@ -446,7 +427,7 @@ vec3 CalcDirectionalLighting(vec3 Normal, vec3 ViewDir)
 	Diffused *= Brightness;
 	Specular *= Brightness;
 	
-	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace[0]);
+	float Shadow = DShadowCalculation(fs_in.FragPosLightSpace);
 	return (Ambient + (1.0f - Shadow) * (Diffused + Specular)) * texture(FloorTexture, fs_in.TexCoord * Scale).rgb;
 };
 

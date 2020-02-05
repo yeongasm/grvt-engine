@@ -58,7 +58,7 @@ namespace Grvt
 		/**
 		* Render to omni depth map.
 		*/
-		void RenderPointLightsPass(size_t Index, size_t TransformIndex, RenderCommand* Command);
+		void RenderPointLightsPass(size_t Index, RenderCommand* Command);
 
 	public:
 

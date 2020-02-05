@@ -175,7 +175,7 @@ extern "C"
 		{
 			Grvt::LightCreationInfo LightInfo;
 			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(2.5f, 5.0f, 0.0f);
+			LightInfo.Position = glm::vec3(2.5f, 2.0f, 2.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
 			LightInfo.Colour = glm::vec3(1.0f, 0.8f, 0.0f);
 			
@@ -184,7 +184,7 @@ extern "C"
 			PointLight1->ShadowFar  = 25.0f;
 		}
 
-		PointLight1->UpdateByRadius(100.0f);
+		PointLight1->UpdateByRadius(75.0f);
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
@@ -193,8 +193,10 @@ extern "C"
 		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
 		static bool Animate = false;
 		static bool InitAnim = true;
+		static float Val = 0.0f;
 		static glm::vec3 InitOrientation = glm::vec3(1.0f, -1.0f, -1.0f);
 		static glm::vec3 EndOrientation = glm::vec3(-1.0f, -1.0f, -1.0f);
+
 		RenderFloorGrid();
 
 		Grvt::GrvtActor* Mid	= Grvt::GetActiveScene()->GetActor("Mid");
@@ -229,6 +231,11 @@ extern "C"
 		if (m_IO->IsKeyPressed(GLFW_KEY_P))
 			Animate ^= true;
 
+		Grvt::PointLight* Light = DemoScene->PointLights[0];
+		Light->Position.x = glm::sin(glm::radians(Val)) * 3.0f;
+
+		Val++;
+
 		// NOTE(Afiq):
 		// This part here needs to be a system instead.
 		if (Animate)
@@ -238,7 +245,7 @@ extern "C"
 				Time = 0.0f;
 				Camera->Yaw = 0.0f;
 				Camera->Position.x = StartPos.x;
-				DemoScene->DirectionalLight->Orientation = InitOrientation;
+				//DemoScene->DirectionalLight->Orientation = InitOrientation;
 				InitAnim = false;
 			}
 
@@ -260,9 +267,9 @@ extern "C"
 			if (Camera->Position.x <= EndPos.x)
 				InitAnim = true;
 
-			if (DemoScene->DirectionalLight)
-				if (DemoScene->DirectionalLight->Orientation.x <= -1.0f)
-					InitAnim = true;
+			//if (DemoScene->DirectionalLight)
+			//	if (DemoScene->DirectionalLight->Orientation.x <= -1.0f)
+			//		InitAnim = true;
 		}
 	}
 

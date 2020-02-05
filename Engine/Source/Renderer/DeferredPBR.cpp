@@ -193,7 +193,7 @@ namespace Grvt
 
 	void DeferredPBR::RenderDirectionalLightingPass(RenderCommand* Command)
 	{
-		BaseAPI::Shader::GrShaderSetMat4Float(0, &FrontBuffer.LightSpaceTransforms[0][0][0]);
+		BaseAPI::Shader::GrShaderSetMat4Float(0, glm::value_ptr(FrontBuffer.DirLightSpaceTransform));
 		BaseAPI::Shader::GrShaderSetMat4Float(1, &Command->Transform[0][0]);
 		
 		for (RenderNode& Node : Command->Nodes)
@@ -203,7 +203,7 @@ namespace Grvt
 	}
 
 
-	void DeferredPBR::RenderPointLightsPass(size_t Index, size_t TransformIndex, RenderCommand* Command)
+	void DeferredPBR::RenderPointLightsPass(size_t Index, RenderCommand* Command)
 	{
 		BaseAPI::Shader::GrShaderSetFloat(0, FrontBuffer.PointLights[Index][3][3]);
 		BaseAPI::Shader::GrShaderSetVec3Float(1, &FrontBuffer.PointLights[Index][1][0]);
@@ -211,7 +211,7 @@ namespace Grvt
 
 		for (uint32 i = 0; i < 6; i++)
 		{
-			BaseAPI::Shader::GrShaderSetMat4Float(3 + i, glm::value_ptr(FrontBuffer.LightSpaceTransforms[i]));
+			BaseAPI::Shader::GrShaderSetMat4Float(3 + i, glm::value_ptr(FrontBuffer.PointLightSpaceTransforms[i]));
 		}
 
 		for (RenderNode& Node : Command->Nodes)
@@ -232,7 +232,7 @@ namespace Grvt
 		BaseAPI::GrCreateBufferObject(LightUBO, GL_UNIFORM_BUFFER);
 
 		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
-		glBufferData(ProjectionViewUBO.Target, 1152, nullptr, GL_STATIC_DRAW);
+		glBufferData(ProjectionViewUBO.Target, 192, nullptr, GL_STATIC_DRAW);
 		glBindBufferBase(ProjectionViewUBO.Target, 0, ProjectionViewUBO.Id);
 		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
@@ -342,18 +342,17 @@ UpdateGlobalUBOs:
 		glClearColor(BGColour.x, BGColour.y, BGColour.z, 1.0f);
 		
 		BaseAPI::GrBindBufferObject(ProjectionViewUBO);
-		uint32 Total = (uint32)(FrontBuffer.LightSpaceTransforms.Length() * 64);
-		glBufferSubData(ProjectionViewUBO.Target,   0,	  64,			   &FrontBuffer.Projection[0][0]);
-		glBufferSubData(ProjectionViewUBO.Target,  64,    64,					 &FrontBuffer.View[0][0]);
-		glBufferSubData(ProjectionViewUBO.Target, 128, Total,	FrontBuffer.LightSpaceTransforms.First());
+		glBufferSubData(ProjectionViewUBO.Target,   0,	  64,				glm::value_ptr(FrontBuffer.Projection));
+		glBufferSubData(ProjectionViewUBO.Target,  64,    64,					  glm::value_ptr(FrontBuffer.View));
+		glBufferSubData(ProjectionViewUBO.Target, 128,	  64,	glm::value_ptr(FrontBuffer.DirLightSpaceTransform));
 		BaseAPI::GrUnbindBufferObject(ProjectionViewUBO);
 
 		size_t TotalPointLights = FrontBuffer.PointLights.Length();
 
 		BaseAPI::GrBindBufferObject(LightUBO);
-		glBufferSubData(LightUBO.Target,   0,        sizeof(uint32),					 &TotalPointLights);
-		glBufferSubData(LightUBO.Target,  16,					 64,   &FrontBuffer.DirectionalLight[0][0]);
-		glBufferSubData(LightUBO.Target,  80, TotalPointLights * 64,	   FrontBuffer.PointLights.First());
+		glBufferSubData(LightUBO.Target,   0,        sizeof(uint32),							   &TotalPointLights);
+		glBufferSubData(LightUBO.Target,  16,					 64,	glm::value_ptr(FrontBuffer.DirectionalLight));
+		glBufferSubData(LightUBO.Target,  80, TotalPointLights * 64,				 FrontBuffer.PointLights.First());
 		BaseAPI::GrUnbindBufferObject(LightUBO);
 
 		// Sort render commands if they exist.
@@ -363,8 +362,6 @@ UpdateGlobalUBOs:
 		// Sort instanced commands if they exist.
 		if (InstancedCommands.Length())
 			SortCommand(InstancedCommands, SortedInstancedCommands);
-
-		RenderCommand* Command = nullptr;
 
 		// Render scene from directional light's perspective.
 		if (FrontBuffer.DepthMap)
@@ -380,23 +377,10 @@ UpdateGlobalUBOs:
 			BaseAPI::GrBindFramebuffer(FrontBuffer.DepthMap->Handle);
 			glClear(GL_DEPTH_BUFFER_BIT);
 
-			for (size_t Index : UnsortedCommands)
+			for (RenderCommand& Command : FrontBuffer.ShadowCommands)
 			{
-				Command = &RenderCommands[Index];
-			
-				RenderDirectionalLightingPass(Command);
+				RenderDirectionalLightingPass(&Command);
 			}
-
-			//StateCache.SetCullFace(CullFace_Front, FrontFace_CW);
-
-			for (size_t Index : SortedCommands)
-			{
-				Command = &RenderCommands[Index];
-
-				RenderDirectionalLightingPass(Command);
-			}
-
-			//StateCache.SetCullFace(CullFace_Back, FrontFace_CW);
 
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
 			BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
@@ -404,12 +388,7 @@ UpdateGlobalUBOs:
 
 SkipDirectionalLightingPass:
 
-		//StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
-		//StateCache.SetCullFace(CullFace_Front, FrontFace_CCW);
-
 		// TODO(Afiq): We have to figure out a better method than this. Perhaps point lights and it's light space transform should be coupled.
-		// TODO(Afiq): Shadow maps can't just render everything that's in the command buffer. There needs to be a separate array containing objects that only emit shadows.
-		size_t TransformIndex = 0;
 
 		if (ActiveShader != OmniDepthPassShader)
 			ActiveShader = OmniDepthPassShader;
@@ -422,23 +401,18 @@ SkipDirectionalLightingPass:
 			glViewport(0, 0, FrontBuffer.OmniDepthMaps[i]->Width, FrontBuffer.OmniDepthMaps[i]->Height);
 			BaseAPI::GrBindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
 			glClear(GL_DEPTH_BUFFER_BIT);
+			
 			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
 
-			for (size_t Index : UnsortedCommands)
+			for (RenderCommand& Command : FrontBuffer.ShadowCommands)
 			{
-				Command = &RenderCommands[Index];
-			
-				RenderPointLightsPass(i, TransformIndex, Command);
+				RenderPointLightsPass(i, &Command);
 			}
 
-			for (size_t Index : SortedCommands)
-			{
-				Command = &RenderCommands[Index];
+			std::deque<glm::mat4>::iterator First = FrontBuffer.PointLightSpaceTransforms.begin();
+			std::deque<glm::mat4>::iterator Sixth = First + 6;
 
-				RenderPointLightsPass(i, TransformIndex, Command);
-			}
-
-			TransformIndex += 6;
+			FrontBuffer.PointLightSpaceTransforms.erase(First, Sixth);
 
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
 		}
@@ -452,6 +426,8 @@ SkipDirectionalLightingPass:
 		StateCache.SetDepthFunc(DepthFunc_Less);
 		StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
 		StateCache.SetPolygonMode(PolygonFace_Front_And_Back, PolygonMode_Fill);
+
+		RenderCommand* Command = nullptr;
 
 		for (size_t Index : UnsortedCommands)
 		{

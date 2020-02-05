@@ -16,7 +16,8 @@ namespace Grvt
 		Mode(GL_TRIANGLES),
 		Instanced(false),
 		Render(true),
-		Sort(true) {}
+		Sort(true),
+		Shadow(true) {}
 
 
 	GrvtActor::~GrvtActor() {}
@@ -43,15 +44,21 @@ namespace Grvt
 		if (this != &Other)
 		{
 			Name = Other.Name;
+
 			Material = Other.Material;
 			ModelPtr = Other.ModelPtr;
+
 			DrawingState = Other.DrawingState;
+
 			Position = Other.Position;
 			Rotation = Other.Rotation;
 			Scale = Other.Scale;
+
 			Instanced = Other.Instanced;
-			Render = Other.Render;
-			Sort = Other.Sort;
+
+			Render	= Other.Render;
+			Sort	= Other.Sort;
+			Shadow	= Other.Shadow;
 		}
 		
 		return *this;
@@ -71,15 +78,21 @@ namespace Grvt
 		if (this != &Other)
 		{
 			Name = Other.Name;
+
 			Material = Other.Material;
 			ModelPtr = Other.ModelPtr;
+
 			DrawingState = Other.DrawingState;
+
 			Position = Other.Position;
 			Rotation = Other.Rotation;
-			Scale = Other.Scale;
+			Scale	= Other.Scale;
+
 			Instanced = Other.Instanced;
-			Render = Other.Render;
-			Sort = Other.Sort;
+
+			Render	= Other.Render;
+			Sort	= Other.Sort;
+			Shadow	= Other.Shadow;
 
 			new (&Other) GrvtActor();
 		}

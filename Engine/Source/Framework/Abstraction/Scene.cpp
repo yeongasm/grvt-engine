@@ -367,18 +367,14 @@ namespace Grvt
 
 				Buffer.DepthMap = &DirectionalLight->DepthMap;
 
-				glm::mat4 LtProjection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, DirectionalLight->ShadowNear, DirectionalLight->ShadowFar);
+				glm::mat4 Projection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, DirectionalLight->ShadowNear, DirectionalLight->ShadowFar);
 
 				// The multiplier would be a value that keeps the target inside of the projection's frustrum.
 				glm::vec3 Target = Camera->Position + Camera->Forward * 20.0f;
-				glm::mat4 LtView = glm::lookAt(Target - DirectionalLight->Orientation * 50.0f, Target, glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::mat4 View	 = glm::lookAt(Target - DirectionalLight->Orientation * 50.0f, Target, glm::vec3(0.0f, 1.0f, 0.0f));
 
-				Buffer.LightSpaceTransforms.Push(LtProjection * LtView);
+				Buffer.DirLightSpaceTransform = Projection * View;
 			}
-		}
-		else
-		{
-			Buffer.LightSpaceTransforms.Push(glm::mat4(0.0f));
 		}
 
 		for (PointLight* LightPtr : PointLights)
@@ -391,16 +387,14 @@ namespace Grvt
 
 			Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
 			
-			if (LightPtr->DepthMap.Handle.Id)
-			{
-				glm::mat4 LProjection = glm::perspective(glm::radians(90.0f), 1024.0f / 1024.0f, LightPtr->ShadowNear, LightPtr->ShadowFar);
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-				Buffer.LightSpaceTransforms.Push(LProjection* glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			}
+			glm::mat4 Projection = glm::perspective(glm::radians(90.0f), 1024.0f / 1024.0f, LightPtr->ShadowNear, LightPtr->ShadowFar);
+
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 		}
 		
 		// Pass in the final projection and view matrix.
@@ -451,7 +445,6 @@ namespace Grvt
 			// Set the model matrix in here.
 			Command.Material->SetMatrix("Model", Model);
 			Command.Material->SetMatrix("TrInvModel", TrInvModel);
-			Command.Material->SetInt("TotalLights", (int32)Buffer.LightSpaceTransforms.Length());
 
 			if (DirectionalLight)
 			{
@@ -483,6 +476,12 @@ namespace Grvt
 				}
 
 				Command.Nodes.Push(Gfl::Move(Node));
+			}
+
+			if (Actor.Shadow)
+			{
+				Command.Transform = Model;
+				Buffer.ShadowCommands.Push(Command);
 			}
 
 			if (Actor.Instanced)

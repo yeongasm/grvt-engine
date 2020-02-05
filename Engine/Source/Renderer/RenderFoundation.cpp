@@ -171,20 +171,20 @@ namespace Grvt
 		Projection(0.0f),
 		View(0.0f),
 		DirectionalLight(0.0f),
+		DirLightSpaceTransform(0.0f),
+		DepthMap(nullptr),
 		PointLights(),
-		LightSpaceTransforms(),
+		PointLightSpaceTransforms(),
+		OmniDepthMaps(),
 		RenderCommands(), 
 		InstancedCommands(),
-		DepthMap(nullptr),
+		ShadowCommands(),
 		IsEmpty(true) {}
 
 
 	CommandBuffer::~CommandBuffer()
 	{
-		PointLights.Release();
-		LightSpaceTransforms.Release();
-		RenderCommands.Release();
-		InstancedCommands.Release();
+		Free();
 	}
 
 
@@ -202,15 +202,19 @@ namespace Grvt
 		{
 			Projection			= Other.Projection;
 			View				= Other.View;
+
 			DirectionalLight    = Other.DirectionalLight;
-			PointLights			= Other.PointLights;
-
-			LightSpaceTransforms = Other.LightSpaceTransforms;
-
+			DirLightSpaceTransform = Other.DirLightSpaceTransform;
 			DepthMap			= Other.DepthMap;
+
+			PointLights			= Other.PointLights;
+			PointLightSpaceTransforms = Other.PointLightSpaceTransforms;
 			OmniDepthMaps		= Other.OmniDepthMaps;
+
 			RenderCommands		= Other.RenderCommands;
 			InstancedCommands	= Other.InstancedCommands;
+			ShadowCommands		= Other.ShadowCommands;
+
 			SkyBox				= Other.SkyBox;
 
 			IsEmpty = Other.IsEmpty;
@@ -234,15 +238,19 @@ namespace Grvt
 		{
 			Projection			= Gfl::Move(Other.Projection);
 			View				= Gfl::Move(Other.View);
+			
 			DirectionalLight	= Gfl::Move(Other.DirectionalLight);
+			DirLightSpaceTransform = Gfl::Move(Other.DirLightSpaceTransform);
+			DepthMap = Gfl::Move(DepthMap);
+
 			PointLights			= Gfl::Move(Other.PointLights);
+			PointLightSpaceTransforms = Gfl::Move(Other.PointLightSpaceTransforms);
+			OmniDepthMaps		= Gfl::Move(Other.OmniDepthMaps);
 
-			LightSpaceTransforms = Gfl::Move(Other.LightSpaceTransforms);
-
-			DepthMap			= Gfl::Move(DepthMap);
-			OmniDepthMaps		= Gfl::Move(OmniDepthMaps);
 			RenderCommands		= Gfl::Move(Other.RenderCommands);
 			InstancedCommands	= Gfl::Move(Other.InstancedCommands);
+			ShadowCommands		= Gfl::Move(Other.ShadowCommands);
+
 			SkyBox				= Gfl::Move(Other.SkyBox);
 
 			IsEmpty = Other.IsEmpty;
@@ -257,37 +265,51 @@ namespace Grvt
 	void CommandBuffer::Init()
 	{
 		PointLights.Reserve(64);
-		LightSpaceTransforms.Reserve(64);
+		//PointLightSpaceTransforms.Reserve(64);
 		OmniDepthMaps.Reserve(64);
 
 		RenderCommands.Reserve(64);
 		InstancedCommands.Reserve(64);
+		ShadowCommands.Reserve(64);
 	}
 
 
 	void CommandBuffer::Free()
 	{
-		Projection = glm::mat4();
-		View = glm::mat4();
+		Projection = glm::mat4(0.0f);
+		View = glm::mat4(0.0f);
+
+		DirectionalLight = glm::mat4(0.0f);
+		DirLightSpaceTransform = glm::mat4(0.0f);
+		DepthMap = nullptr;
+
 		PointLights.Release();
-		LightSpaceTransforms.Release();
+		PointLightSpaceTransforms.clear();
 		OmniDepthMaps.Release();
+
 		RenderCommands.Release();
 		InstancedCommands.Release();
+		ShadowCommands.Release();
+
 		SkyBox.Empty();
 	}
 
 
 	void CommandBuffer::Clear()
 	{
+		DirectionalLight = glm::mat4(0.0f);
+		DirLightSpaceTransform = glm::mat4(0.0f);
+		DepthMap = nullptr;
+
 		PointLights.Empty();
-		LightSpaceTransforms.Empty();
+		PointLightSpaceTransforms.clear();
 		OmniDepthMaps.Empty();
+
 		RenderCommands.Empty();
 		InstancedCommands.Empty();
-		SkyBox.Empty();
+		ShadowCommands.Empty();
 
-		DepthMap = nullptr;
+		SkyBox.Empty();
 
 		IsEmpty = true;
 	}

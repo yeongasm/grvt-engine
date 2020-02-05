@@ -31,9 +31,11 @@ namespace Grvt
 		GrvtMaterial	Material;
 		GrvtModel*		ModelPtr;
 		uint32			Mode;
+
 		bool			Instanced;
 		bool			Render;
 		bool			Sort;
+		bool			Shadow;
 
 		GrvtActor();
 		~GrvtActor();

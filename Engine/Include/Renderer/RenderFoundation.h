@@ -109,25 +109,24 @@ namespace Grvt
 	*/
 	struct CommandBuffer
 	{
-		using CustomCommandsList = std::map<RenderTarget, Gfl::Array<RenderCommand>>;
-
 		glm::mat4 Projection;
 		glm::mat4 View;
 
-		glm::mat4 DirectionalLight;
+		glm::mat4		DirectionalLight;
+		glm::mat4		DirLightSpaceTransform;
+		RenderTarget*	DepthMap;
 
 		Gfl::Array<glm::mat4>		PointLights;
-		Gfl::Array<glm::mat4>		LightSpaceTransforms;
+		std::deque<glm::mat4>		PointLightSpaceTransforms;
 		Gfl::Array<RenderTarget*>	OmniDepthMaps;
 
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
+		Gfl::Array<RenderCommand>	ShadowCommands;
+
 		RenderCommand				SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
 		
-		RenderTarget* DepthMap;
-		
 		bool IsEmpty;
-
 
 		ENGINE_API CommandBuffer();
 		ENGINE_API ~CommandBuffer();
