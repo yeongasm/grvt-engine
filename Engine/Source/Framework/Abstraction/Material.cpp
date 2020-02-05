@@ -272,4 +272,31 @@ namespace Grvt
 
 		return true;
 	}
+
+	bool GrvtMaterial::SetTextures(const Gfl::String& Uniform, int32 Unit)
+	{
+		size_t Index = FindUniform(Uniform);
+
+		if (Index == -1) {
+			size_t Location = BaseAPI::Shader::GrGetUniformLocation(Shader->Handle, Uniform.C_Str());
+
+			if (Location == -1)
+				return false;
+
+			// Add the uniform in if it exists in shader.
+			UniformAttr Temp;
+			Temp.Name = Uniform;
+			Temp.Location = Location;
+			Temp.Type = GrvtShader_AttrType_Sampler;
+
+			Index = Uniforms.Push(Temp);
+		}
+
+		if (Uniforms[Index].Type != GrvtShader_AttrType_Sampler)
+			return false;
+
+		Uniforms[Index].UpdateValue(Unit);
+
+		return true;
+	}
 }

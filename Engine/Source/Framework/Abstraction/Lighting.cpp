@@ -4,25 +4,6 @@
 
 namespace Grvt
 {
-	using DataEntry = Gfl::Pair<float32, glm::vec2>;
-	using PointLightTable = Gfl::Array<DataEntry>;
-
-	PointLightTable PLightTable =  {{   7.0f, glm::vec2(  0.70f,     1.80f)},
-									{  13.0f, glm::vec2(  0.35f,     0.44f)},
-									{  20.0f, glm::vec2(  0.22f,     0.20f)},
-									{  32.0f, glm::vec2(  0.14f,     0.07f)},
-									{  50.0f, glm::vec2(  0.09f,    0.032f)},
-									{  65.0f, glm::vec2(  0.07f,    0.017f)},
-									{ 100.0f, glm::vec2( 0.045f,   0.0075f)},
-									{ 160.0f, glm::vec2( 0.027f,   0.0028f)},
-									{ 200.0f, glm::vec2( 0.022f,   0.0019f)},
-									{ 325.0f, glm::vec2( 0.014f,   0.0007f)},
-									{ 600.0f, glm::vec2( 0.007f,   0.0002f)},
-									{3250.0f, glm::vec2(0.0014f, 0.000007f)}};
-
-
-	Gfl::Array<float32> DistanceEntry(16);
-
 
 	LightSource::LightSource() :
 		Orientation(0.0f),
@@ -208,31 +189,8 @@ namespace Grvt
 
 	void PointLight::UpdateByRadius(float32 Radius) 
 	{
-		float32 Distance = 0.0f;
-		for (size_t i = 0; i < PLightTable.Length(); i++)
-		{
-			Distance = Radius - PLightTable[i].Key;
-
-			if (Distance < 0)
-			{
-				Distance *= -1.0f;
-			}
-
-			DistanceEntry[i] = Distance;
-			Distance = 0.0f;
-		}
-
-		size_t Lowest = 0;
-		for (size_t i = 1; i < DistanceEntry.Length(); i++)
-		{
-			if (DistanceEntry[i] < DistanceEntry[Lowest])
-			{
-				Lowest = i;
-			}
-		}
-
-		Linear = PLightTable[Lowest].Value.x;
-		Quadratic = PLightTable[Lowest].Value.y;
+		Linear		= 2.0f / Radius;
+		Quadratic	= 1.0f / (Radius * Radius);
 	}
 
 

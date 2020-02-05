@@ -171,11 +171,12 @@ extern "C"
 		}
 
 		Grvt::PointLight* PointLight1 = nullptr;
+		Grvt::PointLight* PointLight2 = nullptr;
 
 		{
 			Grvt::LightCreationInfo LightInfo;
 			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(2.5f, 2.0f, 2.0f);
+			LightInfo.Position = glm::vec3(7.5f, 2.0f, 2.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
 			LightInfo.Colour = glm::vec3(1.0f, 0.8f, 0.0f);
 			
@@ -184,7 +185,20 @@ extern "C"
 			PointLight1->ShadowFar  = 25.0f;
 		}
 
-		PointLight1->UpdateByRadius(75.0f);
+		{
+			Grvt::LightCreationInfo LightInfo;
+			LightInfo.Brightness = 1.0f;
+			LightInfo.Position = glm::vec3(-5.5f, 2.0f, 7.0f);
+			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
+			LightInfo.Colour = glm::vec3(2.0f, 0.8f, 4.0f);
+
+			PointLight2 = DemoScene->AddNewPointLight(LightInfo);
+			PointLight2->ShadowNear = 1.0f;
+			PointLight2->ShadowFar	= 25.0f;
+		}
+
+		PointLight1->UpdateByRadius(10.0f);
+		PointLight2->UpdateByRadius(10.0f);
 		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
@@ -193,7 +207,7 @@ extern "C"
 		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
 		static bool Animate = false;
 		static bool InitAnim = true;
-		static float Val = 0.0f;
+		//static float Val = 0.0f;
 		static glm::vec3 InitOrientation = glm::vec3(1.0f, -1.0f, -1.0f);
 		static glm::vec3 EndOrientation = glm::vec3(-1.0f, -1.0f, -1.0f);
 
@@ -231,10 +245,10 @@ extern "C"
 		if (m_IO->IsKeyPressed(GLFW_KEY_P))
 			Animate ^= true;
 
-		Grvt::PointLight* Light = DemoScene->PointLights[0];
-		Light->Position.x = glm::sin(glm::radians(Val)) * 3.0f;
+		//Grvt::PointLight* Light = DemoScene->PointLights[0];
+		//Light->Position.x = glm::sin(glm::radians(Val)) * 3.0f;
 
-		Val++;
+		//Val++;
 
 		// NOTE(Afiq):
 		// This part here needs to be a system instead.

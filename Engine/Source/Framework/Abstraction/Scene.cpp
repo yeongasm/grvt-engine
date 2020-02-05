@@ -391,8 +391,8 @@ namespace Grvt
 
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
-			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)));
+			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 		}
@@ -455,7 +455,7 @@ namespace Grvt
 			for (size_t i = 0; i < PointLights.Length(); i++)
 			{
 				Uniform.Format("OmniDepthMaps[%d]", i);
-				Command.Material->SetTexture(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
+				Command.Material->SetTextures(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
 				Uniform.Empty();
 			}
 
