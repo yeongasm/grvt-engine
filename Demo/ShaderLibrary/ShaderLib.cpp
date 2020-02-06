@@ -71,6 +71,16 @@ layout (std140, binding = 1) uniform LightUBO
 	mat4 PointLights[MAX_LIGHTS];
 };
 
+// Array of offset direction for sampling
+vec3 GridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
 float LinearizeDepth(float Depth)
 {
 	// Back to NDC.
@@ -118,14 +128,26 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 float OShadowCalculation(int Index, vec3 LightPos, float FarPlane)
 {
 	vec3 FragToLight = fs_in.FragWorldPos - LightPos;
-	float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
-	ClosestDepth *= FarPlane;
+	//float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
+	//ClosestDepth *= FarPlane;
 	float CurrentDepth = length(FragToLight);
-	float Bias = 0.05f;
+	float Bias = 0.15f;
 	float Shadow = 0.0f;
+	
+	int Samples = 20;
 
-	if (CurrentDepth - Bias > ClosestDepth)
-		Shadow = 1.0f;
+	float ViewDistance = length(ViewPos - fs_in.FragWorldPos);
+	float DiskRadius = (1.0f + (ViewDistance / FarPlane)) / 25.0f;
+
+	for (int i = 0; i < Samples; i++)
+	{
+		float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight + GridSamplingDisk[i] * DiskRadius).r;
+		ClosestDepth *= FarPlane;
+		
+		if (CurrentDepth - Bias > ClosestDepth)
+			Shadow += 1.0f;
+	}
+	Shadow /= float(Samples);
 
 	return Shadow;
 };
@@ -348,6 +370,16 @@ uniform sampler2D FloorTexture;
 
 vec2 Scale;
 
+// Array of offset direction for sampling
+vec3 GridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
 float LinearizeDepth(float Depth)
 {
 	// Back to NDC.
@@ -395,14 +427,26 @@ float DShadowCalculation(vec4 FragPosLightSpace)
 float OShadowCalculation(int Index, vec3 LightPos, float FarPlane)
 {
 	vec3 FragToLight = fs_in.FragWorldPos - LightPos;
-	float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
-	ClosestDepth *= FarPlane;
+	//float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight).r;
+	//ClosestDepth *= FarPlane;
 	float CurrentDepth = length(FragToLight);
-	float Bias = 0.05f;
+	float Bias = 0.15f;
 	float Shadow = 0.0f;
+	
+	int Samples = 20;
 
-	if (CurrentDepth - Bias > ClosestDepth)
-		Shadow = 1.0f;
+	float ViewDistance = length(ViewPos - fs_in.FragWorldPos);
+	float DiskRadius = (1.0f + (ViewDistance / FarPlane)) / 25.0f;
+
+	for (int i = 0; i < Samples; i++)
+	{
+		float ClosestDepth = texture(OmniDepthMaps[Index], FragToLight + GridSamplingDisk[i] * DiskRadius).r;
+		ClosestDepth *= FarPlane;
+		
+		if (CurrentDepth - Bias > ClosestDepth)
+			Shadow += 1.0f;
+	}
+	Shadow /= float(Samples);
 
 	return Shadow;
 };

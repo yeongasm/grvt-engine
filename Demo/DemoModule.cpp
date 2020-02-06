@@ -187,8 +187,8 @@ extern "C"
 
 		{
 			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(-5.5f, 2.0f, 7.0f);
+			LightInfo.Brightness = 0.6f;
+			LightInfo.Position = glm::vec3(-5.5f, 2.0f, 20.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
 			LightInfo.Colour = glm::vec3(2.0f, 0.8f, 4.0f);
 
@@ -207,7 +207,7 @@ extern "C"
 		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
 		static bool Animate = false;
 		static bool InitAnim = true;
-		//static float Val = 0.0f;
+		static float Val = 0.0f;
 		static glm::vec3 InitOrientation = glm::vec3(1.0f, -1.0f, -1.0f);
 		static glm::vec3 EndOrientation = glm::vec3(-1.0f, -1.0f, -1.0f);
 
@@ -245,10 +245,13 @@ extern "C"
 		if (m_IO->IsKeyPressed(GLFW_KEY_P))
 			Animate ^= true;
 
-		//Grvt::PointLight* Light = DemoScene->PointLights[0];
-		//Light->Position.x = glm::sin(glm::radians(Val)) * 3.0f;
+		Grvt::PointLight* Light = DemoScene->PointLights[0];
+		Light->Position.x = glm::sin(glm::radians(Val)) * 10.0f;
 
-		//Val++;
+		Light = DemoScene->PointLights[1];
+		Light->Position.z = glm::sin(glm::radians(Val)) * 10.0f;
+
+		Val++;
 
 		// NOTE(Afiq):
 		// This part here needs to be a system instead.

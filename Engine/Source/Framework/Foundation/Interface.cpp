@@ -114,10 +114,6 @@ namespace Grvt
 				int32	size = 0;
 				UniformAttr uniform;
 
-				/**
-				* TODO(Afiq):
-				* Need to find a way to retrieve ALL locations for uniforms that are arrays.
-				*/
 				glGetProgramiv(Packet.ResourcePtr->Handle.Id, GL_ACTIVE_UNIFORMS, &total);
 				Packet.ResourcePtr->Uniforms.Reserve((size_t)total);
 				for (uint32 i = 0; i < (uint32)total; i++)
