@@ -182,7 +182,7 @@ extern "C"
 			
 			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
 			PointLight1->ShadowNear = 1.0f;
-			PointLight1->ShadowFar  = 25.0f;
+			PointLight1->ShadowFar  = 50.0f;
 		}
 
 		{
@@ -194,7 +194,7 @@ extern "C"
 
 			PointLight2 = DemoScene->AddNewPointLight(LightInfo);
 			PointLight2->ShadowNear = 1.0f;
-			PointLight2->ShadowFar	= 25.0f;
+			PointLight2->ShadowFar	= 50.0f;
 		}
 
 		PointLight1->UpdateByRadius(10.0f);
@@ -246,10 +246,14 @@ extern "C"
 			Animate ^= true;
 
 		Grvt::PointLight* Light = DemoScene->PointLights[0];
-		Light->Position.x = glm::sin(glm::radians(Val)) * 10.0f;
+		Light->Position.x = glm::sin(glm::radians(Val)) * 5.0f;
+		Light->Position.y = 7.5f + (glm::sin(glm::radians(Val)) * 5.0f);
+		Light->Position.z = glm::cos(glm::radians(Val)) * 5.0f;
 
 		Light = DemoScene->PointLights[1];
-		Light->Position.z = glm::sin(glm::radians(Val)) * 10.0f;
+		Light->Position.x = glm::cos(glm::radians(Val)) * 5.0f;
+		Light->Position.y = 7.5f + glm::cos(glm::radians(Val)) * 5.0f;
+		Light->Position.z = glm::sin(glm::radians(Val)) * 5.0f;
 
 		Val++;
 

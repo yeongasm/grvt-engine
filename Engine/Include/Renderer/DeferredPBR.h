@@ -4,6 +4,7 @@
 #define GRAVITY_DEFERRED_RENDERER
 
 #include "Renderer.h"
+#include "PostProcess.h"
 
 namespace Grvt
 {
@@ -11,6 +12,8 @@ namespace Grvt
 	class DeferredPBR : public BaseRenderer
 	{
 	private:
+
+		PostProcessing	PostProcess;
 
 		/**
 		* Stores the index of the draw calls.

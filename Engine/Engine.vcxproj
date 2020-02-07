@@ -349,6 +349,12 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\PostProcess.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Source\Renderer\RenderCache.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -434,6 +440,7 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     <ClInclude Include="Include\Manager\Manager.h" />
     <ClInclude Include="Include\Profiler\FrameTime.h" />
     <ClInclude Include="Include\Renderer\DeferredPBR.h" />
+    <ClInclude Include="Include\Renderer\PostProcess.h" />
     <ClInclude Include="Include\Renderer\RenderCache.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
     <ClInclude Include="Include\Renderer\RenderFoundation.h" />

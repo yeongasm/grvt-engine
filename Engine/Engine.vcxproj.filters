@@ -135,6 +135,9 @@
     <ClCompile Include="Source\Framework\DefaultShaders\SimpleDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\PostProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Framework\Abstraction\Lighting.h">
@@ -255,6 +258,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Framework\DefaultShaders\SimpleDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Renderer\PostProcess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
