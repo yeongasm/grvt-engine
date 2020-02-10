@@ -86,6 +86,12 @@ namespace Grvt
 		}
 
 
+		void ResourceBuildQueue::QueueBufferForBuild(ObjHandle* BufferHandle, BaseAPI::BufferBuildData Data)
+		{
+			BufferQueue.push_back(BufferPacket(BufferHandle, Data));
+		}
+
+
 		void ResourceBuildQueue::Listen()
 		{
 			// Build meshes that are in the queue.
@@ -137,11 +143,18 @@ namespace Grvt
 				FramebufferQueue.pop_front();
 			}
 
+			// Build / update buffers that are in the queue.
+			for (BufferPacket& Packet : BufferQueue)
+			{
+				BaseAPI::BuildBuffer(*Packet.ResourcePtr, Packet.BuildData);
+				BufferQueue.pop_front();
+			}
+
 			// Listen to delete packets.
 			for (DeletePacket& Packet : DeleteQueue)
 			{
 				switch (Packet.Type) {
-				case GrvtGfx_Type_MeshBuffer:
+				case GrvtGfx_Type_Buffer:
 					BaseAPI::GrDeleteBufferObject(Packet.Handle);
 					break;
 				case GrvtGfx_Type_VertexArray:

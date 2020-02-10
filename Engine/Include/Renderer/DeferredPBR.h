@@ -63,6 +63,11 @@ namespace Grvt
 		*/
 		void RenderPointLightsPass(size_t Index, RenderCommand* Command);
 
+		/**
+		* Draws the screen quad.
+		*/
+		void RenderScreenQuad();
+
 	public:
 
 		ENGINE_API DeferredPBR();
@@ -89,6 +94,20 @@ namespace Grvt
 		*/
 		void Render();
 
+		/**
+		* Initialises post processing effects.
+		*/
+		void InitialisePostProcessing();
+
+		/**
+		* Update's Exposure value for HDR rendering.
+		*/
+		ENGINE_API void Exposure(float32 Value);
+
+		/**
+		* Increases or decreases gamma for the display.
+		*/
+		ENGINE_API void Gamma(float32 Value);
 	};
 
 }

@@ -74,6 +74,15 @@ extern "C"
 		}
 
 		{
+			Grvt::ShaderImportInfo ShaderInfo;
+			ShaderInfo.Name = "LampShader";
+			ShaderInfo.AddShaderToProgram(LampShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
+			ShaderInfo.AddShaderToProgram(LampShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+
+			Manager->NewShaderProgram(ShaderInfo);
+		}
+
+		{
 			Grvt::TextureImportInfo CubemapInfo;
 			CubemapInfo.Name = "DemoCubeMap";
 			CubemapInfo.Type = Grvt::GrvtTexture_Type_Cubemap;
@@ -136,6 +145,14 @@ extern "C"
 		}
 
 		{
+			Grvt::MaterialCreationInfo LampMat;
+			LampMat.Name = "LampMaterial";
+			LampMat.Shader = Grvt::GetResourceManager()->GetShader("LampShader");
+
+			Grvt::GetResourceManager()->NewMaterial(LampMat);
+		}
+
+		{
 			Grvt::ActorCreationInfo ActorInfo;
 			ActorInfo.Identifier = "Mid";
 			ActorInfo.Position = glm::vec3(0.0f, 1.1f, 0.0f);
@@ -161,7 +178,7 @@ extern "C"
 
 		{
 			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 0.8f;
+			LightInfo.Brightness = 1.0f;
 			LightInfo.Orientation = glm::vec3(1.0f, -1.0f, -1.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
 			
@@ -178,7 +195,8 @@ extern "C"
 			LightInfo.Brightness = 1.0f;
 			LightInfo.Position = glm::vec3(7.5f, 2.0f, 2.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			LightInfo.Colour = glm::vec3(1.0f, 0.8f, 0.0f);
+			//LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
+			LightInfo.Colour = glm::vec3(1.0f, 0.7647f, 0.0f);
 			
 			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
 			PointLight1->ShadowNear = 1.0f;
@@ -187,10 +205,10 @@ extern "C"
 
 		{
 			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 0.6f;
+			LightInfo.Brightness = 1.0f;
 			LightInfo.Position = glm::vec3(-5.5f, 2.0f, 20.0f);
 			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			LightInfo.Colour = glm::vec3(2.0f, 0.8f, 4.0f);
+			LightInfo.Colour = glm::vec3(0.6627f, 0.0705f, 0.7490f);
 
 			PointLight2 = DemoScene->AddNewPointLight(LightInfo);
 			PointLight2->ShadowNear = 1.0f;
@@ -199,11 +217,33 @@ extern "C"
 
 		PointLight1->UpdateByRadius(10.0f);
 		PointLight2->UpdateByRadius(10.0f);
-		//DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
+
+		Gfl::String LampIdentity;
+		size_t Count = 0;
+
+		for (Grvt::PointLight* Light : DemoScene->PointLights)
+		{
+			LampIdentity.Format("Lamp_%d", Count++);
+			Grvt::ActorCreationInfo ActorInfo;
+			ActorInfo.Position		= Light->Position;
+			ActorInfo.SrcMaterial	= Grvt::GetResourceManager()->GetMaterial("LampMaterial");
+			ActorInfo.SrcModel		= Grvt::GetResourceManager()->GetModel("Sphere");
+			ActorInfo.Identifier	= LampIdentity;
+			
+			Grvt::GrvtActor* LampActor = &DemoScene->AddNewActor(ActorInfo);
+			LampActor->Material.SetVector("Colour", Light->Colour);
+			LampActor->Material.SetFloat("Brightness", 5.0f);
+			LampActor->Scale = glm::vec3(0.5f);
+
+			LampIdentity.Empty();
+		}
+
+		DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
 	void ExecuteApplication()
 	{
+		m_Renderer = dynamic_cast<Grvt::DeferredPBR*>(Grvt::GetRenderer());
 		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
 		static bool Animate = false;
 		static bool InitAnim = true;
@@ -250,12 +290,23 @@ extern "C"
 		Light->Position.y = 7.5f + (glm::sin(glm::radians(Val)) * 5.0f);
 		Light->Position.z = glm::cos(glm::radians(Val)) * 5.0f;
 
+		Grvt::GrvtActor* LampActor = DemoScene->GetActor("Lamp_0");
+		LampActor->Position = Light->Position;
+
 		Light = DemoScene->PointLights[1];
-		Light->Position.x = glm::cos(glm::radians(Val)) * 5.0f;
-		Light->Position.y = 7.5f + glm::cos(glm::radians(Val)) * 5.0f;
-		Light->Position.z = glm::sin(glm::radians(Val)) * 5.0f;
+		Light->Position.x = glm::cos(glm::radians(Val)) * 7.0f;
+		Light->Position.z = glm::sin(glm::radians(Val)) * 7.0f;
+
+		LampActor = DemoScene->GetActor("Lamp_1");
+		LampActor->Position = Light->Position;
 
 		Val++;
+
+		if (Val >= 360.0f)
+			Val = 0.0f;
+
+		m_Renderer->Exposure(1.0f);
+		m_Renderer->Gamma(1.5f);
 
 		// NOTE(Afiq):
 		// This part here needs to be a system instead.

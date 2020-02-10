@@ -223,8 +223,8 @@ namespace Grvt
 		for (GrvtMesh& Mesh : Handle->ResourcePtr->Meshes)
 		{
 			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vao), Middleware::GrvtGfx_Type_VertexArray);
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vbo), Middleware::GrvtGfx_Type_MeshBuffer);
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Ebo), Middleware::GrvtGfx_Type_MeshBuffer);
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vbo), Middleware::GrvtGfx_Type_Buffer);
+			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Ebo), Middleware::GrvtGfx_Type_Buffer);
 		}
 
 		Handle->ResourcePtr->Free();

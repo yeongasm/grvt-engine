@@ -12,6 +12,7 @@ namespace Grvt
 {
 
 	GrvtScene::GrvtScene() :
+		Sky(),
 		Name(), 
 		Camera(nullptr), 
 		Renderer(nullptr), 
@@ -288,6 +289,11 @@ namespace Grvt
 
 		DeleteAllLights();
 
+		if (Sky.SrcModel)
+		{
+			RemoveSkyBox();
+		}
+
 		Name.Release();
 		Actors.Release();
 		PointLights.Release();
@@ -376,6 +382,10 @@ namespace Grvt
 				Buffer.DirLightSpaceTransform = Projection * View;
 			}
 		}
+
+		//GrvtActor* DebugSphere = nullptr;
+
+		GrvtModel* Sphere = GetResourceManager()->GetModel("Sphere");
 
 		for (PointLight* LightPtr : PointLights)
 		{

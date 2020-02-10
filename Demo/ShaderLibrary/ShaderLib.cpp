@@ -45,7 +45,9 @@ Gfl::String TestColourShader::FragmentShader = R"(
 
 #define MAX_LIGHTS 15
 
-out vec4 FragColour;
+layout (location = 0) out vec4 FragColour;
+layout (location = 1) out vec4 BrightColour;
+//out vec4 FragColour;
 
 in VS_OUT
 {
@@ -227,6 +229,14 @@ void main()
 
 	//FragColour = mix(vec4(0.169f, 0.169f, 0.169f, 1.0f), vec4(Result, 1.0f), Blend);
 	FragColour = vec4(Result, 1.0f);
+	
+	BrightColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	float Brightness = dot(FragColour.rgb, vec3(0.2126, 0.7512, 0.0722));
+	
+	if (Brightness > 1.0f)
+	{
+		BrightColour = vec4(FragColour.rgb, 1.0f);
+	}
 }
 )";
 
@@ -285,7 +295,11 @@ void main()
 
 Gfl::String SkyboxShader::FragmentShader = R"(
 #version 430 core
-out vec4 FragColour;
+
+layout (location = 0) out vec4 FragColour;
+layout (location = 1) out vec4 BrightColour;
+
+//out vec4 FragColour;
 
 in vec3 TexCoord;
 
@@ -293,7 +307,8 @@ uniform samplerCube CubeMap;
 
 void main()
 {
-	FragColour = texture(CubeMap, TexCoord);
+	FragColour = texture(CubeMap, TexCoord);	
+	BrightColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 )";
 
@@ -340,7 +355,9 @@ Gfl::String FloorShader::FragmentShader = R"(
 
 #define MAX_LIGHTS 15
 
-out vec4 FragColour;
+layout (location = 0) out vec4 FragColour;
+layout (location = 1) out vec4 BrightColour;
+//out vec4 FragColour;
 
 in VS_OUT
 {
@@ -526,4 +543,56 @@ void main()
 	}
 
 	FragColour = vec4(Colour, 1.0f);
+
+	BrightColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	float Brightness = dot(FragColour.rgb, vec3(0.2126, 0.7512, 0.0722));
+	
+	if (Brightness > 1.0f)
+	{
+		BrightColour = vec4(FragColour.rgb, 1.0f);
+	}
 })";
+
+
+Gfl::String LampShader::VertexShader = R"(
+#version 430 core
+layout (location = 0) in vec3 aPos;
+
+layout (std140, binding = 0) uniform MatricesUBO
+{
+	mat4 Projection;
+	mat4 View;
+};
+
+uniform mat4 Model;
+
+void main()
+{
+	gl_Position = Projection * View * Model * vec4(aPos, 1.0f);
+}
+)";
+
+
+Gfl::String LampShader::FragmentShader = R"(
+#version 430 core
+
+layout (location = 0) out vec4 FragColour;
+layout (location = 1) out vec4 BrightColour;
+//out vec4 FragColour;
+
+uniform vec3  Colour;
+uniform float Brightness;
+
+void main()
+{
+	FragColour = vec4(Colour, 1.0f) * Brightness;
+
+	BrightColour = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	float Brightness = dot(FragColour.rgb, vec3(0.2126, 0.7512, 0.0722));
+	
+	if (Brightness > 1.0f)
+	{
+		BrightColour = vec4(FragColour.rgb, 1.0f);
+	}
+}
+)";

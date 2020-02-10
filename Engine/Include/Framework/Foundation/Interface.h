@@ -63,7 +63,7 @@ namespace Grvt
 		enum GfxObjectType : uint32
 		{
 			GrvtGfx_Type_None			= 0x00,	// Used only for initialisation.
-			GrvtGfx_Type_MeshBuffer		= 0x01,
+			GrvtGfx_Type_Buffer			= 0x01,
 			GrvtGfx_Type_VertexArray	= 0x02,
 			GrvtGfx_Type_Texture		= 0x03,
 			GrvtGfx_Type_Shader			= 0x04,
@@ -100,6 +100,7 @@ namespace Grvt
 		using TexturePacket = ResourcePacket<GrvtTexture, BaseAPI::TextureBuildData>;
 		using ShaderPacket = ResourcePacket<GrvtShader, BaseAPI::ShaderBuildData>;
 		using FramebufferPacket = ResourcePacket<ObjHandle, BaseAPI::FramebufferBuildData>;
+		using BufferPacket = ResourcePacket<ObjHandle, BaseAPI::BufferBuildData>;
 
 
 		/**
@@ -112,6 +113,7 @@ namespace Grvt
 			std::deque<TexturePacket>		TextureQueue;
 			std::deque<ShaderPacket>		ShaderQueue;
 			std::deque<FramebufferPacket>	FramebufferQueue;
+			std::deque<BufferPacket>		BufferQueue;
 			std::deque<DeletePacket>		DeleteQueue;
 
 		public:
@@ -152,6 +154,13 @@ namespace Grvt
 			* Removes a GraphicsObject from the GPU.
 			*/
 			void QueueHandleForDelete(ObjHandle&& Handle, GfxObjectType Type);
+
+
+			/**
+			* [MIDDLEWARE]
+			* Adds / update a buffer.
+			*/
+			void QueueBufferForBuild(ObjHandle* BufferHandle, BaseAPI::BufferBuildData Data);
 
 
 			/**

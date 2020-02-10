@@ -37,11 +37,12 @@ namespace Grvt
 			int32	Size;
 			int32	Stride;
 			size_t	PtrOffset;
+			uint32	Divisor;
 
 			VertexAttribPointer();
 			~VertexAttribPointer();
 
-			VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset);
+			VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset, uint32 Divisor = 0);
 
 			VertexAttribPointer(const VertexAttribPointer& Rhs);
 			VertexAttribPointer& operator= (const VertexAttribPointer& Rhs);
@@ -214,6 +215,40 @@ namespace Grvt
 			FramebufferBuildData& operator= (FramebufferBuildData&& Rhs);
 		};
 
+
+		struct BufferSubData
+		{
+			int32	Offset;
+			size_t	Size;
+			void*	DataPtr;
+		};
+
+		/**
+		* [BASEAPI]
+		* BufferBuildData data structure.
+		*/
+		struct BufferBuildData
+		{
+			using VertexArray  = Gfl::Pair<ObjHandle*, Gfl::Array<VertexAttribPointer>>;
+			using VertexArrays = Gfl::Array<VertexArray>;
+
+			VertexArrays VertexArr;
+			Gfl::Array<BufferSubData> SubData;
+
+			void*		DataPtr;
+			size_t		Size;
+			uint32		Target;
+
+			BufferBuildData();
+			~BufferBuildData();
+
+			BufferBuildData(const BufferBuildData& Rhs);
+			BufferBuildData& operator= (const BufferBuildData& Rhs);
+
+			BufferBuildData(BufferBuildData&& Rhs);
+			BufferBuildData& operator= (BufferBuildData&& Rhs);
+		};
+
 		/**
 		* [BASEAPI]
 		* An OpenGL wrapper to create a mesh.
@@ -278,6 +313,13 @@ namespace Grvt
 		* An OpenGL wrapper to create a frambuffer.
 		*/
 		void BuildFramebuffer(ObjHandle& Handle, FramebufferBuildData& Data);
+
+
+		/**
+		* [BASEAPI]
+		* An OpenGL wrapper to create an instance buffer.
+		*/
+		void BuildBuffer(ObjHandle& Handle, BufferBuildData& Data);
 
 	}
 

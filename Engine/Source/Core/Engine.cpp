@@ -54,8 +54,10 @@ namespace Grvt
 			g_Engine->ExecuteModule();
 
 			/**
+			* NOTE(Afiq):
+			*
 			* Allow the scene to fill the contents of the renderer's back buffer when it is empty.
-			* In a single threaded program, this scenation would never happen.
+			* In a single threaded program, this scenario would never happen.
 			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
 			*/
 			if (g_ActiveScene && g_Renderer->BackBuffer.IsEmpty)
@@ -223,7 +225,10 @@ namespace Grvt
 
 		Module.LoadModuleDll(true);
 
-		g_Renderer = (DeferredPBR*)InitRenderer(new DeferredPBR());
+		g_Renderer = InitRenderer(new DeferredPBR());
+		g_Renderer->Width  = Width;
+		g_Renderer->Height = Height;
+		static_cast<DeferredPBR*>(g_Renderer)->InitialisePostProcessing();
 	}
 
 
@@ -367,7 +372,7 @@ namespace Grvt
 		// Listens for resources to be generated or deleted from the GPU.
 		Middleware::GetBuildQueue()->Listen();
 
-#if _DEBUG
+//#if _DEBUG
 
 		FILETIME NewDllLastWrite = Module.WatchFileChange();
 		if (CompareFileTime(&NewDllLastWrite, &Module.DllLastWriteTime) != 0)
@@ -383,7 +388,7 @@ namespace Grvt
 			Sleep(10);
 		}
 
-#endif
+//#endif
 		
 		// NOTE(Afiq): This part of the code still causes a crash from time to time.
 		for (BaseSystem* System : Systems)

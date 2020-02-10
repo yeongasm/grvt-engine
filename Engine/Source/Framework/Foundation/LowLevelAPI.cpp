@@ -10,7 +10,7 @@ namespace Grvt
 
 
 		VertexAttribPointer::VertexAttribPointer() :
-			Index(0), Size(0), Stride(0), PtrOffset(0) {}
+			Index(0), Size(0), Stride(0), PtrOffset(0), Divisor(0) {}
 
 
 		VertexAttribPointer::~VertexAttribPointer() 
@@ -19,8 +19,8 @@ namespace Grvt
 		}
 
 
-		VertexAttribPointer::VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset) :
-			Index(Index), Size(Size), Stride(Stride), PtrOffset(Offset) {}
+		VertexAttribPointer::VertexAttribPointer(uint32 Index, int32 Size, int32 Stride, size_t Offset, uint32 Divisor) :
+			Index(Index), Size(Size), Stride(Stride), PtrOffset(Offset), Divisor(Divisor) {}
 
 
 		VertexAttribPointer::VertexAttribPointer(const VertexAttribPointer& Rhs)
@@ -35,10 +35,11 @@ namespace Grvt
 
 			if (this != &Rhs) 
 			{
-				Index = Rhs.Index;
-				Size = Rhs.Size;
-				Stride = Rhs.Stride;
+				Index	= Rhs.Index;
+				Size	= Rhs.Size;
+				Stride	= Rhs.Stride;
 				PtrOffset = Rhs.PtrOffset;
+				Divisor = Rhs.Divisor;
 			}
 
 			return *this;
@@ -59,10 +60,11 @@ namespace Grvt
 			{
 				new (this) VertexAttribPointer();
 
-				Index = Rhs.Index;
-				Size = Rhs.Size;
-				Stride = Rhs.Stride;
+				Index	= Rhs.Index;
+				Size	= Rhs.Size;
+				Stride	= Rhs.Stride;
 				PtrOffset = Rhs.PtrOffset;
+				Divisor = Rhs.Divisor;
 
 				new (&Rhs) VertexAttribPointer();
 			}
@@ -389,6 +391,74 @@ namespace Grvt
 		}
 
 
+		BufferBuildData::BufferBuildData() :
+			DataPtr(nullptr), Size(0), Target(0), VertexArr(), SubData() {}
+
+
+		BufferBuildData::~BufferBuildData()
+		{
+			DataPtr = nullptr;
+
+			Size	= 0;
+			Target	= 0;
+
+			VertexArr.Release();
+			SubData.Release();
+		}
+
+
+		BufferBuildData::BufferBuildData(const BufferBuildData& Rhs) 
+		{
+			*this = Rhs;
+		}
+
+
+		BufferBuildData& BufferBuildData::operator= (const BufferBuildData& Rhs)
+		{
+			_ASSERTE(this != &Rhs);
+
+			if (this != &Rhs)
+			{
+				DataPtr = Rhs.DataPtr;
+				
+				Size	= Rhs.Size;
+				Target	= Rhs.Target;
+
+				VertexArr = Rhs.VertexArr;
+				SubData = Rhs.SubData;
+			}
+
+			return *this;
+		}
+
+
+		BufferBuildData::BufferBuildData(BufferBuildData&& Rhs)
+		{
+			*this = Gfl::Move(Rhs);
+		}
+
+
+		BufferBuildData& BufferBuildData::operator= (BufferBuildData&& Rhs)
+		{
+			_ASSERTE(this != &Rhs);
+
+			if (this != &Rhs)
+			{
+				DataPtr = Rhs.DataPtr;
+
+				Size	= Rhs.Size;
+				Target	= Rhs.Target;
+
+				VertexArr = Rhs.VertexArr;
+				SubData = Rhs.SubData;
+
+				new (&Rhs) BufferBuildData();
+			}
+
+			return *this;
+		}
+
+
 		void BuildMesh(ObjHandle& VAO, ObjHandle& VBO, ObjHandle& EBO, MeshBuildData& Data) 
 		{
 			if (!VAO.Id) {
@@ -597,8 +667,11 @@ namespace Grvt
 				}
 			}
 
-			glDrawBuffer(GL_NONE);
-			glReadBuffer(GL_NONE);
+			if (!DrawBuffers.Length())
+			{
+				glDrawBuffer(GL_NONE);
+				glReadBuffer(GL_NONE);
+			}
 
 			if (DrawBuffers.Length())
 			{
@@ -612,6 +685,55 @@ namespace Grvt
 			}
 
 			GrUnbindFramebuffer(Handle);
+		}
+
+
+		void BuildBuffer(ObjHandle& Handle, BufferBuildData& Data)
+		{
+			if (!Handle.Id)
+			{
+				GrCreateBufferObject(Handle, Data.Target);
+			}
+
+			GrBindBufferObject(Handle);
+			glBufferData(Handle.Target, Data.Size, Data.DataPtr, GL_STATIC_DRAW);
+
+			if (Data.SubData.Length())
+			{
+				for (BufferSubData& SubData : Data.SubData)
+				{
+					glBufferSubData(Handle.Target, SubData.Offset, SubData.Size, SubData.DataPtr);
+				}
+			}
+
+			GrUnbindBufferObject(Handle);
+
+			if (Data.VertexArr.Length())
+			{
+				GrBindBufferObject(Handle);
+				
+				for (BufferBuildData::VertexArray& VertArray : Data.VertexArr)
+				{
+					ObjHandle* Vao = VertArray.Key;
+
+					GrBindVertexArray(*Vao);
+
+					for (VertexAttribPointer& Attribute : VertArray.Value)
+					{
+						glEnableVertexAttribArray(Attribute.Index);
+						glVertexAttribPointer(Attribute.Index, Attribute.Size, GL_FLOAT, GL_FALSE, Attribute.Stride, (GLvoid*)Attribute.PtrOffset);
+
+						if (Attribute.Divisor)
+						{
+							glVertexAttribDivisor(Attribute.Index, Attribute.Divisor);
+						}
+					}
+
+					GrUnbindVertexArray();
+				}
+
+				GrUnbindBufferObject(Handle);
+			}
 		}
 
 	}

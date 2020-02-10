@@ -278,7 +278,7 @@ namespace Grvt
 		size_t Index = FindUniform(Uniform);
 
 		if (Index == -1) {
-			size_t Location = BaseAPI::Shader::GrGetUniformLocation(Shader->Handle, Uniform.C_Str());
+			uint32 Location = BaseAPI::Shader::GrGetUniformLocation(Shader->Handle, Uniform.C_Str());
 
 			if (Location == -1)
 				return false;

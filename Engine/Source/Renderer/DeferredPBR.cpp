@@ -13,6 +13,7 @@ namespace Grvt
 	static uint32 PreviousWidth		= 0;
 	static uint32 PreviousHeight	= 0;
 
+
 	DeferredPBR::DeferredPBR() :
 		BaseRenderer(),
 		BGColour(0.0f, 0.0f, 0.0f),
@@ -220,6 +221,15 @@ namespace Grvt
 		}
 	}
 
+
+	void DeferredPBR::RenderScreenQuad()
+	{
+		GrvtMesh* Quad = &ScreenQuad->Meshes[0];
+		BaseAPI::GrBindVertexArray(Quad->Vao);
+		glDrawElements(GL_TRIANGLES, Quad->Size, GL_UNSIGNED_INT, 0);
+		BaseAPI::GrUnbindVertexArray();
+	}
+
 	
 	void DeferredPBR::Init()
 	{
@@ -270,6 +280,9 @@ namespace Grvt
 
 			SimpleDepthDebug = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
 		}
+
+		// Initialise post processing effects.
+		//PostProcess.Init(this);
 	}
 
 
@@ -418,6 +431,7 @@ SkipDirectionalLightingPass:
 		}
 
 		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
+		BaseAPI::GrBindFramebuffer(PostProcess.HDR.Handle);
 
 		glViewport(0, 0, Width, Height);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -475,30 +489,72 @@ SkipDirectionalLightingPass:
 			RenderPushedCommand(&SkyBox, false);
 		}
 
-		// Render To Screen Quad.
-		/*if (FrontBuffer.DepthMap)
+		BaseAPI::GrUnbindFramebuffer(PostProcess.HDR.Handle);
+
+		// Execute Bloom Kernel ----------------------------------------------------------------
+
+		bool Horizontal = true;
+		uint32 BloomTexture = PostProcess.HDR.ColourAttachments[1].Value.Id;
+
+		for (uint32 i = 0; i < PostProcess.BloomIteration; i++)
 		{
-			BaseAPI::GrBindShaderProgram(SimpleDepthDebug->Handle);
-
-			glm::mat4 transform(1.0f);
-			transform = glm::scale(transform, glm::vec3(0.5f));
-			transform = glm::translate(transform, glm::vec3(5.0, -5.0f, 0.0f));
-
-			//BaseAPI::Shader::GrShaderSetMat4Float(0, &transform[0][0]);
-			BaseAPI::Shader::GrShaderSetInt(0, 0);
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, FrontBuffer.DepthMap->DepthAttachment.Value.Id);
-
-			for (GrvtMesh& Mesh : ScreenQuad->Meshes)
+			if (Horizontal)
 			{
-				glBindVertexArray(Mesh.Vao.Id);
-				glDrawElements(GL_TRIANGLES, Mesh.Size, GL_UNSIGNED_INT, 0);
-				glBindVertexArray(0);
+				ActiveShader = PostProcess.HorizontalBlurKernel;
+				BaseAPI::GrBindFramebuffer(PostProcess.BloomTarget0.Handle);
+			}
+			else
+			{
+				ActiveShader = PostProcess.VerticalBlurKernel;
+				BaseAPI::GrBindFramebuffer(PostProcess.BloomTarget1.Handle);
 			}
 
-			BaseAPI::GrUnbindShaderProgram(SimpleDepthDebug->Handle);
-		}*/
+			BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+			BaseAPI::Shader::GrShaderSetInt(0, 0);
+			
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, BloomTexture);
+
+			RenderScreenQuad();
+
+			if (Horizontal)
+			{
+				BloomTexture = PostProcess.BloomTarget0.ColourAttachments[0].Value.Id;
+			}
+			else
+			{
+				BloomTexture = PostProcess.BloomTarget1.ColourAttachments[0].Value.Id;
+			}
+
+			Horizontal ^= true;
+		}
+
+		//BaseAPI::GrUnbindFramebuffer(PostProcess.BloomTarget1.Handle);
+		// Render To Screen Quad ---------------------------------------------------------------
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		if (ActiveShader != PostProcess.HDRShader)
+			ActiveShader = PostProcess.HDRShader;
+
+		BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+		
+		BaseAPI::Shader::GrShaderSetInt(  0, 0);
+		BaseAPI::Shader::GrShaderSetInt(  1, 1);
+		BaseAPI::Shader::GrShaderSetFloat(2, PostProcess.Exposure);
+		BaseAPI::Shader::GrShaderSetFloat(3, PostProcess.Gamma);
+		BaseAPI::Shader::GrShaderSetBool( 4, PostProcess.Bloom);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, PostProcess.HDR.ColourAttachments[0].Value.Id);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, PostProcess.BloomTarget0.ColourAttachments[0].Value.Id);
+
+		RenderScreenQuad();
+
+		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
+
+		// -------------------------------------------------------------------------------------
 
 		UnsortedCommands.Empty();
 		SortedCommands.Empty();
@@ -506,5 +562,24 @@ SkipDirectionalLightingPass:
 		SortedInstancedCommands.Empty();
 		FrontBuffer.Clear();
 	}
+
+
+	void DeferredPBR::Exposure(float32 Value)
+	{
+		PostProcess.Exposure = Value;
+	}
+
+
+	void DeferredPBR::Gamma(float32 Value)
+	{
+		PostProcess.Gamma = Value;
+	}
+
+
+	void DeferredPBR::InitialisePostProcessing()
+	{
+		PostProcess.Init(this);
+	}
+
 
 }

@@ -46,11 +46,11 @@ namespace Grvt
 	{
 	public:
 
-		ObjHandle			Vao;
-		ObjHandle			Vbo;
-		ObjHandle			Ebo;
+		ObjHandle	Vao;
+		ObjHandle	Vbo;
+		ObjHandle	Ebo;
 
-		uint32				Size;
+		uint32		Size;
 
 		Gfl::Array<glm::vec3>	Positions;
 		Gfl::Array<glm::vec2>	Uv;

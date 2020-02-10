@@ -45,7 +45,7 @@ namespace Grvt
 			bool			Render		= false;
 		};
 
-		SkyBox		Sky;
+		SkyBox	Sky;
 
 	public:
 

@@ -175,9 +175,9 @@ namespace Grvt
 	{
 		GrvtMesh* Mesh = &Meshes.Insert(GrvtMesh());
 		Mesh->Positions = Info.PositionData;
-		Mesh->Uv = Info.TexCoordData;
-		Mesh->Normals = Info.NormalsData;
-		Mesh->Tangents = Info.TangentData;
+		Mesh->Uv		= Info.TexCoordData;
+		Mesh->Normals	= Info.NormalsData;
+		Mesh->Tangents	= Info.TangentData;
 		Mesh->Bitangents = Info.BitangentData;
 
 		return this;

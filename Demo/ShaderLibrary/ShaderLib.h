@@ -34,6 +34,13 @@ struct FloorShader
 };
 
 
+struct LampShader
+{
+	static Gfl::String VertexShader;
+	static Gfl::String FragmentShader;
+};
+
+
 //struct BlinnShader
 //{
 //	static Gfl::String VertexShader;
