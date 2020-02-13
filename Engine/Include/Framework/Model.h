@@ -4,7 +4,7 @@
 #define GRAVITY_ABSTRACTION_MODEL
 
 #include "Minimal.h"
-#include "Framework/Foundation/Foundations.h"
+#include "API/Graphics/GraphicsDriver.h"
 
 namespace Grvt
 {
@@ -46,9 +46,10 @@ namespace Grvt
 	{
 	public:
 
-		ObjHandle	Vao;
-		ObjHandle	Vbo;
-		ObjHandle	Ebo;
+		GfxHandle	Vao;
+		GfxHandle	Vbo;
+		GfxHandle	Ebo;
+		GfxHandle	Ibo;
 
 		uint32		Size;
 

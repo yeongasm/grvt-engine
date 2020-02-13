@@ -5,7 +5,8 @@
 
 #include "Model.h"
 #include "Material.h"
-#include "Include/Renderer/RenderCache.h"
+
+#include "Renderer/RenderCache.h"
 
 namespace Grvt
 {

@@ -4,14 +4,25 @@
 #define GRAVITY_ABSTRACTION_MATERIAL
 
 #include "Minimal.h"
-#include "Framework/Abstraction/Shader.h"
-#include "Framework/Abstraction/Texture.h"
-#include "Framework/Foundation/Foundations.h"
+#include "API/Graphics/GraphicsDriver.h"
+
+#include "Framework/Shader.h"
+#include "Framework/Texture.h"
 
 namespace Grvt
 {
 
-	using TexturePair = Gfl::Pair<TextureType, ObjHandle*>;
+	using TexturePair = Gfl::Pair<TextureType, GfxHandle*>;
+	using MatTextures = Gfl::Array<TexturePair>;
+
+
+	struct MaterialCreationInfo
+	{
+		Gfl::String Name;
+		GrvtShader* Shader = nullptr;
+		MatTextures Textures;
+	};
+
 
 	/**
 	*/
@@ -20,13 +31,12 @@ namespace Grvt
 	private:
 
 		using UniformMap = std::map<Gfl::String, UniformValue>;
-		using TextureArr = Gfl::Array<TexturePair>;
+		
+		UniformMap	Uniforms;
+		MatTextures Textures;
+		GrvtShader* Shader;
 
 	public:
-
-		UniformMap	Uniforms;
-		TextureArr	Textures;
-		GrvtShader* Shader;
 
 		ENGINE_API GrvtMaterial();
 		ENGINE_API ~GrvtMaterial();
@@ -38,7 +48,7 @@ namespace Grvt
 		ENGINE_API GrvtMaterial& operator= (GrvtMaterial&&);
 
 
-		ENGINE_API void Alloc(GrvtShader* ShaderPtr);
+		ENGINE_API void Alloc(const MaterialCreationInfo& Info);
 		ENGINE_API void Free();
 
 

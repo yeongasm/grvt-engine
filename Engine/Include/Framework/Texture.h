@@ -4,7 +4,7 @@
 #define GRAVITY_ABSTRACTION_TEXTURE
 
 #include "Minimal.h"
-#include "Framework/Foundation/Foundations.h"
+#include "API/Graphics/GraphicsDriver.h"
 
 namespace Grvt
 {
@@ -43,11 +43,10 @@ namespace Grvt
 	* Cubemaps need to be specified by the following order:
 	* Right -> Left -> Top -> Bottom -> Front -> Back.
 	*/
-	struct TextureImportInfo
+	struct TextureCreationInfo
 	{
 		Gfl::Array<Gfl::String>	Path;
 		Gfl::String				Name;
-		TextureType				Type;
 	};
 
 
@@ -57,13 +56,9 @@ namespace Grvt
 	{
 	public:
 
-		union {
-			uint8*	DataPtr;
-			uint8*	CubemapPtr[6];
-		};
+		Gfl::Array<uint8*> Data;
 
-		ObjHandle	Handle;
-		TextureType Type;
+		GfxHandle	Handle;
 		int32		Width;
 		int32		Height;
 		int32		Channel;
@@ -71,17 +66,13 @@ namespace Grvt
 		GrvtTexture();
 		~GrvtTexture();
 
-		GrvtTexture* Alloc(const TextureImportInfo& Info);
-		void Free();
-
 	private:
 
-
-		GrvtTexture(const GrvtTexture&) = delete;
+		GrvtTexture(const GrvtTexture&)				= delete;
 		GrvtTexture& operator= (const GrvtTexture&) = delete;
 
-		GrvtTexture(GrvtTexture&&) = delete;
-		GrvtTexture& operator= (GrvtTexture&&) = delete;
+		GrvtTexture(GrvtTexture&&)					= delete;
+		GrvtTexture& operator= (GrvtTexture&&)		= delete;
 	};
 
 }

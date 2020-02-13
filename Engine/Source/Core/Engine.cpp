@@ -1,7 +1,11 @@
 #include "GrvtPch.h"
-#include "Framework/Foundation/Interface.h"
+
+#include "API/Graphics/GraphicsDriver.h"
+#include "API/Graphics/GraphicsInterface.h"
+
 #include "Profiler/FrameTime.h"
-#include "Framework/Abstraction/Scene.h"
+
+#include "Framework/Scene.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/DeferredPBR.h"
 
@@ -148,9 +152,6 @@ namespace Grvt
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, VersionMinor);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
-		// TODO(Afiq):
-		// Implement some sort of anti-aliasing.
-		glfwWindowHint(GLFW_SAMPLES, 4);
 
 		Window = glfwCreateWindow(Width, Height, Name.C_Str(), nullptr, nullptr);
 

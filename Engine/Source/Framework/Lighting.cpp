@@ -1,5 +1,5 @@
 #include "GrvtPch.h"
-#include "Framework/Abstraction/Lighting.h"
+#include "Framework/Lighting.h"
 
 
 namespace Grvt

@@ -1,7 +1,10 @@
 #include "GrvtPch.h"
-#include "Framework/Foundation/Interface.h"
-#include "Framework/Abstraction/Scene.h"
+
+#include "API/Graphics/GraphicsInterface.h"
+
+#include "Framework/Scene.h"
 #include "Renderer/RenderFoundation.h"
+
 #include "Manager/Manager.h"
 
 

@@ -5,7 +5,10 @@
 
 #include "RenderFoundation.h"
 #include "RenderCache.h"
-#include "Framework/Abstraction/Scene.h"
+
+#include "PostProcess.h"
+
+#include "Framework/Scene.h"
 
 namespace Grvt
 {
@@ -15,46 +18,39 @@ namespace Grvt
 	*
 	* GrvtRenderer is an abstract class that acts like a shell for any custom implemented renderer.
 	*/
-	struct BaseRenderer
+	class Renderer
 	{
+	private:
+
+		friend class	GrvtEngine;
 		friend struct	CommandBuffer;
 		friend class	GrvtScene;
 
 		CommandBuffer	BackBuffer;
 		CommandBuffer	FrontBuffer;
+
 		RenderCache		StateCache;
+
 		GrvtShader*		ActiveShader;
+		GrvtMesh*		NDCPlane;
+
+
+	public:
+
 		uint32			PosX;
 		uint32			PosY;
 		uint32			Width;
 		uint32			Height;
 		
+	public:
 
-		ENGINE_API BaseRenderer();
-		ENGINE_API virtual ~BaseRenderer() {};
+		Renderer();
+		~Renderer();
 
-		/**
-		* Initialises the renderer.
-		* Called during engine's startup.
-		*/
-		virtual void Init() = 0;
-
-		/**
-		* Renders data supplied onto the screen.
-		* Called every tick.
-		*/
-		virtual void Render() = 0;
-
-		/**
-		* Releases all resource held by the engine.
-		* called during engine's shutdown.
-		*/
-		virtual void Shutdown() = 0;
+		void Init();
+		void Render();
+		void Shutdown();
 	};
-
-	ENGINE_API	BaseRenderer*	InitRenderer(BaseRenderer* RendererPtr);
-	ENGINE_API	BaseRenderer*	GetRenderer();
-				void			ShutdownRenderer();
 
 }
 

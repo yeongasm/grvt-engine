@@ -1,5 +1,5 @@
 #include "GrvtPch.h"
-#include "Framework/Abstraction/Model.h"
+#include "Framework/Model.h"
 
 
 namespace Grvt

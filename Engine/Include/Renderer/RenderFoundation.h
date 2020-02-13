@@ -5,8 +5,9 @@
 
 #include <map>
 #include "Minimal.h"
-#include "Framework/Abstraction/Material.h"
-#include "Framework/Foundation/Foundations.h"
+#include "API/Graphics/GraphicsDriver.h"
+
+#include "Framework/Material.h"
 #include "RenderCache.h"
 
 namespace Grvt
@@ -19,7 +20,7 @@ namespace Grvt
 	*/
 	struct RenderNode
 	{
-		ObjHandle*		Handle;
+		GfxHandle*		Handle;
 		size_t			Amount;
 		uint32			Size;
 		uint32			Mode;
@@ -84,14 +85,14 @@ namespace Grvt
 	*/
 	struct RenderTarget
 	{
-		using AttachmentPoint  = Gfl::Pair<uint32, ObjHandle>;
+		using AttachmentPoint  = Gfl::Pair<uint32, GfxHandle>;
 		using AttachmentPoints = Gfl::Array<AttachmentPoint>;
 
 		AttachmentPoints ColourAttachments;
 		AttachmentPoint	 DepthAttachment;
 		AttachmentPoint	 DepthStencilAttachment;
 
-		ObjHandle	Handle;
+		GfxHandle	Handle;
 		uint32		Width;
 		uint32		Height;
 

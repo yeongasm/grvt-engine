@@ -29,7 +29,6 @@ namespace Grvt
 
 		float32				DeltaTime;
 
-
 		int32				Width;
 		int32				Height;
 

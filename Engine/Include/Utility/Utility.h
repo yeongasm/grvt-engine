@@ -4,7 +4,7 @@
 #define GRAVITY_UTILITY_FUNCTIONS
 
 #include "Minimal.h"
-#include "Framework/Abstraction/Model.h"
+#include "Framework/Model.h"
 
 namespace Grvt
 {

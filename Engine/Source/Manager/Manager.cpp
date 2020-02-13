@@ -1,6 +1,5 @@
 #include "GrvtPch.h"
 #include "Manager/Manager.h"
-#include "Framework/Foundation/Interface.h"
 #include "Thirdparty/stb/stb_image.h"
 
 namespace Grvt
@@ -95,7 +94,7 @@ namespace Grvt
 
 		for (GrvtMesh& Mesh : Model->Meshes)
 		{
-			Middleware::PackageMeshForBuild(&Mesh);
+			GfxInterface->PackageMeshForBuild(Mesh);
 		}
 
 		return Model;
@@ -112,7 +111,7 @@ namespace Grvt
 
 		for (GrvtMesh& Mesh : Model->Meshes)
 		{
-			Middleware::PackageMeshForBuild(&Mesh);
+			GfxInterface->PackageMeshForBuild(Mesh);
 		}
 
 		return Model;
@@ -190,9 +189,14 @@ namespace Grvt
 
 		for (GrvtMesh& Mesh : Handle->ResourcePtr->Meshes)
 		{
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vao), Middleware::GrvtGfx_Type_VertexArray);
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Vbo), Middleware::GrvtGfx_Type_Buffer);
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Mesh.Ebo), Middleware::GrvtGfx_Type_Buffer);
+			GfxInterface->QueueHandleForDelete(Gfl::Move(Mesh.Vao), HandleType::Handle_VertexArray);
+			GfxInterface->QueueHandleForDelete(Gfl::Move(Mesh.Vbo), HandleType::Handle_Buffer);
+			GfxInterface->QueueHandleForDelete(Gfl::Move(Mesh.Ebo), HandleType::Handle_Buffer);
+
+			if (Mesh.Ibo.Id)
+			{
+				GfxInterface->QueueHandleForDelete(Gfl::Move(Mesh.Ibo), HandleType::Handle_Buffer);
+			}
 		}
 
 		Handle->ResourcePtr->Free();
@@ -220,7 +224,7 @@ namespace Grvt
 	}
 
 
-	GrvtTexture* ResourceManager::NewImportTexture(const TextureImportInfo& Import)
+	GrvtTexture* ResourceManager::NewImportTexture(const TextureCreationInfo& Import)
 	{
 		if (Import.Path.Length() != 1)
 		{
@@ -231,79 +235,15 @@ namespace Grvt
 		Resources.emplace(Import.Name, Id);
 
 		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
-		Texture->Alloc(Import);
+		
+		uint8* Data = nullptr;
 
 		stbi_set_flip_vertically_on_load(true);
-		Texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+		Data = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
 		
-		Middleware::PackageTextureForBuild(Texture);
+		Texture->Data.Push(Gfl::Move(Data));
 
-		return Texture;
-	}
-
-
-	GrvtTexture* ResourceManager::NewImportTexture(const TextureImportInfo& Import, BaseAPI::TextureBuildData& BuildData)
-	{
-		if (Import.Path.Length() != 1)
-		{
-			return nullptr;
-		}
-
-		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Import.Name, Id);
-
-		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
-		Texture->Alloc(Import);
-
-		stbi_set_flip_vertically_on_load(true);
-		Texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
-		
-		BuildData.DataPtr	= Texture->DataPtr;
-		BuildData.Height	= Texture->Height;
-		BuildData.Width		= Texture->Width;
-
-		Middleware::PackageCustomTextureForBuild(Texture, BuildData);
-
-		return Texture;
-	}
-
-
-	GrvtTexture* ResourceManager::NewCustomTexture(const TextureImportInfo& Info, void* TextureData, BaseAPI::TextureBuildData& BuildData)
-	{
-		size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Info.Name, id);
-
-		GrvtTexture* texture = g_TextureManager.NewResource(id, Info.Name);
-		texture->Alloc(Info);
-		texture->DataPtr = (uint8*)TextureData;
-		g_TextureManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
-
-		Middleware::PackageCustomTextureForBuild(texture, BuildData);
-
-		return texture;
-	}
-
-
-	GrvtTexture* ResourceManager::NewImportCubemap(const TextureImportInfo& Import)
-	{
-		if (Import.Path.Length() < 6)
-		{
-			return nullptr;
-		}
-
-		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Import.Name, Id);
-
-		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
-		Texture->Alloc(Import);
-
-		for (size_t i = 0; i < Import.Path.Length(); i++)
-		{
-			Texture->CubemapPtr[i] = (uint8*)stbi_load(Import.Path[i].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
-		}
-		g_TextureManager.Store[Id].Type = GrvtResourceAlloc_Type_Import;
-
-		Middleware::PackageCubemapForBuild(Texture);
+		GfxInterface->PackageTextureForBuild(*Texture);
 
 		return Texture;
 	}
@@ -313,13 +253,16 @@ namespace Grvt
 	{
 		if (!Safe)
 		{
-			size_t id = Resources[Identifier];
-			return g_TextureManager.Store[id].ResourcePtr;
+			size_t Id = Resources[Identifier];
+			return g_TextureManager.Store[Id].ResourcePtr;
 		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
+		auto It = Resources.find(Identifier);
+
+		if (It != Resources.end())
+		{
 			return g_TextureManager.Store[Resources[Identifier]].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -328,11 +271,16 @@ namespace Grvt
 	GrvtTexture* ResourceManager::GetTexture(size_t Id, bool Safe)
 	{
 		if (!Safe)
+		{
 			return g_TextureManager.Store[Id].ResourcePtr;
+		}
 
-		auto it = g_TextureManager.Store.find(Id);
-		if (it != g_TextureManager.Store.end())
+		auto It = g_TextureManager.Store.find(Id);
+
+		if (It != g_TextureManager.Store.end())
+		{
 			return g_TextureManager.Store[Id].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -341,11 +289,16 @@ namespace Grvt
 	EngineResource<GrvtTexture>* ResourceManager::GetTextureHandle(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
+		{
 			return &g_TextureManager.Store[Resources[Identifier]];
+		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
+		auto It = Resources.find(Identifier);
+
+		if (It != Resources.end())
+		{
 			return &g_TextureManager.Store[Resources[Identifier]];
+		}
 
 		return nullptr;
 	}
@@ -354,27 +307,19 @@ namespace Grvt
 	bool ResourceManager::DeleteTexture(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtTexture>* Handle = GetTextureHandle(Identifier);
+
 		if (!Handle)
+		{
 			return false;
+		}
 
 		if (!Force && Handle->RefCount)
+		{
 			return false;
-
-		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Texture);
-		Handle->ResourcePtr->Free();
-
-		if (Handle->ResourcePtr->Type == GrvtTexture_Type_Cubemap)
-		{
-			for (size_t i = 0; i < 6; i++)
-			{
-				free(Handle->ResourcePtr->CubemapPtr[i]);
-			}
-		}
-		else
-		{
-			free(Handle->ResourcePtr->DataPtr);
 		}
 
+		GfxInterface->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), HandleType::Handle_Texture);
+		
 		g_TextureManager.DeleteResource(Resources[Identifier]);
 
 		if (Remove)
@@ -389,8 +334,11 @@ namespace Grvt
 	bool ResourceManager::DeleteTexture(size_t Id, bool Force, bool Remove)
 	{
 		GrvtTexture* Texture = GetTexture(Id);
+
 		if (!Texture)
+		{
 			return false;
+		}
 
 		return DeleteTexture(g_TextureManager.Store[Id].Name, Force);
 	}
@@ -398,42 +346,40 @@ namespace Grvt
 
 	GrvtShader* ResourceManager::NewShaderProgram(const ShaderImportInfo& Import)
 	{
-		// To accommodate shader graphs in the future, there is no method to check if the files used are the same.
+		size_t Id = GenerateResourceId<GrvtShader>(GrvtResource_Type_Shader);
+		Resources.emplace(Import.Name, Id);
 
-		// We do however need to check if more than one type of shader component is provided.
-		bool imported = false;
-		ShaderComponent comp = GrvtShader_SourceType_None;
-		for (ShaderProps& prop : Import.Properties)
+		GrvtShader* Shader = g_ShaderManager.NewResource(Id, Import.Name);
+
+		// TODO(Afiq):
+		// We'll need to load the shaders from text.
+		OpenFile(Shader->VertexShader,	 Import.PathToVertexShader.C_Str());
+		OpenFile(Shader->FragmentShader, Import.PathToFragmentShader.C_Str());
+
+		if (Import.PathToGeometryShader.Length())
 		{
-			if (comp == prop.Component)
-				return nullptr;
-
-			comp = prop.Component;
-			imported = (prop.Path.Length()) ? true : false;
+			OpenFile(Shader->GeometryShader, Import.PathToGeometryShader.C_Str());
 		}
 
-		// Create the resource id.
-		size_t id = GenerateResourceId<GrvtShader>(GrvtResource_Type_Shader);
-		Resources.emplace(Import.Name, id);
+		GfxInterface->PackageShaderForBuild(*Shader);
 
-		GrvtShader* shader = g_ShaderManager.NewResource(id, Import.Name);
-		shader->Alloc(Import);
-
-		g_ShaderManager.Store[id].Type = (imported) ? GrvtResourceAlloc_Type_Import : GrvtResourceAlloc_Type_Custom;
-		Middleware::PackageShaderForBuild(shader);
-
-		return shader;
+		return Shader;
 	}
 
 
 	GrvtShader* ResourceManager::GetShader(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
+		{
 			return g_ShaderManager.Store[Resources[Identifier]].ResourcePtr;
+		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
+		auto It = Resources.find(Identifier);
+
+		if (It != Resources.end())
+		{
 			return g_ShaderManager.Store[Resources[Identifier]].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -442,11 +388,16 @@ namespace Grvt
 	GrvtShader* ResourceManager::GetShader(size_t Id, bool Safe)
 	{
 		if (!Safe)
+		{
 			return g_ShaderManager.Store[Id].ResourcePtr;
+		}
 
-		auto it = g_ShaderManager.Store.find(Id);
-		if (it != g_ShaderManager.Store.end())
+		auto It = g_ShaderManager.Store.find(Id);
+
+		if (It != g_ShaderManager.Store.end())
+		{
 			return g_ShaderManager.Store[Id].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -455,11 +406,16 @@ namespace Grvt
 	EngineResource<GrvtShader>* ResourceManager::GetShaderHandle(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
+		{
 			return &g_ShaderManager.Store[Resources[Identifier]];
+		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
+		auto It = Resources.find(Identifier);
+
+		if (It != Resources.end())
+		{
 			return &g_ShaderManager.Store[Resources[Identifier]];
+		}
 
 		return nullptr;
 	}
@@ -469,14 +425,16 @@ namespace Grvt
 	{
 		EngineResource<GrvtShader>* Handle = GetShaderHandle(Identifier);
 		if (!Handle)
+		{
 			return false;
+		}
 
 		if (!Force && Handle->RefCount)
+		{
 			return false;
+		}
 
-		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Shader);
-		Handle->ResourcePtr->Free();
-
+		GfxInterface->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), HandleType::Handle_Shader);
 		g_ShaderManager.DeleteResource(Resources[Identifier]);
 
 		if (Remove)
@@ -490,9 +448,12 @@ namespace Grvt
 
 	bool ResourceManager::DeleteShader(size_t Id, bool Force, bool Remove)
 	{
-		GrvtShader* shader = GetShader(Id);
-		if (!shader)
+		GrvtShader* Shader = GetShader(Id);
+		
+		if (!Shader)
+		{
 			return false;
+		}
 
 		return DeleteShader(g_ShaderManager.Store[Id].Name.C_Str(), Force);
 	}
@@ -500,14 +461,13 @@ namespace Grvt
 
 	GrvtMaterial* ResourceManager::NewMaterial(const MaterialCreationInfo& Info)
 	{
-		size_t id = GenerateResourceId<GrvtMaterial>(GrvtResource_Type_Material);
-		Resources.insert({Info.Name, id});
+		size_t Id = GenerateResourceId<GrvtMaterial>(GrvtResource_Type_Material);
+		Resources.insert({Info.Name, Id});
 
-		GrvtMaterial* material = g_MaterialManager.NewResource(id, Info.Name);
-		material->Alloc(Info);
-		g_MaterialManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
+		GrvtMaterial* Material = g_MaterialManager.NewResource(Id, Info.Name);
+		Material->Alloc(Info);
 
-		// Increase the shader  ref count by 1.
+		// Increase the shader ref count by 1.
 		for (auto& It : g_ShaderManager.Store)
 		{
 			if (Info.Shader != It.second.ResourcePtr)
@@ -522,16 +482,16 @@ namespace Grvt
 		// Increase the textures used ref counts by 1.
 		for (auto& It : g_TextureManager.Store)
 		{
-			for (TexturePair& pair : Info.Textures)
+			for (TexturePair& Pair : Info.Textures)
 			{
-				if (pair.Value == &It.second.ResourcePtr->Handle)
+				if (Pair.Value == &It.second.ResourcePtr->Handle)
 				{
 					It.second.RefCount++;
 				}
 			}
 		}
 
-		return material;
+		return Material;
 	}
 
 
@@ -604,100 +564,6 @@ namespace Grvt
 	}
 
 
-	/*GrvtFramebuffer* ResourceManager::NewFramebuffer(const FramebufferCreationInfo& Info)
-	{
-		size_t id = GenerateResourceId<GrvtFramebuffer>(GrvtResource_Type_Framebuffer);
-		Resources.emplace(Info.Name, id);
-
-		GrvtFramebuffer* framebuffer = g_FramebufferManager.NewResource(id, Info.Name);
-		framebuffer->Alloc(Info);
-
-		g_FramebufferManager.Store[id].Type = GrvtResourceAlloc_Type_Custom;
-
-		// Send the framebuffer to the GPU for it to be created in the context.
-		Middleware::PackageFramebufferForBuild(framebuffer);
-
-		return framebuffer;
-	}
-
-
-	GrvtFramebuffer* ResourceManager::GetFramebuffer(const Gfl::String& Identifier, bool Safe)
-	{
-		if (!Safe)
-			return g_FramebufferManager.Store[Resources[Identifier]].ResourcePtr;
-
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
-			return g_FramebufferManager.Store[Resources[Identifier]].ResourcePtr;
-
-		return nullptr;
-	}
-
-
-	GrvtFramebuffer* ResourceManager::GetFramebuffer(size_t Id, bool Safe)
-	{
-		if (!Safe)
-			return g_FramebufferManager.Store[Id].ResourcePtr;
-
-		auto it = g_FramebufferManager.Store.find(Id);
-		if (it != g_FramebufferManager.Store.end())
-			return g_FramebufferManager.Store[Id].ResourcePtr;
-
-		return nullptr;
-	}
-
-
-	EngineResource<GrvtFramebuffer>* ResourceManager::GetFramebufferHandle(const Gfl::String& Identifier, bool Safe)
-	{
-		if (!Safe)
-			return &g_FramebufferManager.Store[Resources[Identifier]];
-
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
-			return &g_FramebufferManager.Store[Resources[Identifier]];
-
-		return nullptr;
-	}
-
-
-	bool ResourceManager::DeleteFramebuffer(const Gfl::String& Identifier, bool Force, bool Remove)
-	{
-		EngineResource<GrvtFramebuffer>* Handle = GetFramebufferHandle(Identifier);
-		if (!Handle)
-			return false;
-
-		if (!Force && g_FramebufferManager.Store[Resources[Identifier]].RefCount)
-			return false;
-
-		for (GrvtFramebuffer::Attachment& Attachment : Handle->ResourcePtr->Attachments)
-		{
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Attachment.Handle), Middleware::GrvtGfx_Type_Texture);
-		}
-
-		Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Handle->ResourcePtr->Handle), Middleware::GrvtGfx_Type_Framebuffer);
-
-		Handle->ResourcePtr->Free();
-		g_FramebufferManager.DeleteResource(Resources[Identifier]);
-
-		if (Remove)
-		{
-			Resources.erase(Identifier);
-		}
-
-		return true;
-	}
-
-
-	bool ResourceManager::DeleteFramebuffer(size_t Id, bool Force, bool Remove)
-	{
-		GrvtFramebuffer* Framebuffer = GetFramebuffer(Id);
-		if (!Framebuffer)
-			return false;
-
-		return DeleteFramebuffer(g_FramebufferManager.Store[Id].Name, Force);
-	}*/
-
-
 	GrvtScene* ResourceManager::NewScene(const SceneCreationInfo& Info)
 	{
 		size_t Id = GenerateResourceId<GrvtScene>(GrvtResource_Type_Scene);
@@ -705,8 +571,6 @@ namespace Grvt
 
 		GrvtScene* Scene = g_SceneManager.NewResource(Id, Info.Name);
 		Scene->Alloc(Info);
-
-		g_SceneManager.Store[Id].Type = GrvtResourceAlloc_Type_Custom;
 
 		return Scene;
 	}
@@ -719,9 +583,9 @@ namespace Grvt
 			return g_SceneManager.Store[Resources[Identifier]].ResourcePtr;
 		}
 
-		auto it = Resources.find(Identifier);
+		auto It = Resources.find(Identifier);
 
-		if (it != Resources.end())
+		if (It != Resources.end())
 		{
 			return g_SceneManager.Store[Resources[Identifier]].ResourcePtr;
 		}
@@ -737,9 +601,9 @@ namespace Grvt
 			return g_SceneManager.Store[Id].ResourcePtr;
 		}
 
-		auto it = g_SceneManager.Store.find(Id);
+		auto It = g_SceneManager.Store.find(Id);
 
-		if (it != g_SceneManager.Store.end())
+		if (It != g_SceneManager.Store.end())
 		{
 			return g_SceneManager.Store[Id].ResourcePtr;
 		}
@@ -755,9 +619,9 @@ namespace Grvt
 			return &g_SceneManager.Store[Resources[Identifier]];
 		}
 
-		auto it = Resources.find(Identifier);
+		auto It = Resources.find(Identifier);
 
-		if (it != Resources.end())
+		if (It != Resources.end())
 		{
 			return &g_SceneManager.Store[Resources[Identifier]];
 		}
@@ -769,6 +633,7 @@ namespace Grvt
 	bool ResourceManager::DeleteScene(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtScene>* Handle = GetSceneHandle(Identifier);
+
 		if (!Handle)
 		{
 			return false;
@@ -794,6 +659,7 @@ namespace Grvt
 	bool ResourceManager::DeleteScene(size_t Id, bool Force, bool Remove)
 	{
 		GrvtScene* Scene = GetScene(Id);
+
 		if (!Scene)
 		{
 			return false;
@@ -826,7 +692,9 @@ namespace Grvt
 	void FreeResourceManager()
 	{
 		if (!g_ResourceManager)
+		{
 			return;
+		}
 
 		g_ResourceManager->Free();
 

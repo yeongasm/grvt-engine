@@ -1,5 +1,5 @@
 #include "GrvtPch.h"
-#include "Framework/Abstraction/Material.h"
+#include "Framework/Material.h"
 
 
 namespace Grvt
@@ -53,15 +53,15 @@ namespace Grvt
 		return *this;
 	}
 
-	void GrvtMaterial::Alloc(GrvtShader* ShaderPtr)
+	void GrvtMaterial::Alloc(const MaterialCreationInfo& Info)
 	{
-		Shader = ShaderPtr;
+		Shader	 = Info.Shader;
+		Textures = Info.Textures;
 
 		for (UniformAttr& Uniform : Shader->Uniforms)
 		{
 			Uniforms.emplace(Uniform.Name, UniformAttr());
 		}
-
 	}
 
 

@@ -1,9 +1,8 @@
 #include "GrvtPch.h"
 #include "Include/Renderer/PostProcess.h"
-#include "Include/Framework/Foundation/Interface.h"
-#include "Include/Manager/Manager.h"
 
-#include "Include/Framework/DefaultShaders/PostProcessing.h"
+#include "API/Graphics/GraphicsInterface.h"
+#include "Include/Manager/Manager.h"
 
 namespace Grvt
 {

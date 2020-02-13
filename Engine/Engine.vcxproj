@@ -215,6 +215,8 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\API\Graphics\GraphicsDriver.cpp" />
+    <ClCompile Include="Source\API\Graphics\GraphicsInterface.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -239,33 +241,33 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     </ClCompile>
     <ClCompile Include="Source\Core\ModelDefaults.cpp" />
     <ClCompile Include="Source\Core\ReloadModule.cpp" />
-    <ClCompile Include="Source\Framework\Abstraction\Actor.cpp" />
-    <ClCompile Include="Source\Framework\Abstraction\Lighting.cpp">
+    <ClCompile Include="Source\Framework\Actor.cpp" />
+    <ClCompile Include="Source\Framework\Lighting.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Abstraction\Material.cpp">
+    <ClCompile Include="Source\Framework\Material.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Abstraction\Model.cpp">
+    <ClCompile Include="Source\Framework\Model.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Abstraction\Scene.cpp" />
-    <ClCompile Include="Source\Framework\Abstraction\Shader.cpp">
+    <ClCompile Include="Source\Framework\Scene.cpp" />
+    <ClCompile Include="Source\Framework\Shader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Abstraction\Texture.cpp">
+    <ClCompile Include="Source\Framework\Texture.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
@@ -295,9 +297,6 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Framework\Foundation\Foundations.cpp" />
-    <ClCompile Include="Source\Framework\Foundation\Interface.cpp" />
-    <ClCompile Include="Source\Framework\Foundation\LowLevelAPI.cpp" />
     <ClCompile Include="Source\IO\InputHandler.cpp" />
     <ClCompile Include="Source\IO\IO.cpp" />
     <ClCompile Include="Source\Library\GrvtAlgorithms.cpp">
@@ -385,6 +384,7 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Renderer\RenderService.cpp" />
     <ClCompile Include="Source\Utility\Utility.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -422,24 +422,23 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GrvtPch.h" />
+    <ClInclude Include="Include\API\Graphics\GraphicsDriver.h" />
+    <ClInclude Include="Include\API\Graphics\GraphicsInterface.h" />
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\Core\Application.h" />
     <ClInclude Include="Include\Core\Engine.h" />
     <ClInclude Include="Include\Core\ModelDefaults.h" />
     <ClInclude Include="Include\Core\ReloadModule.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Actor.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Lighting.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Material.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Model.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Scene.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Shader.h" />
-    <ClInclude Include="Include\Framework\Abstraction\Texture.h" />
+    <ClInclude Include="Include\Framework\Actor.h" />
+    <ClInclude Include="Include\Framework\Lighting.h" />
+    <ClInclude Include="Include\Framework\Material.h" />
+    <ClInclude Include="Include\Framework\Model.h" />
+    <ClInclude Include="Include\Framework\Scene.h" />
+    <ClInclude Include="Include\Framework\Shader.h" />
+    <ClInclude Include="Include\Framework\Texture.h" />
     <ClInclude Include="Include\Framework\DefaultShaders\GBuffer.h" />
     <ClInclude Include="Include\Framework\DefaultShaders\PostProcessing.h" />
     <ClInclude Include="Include\Framework\DefaultShaders\SimpleDebug.h" />
-    <ClInclude Include="Include\Framework\Foundation\Foundations.h" />
-    <ClInclude Include="Include\Framework\Foundation\Interface.h" />
-    <ClInclude Include="Include\Framework\Foundation\LowLevelAPI.h" />
     <ClInclude Include="Include\IO\InputHandler.h" />
     <ClInclude Include="Include\IO\IO.h" />
     <ClInclude Include="Include\Library\GrvtAlgorithms.h" />
@@ -458,6 +457,7 @@ xcopy "$(SolutionDir)\Data" "$(SolutionDir)bin\$(Configuration)_$(PlatformTarget
     <ClInclude Include="Include\Renderer\RenderCache.h" />
     <ClInclude Include="Include\Renderer\Renderer.h" />
     <ClInclude Include="Include\Renderer\RenderFoundation.h" />
+    <ClInclude Include="Include\Renderer\RenderService.h" />
     <ClInclude Include="Include\Systems\BaseSystem.h" />
     <ClInclude Include="Include\Thirdparty\stb\stb_image.h" />
     <ClInclude Include="Include\Utility\Utility.h" />

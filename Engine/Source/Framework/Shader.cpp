@@ -1,5 +1,5 @@
 #include "GrvtPch.h"
-#include "Framework/Abstraction/Shader.h"
+#include "Framework/Shader.h"
 
 
 namespace Grvt

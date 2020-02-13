@@ -3,14 +3,15 @@
 #ifndef GRAVITY_RESOURCE_MANAGER
 #define GRAVITY_RESOURCE_MANAGER
 
-#include <unordered_map>
-#include "Framework/Abstraction/Scene.h"
-#include "Framework/Abstraction/Model.h"
-#include "Framework/Abstraction/Shader.h"
-#include "Framework/Abstraction/Texture.h"
-#include "Framework/Abstraction/Material.h"
-#include "Framework/Abstraction/Framebuffer.h"
-#include "Framework/Foundation/LowLevelAPI.h"
+#include "Minimal.h"
+#include "API/Graphics/GraphicsDriver.h"
+#include "API/Graphics/GraphicsInterface.h"
+
+#include "Framework/Scene.h"
+#include "Framework/Model.h"
+#include "Framework/Shader.h"
+#include "Framework/Texture.h"
+#include "Framework/Material.h"
 
 namespace Grvt
 {
@@ -92,11 +93,11 @@ namespace Grvt
 
 			Resource.Name = Name;
 			Resource.ResourcePtr = new Type();
-			Store.emplace(Id, resource);
+			Store.emplace(Id, Resource);
 			
 			Total++;
 
-			return resource.ResourcePtr;
+			return Resource.ResourcePtr;
 		}
 
 		/**
@@ -108,7 +109,6 @@ namespace Grvt
 			EngineResource<Type>& Resource = Store[Id];
 
 			Resource.Name.Release();
-			Resource.Path.Release();
 
 			delete Resource.ResourcePtr;
 			Resource.ResourcePtr = nullptr;
@@ -133,6 +133,7 @@ namespace Grvt
 		using ResourceManagerMap = std::unordered_map<Gfl::HashString, size_t, Gfl::MurmurHash<Gfl::String>>;
 
 		ResourceManagerMap Resources;
+		GraphicsInterface* GfxInterface;
 
 		template <typename T>
 		size_t GenerateResourceId(ResourceType Type)
@@ -212,23 +213,25 @@ namespace Grvt
 
 		/**
 		* Import a new texture into the engine.
+		* Uses generic texture generation parameters.
 		*/
-		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Info);
+		ENGINE_API GrvtTexture* NewImportTexture(const TextureCreationInfo& Info);
 
 		/**
-		* Import a new texture into the engine but manually specifying it's build data.
+		* Creates a new texture into the engine and manually specifying it's build data.
 		*/
-		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Info, BaseAPI::TextureBuildData& BuildData);
-
-		/**
-		* Create a custom texture and store it into the engine.
-		*/
-		ENGINE_API GrvtTexture* NewCustomTexture(const TextureImportInfo& Info, void* TextureData, BaseAPI::TextureBuildData& BuildData);
+		ENGINE_API GrvtTexture* NewCustomTexture(const TextureCreationInfo& Info, const Driver::TextureBuildData& BuildData);
 
 		/**
 		* Import a new cubemap into the engine.
+		* Uses generic cubemap generation parameters.
 		*/
-		ENGINE_API GrvtTexture* NewImportCubemap(const TextureImportInfo& Info);
+		ENGINE_API GrvtTexture* NewImportCubemap(const TextureCreationInfo& Info);
+
+		/*
+		* Creates a new cubemap into the engine and manually specifying it's build data. 
+		*/
+		ENGINE_API GrvtTexture* NewCustomCubemap(const TextureCreationInfo& Info, const Driver::TextureBuildData& BuildData);
 
 		/**
 		* Retrieves the texture specified by the identifier.
@@ -302,7 +305,7 @@ namespace Grvt
 		/**
 		* Creates a new material and stores it in the engine.
 		*/
-		ENGINE_API GrvtMaterial* NewMaterial(GrvtShader* ShaderSrc);
+		ENGINE_API GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
 
 		/**
 		* Retrieves the material specified by the identifier from the engine.
@@ -333,44 +336,6 @@ namespace Grvt
 		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
 		*/
 		ENGINE_API bool DeleteMaterial(size_t Id, bool Force = false, bool Remove = true);
-
-		/**
-		* Creates a new framebuffer and stores it in the engine.
-		* Resource is also allocated on the GPU.
-		*/
-		//ENGINE_API GrvtFramebuffer* NewFramebuffer(const FramebufferCreationInfo& Info);
-
-		/**
-		* Retrieves the framebuffer specified by the identifier from the engine.
-		* Safe mode will check if the resource with such identifier exist and only return if it does.
-		*/
-		//ENGINE_API GrvtFramebuffer* GetFramebuffer(const Gfl::String& Identifier, bool Safe = true);
-
-		/**
-		* Retrieves the framebuffer specified by the id from the engine.
-		* Safe mode will check if the resource with such identifier exist and only return if it does.
-		*/
-		//ENGINE_API GrvtFramebuffer* GetFramebuffer(size_t Id, bool Safe = true);
-
-		/**
-		* Retrieve's the post processing's handler.
-		* Safe mode will check if the specified identifier provided exists and only return if it does.
-		*/
-		//ENGINE_API EngineResource<GrvtFramebuffer>* GetFramebufferHandle(const Gfl::String& Identifier, bool Safe = true);
-
-		/**
-		* Deletes a framebuffer with the specified identifier.
-		* Deletes the object from the GPU as well.
-		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
-		*/
-		//ENGINE_API bool DeleteFramebuffer(const Gfl::String& Identifier, bool Force = false, bool Remove = true);
-
-		/**
-		* Deletes a framebuffer with the specified id.
-		* Deletes the object from the GPU as well.
-		* Force when enabled will ignore all resources referencing this one and proceeds to delete the object.
-		*/
-		//ENGINE_API bool DeleteFramebuffer(size_t Id, bool Force = false, bool Remove = true);
 
 		/**
 		* Creates a new scene into the engine.
@@ -407,12 +372,6 @@ namespace Grvt
 		*/
 		ENGINE_API bool DeleteScene(size_t Id, bool Force = false, bool Remove = true);
 	};
-
-
-	ResourceManager* InitialiseResourceManager();
-	void			 FreeResourceManager();
-
-	ENGINE_API ResourceManager* GetResourceManager();
 
 }
 

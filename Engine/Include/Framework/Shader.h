@@ -4,7 +4,7 @@
 #define GRAVITY_ABSTRACTION_SHADER
 
 #include "Minimal.h"
-#include "Framework/Foundation/Foundations.h"
+#include "API/Graphics/GraphicsDriver.h"
 
 namespace Grvt
 {
@@ -90,11 +90,25 @@ namespace Grvt
 	};
 
 
-	struct GrvtShader 
+	class GrvtShader 
 	{
+	private:
+
+		GrvtShader(const GrvtShader& Rhs)				= delete;
+		GrvtShader& operator= (const GrvtShader& Rhs)	= delete;
+
+		GrvtShader(GrvtShader&& Rhs)				= delete;
+		GrvtShader& operator= (GrvtShader&& Rhs)	= delete;
+
+	public:
+
+		Gfl::String VertexShader;
+		Gfl::String GeometryShader;
+		Gfl::String FragmentShader;
+
 		Gfl::Array<VertexAttr>	Attributes;
 		Gfl::Array<UniformAttr> Uniforms;
-		ObjHandle				Handle;
+		GfxHandle				Handle;
 	};
 
 }
