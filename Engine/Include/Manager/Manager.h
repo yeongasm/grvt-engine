@@ -24,20 +24,8 @@ namespace Grvt
 		GrvtResource_Type_Texture		= 0x01,
 		GrvtResource_Type_Shader		= 0x02,
 		GrvtResource_Type_Material		= 0x03,
-		//GrvtResource_Type_Framebuffer	= 0x04,
-		GrvtResource_Type_Scene			= 0x05,
+		GrvtResource_Type_Scene			= 0x04,
 		GrvtResource_Max
-	};
-
-
-	/**
-	* Specifies how a resource has been allocated.
-	*/
-	enum GrvtAllocType : uint32
-	{
-		GrvtResourceAlloc_Type_None		= 0xFF,		/** On first init only */
-		GrvtResourceAlloc_Type_Import	= 0x00,
-		GrvtResourceAlloc_Type_Custom	= 0x01
 	};
 
 
@@ -48,12 +36,10 @@ namespace Grvt
 	{
 		Type*			ResourcePtr;
 		Gfl::String		Name;
-		Gfl::String		Path;
 		uint32			RefCount;
-		GrvtAllocType	Type;
 
 		EngineResource() :
-			ResourcePtr(nullptr), Name(), Path(), RefCount(0), Type(GrvtResourceAlloc_Type_None) {}
+			ResourcePtr(nullptr), Name(), RefCount(0) {}
 
 		~EngineResource() {}
 	};
@@ -93,9 +79,6 @@ namespace Grvt
 		*/
 		void Free()
 		{
-			//for (auto& It : Store)
-			//	DeleteResource(It.first, false);
-
 			Store.clear();
 		}
 
@@ -105,11 +88,12 @@ namespace Grvt
 		*/
 		Type* NewResource(size_t Id, const Gfl::String& Name)
 		{
-			EngineResource<Type> resource;
+			EngineResource<Type> Resource;
 
-			resource.Name = Name;
-			resource.ResourcePtr = new Type();
+			Resource.Name = Name;
+			Resource.ResourcePtr = new Type();
 			Store.emplace(Id, resource);
+			
 			Total++;
 
 			return resource.ResourcePtr;
@@ -121,13 +105,13 @@ namespace Grvt
 		*/
 		bool DeleteResource(size_t Id)
 		{
-			EngineResource<Type>& resource = Store[Id];
+			EngineResource<Type>& Resource = Store[Id];
 
-			resource.Name.Release();
-			resource.Path.Release();
+			Resource.Name.Release();
+			Resource.Path.Release();
 
-			delete resource.ResourcePtr;
-			resource.ResourcePtr = nullptr;
+			delete Resource.ResourcePtr;
+			Resource.ResourcePtr = nullptr;
 			
 			Store.erase(Id);
 
@@ -157,15 +141,11 @@ namespace Grvt
 			return (Type << (sizeof(size_t) * 8 - 4)) | id++;
 		}
 
-		/**
-		* Checks if a model with the specified path already exist in the engine.
-		*/
-		bool CheckIfModelExist(const Gfl::String& Path);
-
-		/**
-		* Checks if a texture with the specified path already exist in the engine.
-		*/
-		bool CheckIfTextureExist(const Gfl::String& Path);
+		ResourceHandle<GrvtModel>		g_ModelManager;
+		ResourceHandle<GrvtTexture>		g_TextureManager;
+		ResourceHandle<GrvtShader>		g_ShaderManager;
+		ResourceHandle<GrvtMaterial>	g_MaterialManager;
+		ResourceHandle<GrvtScene>		g_SceneManager;
 
 	public:
 
@@ -190,7 +170,7 @@ namespace Grvt
 		/**
 		* Import a new model into the engine.
 		*/
-		ENGINE_API GrvtModel* NewImportModel(const ModelImportInfo& Import);
+		ENGINE_API GrvtModel* NewImportModel(const ModelImportInfo& Info);
 
 		/**
 		* Creates a new model into the engine.
@@ -233,12 +213,12 @@ namespace Grvt
 		/**
 		* Import a new texture into the engine.
 		*/
-		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Import);
+		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Info);
 
 		/**
 		* Import a new texture into the engine but manually specifying it's build data.
 		*/
-		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Import, BaseAPI::TextureBuildData& BuildData);
+		ENGINE_API GrvtTexture* NewImportTexture(const TextureImportInfo& Info, BaseAPI::TextureBuildData& BuildData);
 
 		/**
 		* Create a custom texture and store it into the engine.
@@ -248,7 +228,7 @@ namespace Grvt
 		/**
 		* Import a new cubemap into the engine.
 		*/
-		ENGINE_API GrvtTexture* NewImportCubemap(const TextureImportInfo& Import);
+		ENGINE_API GrvtTexture* NewImportCubemap(const TextureImportInfo& Info);
 
 		/**
 		* Retrieves the texture specified by the identifier.
@@ -285,7 +265,7 @@ namespace Grvt
 		/**
 		* Creates a new shader and stores it into the engine.
 		*/
-		ENGINE_API GrvtShader* NewShaderProgram(const ShaderImportInfo& Import);
+		ENGINE_API GrvtShader* NewShaderProgram(const ShaderImportInfo& Info);
 
 		/**
 		* Retrieves the shader specified by the identifier from the engine.
@@ -322,7 +302,7 @@ namespace Grvt
 		/**
 		* Creates a new material and stores it in the engine.
 		*/
-		ENGINE_API GrvtMaterial* NewMaterial(const MaterialCreationInfo& Info);
+		ENGINE_API GrvtMaterial* NewMaterial(GrvtShader* ShaderSrc);
 
 		/**
 		* Retrieves the material specified by the identifier from the engine.

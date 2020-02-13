@@ -5,57 +5,12 @@
 namespace Grvt
 {
 
-	ShaderProps::ShaderProps() : Code(), Path(), Component(GrvtShader_SourceType_None) {}
-
-
-	ShaderProps::~ShaderProps() {}
-
-
-	ShaderProps::ShaderProps(const Gfl::String& Code, ShaderComponent Component) :
-		Code(Code), Path(), Component(Component) {}
-
-
-	ShaderProps::ShaderProps(const Gfl::String& Code, const Gfl::String& Path, ShaderComponent Component) :
-		Code(Code), Path(Path), Component(Component) {}
-
-
-	ShaderImportInfo::ShaderImportInfo() :
-		Properties(), Name() {}
-
-
-	ShaderImportInfo::~ShaderImportInfo() {}
-
-
-	ShaderProps& ShaderImportInfo::AddShaderToProgram(const Gfl::String& SourceCode, ShaderComponent Component)
-	{
-		return Properties.Insert(ShaderProps(SourceCode, Component));
-	}
-
-
-	ShaderProps& ShaderImportInfo::AddShaderToProgram(const Gfl::String& SourceCode, const Gfl::String& PathToFile, ShaderComponent Component)
-	{
-		return Properties.Insert(ShaderProps(SourceCode, PathToFile, Component));
-	}
-
-
-	void ShaderImportInfo::PopShaderProperty(ShaderProps& Property)
-	{
-		size_t idx = Properties.IndexOf(Property);
-		Properties.PopAt(idx);
-	}
-
 
 	VertexAttr::VertexAttr() :
-		Name(), Type(GrvtShader_AttrType_None), SubType(GrvtShader_AttrSubType_None), Location(-1), Size(0) {}
+		Name(), Type(Shader_Type_None), SubType(Shader_SubType_None), Location(-1), Size(0) {}
 
 
 	VertexAttr::~VertexAttr() {}
-
-
-	UniformAttr::UniformAttr() : VertexAttr() {}
-
-
-	UniformAttr::~UniformAttr() {}
 
 
 	//void ShaderObj::DeleteShader(const std::initializer_list<uint32> &IDs) {
@@ -141,57 +96,6 @@ namespace Grvt
 	//		break;
 	//	}
 	//}
-
-	GrvtShader::GrvtShader() :
-		Properties(), Uniforms(), Handle() {}
-
-
-	GrvtShader::~GrvtShader() {}
-
-
-	void GrvtShader::Alloc(const ShaderImportInfo& Import)
-	{
-		Properties = Import.Properties;
-	}
-
-
-	void GrvtShader::Free()
-	{
-		Properties.Release();
-		Uniforms.Release();
-	}
-
-	
-	size_t GrvtShader::FindUniformIdx(const Gfl::String& Identifier)
-	{
-		for (UniformAttr& Uniform : Uniforms)
-		{
-			if (Uniform.Name != Identifier)
-			{
-				continue;
-			}
-
-			return Uniforms.IndexOf(Uniform);
-		}
-
-		return -1;
-	}
-
-
-	UniformAttr* GrvtShader::FindUniformPtr(const Gfl::String& Identifier)
-	{
-		for (UniformAttr& Uniform : Uniforms)
-		{
-			if (Uniform.Name != Identifier)
-			{
-				continue;
-			}
-
-			return &Uniform;
-		}
-
-		return nullptr;
-	}
 
 
 	//void ShaderObj::RetrieveAttributes(ShaderAttr *Buff) {

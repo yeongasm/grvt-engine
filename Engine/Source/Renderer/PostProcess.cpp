@@ -15,7 +15,7 @@ namespace Grvt
 		HDRShader(nullptr),
 		VerticalBlurKernel(nullptr),
 		HorizontalBlurKernel(nullptr),
-		BloomIteration(10),
+		BloomIteration(9),
 		Exposure(2.5f),
 		Gamma(0.5f),
 		Bloom(true),
@@ -119,7 +119,7 @@ namespace Grvt
 
 			BaseAPI::FramebufferBuildData Blur;
 
-			Blur.Width = RendererPtr->Width;
+			Blur.Width  = RendererPtr->Width;
 			Blur.Height = RendererPtr->Height;
 
 			BaseAPI::TextureBuildData TexInfo;

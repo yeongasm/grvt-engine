@@ -1,5 +1,6 @@
 #include "GrvtPch.h"
-#include "Framework/Foundation/Foundations.h"
+#include "Framework/Foundation/Interface.h"
+#include "Framework/DefaultShaders/GBuffer.h"
 #include "Framework/DefaultShaders/ShadowMaps.h"
 #include "Framework/DefaultShaders/SimpleDebug.h"
 #include "Renderer/DeferredPBR.h"
@@ -22,12 +23,65 @@ namespace Grvt
 		ScreenQuad(nullptr),
 		DepthPassShader(nullptr),
 		OmniDepthPassShader(nullptr),
-		SimpleDepthDebug(nullptr),
+		GBufferPass(nullptr),
 		ProjectionViewUBO(),
 		LightUBO() {}
 
 	
 	DeferredPBR::~DeferredPBR() {}
+
+
+	void DeferredPBR::InitialiseGBuffer()
+	{
+		ShaderImportInfo ShaderInfo;
+
+		ShaderInfo.Name = "GBufferShader";
+		ShaderInfo.AddShaderToProgram(GBufferShader::VertexShader, GrvtShader_SourceType_Vertex);
+		ShaderInfo.AddShaderToProgram(GBufferShader::FragmentShader, GrvtShader_SourceType_Fragment);
+
+		GBufferPass = GetResourceManager()->NewShaderProgram(ShaderInfo);
+
+		BaseAPI::FramebufferBuildData Data;
+
+		Data.Width  = Width;
+		Data.Height = Height;
+
+		Gfl::Pair<uint32, ObjHandle>& PositionBuffer = GBuffer.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+		Gfl::Pair<uint32, ObjHandle>& NormalBuffer = GBuffer.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+		Gfl::Pair<uint32, ObjHandle>& AlbedoBuffer = GBuffer.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+		
+		Gfl::Pair<uint32, ObjHandle>& DepthStencilBuffer = GBuffer.DepthStencilAttachment;
+
+		PositionBuffer.Key = GrvtFramebuffer_Attachment_Colour;
+		NormalBuffer.Key = GrvtFramebuffer_Attachment_Colour;
+		AlbedoBuffer.Key = GrvtFramebuffer_Attachment_Colour;
+
+		DepthStencilBuffer.Key = GrvtFramebuffer_Attachment_DepthStencil;
+
+		BaseAPI::TextureBuildData TexData;
+		TexData.Type = GL_FLOAT;
+		TexData.Format = GL_RGB16F;
+		TexData.InternalFormat = GL_RGB;
+		TexData.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
+		TexData.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
+
+		Data.Attachments.Push(BaseAPI::TextureAttachment(&PositionBuffer.Value, GL_COLOR_ATTACHMENT0, TexData));
+		Data.Attachments.Push(BaseAPI::TextureAttachment(&NormalBuffer.Value, GL_COLOR_ATTACHMENT1, TexData));
+
+		TexData.Type = GL_UNSIGNED_BYTE;
+		TexData.Format = GL_RGBA;
+		TexData.InternalFormat = GL_RGBA;
+
+		Data.Attachments.Push(BaseAPI::TextureAttachment(&AlbedoBuffer.Value, GL_COLOR_ATTACHMENT2, TexData));
+
+		TexData.Type = GL_FLOAT;
+		TexData.Format = GL_DEPTH_STENCIL;
+		TexData.InternalFormat = GL_DEPTH_STENCIL;
+
+		Data.Attachments.Push(BaseAPI::TextureAttachment(&DepthStencilBuffer.Value, GL_DEPTH_STENCIL_ATTACHMENT, TexData));
+
+		Middleware::GetBuildQueue()->QueueFramebufferForBuild(&GBuffer.Handle, Data);
+	}
 
 
 	void DeferredPBR::UpdateMaterial(GrvtMaterial* SourceMaterial)
@@ -105,13 +159,13 @@ namespace Grvt
 			StateCache.SetPolygonMode(Command->State.PolygonFace, Command->State.PolygonMode);
 		}
 
-		for (TexturePair& Pair : Material->Textures)
+		/*for (TexturePair& Pair : Material->Textures)
 		{
 			glActiveTexture(GL_TEXTURE0 + Pair.Key);
 			BaseAPI::GrBindTexture(*Pair.Value);
-		}
+		}*/
 
-		if (FrontBuffer.DepthMap)
+		/*if (FrontBuffer.DepthMap)
 		{
 			glActiveTexture(GL_TEXTURE0 + GrvtTexture_Type_ShadowMap);
 			BaseAPI::GrBindTexture(FrontBuffer.DepthMap->DepthAttachment.Value);
@@ -121,7 +175,7 @@ namespace Grvt
 		{
 			glActiveTexture(GL_TEXTURE0 + GrvtTexture_Type_OmniShadowMap + (uint32)i);
 			BaseAPI::GrBindTexture(FrontBuffer.OmniDepthMaps[i]->DepthAttachment.Value);
-		}
+		}*/
 
 		UpdateMaterial(Material);
 		
@@ -272,14 +326,16 @@ namespace Grvt
 			OmniDepthPassShader = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
 		}
 
-		{
+		/*{
 			ShaderImportInfo SInfo;
 			SInfo.Name = "DebugDepthMap";
 			SInfo.AddShaderToProgram(SimpleDebugShader::VertexShader, GrvtShader_SourceType_Vertex);
 			SInfo.AddShaderToProgram(SimpleDebugShader::FragmentShader, GrvtShader_SourceType_Fragment);
 
 			SimpleDepthDebug = Grvt::GetResourceManager()->NewShaderProgram(SInfo);
-		}
+		}*/
+
+		InitialiseGBuffer();
 
 		// Initialise post processing effects.
 		//PostProcess.Init(this);
@@ -377,6 +433,7 @@ UpdateGlobalUBOs:
 			SortCommand(InstancedCommands, SortedInstancedCommands);
 
 		// Render scene from directional light's perspective.
+		/*
 		if (FrontBuffer.DepthMap)
 		{
 			if (!FrontBuffer.DepthMap->Handle.Id)
@@ -398,11 +455,42 @@ UpdateGlobalUBOs:
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.DepthMap->Handle);
 			BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 		}
+		*/
 
-SkipDirectionalLightingPass:
+//SkipDirectionalLightingPass:
+
+		if (ActiveShader != GBufferPass)
+			ActiveShader = GBufferPass;
+
+		BaseAPI::GrBindShaderProgram(ActiveShader->Handle);
+		BaseAPI::GrBindFramebuffer(GBuffer.Handle);
+
+		StateCache.SetAlphaBlend(CacheState_None, CacheState_None);
+		StateCache.SetDepthFunc(DepthFunc_Less);
+		StateCache.SetCullFace(CullFace_Back, FrontFace_CCW);
+		StateCache.SetPolygonMode(PolygonFace_Front_And_Back, PolygonMode_Fill);
+
+		RenderCommand* Command = nullptr;
+
+		for (size_t Index : UnsortedCommands)
+		{
+			Command = &RenderCommands[Index];
+
+			RenderPushedCommand(Command, true);
+		}
+
+		for (size_t Index : SortedCommands)
+		{
+			Command = &RenderCommands[Index];
+
+			RenderPushedCommand(Command, true);
+		}
+
+		BaseAPI::GrUnbindFramebuffer(GBuffer.Handle);
+		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 
 		// TODO(Afiq): We have to figure out a better method than this. Perhaps point lights and it's light space transform should be coupled.
-
+		/*
 		if (ActiveShader != OmniDepthPassShader)
 			ActiveShader = OmniDepthPassShader;
 
@@ -429,7 +517,8 @@ SkipDirectionalLightingPass:
 
 			BaseAPI::GrUnbindFramebuffer(FrontBuffer.OmniDepthMaps[i]->Handle);
 		}
-
+		*/
+		/*
 		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
 		BaseAPI::GrBindFramebuffer(PostProcess.HDR.Handle);
 
@@ -492,9 +581,13 @@ SkipDirectionalLightingPass:
 		BaseAPI::GrUnbindFramebuffer(PostProcess.HDR.Handle);
 
 		// Execute Bloom Kernel ----------------------------------------------------------------
+		// TODO(Afiq):
+		// Once deferred, ssao and pbr is done, revisit bloom and implement it similar to how EARenderer does it.
 
 		bool Horizontal = true;
-		uint32 BloomTexture = PostProcess.HDR.ColourAttachments[1].Value.Id;
+		ObjHandle* BloomTexture = &PostProcess.HDR.ColourAttachments[1].Value;
+
+		ActiveShader = PostProcess.HorizontalBlurKernel;
 
 		for (uint32 i = 0; i < PostProcess.BloomIteration; i++)
 		{
@@ -513,17 +606,18 @@ SkipDirectionalLightingPass:
 			BaseAPI::Shader::GrShaderSetInt(0, 0);
 			
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, BloomTexture);
+			glBindTexture(GL_TEXTURE_2D, BloomTexture->Id);
+			glGenerateMipmap(BloomTexture->Target);
 
 			RenderScreenQuad();
 
 			if (Horizontal)
 			{
-				BloomTexture = PostProcess.BloomTarget0.ColourAttachments[0].Value.Id;
+				BloomTexture = &PostProcess.BloomTarget0.ColourAttachments[0].Value;
 			}
 			else
 			{
-				BloomTexture = PostProcess.BloomTarget1.ColourAttachments[0].Value.Id;
+				BloomTexture = &PostProcess.BloomTarget1.ColourAttachments[0].Value;
 			}
 
 			Horizontal ^= true;
@@ -553,7 +647,7 @@ SkipDirectionalLightingPass:
 		RenderScreenQuad();
 
 		BaseAPI::GrUnbindShaderProgram(ActiveShader->Handle);
-
+		*/
 		// -------------------------------------------------------------------------------------
 
 		UnsortedCommands.Empty();

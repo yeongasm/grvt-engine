@@ -6,42 +6,7 @@
 namespace Grvt
 {
 
-	ResourceHandle<GrvtModel>		g_ModelManager;
-	ResourceHandle<GrvtTexture>		g_TextureManager;
-	ResourceHandle<GrvtShader>		g_ShaderManager;
-	//ResourceHandle<GrvtFramebuffer>	g_FramebufferManager;
-	ResourceHandle<GrvtMaterial>	g_MaterialManager;
-	ResourceHandle<GrvtScene>		g_SceneManager;
-
 	ResourceManager* g_ResourceManager = nullptr;
-
-
-	bool ResourceManager::CheckIfModelExist(const Gfl::String& Path)
-	{
-		for (auto& It : g_ModelManager.Store)
-		{
-			if (It.second.Path == Path)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-
-	bool ResourceManager::CheckIfTextureExist(const Gfl::String& Path)
-	{
-		for (auto& It : g_TextureManager.Store)
-		{
-			if (It.second.Path == Path)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
 
 
 	ResourceManager::ResourceManager() :
@@ -60,7 +25,6 @@ namespace Grvt
 		g_TextureManager.Alloc(Reserve);
 		g_ShaderManager.Alloc(Reserve);
 		g_MaterialManager.Alloc(Reserve);
-		//g_FramebufferManager.Alloc(Reserve);
 		g_SceneManager.Alloc(Reserve);
 	}
 
@@ -87,9 +51,6 @@ namespace Grvt
 			case GrvtResource_Type_Material:
 				DeleteMaterial(It.first, true, false);
 				break;
-			//case GrvtResource_Type_Framebuffer:
-			//	DeleteFramebuffer(It.first, true, false);
-			//	break;
 			case GrvtResource_Type_Scene:
 				DeleteScene(It.first, true, false);
 				break;
@@ -104,7 +65,6 @@ namespace Grvt
 		g_TextureManager.Free();
 		g_ShaderManager.Free();
 		g_MaterialManager.Free();
-		//g_FramebufferManager.Free();
 	}
 
 
@@ -121,22 +81,15 @@ namespace Grvt
 
 	GrvtModel* ResourceManager::NewImportModel(const ModelImportInfo& Import)
 	{
-		if (CheckIfModelExist(Import.Path))
-		{
-			return GetModel(Import.Name.C_Str());
-		}
-
 		size_t Id = GenerateResourceId<GrvtModel>(GrvtResource_Type_Model);
 		Resources.emplace(Import.Name, Id);
 
 		GrvtModel* Model = g_ModelManager.NewResource(Id, Import.Name);
 		Model->Alloc(Import);
 
-		g_ModelManager.Store[Id].Type = GrvtResourceAlloc_Type_Import;
-
+		
 		if (Import.Path.Length())
 		{
-			g_ModelManager.Store[Id].Path = Import.Path;
 			AssimpImportModelFromPath(Import.Path, Model);
 		}
 
@@ -157,9 +110,6 @@ namespace Grvt
 		GrvtModel* Model = g_ModelManager.NewResource(Id, Info.Name);
 		Model->Alloc(Info);
 
-		g_ModelManager.Store[Id].Type = GrvtResourceAlloc_Type_Custom;
-
-		// Future proofing to allow a more robust custom model creation.
 		for (GrvtMesh& Mesh : Model->Meshes)
 		{
 			Middleware::PackageMeshForBuild(&Mesh);
@@ -173,13 +123,16 @@ namespace Grvt
 	{
 		if (!Safe)
 		{
-			size_t id = Resources[Identifier];
-			return g_ModelManager.Store[id].ResourcePtr;
+			size_t Id = Resources[Identifier];
+			return g_ModelManager.Store[Id].ResourcePtr;
 		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
-			return g_ModelManager.Store[it->second].ResourcePtr;
+		auto It = Resources.find(Identifier);
+		
+		if (It != Resources.end())
+		{
+			return g_ModelManager.Store[It->second].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -188,11 +141,16 @@ namespace Grvt
 	GrvtModel* ResourceManager::GetModel(size_t Id, bool Safe)
 	{
 		if (!Safe)
+		{
 			g_ModelManager.Store[Id].ResourcePtr;
+		}
 
-		auto it = g_ModelManager.Store.find(Id);
-		if (it != g_ModelManager.Store.end())
+		auto It = g_ModelManager.Store.find(Id);
+		
+		if (It != g_ModelManager.Store.end())
+		{
 			return g_ModelManager.Store[Id].ResourcePtr;
+		}
 
 		return nullptr;
 	}
@@ -201,11 +159,16 @@ namespace Grvt
 	EngineResource<GrvtModel>* ResourceManager::GetModelHandle(const Gfl::String& Identifier, bool Safe)
 	{
 		if (!Safe)
+		{
 			return &g_ModelManager.Store[Resources[Identifier]];
+		}
 
-		auto it = Resources.find(Identifier);
-		if (it != Resources.end())
+		auto It = Resources.find(Identifier);
+		
+		if (It != Resources.end())
+		{
 			return &g_ModelManager.Store[Resources[Identifier]];
+		}
 
 		return nullptr;
 	}
@@ -214,11 +177,16 @@ namespace Grvt
 	bool ResourceManager::DeleteModel(const Gfl::String& Identifier, bool Force, bool Remove)
 	{
 		EngineResource<GrvtModel>* Handle = GetModelHandle(Identifier);
+
 		if (!Handle)
+		{
 			return false;
+		}
 
 		if (!Force && Handle->RefCount)
+		{
 			return false;
+		}
 
 		for (GrvtMesh& Mesh : Handle->ResourcePtr->Meshes)
 		{
@@ -241,9 +209,12 @@ namespace Grvt
 
 	bool ResourceManager::DeleteModel(size_t Id, bool Force, bool Remove)
 	{
-		GrvtModel* model = GetModel(Id);
-		if (!model)
+		GrvtModel* Model = GetModel(Id);
+		
+		if (!Model)
+		{
 			return false;
+		}
 
 		return DeleteModel(g_ModelManager.Store[Id].Name, Force);
 	}
@@ -252,52 +223,48 @@ namespace Grvt
 	GrvtTexture* ResourceManager::NewImportTexture(const TextureImportInfo& Import)
 	{
 		if (Import.Path.Length() != 1)
+		{
 			return nullptr;
+		}
 
-		if (CheckIfTextureExist(Import.Path[0]))
-			return nullptr;
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Import.Name, Id);
 
-		size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Import.Name, id);
-
-		GrvtTexture* texture = g_TextureManager.NewResource(id, Import.Name);
-		texture->Alloc(Import);
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
+		Texture->Alloc(Import);
 
 		stbi_set_flip_vertically_on_load(true);
-		texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &texture->Width, &texture->Height, &texture->Channel, 0);
-		g_TextureManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
+		Texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+		
+		Middleware::PackageTextureForBuild(Texture);
 
-		Middleware::PackageTextureForBuild(texture);
-
-		return texture;
+		return Texture;
 	}
 
 
 	GrvtTexture* ResourceManager::NewImportTexture(const TextureImportInfo& Import, BaseAPI::TextureBuildData& BuildData)
 	{
 		if (Import.Path.Length() != 1)
+		{
 			return nullptr;
+		}
 
-		if (CheckIfTextureExist(Import.Path[0]))
-			return nullptr;
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Import.Name, Id);
 
-		size_t id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Import.Name, id);
-
-		GrvtTexture* texture = g_TextureManager.NewResource(id, Import.Name);
-		texture->Alloc(Import);
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
+		Texture->Alloc(Import);
 
 		stbi_set_flip_vertically_on_load(true);
-		texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &texture->Width, &texture->Height, &texture->Channel, 0);
-		g_TextureManager.Store[id].Type = GrvtResourceAlloc_Type_Import;
+		Texture->DataPtr = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+		
+		BuildData.DataPtr	= Texture->DataPtr;
+		BuildData.Height	= Texture->Height;
+		BuildData.Width		= Texture->Width;
 
-		BuildData.DataPtr	= texture->DataPtr;
-		BuildData.Height	= texture->Height;
-		BuildData.Width		= texture->Width;
+		Middleware::PackageCustomTextureForBuild(Texture, BuildData);
 
-		Middleware::PackageCustomTextureForBuild(texture, BuildData);
-
-		return texture;
+		return Texture;
 	}
 
 

@@ -9,55 +9,12 @@
 namespace Grvt
 {
 
-	/**
-	* Revamp Status: Completed!
-	*/
-
-
-	enum ShaderComponent : uint32 
+	struct ShaderImportInfo
 	{
-		GrvtShader_SourceType_None = 0xFF, /** On first init only */
-		GrvtShader_SourceType_Vertex = 0x01,
-		GrvtShader_SourceType_Fragment = 0x02,
-		GrvtShader_SourceType_Geometry = 0x03
-	};
-
-
-	/**
-	* ShaderProps object.
-	* Stores information about a specific type of shader.
-	*/
-	struct ShaderProps 
-	{
-
-		Gfl::String			Code;
-		Gfl::String			Path;
-		ShaderComponent	Component;
-
-		ShaderProps();
-		~ShaderProps();
-
-		ShaderProps(const Gfl::String& Code, ShaderComponent Component);
-		ShaderProps(const Gfl::String& Code, const Gfl::String& Path, ShaderComponent Component);
-
-	};
-
-
-	/**
-	*/
-	struct ShaderImportInfo 
-	{
-
-		Gfl::Array<ShaderProps>	Properties;
-		Gfl::String				Name;
-
-		ENGINE_API ShaderImportInfo();
-		ENGINE_API ~ShaderImportInfo();
-
-		ENGINE_API ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, ShaderComponent Component);
-		ENGINE_API ShaderProps& AddShaderToProgram(const Gfl::String& SourceCode, const Gfl::String& PathToFile, ShaderComponent Component);
-
-		void PopShaderProperty(ShaderProps&);
+		Gfl::String Name;
+		Gfl::String PathToVertexShader;
+		Gfl::String PathToGeometryShader;
+		Gfl::String PathToFragmentShader;
 	};
 
 
@@ -65,13 +22,13 @@ namespace Grvt
 	*/
 	enum AttrType : uint32 
 	{
-		GrvtShader_AttrType_None = 0xFF, /** On first init only */
-		GrvtShader_AttrType_Boolean = 0x01,
-		GrvtShader_AttrType_Integer = 0x02,
-		GrvtShader_AttrType_Float = 0x03,
-		GrvtShader_AttrType_Sampler = 0x04,
-		GrvtShader_AttrType_Vector = 0x05,
-		GrvtShader_AttrType_Matrix = 0x06
+		Shader_Type_None = 0xFF, /** On first init only */
+		Shader_Type_Boolean = 0x01,
+		Shader_Type_Integer = 0x02,
+		Shader_Type_Float = 0x03,
+		Shader_Type_Sampler = 0x04,
+		Shader_Type_Vector = 0x05,
+		Shader_Type_Matrix = 0x06
 	};
 
 
@@ -79,17 +36,17 @@ namespace Grvt
 	*/
 	enum AttrSubType : uint32 
 	{
-		GrvtShader_AttrSubType_None = 0xFF, /** On first init only */
-		GrvtShader_AttrSubType_Sampler1D = 0x01,
-		GrvtShader_AttrSubType_Sampler2D = 0x02,
-		GrvtShader_AttrSubType_Sampler3D = 0x03,
-		GrvtShader_AttrSubType_SamplerCube = 0x04,
-		GrvtShader_AttrSubType_Vector2 = 0x05,
-		GrvtShader_AttrSubType_Vector3 = 0x06,
-		GrvtShader_AttrSubType_Vector4 = 0x07,
-		GrvtShader_AttrSubType_Matrix2 = 0x08,
-		GrvtShader_AttrSubType_Matrix3 = 0x09,
-		GrvtShader_AttrSubType_Matrix4 = 0x0A
+		Shader_SubType_None = 0xFF, /** On first init only */
+		Shader_SubType_Sampler1D = 0x01,
+		Shader_SubType_Sampler2D = 0x02,
+		Shader_SubType_Sampler3D = 0x03,
+		Shader_SubType_SamplerCube = 0x04,
+		Shader_SubType_Vector2 = 0x05,
+		Shader_SubType_Vector3 = 0x06,
+		Shader_SubType_Vector4 = 0x07,
+		Shader_SubType_Matrix2 = 0x08,
+		Shader_SubType_Matrix3 = 0x09,
+		Shader_SubType_Matrix4 = 0x0A
 	};
 
 
@@ -100,25 +57,19 @@ namespace Grvt
 	*/
 	struct VertexAttr 
 	{
-
 		Gfl::String		Name;
 		uint32			Type;
 		uint32			SubType;
 		uint32			Location;
 		int32			Size;
-
-		VertexAttr();
-		~VertexAttr();
-
 	};
 
 
-	/**
-	*/
-	struct UniformAttr : public VertexAttr 
-	{
-	private:
+	using UniformAttr = VertexAttr;
 
+
+	struct UniformValue
+	{
 		union {
 			bool		Boolean;
 			int			Integer;
@@ -131,66 +82,19 @@ namespace Grvt
 			glm::mat4	Mat4 = glm::mat4(0.0f);
 		};
 
-	public:
+		//template <class T>
+		//inline T Cast() const { return *((T*)&Boolean); }
 
-		UniformAttr();
-		~UniformAttr();
-
-		/**
-		* Retrieve the value of the uniform by specifying it's type from the Shader.
-		*/
-		template <class T>
-		inline T Cast() const {
-			return *((T*)&Boolean);
-		}
-
-		/**
-		* Updates the value of the specified uniform.
-		*/
-		template <class T>
-		bool UpdateValue(const T& Value) {
-			if (Cast<T>() == Value)
-				return false;
-
-			*((T*)&Boolean) = Value;
-
-			return true;
-		}
-
+		template <typename T>
+		inline void SetValue(const T& Value) { *((T*)&Boolean) = Value; }
 	};
 
 
-	/**
-	* Revamped GrvtShader object.
-	*
-	* A layer of abstraction is removed to let GrvtShader object itself contain all information.
-	* Shaders in Gravity can be imported or custom made.
-	*/
-	class GrvtShader 
+	struct GrvtShader 
 	{
-	public:
-
-		Gfl::Array<UniformAttr>	Uniforms;
-		Gfl::Array<ShaderProps>	Properties;
+		Gfl::Array<VertexAttr>	Attributes;
+		Gfl::Array<UniformAttr> Uniforms;
 		ObjHandle				Handle;
-
-		GrvtShader();
-		~GrvtShader();
-
-		void Alloc(const ShaderImportInfo& Import);
-		void Free();
-		
-		size_t			FindUniformIdx	(const Gfl::String& Identifier);
-		UniformAttr*	FindUniformPtr	(const Gfl::String& Identifier);
-
-	private:
-
-		GrvtShader(const GrvtShader& Rhs) = delete;
-		GrvtShader& operator= (const GrvtShader& Rhs) = delete;
-
-		GrvtShader(GrvtShader&& Rhs) = delete;
-		GrvtShader& operator= (GrvtShader&& Rhs) = delete;
-
 	};
 
 }

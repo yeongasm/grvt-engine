@@ -15,6 +15,8 @@ namespace Grvt
 
 		PostProcessing	PostProcess;
 
+		RenderTarget	GBuffer;
+
 		/**
 		* Stores the index of the draw calls.
 		*/
@@ -28,10 +30,16 @@ namespace Grvt
 		GrvtModel*	ScreenQuad;
 		GrvtShader* DepthPassShader;
 		GrvtShader* OmniDepthPassShader;
-		GrvtShader* SimpleDepthDebug;
+		
+		GrvtShader* GBufferPass;
 
 		ObjHandle	ProjectionViewUBO;
 		ObjHandle	LightUBO;
+
+		/**
+		* Initialises deferred pipeline's g-buffer.
+		*/
+		void InitialiseGBuffer();
 
 		/**
 		* Updates the materials inside the render command.
