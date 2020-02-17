@@ -15,7 +15,7 @@ namespace Grvt
 	ResourceManager::~ResourceManager() {}
 
 
-	void ResourceManager::Alloc(size_t Reserve)
+	void ResourceManager::Alloc(size_t Reserve, GraphicsInterface* Interface)
 	{
 		// The main handler needs to allocate 5 times more than a manager of a single type of asset.
 		Resources.reserve(Reserve * GrvtResource_Max);
@@ -25,6 +25,8 @@ namespace Grvt
 		g_ShaderManager.Alloc(Reserve);
 		g_MaterialManager.Alloc(Reserve);
 		g_SceneManager.Alloc(Reserve);
+
+		GfxInterface = Interface;
 	}
 
 

@@ -6,12 +6,12 @@ namespace Grvt
 {
 
 	RenderContext::RenderContext() :
-		Engine(nullptr), GlDriver(nullptr), GlInterface(nullptr), GlRenderer(nullptr) {}
+		Engine(nullptr), GlDriver(nullptr), GlInterface(), GlRenderer(nullptr) {}
 
 
 	RenderContext::~RenderContext() {}
 
-	
+
 	void RenderContext::Execute(GrvtEngine* EnginePtr, GLADloadproc LoadProcFunc)
 	{
 		Engine = EnginePtr;

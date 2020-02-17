@@ -21,7 +21,7 @@ namespace Grvt
 		using EngineSystems = Gfl::Array<BaseSystem*>;
 
 		EngineIO			IO;
-		RenderContext*		RenderCtx;
+		RenderContext*		GraphicsCtx;
 		ReloadModule		Module;
 
 		EngineSystems		Systems;
@@ -33,6 +33,8 @@ namespace Grvt
 
 		float32				DeltaTime;
 
+		int32				PosX;
+		int32				PosY;
 		int32				Width;
 		int32				Height;
 

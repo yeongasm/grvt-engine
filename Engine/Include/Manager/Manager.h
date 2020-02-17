@@ -156,7 +156,7 @@ namespace Grvt
 		/**
 		* Reserve the amount of spaces for each type of asset.
 		*/
-		void Alloc(size_t Reserve);
+		void Alloc(size_t Reserve, GraphicsInterface* Interface);
 
 		/**
 		* Releases all resources from the handler.

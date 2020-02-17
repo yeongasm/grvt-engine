@@ -48,10 +48,6 @@ namespace Grvt
 	void ExecuteEngine()
 	{
 		EngineIO* Io = g_Engine->GetIO();
-
-		RenderContext*	RenderCtx	= g_Engine->RenderCtx;
-		Renderer*		Renderer	= RenderCtx->GlRenderer;
-
 		
 		while (g_Engine->Running())
 		{
@@ -66,12 +62,12 @@ namespace Grvt
 			* In a single threaded program, this scenario would never happen.
 			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
 			*/
-			if (g_ActiveScene && Renderer->BackBuffer.IsEmpty)
-			{
-				g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
-			}
-
-			g_Renderer->Render();
+			//if (g_ActiveScene && Renderer->BackBuffer.IsEmpty)
+			//{
+			//	g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
+			//}
+			//
+			//g_Renderer->Render();
 
 			g_Engine->EndFrame();
 		}
@@ -133,9 +129,15 @@ namespace Grvt
 
 	GrvtEngine::GrvtEngine() :
 		IO(),
+		GraphicsCtx(nullptr),
+		Module(),
+		Systems(),
 		Name(),
+		ResourceMgrPtr(nullptr),
 		Window(nullptr),
 		DeltaTime(0.0f),
+		PosX(0),
+		PosY(0),
 		Width(0),
 		Height(0),
 		VersionMajor(0),
@@ -172,9 +174,20 @@ namespace Grvt
 
 		//glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+		GraphicsCtx		= new RenderContext();
+		ResourceMgrPtr	= new ResourceManager();
+
+		GraphicsCtx->Execute(this, (GLADloadproc)glfwGetProcAddress);
+
+		// Put main thread to sleep when multi-threading is enabled to enable graphics
+		// Sleep(10);
+
+		ResourceMgrPtr->Alloc(64, &GraphicsCtx->GlInterface);
+		
 		// NOTE(Afiq):
 		// The engine shouldn't really contain default models.
 		// Let the module import the models on StartUp.
+
 		ModelImportInfo Info;
 
 		{
@@ -223,7 +236,6 @@ namespace Grvt
 		Module.DllTempFile	= "DemoReload.dll";
 
 		Module.LoadModuleDll(true);
-
 	}
 
 
@@ -231,7 +243,6 @@ namespace Grvt
 	{
 		glfwDestroyWindow(Window);
 		glfwTerminate();
-
 	}
 
 
@@ -348,19 +359,19 @@ namespace Grvt
 		// Not feeling too good about this.
 		// By default, the renderer should always start rendering from the window's position.
 		// If the renderer position requires to be specific, it can be assigned inside of the module.
-		glfwGetWindowPos(Window, (int32*)&g_Renderer->PosX, (int32*)&g_Renderer->PosY);
+		glfwGetWindowPos(Window, &PosX, &PosY);
 
 		// The renderer's Width and Height will get updated every frame.
 		// If the renderer's width and height require to be customised, the new width and height can be assigned inside of the modile.
-		if (g_Renderer->Width != Width)
-		{
-			g_Renderer->Width = Width;
-		}
-
-		if (g_Renderer->Height != Height)
-		{
-			g_Renderer->Height	= Height;
-		}
+		//if (g_Renderer->Width != Width)
+		//{
+		//	g_Renderer->Width = Width;
+		//}
+		//
+		//if (g_Renderer->Height != Height)
+		//{
+		//	g_Renderer->Height	= Height;
+		//}
 
 //#if _DEBUG
 
