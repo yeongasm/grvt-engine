@@ -2,46 +2,54 @@
 #include "Renderer/Renderer.h"
 
 
-Grvt::BaseRenderer* g_Renderer = nullptr;
-
-
 namespace Grvt
 {
 
-	BaseRenderer::BaseRenderer() :
+	Renderer::Renderer() :
+		UnsortedCommands(),
+		UnsortedInstancedCommands(),
+		SortedCommands(),
+		SortedInstancedCommands(),
+		MaterialLib(),
+		PostProcess(),
+		GBuffer(),
+		StateCache(),
 		BackBuffer(),
 		FrontBuffer(),
-		StateCache(),
 		ActiveShader(nullptr),
+		ScreenQuad(nullptr),
+		ProjectionViewUBO(),
 		PosX(0),
 		PosY(0),
 		Width(0),
 		Height(0) {}
 
 
-	BaseRenderer* InitRenderer(BaseRenderer* RendererPtr)
+	Renderer::~Renderer() {}
+
+
+	void Renderer::Init()
 	{
-		if (g_Renderer)
-		{
-			return g_Renderer;
-		}
 
-		g_Renderer = RendererPtr;
-		g_Renderer->Init();
+	}
 
-		return g_Renderer;
+	
+	void Renderer::Shutdown()
+	{
+
 	}
 
 
-	BaseRenderer* GetRenderer()
+	void Renderer::Render(const GraphicsDriver* GlDriver)
 	{
-		return g_Renderer;
+
 	}
 
 
-	void ShutdownRenderer()
+	void Renderer::CreateRenderCommandBuffer(GrvtScene* ActiveScene)
 	{
-		g_Renderer->Shutdown();	
-		delete g_Renderer;
+
 	}
+
+
 }

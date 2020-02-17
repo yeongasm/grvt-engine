@@ -3,9 +3,11 @@
 #ifndef GRAVITY_BASE_RENDERER
 #define GRAVITY_BASE_RENDERER
 
+#include "API/Graphics/GraphicsDriver.h"
 #include "RenderFoundation.h"
 #include "RenderCache.h"
 
+#include "MaterialLibrary.h"
 #include "PostProcess.h"
 
 #include "Framework/Scene.h"
@@ -26,14 +28,23 @@ namespace Grvt
 		friend struct	CommandBuffer;
 		friend class	GrvtScene;
 
+		Gfl::Array<size_t> UnsortedCommands;
+		Gfl::Array<size_t> UnsortedInstancedCommands;
+		Gfl::Array<size_t> SortedCommands;
+		Gfl::Array<size_t> SortedInstancedCommands;
+
+		MaterialLibrary	MaterialLib;
+		PostProcessing	PostProcess;
+		RenderTarget	GBuffer;
+		RenderCache		StateCache;
+
 		CommandBuffer	BackBuffer;
 		CommandBuffer	FrontBuffer;
 
-		RenderCache		StateCache;
-
 		GrvtShader*		ActiveShader;
-		GrvtMesh*		NDCPlane;
+		GrvtMesh*		ScreenQuad;
 
+		GfxHandle		ProjectionViewUBO;
 
 	public:
 
@@ -48,8 +59,11 @@ namespace Grvt
 		~Renderer();
 
 		void Init();
-		void Render();
 		void Shutdown();
+
+		void Render(const GraphicsDriver* GlDriver);
+
+		void CreateRenderCommandBuffer(GrvtScene* ActiveScene);
 	};
 
 }

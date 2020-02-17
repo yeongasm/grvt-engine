@@ -223,6 +223,11 @@ namespace Grvt
 		ENGINE_API GrvtTexture* NewCustomTexture(const TextureCreationInfo& Info, const Driver::TextureBuildData& BuildData);
 
 		/**
+		* Creates a new custom texture into the engine and manually specifying it's build data.
+		*/
+		ENGINE_API GrvtTexture* NewCustomTexture(const Gfl::String Name, void* SrcData, const Driver::TextureBuildData& BuildData);
+
+		/**
 		* Import a new cubemap into the engine.
 		* Uses generic cubemap generation parameters.
 		*/

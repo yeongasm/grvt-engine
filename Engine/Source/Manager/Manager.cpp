@@ -224,26 +224,122 @@ namespace Grvt
 	}
 
 
-	GrvtTexture* ResourceManager::NewImportTexture(const TextureCreationInfo& Import)
+	GrvtTexture* ResourceManager::NewImportTexture(const TextureCreationInfo& Info)
 	{
-		if (Import.Path.Length() != 1)
+		if (Info.Path.Length() != 1)
 		{
 			return nullptr;
 		}
 
 		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
-		Resources.emplace(Import.Name, Id);
+		Resources.emplace(Info.Name, Id);
 
-		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Import.Name);
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Info.Name);
 		
 		uint8* Data = nullptr;
 
 		stbi_set_flip_vertically_on_load(true);
-		Data = (uint8*)stbi_load(Import.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+		Data = (uint8*)stbi_load(Info.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
 		
 		Texture->Data.Push(Gfl::Move(Data));
 
 		GfxInterface->PackageTextureForBuild(*Texture);
+
+		return Texture;
+	}
+
+
+	GrvtTexture* ResourceManager::NewCustomTexture(const TextureCreationInfo& Info, const Driver::TextureBuildData& BuildData)
+	{
+		if (Info.Path.Length() != 1)
+		{
+			return nullptr;
+		}
+
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Info.Name, Id);
+
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Info.Name);
+
+		uint8* Data = nullptr;
+
+		stbi_set_flip_vertically_on_load(true);
+		Data = (uint8*)stbi_load(Info.Path[0].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+
+		Texture->Data.Push(Gfl::Move(Data));
+
+		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
+
+		return Texture;
+	}
+
+
+	GrvtTexture* ResourceManager::NewCustomTexture(const Gfl::String Name, void* SrcData, const Driver::TextureBuildData& BuildData)
+	{
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Name, Id);
+
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Name);
+
+		Texture->Data.Push(Gfl::Move((uint8*)SrcData));
+
+		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
+
+		return Texture;
+	}
+
+
+	GrvtTexture* ResourceManager::NewImportCubemap(const TextureCreationInfo& Info)
+	{
+		if (Info.Path.Length() != 6)
+		{
+			return nullptr;
+		}
+
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Info.Name, Id);
+
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Info.Name);
+
+		for (size_t i = 0; i < Info.Path.Length(); i++)
+		{
+			uint8* Data = nullptr;
+
+			stbi_set_flip_vertically_on_load(true);
+			Data = (uint8*)stbi_load(Info.Path[i].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+
+			Texture->Data.Push(Gfl::Move(Data));
+		}
+
+		GfxInterface->PackageTextureForBuild(*Texture);
+
+		return Texture;
+	}
+
+	
+	GrvtTexture* ResourceManager::NewCustomCubemap(const TextureCreationInfo& Info, const Driver::TextureBuildData& BuildData)
+	{
+		if (Info.Path.Length() != 6)
+		{
+			return nullptr;
+		}
+
+		size_t Id = GenerateResourceId<GrvtTexture>(GrvtResource_Type_Texture);
+		Resources.emplace(Info.Name, Id);
+
+		GrvtTexture* Texture = g_TextureManager.NewResource(Id, Info.Name);
+
+		for (size_t i = 0; i < Info.Path.Length(); i++)
+		{
+			uint8* Data = nullptr;
+
+			stbi_set_flip_vertically_on_load(true);
+			Data = (uint8*)stbi_load(Info.Path[i].C_Str(), &Texture->Width, &Texture->Height, &Texture->Channel, 0);
+
+			Texture->Data.Push(Gfl::Move(Data));
+		}
+
+		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
 
 		return Texture;
 	}
@@ -666,40 +762,6 @@ namespace Grvt
 		}
 
 		return DeleteScene(g_SceneManager.Store[Id].Name, Force);
-	}
-
-
-	ResourceManager* InitialiseResourceManager()
-	{
-		if (g_ResourceManager)
-		{
-			return g_ResourceManager;
-		}
-
-		g_ResourceManager = new ResourceManager();
-		g_ResourceManager->Alloc(128);
-
-		return g_ResourceManager;
-	}
-
-
-	ResourceManager* GetResourceManager()
-	{
-		return g_ResourceManager;
-	}
-
-
-	void FreeResourceManager()
-	{
-		if (!g_ResourceManager)
-		{
-			return;
-		}
-
-		g_ResourceManager->Free();
-
-		delete g_ResourceManager;
-		g_ResourceManager = nullptr;
 	}
 
 }

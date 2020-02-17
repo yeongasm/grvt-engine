@@ -5,6 +5,7 @@
 
 #include "Minimal.h"
 #include "Core/ReloadModule.h"
+#include "Renderer/RenderContext.h"
 #include "Manager/Manager.h"
 #include "Systems/BaseSystem.h"
 
@@ -15,9 +16,12 @@ namespace Grvt
 	{
 	private:
 		
+		friend struct RenderContext;
+
 		using EngineSystems = Gfl::Array<BaseSystem*>;
 
 		EngineIO			IO;
+		RenderContext*		RenderCtx;
 		ReloadModule		Module;
 
 		EngineSystems		Systems;
@@ -42,6 +46,7 @@ namespace Grvt
 		bool				VSync;
 
 		friend ENGINE_API GrvtEngine*	InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
+		friend ENGINE_API void			ExecuteEngine();
 		friend ENGINE_API void			TerminateEngine();
 
 	private:
@@ -67,6 +72,7 @@ namespace Grvt
 		GrvtEngine& operator= (GrvtEngine&& Other) = delete;
 
 		ENGINE_API EngineIO* GetIO();
+		ENGINE_API Renderer* GetRenderer();
 
 		void NewFrame();
 		void EndFrame();

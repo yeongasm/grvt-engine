@@ -10,8 +10,8 @@
 #include "Renderer/DeferredPBR.h"
 
 
-extern Grvt::GrvtScene* g_ActiveScene;
-extern Grvt::BaseRenderer* g_Renderer;
+extern Grvt::GrvtScene*		g_ActiveScene	= nullptr;
+extern Grvt::GrvtEngine*	g_Engine		= nullptr;
 
 
 namespace Grvt
@@ -49,7 +49,9 @@ namespace Grvt
 	{
 		EngineIO* Io = g_Engine->GetIO();
 
-		g_Engine->InitModule();
+		RenderContext*	RenderCtx	= g_Engine->RenderCtx;
+		Renderer*		Renderer	= RenderCtx->GlRenderer;
+
 		
 		while (g_Engine->Running())
 		{
@@ -64,7 +66,7 @@ namespace Grvt
 			* In a single threaded program, this scenario would never happen.
 			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
 			*/
-			if (g_ActiveScene && g_Renderer->BackBuffer.IsEmpty)
+			if (g_ActiveScene && Renderer->BackBuffer.IsEmpty)
 			{
 				g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
 			}
@@ -74,7 +76,6 @@ namespace Grvt
 			g_Engine->EndFrame();
 		}
 
-		ShutdownRenderer();
 
 		g_Engine->ShutdownSystems();
 		g_Engine->ShutdownModule();
@@ -171,9 +172,6 @@ namespace Grvt
 
 		//glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		Middleware::InitialiseBuildQueue();
-		ResourceMgrPtr = InitialiseResourceManager();
-
 		// NOTE(Afiq):
 		// The engine shouldn't really contain default models.
 		// Let the module import the models on StartUp.
@@ -226,10 +224,6 @@ namespace Grvt
 
 		Module.LoadModuleDll(true);
 
-		g_Renderer = InitRenderer(new DeferredPBR());
-		g_Renderer->Width  = Width;
-		g_Renderer->Height = Height;
-		static_cast<DeferredPBR*>(g_Renderer)->InitialisePostProcessing();
 	}
 
 
@@ -238,8 +232,6 @@ namespace Grvt
 		glfwDestroyWindow(Window);
 		glfwTerminate();
 
-		FreeResourceManager();
-		Middleware::ReleaseBuildQueue();
 	}
 
 
@@ -370,9 +362,6 @@ namespace Grvt
 			g_Renderer->Height	= Height;
 		}
 
-		// Listens for resources to be generated or deleted from the GPU.
-		Middleware::GetBuildQueue()->Listen();
-
 //#if _DEBUG
 
 		FILETIME NewDllLastWrite = Module.WatchFileChange();
@@ -411,6 +400,11 @@ namespace Grvt
 	EngineIO* GrvtEngine::GetIO()
 	{
 		return &IO;
+	}
+
+	Renderer* GrvtEngine::GetRenderer()
+	{
+
 	}
 
 
@@ -534,10 +528,4 @@ namespace Grvt
 
 		Systems.Release();
 	}
-
-
-	//ResourceManager* GrvtEngine::GetResourceManager()
-	//{
-	//	return ResourceMgrPtr;
-	//}
 }
