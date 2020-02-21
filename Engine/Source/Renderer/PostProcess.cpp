@@ -1,8 +1,8 @@
 #include "GrvtPch.h"
-#include "Include/Renderer/PostProcess.h"
+#include "Renderer/PostProcess.h"
 
-#include "API/Graphics/GraphicsInterface.h"
-#include "Include/Manager/Manager.h"
+#include "API/Graphics/GraphicsDriver.h"
+#include "Core/Engine.h"
 
 namespace Grvt
 {
@@ -18,86 +18,86 @@ namespace Grvt
 		Exposure(2.5f),
 		Gamma(0.5f),
 		Bloom(true),
-		RendererPtr(nullptr) {}
+		Renderer(nullptr) {}
 
 
 	PostProcessing::~PostProcessing() {}
 
 	
-	void PostProcessing::InitialiseHDRToneMapping()
+	void PostProcessing::InitialiseHDRToneMapping(GraphicsDriver* GfxDriver)
 	{
 		/**
 		* NOTE(Afiq): Should test and see what happens when using a 4 byte floating point framebuffer.
 		*/
-		ShaderImportInfo HDRShaderInfo;
-		HDRShaderInfo.Name = "HDRShader";
-		HDRShaderInfo.AddShaderToProgram(HDRBloomShader::VertexShader, GrvtShader_SourceType_Vertex);
-		HDRShaderInfo.AddShaderToProgram(HDRBloomShader::FragmentShader, GrvtShader_SourceType_Fragment);
+		ShaderImportInfo ShaderInfo;
+		ShaderInfo.Name = "HDRShader";
+		ShaderInfo.PathToVertexShader	= "";
+		ShaderInfo.PathToFragmentShader = "";
 
-		HDRShader = GetResourceManager()->NewShaderProgram(HDRShaderInfo);
+		HDRShader = GetResourceManager()->NewShaderProgram(ShaderInfo);
 
-		Gfl::Pair<uint32, ObjHandle>& ColourAttachment0 = HDR.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
-		Gfl::Pair<uint32, ObjHandle>& ColourAttachment1 = HDR.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+		Gfl::Pair<uint32, GfxHandle>& ColourAttachment0 = HDR.ColourAttachments.Insert(Gfl::Pair<uint32, GfxHandle>());
+		Gfl::Pair<uint32, GfxHandle>& ColourAttachment1 = HDR.ColourAttachments.Insert(Gfl::Pair<uint32, GfxHandle>());
 		
 		ColourAttachment0.Key = RenderTarget_AttachPoint_Colour;
 		ColourAttachment1.Key = RenderTarget_AttachPoint_Colour;
 
 		// HDR ...
-		BaseAPI::FramebufferBuildData HdrInfo;
+		Driver::FramebufferBuildData HdrInfo;
 
-		HdrInfo.Width  = RendererPtr->Width;
-		HdrInfo.Height = RendererPtr->Height;
+		HdrInfo.Width  = Renderer->Width;
+		HdrInfo.Height = Renderer->Height;
 
-		BaseAPI::TextureBuildData HdrTexInfo;
+		Driver::TextureBuildData HdrTexInfo;
 		HdrTexInfo.Format = GL_RGBA;
 		HdrTexInfo.InternalFormat = GL_RGBA16F;
 		HdrTexInfo.Type = GL_FLOAT;
 		HdrTexInfo.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
 		HdrTexInfo.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
 
-		HdrInfo.Attachments.Push(BaseAPI::TextureAttachment(&ColourAttachment0.Value, GL_COLOR_ATTACHMENT0, HdrTexInfo));
-		HdrInfo.Attachments.Push(BaseAPI::TextureAttachment(&ColourAttachment1.Value, GL_COLOR_ATTACHMENT1, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment0.Value, GL_COLOR_ATTACHMENT0, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment1.Value, GL_COLOR_ATTACHMENT1, HdrTexInfo));
 
 		HdrTexInfo.Format = GL_DEPTH_COMPONENT;
 		HdrTexInfo.InternalFormat = GL_DEPTH_COMPONENT;
 
-		Gfl::Pair<uint32, ObjHandle>& DepthAttachment = HDR.DepthAttachment;
+		Gfl::Pair<uint32, GfxHandle>& DepthAttachment = HDR.DepthAttachment;
 		DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
 
-		HdrInfo.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, HdrTexInfo));
 
-		Middleware::GetBuildQueue()->QueueFramebufferForBuild(&HDR.Handle, HdrInfo);
+		GfxDriver->BuildFramebuffer(HDR.Handle, HdrInfo);
 	}
 
 	
-	void PostProcessing::InitialiseBloom()
+	void PostProcessing::InitialiseBloom(GraphicsDriver* GfxDriver)
 	{
 		ShaderImportInfo VKInfo;
 		VKInfo.Name = "VerticalBlurKernel";
-		VKInfo.AddShaderToProgram(BloomVerticalKernel::VertexShader, GrvtShader_SourceType_Vertex);
-		VKInfo.AddShaderToProgram(BloomVerticalKernel::FragmentShader, GrvtShader_SourceType_Fragment);
+		VKInfo.PathToVertexShader = "";
+		VKInfo.PathToFragmentShader = "";
 
 		VerticalBlurKernel = GetResourceManager()->NewShaderProgram(VKInfo);
 
 		ShaderImportInfo HKInfo;
 		HKInfo.Name = "HorizontalBlurKernel";
-		HKInfo.AddShaderToProgram(BloomHorizontalKernel::VertexShader, GrvtShader_SourceType_Vertex);
-		HKInfo.AddShaderToProgram(BloomHorizontalKernel::FragmentShader, GrvtShader_SourceType_Fragment);
+		HKInfo.PathToVertexShader = "";
+		HKInfo.PathToFragmentShader = "";
 
 		HorizontalBlurKernel = GetResourceManager()->NewShaderProgram(HKInfo);
 
 		// Ping pong Blur Framebuffers;
 		// Framebuffer 1
 		{
-			Gfl::Pair<uint32, ObjHandle>& ColourAttachment = BloomTarget0.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+			Gfl::Pair<uint32, GfxHandle>& ColourAttachment = BloomTarget0.ColourAttachments.Insert(Gfl::Pair<uint32, GfxHandle>());
 			ColourAttachment.Key = RenderTarget_AttachPoint_Colour;
 
-			BaseAPI::FramebufferBuildData Blur;
+			Driver::FramebufferBuildData Blur;
 
-			Blur.Width  = RendererPtr->Width;
-			Blur.Height = RendererPtr->Height;
+			Blur.Width  = Renderer->Width;
+			Blur.Height = Renderer->Height;
 
-			BaseAPI::TextureBuildData TexInfo;
+			Driver::TextureBuildData TexInfo;
 
 			TexInfo.Format = GL_RGB;
 			TexInfo.InternalFormat = GL_RGB16F;
@@ -107,21 +107,22 @@ namespace Grvt
 			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
 			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
 
-			Blur.Attachments.Push(BaseAPI::TextureAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
-			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&BloomTarget0.Handle, Blur);
+			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
+			
+			GfxDriver->BuildFramebuffer(BloomTarget0.Handle, Blur);
 		}
 
 		// Framebuffer 2
 		{
-			Gfl::Pair<uint32, ObjHandle>& ColourAttachment = BloomTarget1.ColourAttachments.Insert(Gfl::Pair<uint32, ObjHandle>());
+			Gfl::Pair<uint32, GfxHandle>& ColourAttachment = BloomTarget1.ColourAttachments.Insert(Gfl::Pair<uint32, GfxHandle>());
 			ColourAttachment.Key = RenderTarget_AttachPoint_Colour;
 
-			BaseAPI::FramebufferBuildData Blur;
+			Driver::FramebufferBuildData Blur;
 
-			Blur.Width  = RendererPtr->Width;
-			Blur.Height = RendererPtr->Height;
+			Blur.Width  = Renderer->Width;
+			Blur.Height = Renderer->Height;
 
-			BaseAPI::TextureBuildData TexInfo;
+			Driver::TextureBuildData TexInfo;
 
 			TexInfo.Format = GL_RGB;
 			TexInfo.InternalFormat = GL_RGB16F;
@@ -131,24 +132,27 @@ namespace Grvt
 			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
 			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
 
-			Blur.Attachments.Push(BaseAPI::TextureAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
-			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&BloomTarget1.Handle, Blur);
+			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
+			
+			GfxDriver->BuildFramebuffer(BloomTarget1.Handle, Blur);
 		}
 	}
 
 
-	void PostProcessing::Init(BaseRenderer* Renderer)
+	void PostProcessing::Init(GrvtRenderer* RendererPtr)
 	{
-		RendererPtr = Renderer;
+		Renderer = RendererPtr;
 
-		InitialiseHDRToneMapping();
-		InitialiseBloom();
+		InitialiseHDRToneMapping(RendererPtr->GfxDriver);
+		InitialiseBloom(RendererPtr->GfxDriver);
 	}
 
 
 	void PostProcessing::Free()
 	{
-
+		Renderer->GfxDriver->DeleteBuffer(HDR.Handle);
+		Renderer->GfxDriver->DeleteBuffer(BloomTarget0.Handle);
+		Renderer->GfxDriver->DeleteBuffer(BloomTarget1.Handle);
 	}
 
 }

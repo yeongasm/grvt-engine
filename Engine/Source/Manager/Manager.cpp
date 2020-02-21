@@ -9,13 +9,13 @@ namespace Grvt
 
 
 	ResourceManager::ResourceManager() :
-		Resources() {}
+		GfxInterface(nullptr), Resources() {}
 
 
 	ResourceManager::~ResourceManager() {}
 
 
-	void ResourceManager::Alloc(size_t Reserve, GraphicsInterface* Interface)
+	void ResourceManager::Alloc(size_t Reserve)
 	{
 		// The main handler needs to allocate 5 times more than a manager of a single type of asset.
 		Resources.reserve(Reserve * GrvtResource_Max);
@@ -25,7 +25,11 @@ namespace Grvt
 		g_ShaderManager.Alloc(Reserve);
 		g_MaterialManager.Alloc(Reserve);
 		g_SceneManager.Alloc(Reserve);
+	}
 
+
+	void ResourceManager::BindToInterface(GraphicsInterface* Interface)
+	{
 		GfxInterface = Interface;
 	}
 
@@ -270,7 +274,7 @@ namespace Grvt
 
 		Texture->Data.Push(Gfl::Move(Data));
 
-		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
+		GfxInterface->QueueTextureForBuild(*Texture, BuildData);
 
 		return Texture;
 	}
@@ -285,7 +289,7 @@ namespace Grvt
 
 		Texture->Data.Push(Gfl::Move((uint8*)SrcData));
 
-		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
+		GfxInterface->QueueTextureForBuild(*Texture, BuildData);
 
 		return Texture;
 	}
@@ -341,7 +345,7 @@ namespace Grvt
 			Texture->Data.Push(Gfl::Move(Data));
 		}
 
-		GfxInterface->QueueTextureForBuild(Texture->Handle, BuildData);
+		GfxInterface->QueueTextureForBuild(*Texture, BuildData);
 
 		return Texture;
 	}
@@ -565,6 +569,8 @@ namespace Grvt
 		GrvtMaterial* Material = g_MaterialManager.NewResource(Id, Info.Name);
 		Material->Alloc(Info);
 
+		GfxInterface->PackageMaterialForBuild(*Material);
+
 		// Increase the shader ref count by 1.
 		for (auto& It : g_ShaderManager.Store)
 		{
@@ -764,6 +770,28 @@ namespace Grvt
 		}
 
 		return DeleteScene(g_SceneManager.Store[Id].Name, Force);
+	}
+
+
+	ResourceManager* InitialiseResourceManager()
+	{
+		g_ResourceManager = new ResourceManager();
+
+		return g_ResourceManager;
+	}
+
+
+	void ShutdownResourceManager()
+	{
+		g_ResourceManager->Free();
+
+		delete g_ResourceManager;
+	}
+
+
+	ResourceManager* GetResourceManager()
+	{
+		return g_ResourceManager;
 	}
 
 }

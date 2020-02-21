@@ -1,10 +1,7 @@
 #include "GrvtPch.h"
-
 #include "API/Graphics/GraphicsInterface.h"
-
 #include "Framework/Scene.h"
 #include "Renderer/RenderFoundation.h"
-
 #include "Manager/Manager.h"
 
 
@@ -17,8 +14,7 @@ namespace Grvt
 	GrvtScene::GrvtScene() :
 		Sky(),
 		Name(), 
-		Camera(nullptr), 
-		Renderer(nullptr), 
+		Camera(nullptr),
 		Actors(), 
 		PointLights(), 
 		DirectionalLight(nullptr) {}
@@ -83,7 +79,7 @@ namespace Grvt
 	}
 
 
-	DirLight* GrvtScene::AddNewDirectionalLight(const LightCreationInfo& Info)
+	/*DirLight* GrvtScene::AddNewDirectionalLight(const LightCreationInfo& Info)
 	{
 		if (DirectionalLight)
 		{
@@ -121,10 +117,10 @@ namespace Grvt
 		}
 
 		return DirectionalLight;
-	}
+	}*/
 
 	
-	PointLight* GrvtScene::AddNewPointLight(const LightCreationInfo& Info)
+	/*PointLight* GrvtScene::AddNewPointLight(const LightCreationInfo& Info)
 	{
 		if (PointLights.Length() == MAX_POINT_LIGHTS)
 		{
@@ -163,7 +159,7 @@ namespace Grvt
 		}
 
 		return LightPtr;
-	}
+	}*/
 
 
 	GrvtActor* GrvtScene::GetActor(const Gfl::String& Name)
@@ -214,7 +210,7 @@ namespace Grvt
 
 	// TODO(Afiq):
 	// Delete Framebuffer when we're deleting the light source.
-	bool GrvtScene::DeleteDirLight()
+	/*bool GrvtScene::DeleteDirLight()
 	{
 		if (!DirectionalLight)
 			return false;
@@ -239,10 +235,10 @@ namespace Grvt
 		DirectionalLight = nullptr;
 
 		return true;
-	}
+	}*/
 
 
-	bool GrvtScene::DeletePointLight(PointLight** PointLight)
+	/*bool GrvtScene::DeletePointLight(PointLight** PointLight)
 	{
 		size_t Index = PointLights.Find(*PointLight);
 
@@ -275,7 +271,7 @@ namespace Grvt
 		PointLights.PopAt(Index);
 
 		return true;
-	}
+	}*/
 
 
 	void GrvtScene::Alloc(const SceneCreationInfo& Info)
@@ -290,7 +286,7 @@ namespace Grvt
 	{
 		Camera = nullptr;
 
-		DeleteAllLights();
+		//DeleteAllLights();
 
 		if (Sky.SrcModel)
 		{
@@ -309,7 +305,7 @@ namespace Grvt
 	}
 
 
-	void GrvtScene::DeleteAllPointLights()
+	/*void GrvtScene::DeleteAllPointLights()
 	{
 		PointLight* Temp = nullptr;
 
@@ -323,14 +319,14 @@ namespace Grvt
 		}
 
 		PointLights.Empty();
-	}
+	}*/
 
 
-	void GrvtScene::DeleteAllLights()
+	/*void GrvtScene::DeleteAllLights()
 	{
 		DeleteDirLight();
 		DeleteAllPointLights();
-	}
+	}*/
 
 
 	void GrvtScene::AddSkyBox(GrvtMaterial* MaterialPtr, bool Render)
@@ -367,7 +363,7 @@ namespace Grvt
 		{
 			return;
 		}
-
+		/*
 		if (DirectionalLight)
 		{
 			if (DirectionalLight->Enable)
@@ -408,7 +404,7 @@ namespace Grvt
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-		}
+		}*/
 		
 		// Pass in the final projection and view matrix.
 		Buffer.Projection = Camera->GetCameraProjection();
@@ -459,7 +455,7 @@ namespace Grvt
 			Command.Material->SetMatrix("Model", Model);
 			Command.Material->SetMatrix("TrInvModel", TrInvModel);
 
-			if (DirectionalLight)
+			/*if (DirectionalLight)
 			{
 				Command.Material->SetTexture("DepthMap", GrvtTexture_Type_ShadowMap);
 			}
@@ -468,9 +464,9 @@ namespace Grvt
 			for (size_t i = 0; i < PointLights.Length(); i++)
 			{
 				Uniform.Format("OmniDepthMaps[%d]", i);
-				Command.Material->SetTextures(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
+				Command.Material->SetTexture(Uniform, (int32)(GrvtTexture_Type_OmniShadowMap + i));
 				Uniform.Empty();
-			}
+			}*/
 
 			RenderNode Node;
 

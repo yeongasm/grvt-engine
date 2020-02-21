@@ -9,7 +9,8 @@ namespace Grvt
 		Uniforms(), Textures(), Shader(nullptr) {}
 
 
-	GrvtMaterial::~GrvtMaterial() {
+	GrvtMaterial::~GrvtMaterial() 
+	{
 		Free();
 	}
 
@@ -57,11 +58,6 @@ namespace Grvt
 	{
 		Shader	 = Info.Shader;
 		Textures = Info.Textures;
-
-		for (UniformAttr& Uniform : Shader->Uniforms)
-		{
-			Uniforms.emplace(Uniform.Name, UniformAttr());
-		}
 	}
 
 
@@ -127,8 +123,10 @@ namespace Grvt
 	}
 
 
-	void GrvtMaterial::SetTexture(const Gfl::String& Name, GrvtTexture* Texture)
+	void GrvtMaterial::SetTexture(const Gfl::String& Name, TextureType SamplerUnit)
 	{
-		Uniforms[Name].Integer = Texture->Type;
+		Uniforms[Name].Integer = (int32)SamplerUnit;
 	}
+
+
 }

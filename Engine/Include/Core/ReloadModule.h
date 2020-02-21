@@ -24,7 +24,6 @@ namespace Grvt
 		ArgFuncPtr	StartUp;
 		ArgFuncPtr	OnLoad;
 		FuncPtr		Execute;
-		FuncPtr		Unload;
 
 		bool		IsValid;
 

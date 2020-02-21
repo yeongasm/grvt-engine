@@ -156,7 +156,12 @@ namespace Grvt
 		/**
 		* Reserve the amount of spaces for each type of asset.
 		*/
-		void Alloc(size_t Reserve, GraphicsInterface* Interface);
+		void Alloc(size_t Reserve);
+
+		/**
+		* This is here just to solve the chicken or the egg problem.
+		*/
+		void BindToInterface(GraphicsInterface* Interface);
 
 		/**
 		* Releases all resources from the handler.
@@ -377,6 +382,12 @@ namespace Grvt
 		*/
 		ENGINE_API bool DeleteScene(size_t Id, bool Force = false, bool Remove = true);
 	};
+
+
+	ResourceManager* InitialiseResourceManager();
+	void ShutdownResourceManager();
+
+	ResourceManager* GetResourceManager();
 
 }
 

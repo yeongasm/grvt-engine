@@ -3,7 +3,6 @@
 #ifndef GRAVITY_RENDER_FOUNDATION
 #define GRAVITY_RENDER_FOUNDATION
 
-#include <map>
 #include "Minimal.h"
 #include "API/Graphics/GraphicsDriver.h"
 

@@ -15,8 +15,3 @@ extern "C" ENGINE_API void OnLoad(Grvt::GrvtEngine* EnginePtr);
 *
 */
 extern "C" ENGINE_API void ExecuteApplication();
-
-/**
-*
-*/
-extern "C" ENGINE_API void OnUnload();

@@ -4,13 +4,14 @@
 #define GRAVITY_BASE_RENDERER
 
 #include "API/Graphics/GraphicsDriver.h"
+#include "Framework/Scene.h"
+#include "Framework/Material.h"
+
 #include "RenderFoundation.h"
 #include "RenderCache.h"
-
-#include "MaterialLibrary.h"
 #include "PostProcess.h"
 
-#include "Framework/Scene.h"
+#include "Core/Engine.h"
 
 namespace Grvt
 {
@@ -20,20 +21,22 @@ namespace Grvt
 	*
 	* GrvtRenderer is an abstract class that acts like a shell for any custom implemented renderer.
 	*/
-	class Renderer
+	class GrvtRenderer
 	{
 	private:
 
 		friend class	GrvtEngine;
 		friend struct	CommandBuffer;
 		friend class	GrvtScene;
+		friend class	PostProcessing;
+
+		friend ENGINE_API void ExecuteEngine();
 
 		Gfl::Array<size_t> UnsortedCommands;
 		Gfl::Array<size_t> UnsortedInstancedCommands;
 		Gfl::Array<size_t> SortedCommands;
 		Gfl::Array<size_t> SortedInstancedCommands;
 
-		MaterialLibrary	MaterialLib;
 		PostProcessing	PostProcess;
 		RenderTarget	GBuffer;
 		RenderCache		StateCache;
@@ -41,10 +44,25 @@ namespace Grvt
 		CommandBuffer	BackBuffer;
 		CommandBuffer	FrontBuffer;
 
+		GraphicsDriver* GfxDriver;
+
 		GrvtShader*		ActiveShader;
 		GrvtMesh*		ScreenQuad;
 
+		GrvtShader*		DeferredPassShader;
+		GrvtShader*		DeferredDirectionalShader;
+		GrvtShader*		DeferredPointShader;
+
 		GfxHandle		ProjectionViewUBO;
+
+		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<size_t>& SortedCommands);
+
+		void RenderMesh(RenderNode& Node);
+		void RenderMesh(GrvtMesh& Mesh);
+
+		void UpdateMaterial(GrvtMaterial* Material);
+
+		void RenderPushedCommand(const RenderCommand& Command, bool UpdateState);
 
 	public:
 
@@ -52,18 +70,14 @@ namespace Grvt
 		uint32			PosY;
 		uint32			Width;
 		uint32			Height;
-		
-	public:
 
-		Renderer();
-		~Renderer();
+		GrvtRenderer();
+		~GrvtRenderer();
 
-		void Init();
+		void Init(uint32 X, uint32 Y, uint32 Width, uint32 Height, GraphicsDriver* Driver);
 		void Shutdown();
 
-		void Render(const GraphicsDriver* GlDriver);
-
-		void CreateRenderCommandBuffer(GrvtScene* ActiveScene);
+		void Render();
 	};
 
 }

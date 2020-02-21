@@ -4,6 +4,7 @@
 #define GRAVITY_POST_PROCESS
 
 #include "RenderFoundation.h"
+#include "Renderer.h"
 
 namespace Grvt
 {
@@ -37,7 +38,7 @@ namespace Grvt
 
 	private:
 
-		BaseRenderer* RendererPtr;
+		GrvtRenderer* Renderer;
 
 		PostProcessing(const PostProcessing& Other)				= delete;
 		PostProcessing& operator= (const PostProcessing& Other) = delete;
@@ -45,12 +46,12 @@ namespace Grvt
 		PostProcessing(PostProcessing&& Other)					= delete;
 		PostProcessing& operator= (PostProcessing&& Other)		= delete;
 
-		void InitialiseHDRToneMapping();
-		void InitialiseBloom();
+		void InitialiseHDRToneMapping(GraphicsDriver* GfxDriver);
+		void InitialiseBloom(GraphicsDriver* GfxDriver);
 
 	public:
 
-		void Init(BaseRenderer* Renderer);
+		void Init(GrvtRenderer* RendererPtr);
 		void Free();
 
 	};

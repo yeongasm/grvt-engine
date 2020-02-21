@@ -66,7 +66,7 @@ namespace Grvt
 	*/
 	struct LightSource
 	{
-		RenderTarget	DepthMap;
+		RenderTarget*	DepthMap;
 		glm::vec3		Orientation;
 		glm::vec3		Position;
 		glm::vec3		Colour;

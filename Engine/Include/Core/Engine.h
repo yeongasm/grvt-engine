@@ -16,7 +16,7 @@ namespace Grvt
 	{
 	private:
 		
-		friend struct RenderContext;
+		friend class RenderContext;
 
 		using EngineSystems = Gfl::Array<BaseSystem*>;
 
@@ -73,8 +73,7 @@ namespace Grvt
 		GrvtEngine(GrvtEngine&& Other) = delete;
 		GrvtEngine& operator= (GrvtEngine&& Other) = delete;
 
-		ENGINE_API EngineIO* GetIO();
-		ENGINE_API Renderer* GetRenderer();
+		ENGINE_API EngineIO*		GetIO();
 
 		void NewFrame();
 		void EndFrame();
@@ -137,7 +136,6 @@ namespace Grvt
 
 
 	ENGINE_API GrvtEngine*	GetEngine();
-
 
 	ENGINE_API GrvtEngine*	InitialiseEngine(const Gfl::String& Name, int32 Width, int32 Height, int32 OpenGLVMajor, int32 OpenGLVMinor);
 	ENGINE_API void			ExecuteEngine();

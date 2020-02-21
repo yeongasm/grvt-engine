@@ -5,12 +5,11 @@
 namespace Grvt
 {
 
+	GrvtShader::GrvtShader() :
+		VertexShader(), GeometryShader(), FragmentShader(), Attributes(), Uniforms(), Handle() {}
 
-	VertexAttr::VertexAttr() :
-		Name(), Type(Shader_Type_None), SubType(Shader_SubType_None), Location(-1), Size(0) {}
 
-
-	VertexAttr::~VertexAttr() {}
+	GrvtShader::~GrvtShader() {}
 
 
 	//void ShaderObj::DeleteShader(const std::initializer_list<uint32> &IDs) {

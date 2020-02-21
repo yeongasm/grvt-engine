@@ -10,6 +10,7 @@
 #include "Renderer/RenderFoundation.h"
 #include "Renderer/Renderer.h"
 
+
 namespace Grvt
 {
 
@@ -51,13 +52,11 @@ namespace Grvt
 
 		Gfl::String	Name;
 		BaseCamera* Camera;
-		BaseRenderer* Renderer;
 
 	private:
 
 		friend class	ResourceManager;
-		friend struct	BaseRenderer;
-		friend class	DeferredPBR;
+		friend class	GrvtRenderer;
 		friend ENGINE_API void	ExecuteEngine();
 
 	public:
@@ -93,12 +92,12 @@ namespace Grvt
 		/**
 		* Adds a new directional light into the scene.
 		*/
-		ENGINE_API DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
+		//ENGINE_API DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
 		
 		/**
 		* Adds a new point light into the scene.
 		*/
-		ENGINE_API PointLight* AddNewPointLight		(const LightCreationInfo& Info);
+		//ENGINE_API PointLight* AddNewPointLight		(const LightCreationInfo& Info);
 
 		/**
 		* Retrieves an actor with the specified identifier from the scene.
@@ -120,12 +119,12 @@ namespace Grvt
 		/**
 		* Deletes a directional light by reference from the scene.
 		*/
-		ENGINE_API bool		DeleteDirLight			();
+		//ENGINE_API bool		DeleteDirLight			();
 
 		/**
 		* Deletes a point light by reference from the scene.
 		*/
-		ENGINE_API bool		DeletePointLight		(PointLight** PointLight);
+		//ENGINE_API bool		DeletePointLight		(PointLight** PointLight);
 
 		/**
 		* Clears all actors from the scene.
@@ -137,13 +136,13 @@ namespace Grvt
 		* Clears all point lights from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
-		ENGINE_API void		DeleteAllPointLights	();
+		//ENGINE_API void		DeleteAllPointLights	();
 
 		/**
 		* Clears all lights from the scene.
 		* Does not release memory that was once allocated for them.
 		*/
-		ENGINE_API void		DeleteAllLights			();
+		//ENGINE_API void		DeleteAllLights			();
 
 		/**
 		* Adds a sky box into the level.

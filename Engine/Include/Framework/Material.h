@@ -30,13 +30,13 @@ namespace Grvt
 	{
 	private:
 
-		using UniformMap = std::map<Gfl::String, UniformValue>;
+		using UniformMap = std::map<Gfl::HashString, UniformValue>;
 		
+	public:
+
 		UniformMap	Uniforms;
 		MatTextures Textures;
 		GrvtShader* Shader;
-
-	public:
 
 		ENGINE_API GrvtMaterial();
 		ENGINE_API ~GrvtMaterial();
@@ -120,7 +120,7 @@ namespace Grvt
 		* Does not update the value that's in the shader.
 		* Returns false if uniform with the specified name is not found.
 		*/
-		ENGINE_API void SetTexture(const Gfl::String& Name, GrvtTexture* Texture);
+		ENGINE_API void SetTexture(const Gfl::String& Name, TextureType SamplerUnit);
 	};
 
 }

@@ -5,6 +5,29 @@
 namespace Grvt
 {
 
+	namespace Interface
+	{
+		DeletePacket::DeletePacket(DeletePacket&& Rhs) { *this = Gfl::Move(Rhs); }
+
+
+		DeletePacket& DeletePacket::operator= (DeletePacket&& Rhs)
+		{
+			_ASSERTE(this != &Rhs);
+
+			if (this != &Rhs)
+			{
+				Handle = Gfl::Move(Rhs.Handle);
+				Type = Gfl::Move(Rhs.Type);
+
+				new (&Rhs) DeletePacket();
+			}
+
+			return *this;
+		}
+
+	}
+
+
 	GraphicsInterface::GraphicsInterface() :
 		Driver(nullptr), MeshQueue(), TextureQueue(), ShaderQueue(), FrameQueue(), BufferQueue(), DeleteQueue(), HasResource(false) {}
 
@@ -31,11 +54,11 @@ namespace Grvt
 	}
 
 
-	void GraphicsInterface::QueueMeshForBuild(GfxHandle& Handle, const Driver::MeshBuildData& Data)
+	void GraphicsInterface::QueueMeshForBuild(GrvtMesh& Resource, const Driver::MeshBuildData& Data)
 	{
 		Interface::MeshPacket Packet;
 
-		Packet.Handle = &Handle;
+		Packet.ResourcePtr = &Resource;
 		Packet.BuildData = Data;
 
 		MeshQueue.push_back(Packet);
@@ -44,11 +67,11 @@ namespace Grvt
 	}
 
 
-	void GraphicsInterface::QueueTextureForBuild(GfxHandle& Handle, const Driver::TextureBuildData& Data)
+	void GraphicsInterface::QueueTextureForBuild(GrvtTexture& Resource, const Driver::TextureBuildData& Data)
 	{
 		Interface::TexturePacket Packet;
 		
-		Packet.Handle = &Handle;
+		Packet.ResourcePtr = &Resource;
 		Packet.BuildData = Data;
 
 		TextureQueue.push_back(Packet);
@@ -57,11 +80,11 @@ namespace Grvt
 	}
 
 
-	void GraphicsInterface::QueueShaderForBuild(GfxHandle& Handle, const Driver::ShaderBuildData& Data)
+	void GraphicsInterface::QueueShaderForBuild(GrvtShader& Resource, const Driver::ShaderBuildData& Data)
 	{
 		Interface::ShaderPacket Packet;
 
-		Packet.Handle = &Handle;
+		Packet.ResourcePtr = &Resource;
 		Packet.BuildData = Data;
 
 		ShaderQueue.push_back(Packet);
@@ -70,11 +93,11 @@ namespace Grvt
 	}
 
 
-	void GraphicsInterface::QueueFramebufferForBuild(GfxHandle& Handle, const Driver::FramebufferBuildData& Data)
+	void GraphicsInterface::QueueFramebufferForBuild(GfxHandle& Resource, const Driver::FramebufferBuildData& Data)
 	{
 		Interface::FramePacket Packet;
 
-		Packet.Handle = &Handle;
+		Packet.ResourcePtr = &Resource;
 		Packet.BuildData = Data;
 
 		FrameQueue.push_back(Packet);
@@ -83,11 +106,11 @@ namespace Grvt
 	}
 
 
-	void GraphicsInterface::QueueBufferForBuild(GfxHandle& Handle, const Driver::BufferBuildData& Data)
+	void GraphicsInterface::QueueBufferForBuild(GfxHandle& Resource, const Driver::BufferBuildData& Data)
 	{
 		Interface::BufferPacket Packet;
 
-		Packet.Handle = &Handle;
+		Packet.ResourcePtr = &Resource;
 		Packet.BuildData = Data;
 
 		BufferQueue.push_back(Packet);
@@ -132,7 +155,7 @@ namespace Grvt
 		Packet.Handle = Gfl::Move(Handle);
 		Packet.Type = Type;
 
-		DeleteQueue.push_back(Packet);
+		DeleteQueue.emplace_back(Gfl::Move(Packet));
 	}
 
 
@@ -161,31 +184,68 @@ namespace Grvt
 
 		for (Interface::MeshPacket& Packet : MeshQueue)
 		{
-			Driver->BuildMesh(*Packet.Handle, Packet.BuildData);
+			Driver->BuildMesh(Packet.ResourcePtr->Vao, Packet.BuildData);
 			MeshQueue.pop_front();
 		}
 
 		for (Interface::TexturePacket& Packet : TextureQueue)
 		{
-			Driver->BuildTexture(*Packet.Handle, Packet.BuildData);
+			Driver->BuildTexture(Packet.ResourcePtr->Handle, Packet.BuildData);
 			TextureQueue.pop_front();
 		}
 
 		for (Interface::ShaderPacket& Packet : ShaderQueue)
 		{
-			Driver->BuildShaderProgram(*Packet.Handle, Packet.BuildData);
+			Driver->BuildShaderProgram(Packet.ResourcePtr->Handle, Packet.BuildData);
+
+			int32 Total = Driver->GetProgramUniforms(Packet.ResourcePtr->Handle);
+			
+			//Packet.ResourcePtr->Uniforms.Reserve(Total);
+
+			for (int32 i = 0; i < Total; i++)
+			{
+				UniformAttr Var = Driver->GetActiveUniform(Packet.ResourcePtr->Handle, i);
+				//Packet.ResourcePtr->Uniforms.Push(Var);
+				Packet.ResourcePtr->Uniforms.emplace(Var.Name, Var);
+			}
+
+			Total = Driver->GetProgramAttributes(Packet.ResourcePtr->Handle);
+
+			//Packet.ResourcePtr->Attributes.Reserve(Total);
+
+			for (int32 i = 0; i < Total; i++)
+			{
+				VertexAttr Var = Driver->GetActiveAttribute(Packet.ResourcePtr->Handle, i);
+				//Packet.ResourcePtr->Attributes.Push(Var);
+				Packet.ResourcePtr->Attributes.emplace(Var.Name, Var);
+			}
+			
 			ShaderQueue.pop_front();
 		}
 
 		for (Interface::FramePacket& Packet : FrameQueue)
 		{
-			Driver->BuildFramebuffer(*Packet.Handle, Packet.BuildData);
+			Driver->BuildFramebuffer(*Packet.ResourcePtr, Packet.BuildData);
 			FrameQueue.pop_front();
+		}
+
+		for (Interface::MaterialPacket& Packet : MaterialQueue)
+		{
+			GrvtMaterial* Material = Packet.ResourcePtr;
+			
+			for (auto It = Packet.ShaderPtr->Uniforms.begin(); It != Packet.ShaderPtr->Uniforms.end(); It++)
+			{
+				UniformAttr& Uniform = It->second;
+				UniformValue Value(Uniform.Type);
+				Material->Uniforms.emplace(Uniform.Name, Value);
+			}
+
+			MaterialQueue.pop_front();
 		}
 
 		for (Interface::BufferPacket& Packet : BufferQueue)
 		{
-			Driver->BuildBuffer(*Packet.Handle, Packet.BuildData);
+			Driver->BuildBuffer(*Packet.ResourcePtr, Packet.BuildData);
 			BufferQueue.pop_front();
 		}
 
@@ -239,7 +299,7 @@ namespace Grvt
 
 		Interface::MeshPacket Packet;
 
-		Packet.Handle = &Mesh->Vao;
+		Packet.ResourcePtr = Mesh;
 		Packet.BuildData.PushAttribute(0, 3, Stride, Offset);
 		Offset += 3 * sizeof(float32);
 
@@ -372,7 +432,7 @@ namespace Grvt
 			break;
 		}
 
-		QueueTextureForBuild(TextureSrc.Handle, BuildData);
+		QueueTextureForBuild(TextureSrc, BuildData);
 	}
 
 
@@ -388,7 +448,16 @@ namespace Grvt
 			BuildData.GeometryShader = ShaderSrc.GeometryShader;
 		}
 
-		QueueShaderForBuild(ShaderSrc.Handle, BuildData);
+		QueueShaderForBuild(ShaderSrc, BuildData);
+	}
+
+
+	void GraphicsInterface::PackageMaterialForBuild(GrvtMaterial& MaterialSrc)
+	{
+		Interface::MaterialPacket MatPacket;
+		
+		MatPacket.ResourcePtr = &MaterialSrc;
+		MatPacket.ShaderPtr = MaterialSrc.Shader;
 	}
 
 }

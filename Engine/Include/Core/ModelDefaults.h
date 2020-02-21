@@ -3,7 +3,7 @@
 #ifndef GRAVITY_CORE_MODELDEFAULTS
 #define GRAVITY_CORE_MODELDEFAULTS
 
-#include "Framework/Abstraction/Model.h"
+#include "Framework/Model.h"
 
 namespace Grvt
 {

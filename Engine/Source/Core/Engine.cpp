@@ -1,13 +1,8 @@
 #include "GrvtPch.h"
-
-#include "API/Graphics/GraphicsDriver.h"
-#include "API/Graphics/GraphicsInterface.h"
-
 #include "Profiler/FrameTime.h"
 
 #include "Framework/Scene.h"
 #include "Renderer/Renderer.h"
-#include "Renderer/DeferredPBR.h"
 
 
 extern Grvt::GrvtScene*		g_ActiveScene	= nullptr;
@@ -47,8 +42,10 @@ namespace Grvt
 
 	void ExecuteEngine()
 	{
-		EngineIO* Io = g_Engine->GetIO();
-		
+		GrvtRenderer* RenderCtx = GetRenderer();
+		GraphicsInterface* GfxInterface = GetGraphicsInterface();
+
+
 		while (g_Engine->Running())
 		{
 			g_Engine->NewFrame();
@@ -62,16 +59,19 @@ namespace Grvt
 			* In a single threaded program, this scenario would never happen.
 			* When the time comes to multithread the engine, we'll need to follow Dan's RenderService example.
 			*/
-			//if (g_ActiveScene && Renderer->BackBuffer.IsEmpty)
-			//{
-			//	g_ActiveScene->CreateSceneCommandBuffer(g_Renderer->BackBuffer);
-			//}
-			//
-			//g_Renderer->Render();
+			if (g_ActiveScene && RenderCtx->BackBuffer.IsEmpty)
+			{
+				g_ActiveScene->CreateSceneCommandBuffer(RenderCtx->BackBuffer);
+			}
+
+			// Build resources at the end of the frame.
+			GfxInterface->Tick();
+
+			// Render contents from back buffer.
+			RenderCtx->Render();
 
 			g_Engine->EndFrame();
 		}
-
 
 		g_Engine->ShutdownSystems();
 		g_Engine->ShutdownModule();
@@ -80,6 +80,9 @@ namespace Grvt
 
 	void TerminateEngine()
 	{
+		ShutdownResourceManager();
+		ShutdownRenderContext();
+
 		g_Engine->Free();
 		delete g_Engine;
 	}
@@ -87,8 +90,6 @@ namespace Grvt
 
 	void GrvtEngine::ScrollCallback(GLFWwindow* Window, float64 HorizontalOffset, float64 VerticalOffset)
 	{
-		// NOTE(Afiq):
-		// This behavior is not right. Check and see how ImGui does it.
 		g_Engine->IO.MouseWheel  += (float32)VerticalOffset;
 		g_Engine->IO.MouseWheelH += (float32)HorizontalOffset;
 	}
@@ -174,63 +175,15 @@ namespace Grvt
 
 		//glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-		GraphicsCtx		= new RenderContext();
-		ResourceMgrPtr	= new ResourceManager();
+		GraphicsCtx		= InitialiseRenderContext();
+		ResourceMgrPtr	= InitialiseResourceManager();
 
+		ResourceMgrPtr->Alloc(64);
 		GraphicsCtx->Execute(this, (GLADloadproc)glfwGetProcAddress);
 
 		// Put main thread to sleep when multi-threading is enabled to enable graphics
 		// Sleep(10);
-
-		ResourceMgrPtr->Alloc(64, &GraphicsCtx->GlInterface);
-		
-		// NOTE(Afiq):
-		// The engine shouldn't really contain default models.
-		// Let the module import the models on StartUp.
-
-		ModelImportInfo Info;
-
-		{
-			Info.Name = "Plane";
-			Info.Path = Gfl::String("Data\\Model\\Plane.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Quad";
-			Info.Path = Gfl::String("Data\\Model\\Quad.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Cube";
-			Info.Path = Gfl::String("Data\\Model\\Cube.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Sphere";
-			Info.Path = Gfl::String("Data\\Model\\Sphere.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Cylinder";
-			Info.Path = Gfl::String("Data\\Model\\Cylinder.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Cone";
-			Info.Path = Gfl::String("Data\\Model\\Cone.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "IcoSphere";
-			Info.Path = Gfl::String("Data\\Model\\IcoSphere.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Torus";
-			Info.Path = Gfl::String("Data\\Model\\Torus.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Suzanne";
-			Info.Path = Gfl::String("Data\\Model\\Monkey.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-
-			Info.Name = "Floor";
-			Info.Path = Gfl::String("Data\\Model\\Floor.fbx");
-			ResourceMgrPtr->NewImportModel(Info);
-		}
+		ResourceMgrPtr->BindToInterface(&GraphicsCtx->GlInterface);
 
 		Module.DllFile		= "Demo.dll";
 		Module.DllTempFile	= "DemoReload.dll";
@@ -360,20 +313,28 @@ namespace Grvt
 		// By default, the renderer should always start rendering from the window's position.
 		// If the renderer position requires to be specific, it can be assigned inside of the module.
 		glfwGetWindowPos(Window, &PosX, &PosY);
+		
+		if (GraphicsCtx->GlRenderer->PosX != PosX)
+		{
+			GraphicsCtx->GlRenderer->PosX = PosX;
+		}
 
-		// The renderer's Width and Height will get updated every frame.
-		// If the renderer's width and height require to be customised, the new width and height can be assigned inside of the modile.
-		//if (g_Renderer->Width != Width)
-		//{
-		//	g_Renderer->Width = Width;
-		//}
-		//
-		//if (g_Renderer->Height != Height)
-		//{
-		//	g_Renderer->Height	= Height;
-		//}
+		if (GraphicsCtx->GlRenderer->PosY != PosY)
+		{
+			GraphicsCtx->GlRenderer->PosY = PosY;
+		}
 
-//#if _DEBUG
+		if (GraphicsCtx->GlRenderer->Width != Width)
+		{
+			GraphicsCtx->GlRenderer->Width = Width;
+		}
+
+		if (GraphicsCtx->GlRenderer->Height != Height)
+		{
+			GraphicsCtx->GlRenderer->Height = Height;
+		}
+
+#if _DEBUG
 
 		FILETIME NewDllLastWrite = Module.WatchFileChange();
 		if (CompareFileTime(&NewDllLastWrite, &Module.DllLastWriteTime) != 0)
@@ -389,7 +350,7 @@ namespace Grvt
 			Sleep(10);
 		}
 
-//#endif
+#endif
 		
 		// NOTE(Afiq): This part of the code still causes a crash from time to time.
 		for (BaseSystem* System : Systems)
@@ -411,11 +372,6 @@ namespace Grvt
 	EngineIO* GrvtEngine::GetIO()
 	{
 		return &IO;
-	}
-
-	Renderer* GrvtEngine::GetRenderer()
-	{
-
 	}
 
 
@@ -450,11 +406,6 @@ namespace Grvt
 
 	void GrvtEngine::ShutdownModule()
 	{
-		if (Module.Unload)
-		{
-			Module.Unload();
-		}
-
 		Module.UnloadModuleDll();
 	}
 

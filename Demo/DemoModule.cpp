@@ -1,13 +1,11 @@
 #include "pch.h"
-#include <Include/Core/ModelDefaults.h>
-#include <Include/Manager/Manager.h>
-#include <Include/Framework/Abstraction/Actor.h>
-#include <Include/Framework/Abstraction/Scene.h>
-#include <Include/Framework/Abstraction/Shader.h>
+#include <Core/ModelDefaults.h>
+#include <Manager/Manager.h>
+#include <Framework/Actor.h>
+#include <Framework/Scene.h>
+#include <Framework/Shader.h>
 #include <Renderer/Renderer.h>
-#include <Renderer/DeferredPBR.h>
 #include "CameraSystem.h"
-#include "ShaderLibrary/ShaderLib.h"
 
 #include "DemoModule.h"
 #include "Etc/ModuleFuncs.h"
@@ -16,301 +14,82 @@
 Grvt::EngineIO*		m_IO		= nullptr;
 Grvt::GrvtEngine*	m_Engine	= nullptr;
 Grvt::GrvtScene*	DemoScene	= nullptr;
-Grvt::DeferredPBR*	m_Renderer	= nullptr;
-
-CameraSystem* CamSystem = nullptr;
 
 glm::vec3 StartPos = glm::vec3(0.0f, 20.0f, 50.0f);
 glm::vec3 EndPos = glm::vec3(-30.0f, 5.0f, 0.0f);
 float Time = 0.0f;
+
+using namespace Grvt;
 
 extern "C"
 {
 
 	void OnStartUp(Grvt::GrvtEngine* EnginePtr)
 	{
-		m_Renderer = (Grvt::DeferredPBR*)Grvt::GetRenderer();
+		ResourceManager* Manager = Grvt::GetResourceManager();
+
+		m_Engine = EnginePtr;
+		m_IO = m_Engine->GetIO();
 
 		// Register camera system.
-		CamSystem = (CameraSystem*)EnginePtr->RegisterSystem(GRSYSTEMCRED(CameraSystem), new CameraSystem());
-		Grvt::ResourceManager* Manager = Grvt::GetResourceManager();
-		
-		{
-			Grvt::SceneCreationInfo Info;
-			Info.Name = "DemoLevel";
-			DemoScene = Manager->NewScene(Info);
-
-			Grvt::SetActiveScene(DemoScene);
-		}
-
-		DemoScene->Camera	= &CamSystem->Camera;
-		DemoScene->Renderer = m_Renderer;
+		m_Engine->RegisterSystem(GRSYSTEMCRED(CameraSystem), new CameraSystem());
 
 		{
-			Grvt::ShaderImportInfo ShaderInfo;
-			ShaderInfo.Name = "CubeMapShader";
-			ShaderInfo.AddShaderToProgram(SkyboxShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
-			ShaderInfo.AddShaderToProgram(SkyboxShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+			ModelImportInfo Info;
 
-			Manager->NewShaderProgram(ShaderInfo);
-		}
-		
-		{
-			Grvt::ShaderImportInfo ShaderInfo;
-			ShaderInfo.Name = "FloorShader";
-			ShaderInfo.AddShaderToProgram(FloorShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
-			ShaderInfo.AddShaderToProgram(FloorShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+			Info.Name = "Plane";
+			Info.Path = Gfl::String("Data\\Model\\Plane.fbx");
+			Manager->NewImportModel(Info);
 
-			Manager->NewShaderProgram(ShaderInfo);
-		}
-		
-		{
-			Grvt::ShaderImportInfo ShaderInfo;
-			ShaderInfo.Name = "BasicColour";
-			ShaderInfo.AddShaderToProgram(TestColourShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
-			ShaderInfo.AddShaderToProgram(TestColourShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
+			Info.Name = "Quad";
+			Info.Path = Gfl::String("Data\\Model\\Quad.fbx");
+			Manager->NewImportModel(Info);
 
-			Manager->NewShaderProgram(ShaderInfo);
-		}
-
-		{
-			Grvt::ShaderImportInfo ShaderInfo;
-			ShaderInfo.Name = "LampShader";
-			ShaderInfo.AddShaderToProgram(LampShader::VertexShader, Grvt::GrvtShader_SourceType_Vertex);
-			ShaderInfo.AddShaderToProgram(LampShader::FragmentShader, Grvt::GrvtShader_SourceType_Fragment);
-
-			Manager->NewShaderProgram(ShaderInfo);
-		}
-
-		{
-			Grvt::TextureImportInfo CubemapInfo;
-			CubemapInfo.Name = "DemoCubeMap";
-			CubemapInfo.Type = Grvt::GrvtTexture_Type_Cubemap;
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\right.jpg");
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\left.jpg");
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\top.jpg");
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\bottom.jpg");
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\front.jpg");
-			CubemapInfo.Path.Push("Data\\Skybox\\LearnOpenGL\\back.jpg");
+			Info.Name = "Cube";
+			Info.Path = Gfl::String("Data\\Model\\Cube.fbx");
+			Manager->NewImportModel(Info);
 			
-			Manager->NewImportCubemap(CubemapInfo);
+			/*Info.Name = "Sphere";
+			Info.Path = Gfl::String("Data\\Model\\Sphere.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Cylinder";
+			Info.Path = Gfl::String("Data\\Model\\Cylinder.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Cone";
+			Info.Path = Gfl::String("Data\\Model\\Cone.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "IcoSphere";
+			Info.Path = Gfl::String("Data\\Model\\IcoSphere.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Torus";
+			Info.Path = Gfl::String("Data\\Model\\Torus.fbx");
+			ResourceMgrPtr->NewImportModel(Info);
+
+			Info.Name = "Suzanne";
+			Info.Path = Gfl::String("Data\\Model\\Monkey.fbx");
+			ResourceMgrPtr->NewImportModel(Info);*/
+
+			Info.Name = "Floor";
+			Info.Path = Gfl::String("Data\\Model\\Floor.fbx");
+			Manager->NewImportModel(Info);
 		}
-
-		{
-			Grvt::TextureImportInfo Info;
-			Info.Name = "FloorTileTexture";
-			Info.Type = Grvt::GrvtTexture_Type_Albedo;
-			Info.Path.Push("Data\\Texture\\FloorTile.png");
-
-			Manager->NewImportTexture(Info);
-		}
-
 	}
 
 	void OnLoad(Grvt::GrvtEngine* EnginePtr)
 	{
-		m_Engine = EnginePtr;
-		m_IO = m_Engine->GetIO();
 
-		DemoScene = Grvt::GetResourceManager()->GetScene("DemoLevel");
-
-		{
-			Grvt::GrvtTexture* SkyBox = Grvt::GetResourceManager()->GetTexture("DemoCubeMap");
-
-			Grvt::MaterialCreationInfo MaterialInfo;
-			MaterialInfo.Name = "CubeMapMaterial";
-			MaterialInfo.Shader = Grvt::GetResourceManager()->GetShader("CubeMapShader");
-			MaterialInfo.Textures.Push({Grvt::GrvtTexture_Type_Cubemap, &SkyBox->Handle});
-
-			Grvt::GetResourceManager()->NewMaterial(MaterialInfo);
-		}
-		
-		{
-			Grvt::GrvtTexture* FloorTile = Grvt::GetResourceManager()->GetTexture("FloorTileTexture");
-
-			Grvt::MaterialCreationInfo FloorMat;
-			FloorMat.Name = "FloorMaterial";
-			FloorMat.Shader = Grvt::GetResourceManager()->GetShader("FloorShader");
-			FloorMat.Textures.Push({Grvt::GrvtTexture_Type_Albedo, &FloorTile->Handle});
-
-			Grvt::GetResourceManager()->NewMaterial(FloorMat);
-		}
-		
-		{
-			Grvt::MaterialCreationInfo BColourMat;
-			BColourMat.Name = "BaseColourMaterial";
-			BColourMat.Shader = Grvt::GetResourceManager()->GetShader("BasicColour");
-			
-			Grvt::GetResourceManager()->NewMaterial(BColourMat);
-		}
-
-		{
-			Grvt::MaterialCreationInfo LampMat;
-			LampMat.Name = "LampMaterial";
-			LampMat.Shader = Grvt::GetResourceManager()->GetShader("LampShader");
-
-			Grvt::GetResourceManager()->NewMaterial(LampMat);
-		}
-
-		{
-			Grvt::ActorCreationInfo ActorInfo;
-			ActorInfo.Identifier = "Mid";
-			ActorInfo.Position = glm::vec3(0.0f, 1.1f, 0.0f);
-			ActorInfo.SrcModel = Grvt::GetResourceManager()->GetModel("Cube");
-			ActorInfo.SrcMaterial = Grvt::GetResourceManager()->GetMaterial("BaseColourMaterial");
-
-			DemoScene->AddNewActor(ActorInfo);
-
-			ActorInfo.Identifier = "Right";
-			ActorInfo.Position = glm::vec3(10.0f, 1.1f, 0.0f);
-			DemoScene->AddNewActor(ActorInfo);
-
-			ActorInfo.Identifier = "Up";
-			ActorInfo.Position = glm::vec3(0.0f, 11.1f, 0.0f);
-			DemoScene->AddNewActor(ActorInfo);
-
-			ActorInfo.Identifier = "Front";
-			ActorInfo.Position = glm::vec3(0.0f, 1.1f, 10.0f);
-			DemoScene->AddNewActor(ActorInfo);
-		}
-
-		Grvt::DirLight* DirLight = nullptr;
-
-		{
-			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 1.0f;
-			LightInfo.Orientation = glm::vec3(1.0f, -1.0f, -1.0f);
-			LightInfo.Type = Grvt::GrvtLight_Type_Directional;
-			
-			//DirLight = DemoScene->AddNewDirectionalLight(LightInfo);
-			//DirLight->ShadowNear = 1.0f;
-			//DirLight->ShadowFar  = 150.0f;
-		}
-
-		Grvt::PointLight* PointLight1 = nullptr;
-		Grvt::PointLight* PointLight2 = nullptr;
-
-		{
-			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(7.5f, 2.0f, 2.0f);
-			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			//LightInfo.Colour = glm::vec3(1.0f, 1.0f, 1.0f);
-			LightInfo.Colour = glm::vec3(1.0f, 0.7647f, 0.0f);
-			
-			PointLight1 = DemoScene->AddNewPointLight(LightInfo);
-			PointLight1->ShadowNear = 1.0f;
-			PointLight1->ShadowFar  = 50.0f;
-		}
-
-		{
-			Grvt::LightCreationInfo LightInfo;
-			LightInfo.Brightness = 1.0f;
-			LightInfo.Position = glm::vec3(-5.5f, 2.0f, 20.0f);
-			LightInfo.Type = Grvt::GrvtLight_Type_Pointlight;
-			LightInfo.Colour = glm::vec3(0.6627f, 0.0705f, 0.7490f);
-
-			PointLight2 = DemoScene->AddNewPointLight(LightInfo);
-			PointLight2->ShadowNear = 1.0f;
-			PointLight2->ShadowFar	= 50.0f;
-		}
-
-		PointLight1->UpdateByRadius(10.0f);
-		PointLight2->UpdateByRadius(10.0f);
-
-		Gfl::String LampIdentity;
-		size_t Count = 0;
-
-		for (Grvt::PointLight* Light : DemoScene->PointLights)
-		{
-			LampIdentity.Format("Lamp_%d", Count++);
-			Grvt::ActorCreationInfo ActorInfo;
-			ActorInfo.Position		= Light->Position;
-			ActorInfo.SrcMaterial	= Grvt::GetResourceManager()->GetMaterial("LampMaterial");
-			ActorInfo.SrcModel		= Grvt::GetResourceManager()->GetModel("Sphere");
-			ActorInfo.Identifier	= LampIdentity;
-			
-			Grvt::GrvtActor* LampActor = &DemoScene->AddNewActor(ActorInfo);
-			LampActor->Material.SetVector("Colour", Light->Colour);
-			LampActor->Material.SetFloat("Brightness", 5.0f);
-			LampActor->Scale = glm::vec3(0.5f);
-
-			LampIdentity.Empty();
-		}
-
-		DemoScene->AddSkyBox(Grvt::GetResourceManager()->GetMaterial("CubeMapMaterial"));
 	}
 
 	void ExecuteApplication()
 	{
-		m_Renderer = dynamic_cast<Grvt::DeferredPBR*>(Grvt::GetRenderer());
-		Grvt::BaseCamera* Camera = Grvt::GetActiveScene()->Camera;
-		static bool Animate = false;
-		static bool InitAnim = true;
-		static float Val = 0.0f;
-		static glm::vec3 InitOrientation = glm::vec3(1.0f, -1.0f, -1.0f);
-		static glm::vec3 EndOrientation = glm::vec3(-1.0f, -1.0f, -1.0f);
-
-		RenderFloorGrid();
-
-		Grvt::GrvtActor* Mid	= Grvt::GetActiveScene()->GetActor("Mid");
-		Grvt::GrvtActor* Right	= Grvt::GetActiveScene()->GetActor("Right");
-		Grvt::GrvtActor* Up		= Grvt::GetActiveScene()->GetActor("Up");
-		Grvt::GrvtActor* Front	= Grvt::GetActiveScene()->GetActor("Front");
-
-		Mid->Material.SetFloat("Far", Camera->Far);
-		Mid->Material.SetFloat("Near", Camera->Near);
-		Mid->Material.SetFloat("Shininess", 1.0f);
-		Mid->Material.SetVector("Colour", glm::vec3(1.0f, 1.0f, 1.0f));
-		Mid->Material.SetVector("ViewPos", Camera->Position);
-		
-		Right->Material.SetFloat("Far",	Camera->Far);
-		Right->Material.SetFloat("Near", Camera->Near);
-		Right->Material.SetFloat("Shininess", 1.0f);
-		Right->Material.SetVector("Colour", glm::vec3(1.0f, 0.0f, 0.0f));
-		Right->Material.SetVector("ViewPos", Camera->Position);
-		
-		Up->Material.SetFloat("Far", Camera->Far);
-		Up->Material.SetFloat("Near", Camera->Near);
-		Up->Material.SetFloat("Shininess", 1.0f);
-		Up->Material.SetVector("Colour", glm::vec3(0.0f, 1.0f, 0.0f));
-		Up->Material.SetVector("ViewPos", Camera->Position);
-		
-		Front->Material.SetFloat("Far", Camera->Far);
-		Front->Material.SetFloat("Near", Camera->Near);
-		Front->Material.SetFloat("Shininess", 1.0f);
-		Front->Material.SetVector("Colour", glm::vec3(0.0f, 0.0f, 1.0f));
-		Front->Material.SetVector("ViewPos", Camera->Position);
-		
-		if (m_IO->IsKeyPressed(GLFW_KEY_P))
-			Animate ^= true;
-
-		Grvt::PointLight* Light = DemoScene->PointLights[0];
-		Light->Position.x = glm::sin(glm::radians(Val)) * 5.0f;
-		Light->Position.y = 7.5f + (glm::sin(glm::radians(Val)) * 5.0f);
-		Light->Position.z = glm::cos(glm::radians(Val)) * 5.0f;
-
-		Grvt::GrvtActor* LampActor = DemoScene->GetActor("Lamp_0");
-		LampActor->Position = Light->Position;
-
-		Light = DemoScene->PointLights[1];
-		Light->Position.x = glm::cos(glm::radians(Val)) * 7.0f;
-		Light->Position.z = glm::sin(glm::radians(Val)) * 7.0f;
-
-		LampActor = DemoScene->GetActor("Lamp_1");
-		LampActor->Position = Light->Position;
-
-		Val++;
-
-		if (Val >= 360.0f)
-			Val = 0.0f;
-
-		m_Renderer->Exposure(1.0f);
-		m_Renderer->Gamma(1.5f);
 
 		// NOTE(Afiq):
 		// This part here needs to be a system instead.
-		if (Animate)
+		/*if (Animate)
 		{
 			if (InitAnim)
 			{
@@ -342,13 +121,7 @@ extern "C"
 			//if (DemoScene->DirectionalLight)
 			//	if (DemoScene->DirectionalLight->Orientation.x <= -1.0f)
 			//		InitAnim = true;
-		}
-	}
-
-	void OnUnload()
-	{
-		m_IO = nullptr;
-		m_Engine = nullptr;
+		}*/
 	}
 
 }

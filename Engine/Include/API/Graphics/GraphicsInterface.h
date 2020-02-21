@@ -6,6 +6,11 @@
 #include "Minimal.h"
 #include "API/Graphics/GraphicsDriver.h"
 
+#include "Framework/Model.h"
+#include "Framework/Shader.h"
+#include "Framework/Texture.h"
+#include "Framework/Material.h"
+
 namespace Grvt
 {
 
@@ -15,44 +20,51 @@ namespace Grvt
 
 	namespace Interface
 	{
-		template <class BuildDataType>
+		template <class ResourceType, class BuildDataType>
 		struct ResourcePacket
 		{
-			GfxHandle*		Handle = nullptr;
+			ResourceType*	ResourcePtr = nullptr;
 			BuildDataType	BuildData;
 		};
 
 		struct DeletePacket
 		{
-		private:
-
-			DeletePacket(const DeletePacket& Rhs) = delete;
-			DeletePacket& operator= (const DeletePacket& Rhs) = delete;
-
-		public:
-
 			GfxHandle	Handle;
 			HandleType	Type = HandleType::Handle_None;
 
 			DeletePacket() {}
 			~DeletePacket() {}
+
+			DeletePacket(const DeletePacket& Rhs)				= delete;
+			DeletePacket& operator= (const DeletePacket& Rhs)	= delete;
+
+			DeletePacket(DeletePacket&& Rhs);
+			DeletePacket& operator= (DeletePacket&& Rhs);
 		};
 
-		struct MeshPacket : public ResourcePacket<Driver::MeshBuildData>
+		struct MeshPacket : public ResourcePacket<GrvtMesh, Driver::MeshBuildData>
 		{
 			// Temporary placement for interleaved vertex data.
 			Gfl::Array<float32> Interleaved;
 		};
 
-		struct BufferPacket : public ResourcePacket<Driver::BufferBuildData>
+		struct BufferPacket : public ResourcePacket<GfxHandle, Driver::BufferBuildData>
 		{
 			// Temporary placement for interleaved / non-interleaved buffer data.
 			Gfl::Array<float32> TempStore;
 		};
 
-		using TexturePacket = ResourcePacket<Driver::TextureBuildData>;
-		using ShaderPacket	= ResourcePacket<Driver::ShaderBuildData>;
-		using FramePacket	= ResourcePacket<Driver::FramebufferBuildData>;
+		// TODO(Afiq):
+		// Implement Material Packets. We won't have the uninitialise uniforms when materials are pushed into the interface.
+		struct MaterialPacket
+		{
+			GrvtMaterial*	ResourcePtr = nullptr;
+			GrvtShader*		ShaderPtr	= nullptr;
+		};
+
+		using TexturePacket = ResourcePacket<GrvtTexture, Driver::TextureBuildData>;
+		using ShaderPacket	= ResourcePacket<GrvtShader, Driver::ShaderBuildData>;
+		using FramePacket	= ResourcePacket<GfxHandle, Driver::FramebufferBuildData>;
 	}
 
 	class GraphicsInterface
@@ -64,6 +76,7 @@ namespace Grvt
 		std::deque<Interface::MeshPacket>		MeshQueue;
 		std::deque<Interface::TexturePacket>	TextureQueue;
 		std::deque<Interface::ShaderPacket>		ShaderQueue;
+		std::deque<Interface::MaterialPacket>	MaterialQueue;
 		std::deque<Interface::FramePacket>		FrameQueue;
 		std::deque<Interface::BufferPacket>		BufferQueue;
 		std::deque<Interface::DeletePacket>		DeleteQueue;
@@ -84,11 +97,11 @@ namespace Grvt
 		void Init(GraphicsDriver* Driver);
 		void Shutdown();
 
-		void QueueMeshForBuild			(GfxHandle& Handle, const Driver::MeshBuildData& Data);
-		void QueueTextureForBuild		(GfxHandle& Handle, const Driver::TextureBuildData& Data);
-		void QueueShaderForBuild		(GfxHandle& Handle, const Driver::ShaderBuildData& Data);
-		void QueueFramebufferForBuild	(GfxHandle& Handle, const Driver::FramebufferBuildData& Data);
-		void QueueBufferForBuild		(GfxHandle& Handle, const Driver::BufferBuildData& Data);
+		void QueueMeshForBuild			(GrvtMesh& Resource, const Driver::MeshBuildData& Data);
+		void QueueTextureForBuild		(GrvtTexture& Resource, const Driver::TextureBuildData& Data);
+		void QueueShaderForBuild		(GrvtShader& Resource, const Driver::ShaderBuildData& Data);
+		void QueueFramebufferForBuild	(GfxHandle& Resource, const Driver::FramebufferBuildData& Data);
+		void QueueBufferForBuild		(GfxHandle& Resource, const Driver::BufferBuildData& Data);
 
 		void QueueMeshPacketForBuild	(const Interface::MeshPacket& Packet);
 		void QueueTexturePacketForBuild	(const Interface::TexturePacket& Packet);
@@ -102,6 +115,7 @@ namespace Grvt
 		void PackageMeshForBuild		(GrvtMesh& MeshSrc);
 		void PackageTextureForBuild		(GrvtTexture& TextureSrc);
 		void PackageShaderForBuild		(GrvtShader& ShaderSrc);
+		void PackageMaterialForBuild	(GrvtMaterial& MaterialSrc);
 	};
 
 }

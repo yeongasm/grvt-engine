@@ -5,6 +5,13 @@
 namespace Grvt
 {
 
+	VertexAttr::VertexAttr() :
+		Name(), Type(Gfx_Type_None), Location(-1), Size(0) {}
+
+
+	VertexAttr::~VertexAttr() {}
+
+
 	namespace Driver
 	{
 		void BufferBuildData::AddData(uint32 Target, size_t Size, void* SrcData)
@@ -83,6 +90,9 @@ namespace Grvt
 		{
 			Parameters.Pop();
 		}
+
+		FrameTexAttachment::FrameTexAttachment(GfxHandle* AttachmentHandle, uint32 AttachmentType, TextureBuildData Data) :
+			Handle(AttachmentHandle), Type(AttachmentType), BuildData(Data) {}
 	}
 
 	void GraphicsDriver::CreateVertexArray(GfxHandle& Handle)
@@ -137,6 +147,198 @@ namespace Grvt
 		glDeleteShader(Handle.Id);
 	}
 
+	bool GraphicsDriver::SetUniformBool(uint32 Location, bool Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform1i(Location, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformInt(uint32 Location, int32 Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform1i(Location, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformFloat(uint32 Location, float32 Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform1f(Location, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformDouble(uint32 Location, float64 Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform1d(Location, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec2F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform2fv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec2D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform2dv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec3F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform3fv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec3D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform3dv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec4F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform4fv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformVec4D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniform3dv(Location, 1, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat2F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix2fv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat2D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix2dv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat3F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix3fv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat3D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix3dv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat4F(uint32 Location, float32* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix4fv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
+	bool GraphicsDriver::SetUniformMat4D(uint32 Location, float64* Value)
+	{
+		if (Location == -1)
+		{
+			return false;
+		}
+
+		glUniformMatrix4dv(Location, 1, GL_FALSE, Value);
+
+		return true;
+	}
+
 	void GraphicsDriver::CreateProgram(GfxHandle& Handle)
 	{
 		Handle.Id = glCreateProgram();
@@ -176,6 +378,11 @@ namespace Grvt
 	void GraphicsDriver::DeleteTexture(GfxHandle& Handle)
 	{
 		glDeleteTextures(1, &Handle.Id);
+	}
+
+	void GraphicsDriver::ActiveTexture(uint32 Unit)
+	{
+		glActiveTexture(GL_TEXTURE0 + Unit);
 	}
 
 	void GraphicsDriver::CreateFramebuffer(GfxHandle& Handle)
@@ -446,6 +653,46 @@ namespace Grvt
 	void GraphicsDriver::SetViewport(int32 X, int32 Y, int32 Width, int32 Height)
 	{
 		glViewport(X, Y, Width, Height);
+	}
+
+	int32 GraphicsDriver::GetProgramUniforms(GfxHandle& Handle)
+	{
+		int32 Total = 0;
+
+		glGetProgramiv(Handle.Id, GL_ACTIVE_UNIFORMS, &Total);
+
+		return Total;
+	}
+
+	int32 GraphicsDriver::GetProgramAttributes(GfxHandle& Handle)
+	{
+		int32 Total = 0;
+
+		glGetProgramiv(Handle.Id, GL_ACTIVE_ATTRIBUTES, &Total);
+
+		return Total;
+	}
+
+	UniformAttr GraphicsDriver::GetActiveUniform(GfxHandle& Handle, uint32 Index)
+	{
+		UniformAttr Uniform;
+
+		Uniform.Name.Reserve(128);
+
+		glGetActiveUniform(Handle.Id, Index, 128, 0, &Uniform.Size, (uint32*)&Uniform.Type, Uniform.Name.First());
+
+		return Uniform;
+	}
+
+	VertexAttr GraphicsDriver::GetActiveAttribute(GfxHandle& Handle, uint32 Index)
+	{
+		VertexAttr Attribute;
+
+		Attribute.Name.Reserve(128);
+
+		glGetActiveAttrib(Handle.Id, Index, 128, 0, &Attribute.Size, (uint32*)&Attribute.Type, Attribute.Name.First());
+
+		return Attribute;
 	}
 
 

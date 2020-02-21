@@ -29,7 +29,6 @@ namespace Grvt
 		StartUp(nullptr),
 		OnLoad(nullptr),
 		Execute(nullptr),
-		Unload(nullptr),
 		IsValid(false) {}
 
 	ReloadModule::~ReloadModule()
@@ -57,15 +56,15 @@ namespace Grvt
 
 			OnLoad	= (ArgFuncPtr)GetProcAddress(ModuleDll, "OnLoad");
 			Execute	= (FuncPtr)GetProcAddress(ModuleDll, "ExecuteApplication");
-			Unload	= (FuncPtr)GetProcAddress(ModuleDll, "OnUnload");
 
 			IsValid = true;
 		}
 
 		if (!IsValid)
 		{
-			StartUp = OnLoad = nullptr;
-			Execute = Unload = nullptr;
+			StartUp = nullptr;
+			OnLoad	= nullptr;
+			Execute = nullptr;
 
 			return false;
 		}
@@ -86,8 +85,9 @@ namespace Grvt
 		}
 		
 		IsValid = false;
-		StartUp = OnLoad = nullptr;
-		Execute = Unload = nullptr;
+		StartUp = nullptr;
+		OnLoad	= nullptr;
+		Execute = nullptr;
 	}
 
 }

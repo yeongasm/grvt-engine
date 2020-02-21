@@ -9,20 +9,30 @@
 namespace Grvt
 {
 
-	struct RenderContext
+	class RenderContext
 	{
-		GrvtEngine* Engine;
+	private:
 
-		GraphicsDriver*		GlDriver;
-		Renderer*			GlRenderer;
+		GrvtEngine*		Engine;
+		GraphicsDriver*	GlDriver;
+
+	public:
 
 		GraphicsInterface	GlInterface;
+		GrvtRenderer*		GlRenderer;
 
 		RenderContext();
 		~RenderContext();
 
 		void Execute(GrvtEngine* EnginePtr, GLADloadproc LoadProcFunc);
 	};
+
+	RenderContext* InitialiseRenderContext();
+	void ShutdownRenderContext();
+	
+	ENGINE_API RenderContext*		GetRenderContext();
+	ENGINE_API GraphicsInterface*	GetGraphicsInterface();
+	ENGINE_API GrvtRenderer*		GetRenderer();
 
 }
 
