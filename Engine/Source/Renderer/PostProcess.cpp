@@ -31,8 +31,8 @@ namespace Grvt
 		*/
 		ShaderImportInfo ShaderInfo;
 		ShaderInfo.Name = "HDRShader";
-		ShaderInfo.PathToVertexShader	= "";
-		ShaderInfo.PathToFragmentShader = "";
+		ShaderInfo.PathToVertexShader	= "Data\\Shaders\\PostProcessing\\Hdr.vert";
+		ShaderInfo.PathToFragmentShader = "Data\\Shaders\\PostProcessing\\Hdr.frag";
 
 		HDRShader = GetResourceManager()->NewShaderProgram(ShaderInfo);
 
@@ -49,22 +49,22 @@ namespace Grvt
 		HdrInfo.Height = Renderer->Height;
 
 		Driver::TextureBuildData HdrTexInfo;
-		HdrTexInfo.Format = GL_RGBA;
-		HdrTexInfo.InternalFormat = GL_RGBA16F;
-		HdrTexInfo.Type = GL_FLOAT;
-		HdrTexInfo.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
-		HdrTexInfo.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
+		HdrTexInfo.Format = Gfx_Format_Rgba;
+		HdrTexInfo.InternalFormat = Gfx_Format_Rgba16F;
+		HdrTexInfo.Type = Gfx_Type_Float;
+		HdrTexInfo.Parameters.Push({ Gfx_TexParam_MinFilter, Gfx_Mip_Linear});
+		HdrTexInfo.Parameters.Push({ Gfx_TexParam_MagFilter, Gfx_Mip_Linear });
 
-		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment0.Value, GL_COLOR_ATTACHMENT0, HdrTexInfo));
-		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment1.Value, GL_COLOR_ATTACHMENT1, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment0.Value, Gfx_Attachment_Colour0, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment1.Value, Gfx_Attachment_Colour1, HdrTexInfo));
 
-		HdrTexInfo.Format = GL_DEPTH_COMPONENT;
-		HdrTexInfo.InternalFormat = GL_DEPTH_COMPONENT;
+		HdrTexInfo.Format = Gfx_Format_Depth;
+		HdrTexInfo.InternalFormat = Gfx_Format_Depth;
 
 		Gfl::Pair<uint32, GfxHandle>& DepthAttachment = HDR.DepthAttachment;
 		DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
 
-		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, HdrTexInfo));
+		HdrInfo.Attachments.Push(Driver::FrameTexAttachment(&DepthAttachment.Value, Gfx_Attachment_Depth, HdrTexInfo));
 
 		GfxDriver->BuildFramebuffer(HDR.Handle, HdrInfo);
 	}
@@ -74,15 +74,15 @@ namespace Grvt
 	{
 		ShaderImportInfo VKInfo;
 		VKInfo.Name = "VerticalBlurKernel";
-		VKInfo.PathToVertexShader = "";
-		VKInfo.PathToFragmentShader = "";
+		VKInfo.PathToVertexShader = "Data\\Shaders\\PostProcessing\\BloomVertical.vert";
+		VKInfo.PathToFragmentShader = "Data\\Shaders\\PostProcessing\\BloomVertical.frag";
 
 		VerticalBlurKernel = GetResourceManager()->NewShaderProgram(VKInfo);
 
 		ShaderImportInfo HKInfo;
 		HKInfo.Name = "HorizontalBlurKernel";
-		HKInfo.PathToVertexShader = "";
-		HKInfo.PathToFragmentShader = "";
+		HKInfo.PathToVertexShader = "Data\\Shaders\\PostProcessing\\BloomHorizontal.vert";
+		HKInfo.PathToFragmentShader = "Data\\Shaders\\PostProcessing\\BloomHorizontal.frag";
 
 		HorizontalBlurKernel = GetResourceManager()->NewShaderProgram(HKInfo);
 
@@ -99,15 +99,15 @@ namespace Grvt
 
 			Driver::TextureBuildData TexInfo;
 
-			TexInfo.Format = GL_RGB;
-			TexInfo.InternalFormat = GL_RGB16F;
-			TexInfo.Type = GL_FLOAT;
-			TexInfo.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
-			TexInfo.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
-			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
-			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+			TexInfo.Format = Gfx_Format_Rgb;
+			TexInfo.InternalFormat = Gfx_Format_Rgb16F;
+			TexInfo.Type = Gfx_Type_Float;
+			TexInfo.Parameters.Push({ Gfx_TexParam_MinFilter, Gfx_Mip_Linear });
+			TexInfo.Parameters.Push({ Gfx_TexParam_MagFilter, Gfx_Mip_Linear });
+			TexInfo.Parameters.Push({ Gfx_TexParam_WrapS, Gfx_Wrap_ClampToEdge });
+			TexInfo.Parameters.Push({ Gfx_TexParam_WrapT, Gfx_Wrap_ClampToEdge });
 
-			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
+			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, Gfx_Attachment_Colour0, TexInfo));
 			
 			GfxDriver->BuildFramebuffer(BloomTarget0.Handle, Blur);
 		}
@@ -124,15 +124,15 @@ namespace Grvt
 
 			Driver::TextureBuildData TexInfo;
 
-			TexInfo.Format = GL_RGB;
-			TexInfo.InternalFormat = GL_RGB16F;
-			TexInfo.Type = GL_FLOAT;
-			TexInfo.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_LINEAR});
-			TexInfo.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_LINEAR});
-			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
-			TexInfo.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
+			TexInfo.Format = Gfx_Format_Rgb;
+			TexInfo.InternalFormat = Gfx_Format_Rgb16F;
+			TexInfo.Type = Gfx_Type_Float;
+			TexInfo.Parameters.Push({ Gfx_TexParam_MinFilter, Gfx_Mip_Linear });
+			TexInfo.Parameters.Push({ Gfx_TexParam_MagFilter, Gfx_Mip_Linear });
+			TexInfo.Parameters.Push({ Gfx_TexParam_WrapS, Gfx_Wrap_ClampToEdge });
+			TexInfo.Parameters.Push({ Gfx_TexParam_WrapT, Gfx_Wrap_ClampToEdge });
 
-			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, GL_COLOR_ATTACHMENT0, TexInfo));
+			Blur.Attachments.Push(Driver::FrameTexAttachment(&ColourAttachment.Value, Gfx_Attachment_Colour0, TexInfo));
 			
 			GfxDriver->BuildFramebuffer(BloomTarget1.Handle, Blur);
 		}

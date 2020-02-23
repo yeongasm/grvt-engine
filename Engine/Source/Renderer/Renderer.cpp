@@ -1,5 +1,6 @@
 #include "GrvtPch.h"
 #include "Renderer/Renderer.h"
+#include "Renderer/RenderContext.h"
 #include "Library/GrvtAlgorithms.h"
 
 
@@ -9,7 +10,6 @@ namespace Grvt
 
 	//static uint32 PreviousWidth  = 0;
 	//static uint32 PreviousHeight = 0;
-
 
 	void GrvtRenderer::SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<size_t>& SortedCommands)
 	{
@@ -126,6 +126,60 @@ namespace Grvt
 	}
 
 
+	void GrvtRenderer::DeleteFramebuffer(RenderTarget& Framebuffer)
+	{
+		if (Framebuffer.DepthStencilAttachment.Value.Id)
+		{
+			GetGraphicsInterface()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthStencilAttachment.Value), HandleType::Handle_Texture);
+		}
+
+		if (Framebuffer.DepthAttachment.Value.Id)
+		{
+			GetGraphicsInterface()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthAttachment.Value), HandleType::Handle_Texture);
+		}
+
+		for (RenderTarget::AttachmentPoint& Attachment : Framebuffer.ColourAttachments)
+		{
+			if (Attachment.Value.Id)
+			{
+				GetGraphicsInterface()->QueueHandleForDelete(Gfl::Move(Attachment.Value), HandleType::Handle_Texture);
+			}
+		}
+
+		if (Framebuffer.Handle.Id)
+		{
+			GetGraphicsInterface()->QueueHandleForDelete(Gfl::Move(Framebuffer.Handle), HandleType::Handle_Framebuffer);
+		}
+	}
+
+
+	void GrvtRenderer::DeleteFramebufferInstant(RenderTarget& Framebuffer)
+	{
+		if (Framebuffer.DepthStencilAttachment.Value.Id)
+		{
+			GfxDriver->DeleteTexture(Framebuffer.DepthStencilAttachment.Value);
+		}
+
+		if (Framebuffer.DepthAttachment.Value.Id)
+		{
+			GfxDriver->DeleteTexture(Framebuffer.DepthAttachment.Value);
+		}
+
+		for (RenderTarget::AttachmentPoint& Attachment : Framebuffer.ColourAttachments)
+		{
+			if (Attachment.Value.Id)
+			{
+				GfxDriver->DeleteTexture(Attachment.Value);
+			}
+		}
+
+		if (Framebuffer.Handle.Id)
+		{
+			GfxDriver->DeleteFramebuffer(Framebuffer.Handle);
+		}
+	}
+
+
 	void GrvtRenderer::RenderPushedCommand(const RenderCommand& Command, bool UpdateState)
 	{
 		GrvtMaterial* Material = Command.Material;
@@ -158,6 +212,7 @@ namespace Grvt
 		UnsortedInstancedCommands(),
 		SortedCommands(),
 		SortedInstancedCommands(),
+		RenderTargets(),
 		PostProcess(),
 		GBuffer(),
 		StateCache(),
@@ -165,8 +220,9 @@ namespace Grvt
 		FrontBuffer(),
 		GfxDriver(nullptr),
 		ActiveShader(nullptr),
-		ScreenQuad(nullptr),
+		ScreenQuad(nullptr), 
 		ProjectionViewUBO(),
+		RtIdCount(0),
 		PosX(0),
 		PosY(0),
 		Width(0),
@@ -192,7 +248,36 @@ namespace Grvt
 	
 	void GrvtRenderer::Shutdown()
 	{
+		if (ProjectionViewUBO.Id)
+		{
+			GfxDriver->DeleteBuffer(ProjectionViewUBO);
+		}
 
+		BackBuffer.Free();
+		FrontBuffer.Free();
+
+		PostProcess.Free();
+
+		DeleteFramebuffer(GBuffer);
+		
+		for (auto& It : RenderTargets)
+		{
+			DeleteFramebuffer(It.second);
+		}
+
+		UnsortedCommands.Release();
+		UnsortedInstancedCommands.Release();
+
+		SortedCommands.Release();
+		UnsortedCommands.Release();
+
+		GfxDriver		= nullptr;
+		ActiveShader	= nullptr;
+		ScreenQuad		= nullptr;
+
+		DeferredPassShader			= nullptr;
+		DeferredDirectionalShader	= nullptr;
+		DeferredPointShader			= nullptr;
 	}
 
 
@@ -200,4 +285,69 @@ namespace Grvt
 	{
 
 	}
+
+
+	size_t GrvtRenderer::NewDepthMap(bool Cubemap)
+	{
+		auto Pair = RenderTargets.emplace(RtIdCount++, RenderTarget());
+
+		size_t Handle = Pair.first->first;
+
+		RenderTarget& Framebuffer = Pair.first->second;
+
+		Gfl::Pair<uint32, GfxHandle>& DepthAttachment = Framebuffer.DepthAttachment;
+		DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
+
+		Driver::FramebufferBuildData FBuild;
+		Driver::TextureBuildData TBuild;
+
+		TBuild.Target	= Gfx_Texture_2D;
+		TBuild.Type		= Gfx_Type_Float;
+		TBuild.Format	= Gfx_Format_Depth;
+		TBuild.InternalFormat = Gfx_Format_Depth;
+
+		TBuild.Parameters.Push({ Gfx_TexParam_MagFilter, Gfx_Mip_Nearest });
+		TBuild.Parameters.Push({ Gfx_TexParam_MinFilter, Gfx_Mip_Nearest });
+
+		if (Cubemap)
+		{
+			TBuild.Target = Gfx_Texture_CubeMap;
+
+			TBuild.Parameters.Push({ Gfx_TexParam_WrapS, Gfx_Wrap_ClampToEdge });
+			TBuild.Parameters.Push({ Gfx_TexParam_WrapT, Gfx_Wrap_ClampToEdge });
+			TBuild.Parameters.Push({ Gfx_TexParam_WrapR, Gfx_Wrap_ClampToEdge });
+		}
+		else
+		{
+			TBuild.Parameters.Push({ Gfx_TexParam_WrapS, Gfx_Wrap_ClampToBorder });
+			TBuild.Parameters.Push({ Gfx_TexParam_WrapT, Gfx_Wrap_ClampToBorder });
+			TBuild.BorderColour[0] = 1.0f;
+			TBuild.BorderColour[1] = 1.0f;
+			TBuild.BorderColour[2] = 1.0f;
+			TBuild.BorderColour[3] = 1.0f;
+		}
+		
+		FBuild.Attachments.Push(Driver::FrameTexAttachment(&DepthAttachment.Value, Gfx_Attachment_Depth, TBuild));
+
+		GetRenderContext()->GlInterface.QueueFramebufferForBuild(Framebuffer.Handle, FBuild);
+		
+		return Handle;
+	}
+
+	bool GrvtRenderer::DeleteRenderTarget(size_t RenderTargetIndex)
+	{
+		if (RenderTargetIndex == -1)
+		{
+			return false;
+		}
+
+		RenderTarget& Framebuffer = RenderTargets[RenderTargetIndex];
+
+		DeleteFramebuffer(Framebuffer);
+
+		RenderTargets.erase(RenderTargetIndex);
+
+		return true;
+	}
+
 }

@@ -13,8 +13,9 @@ namespace Grvt
 
 	GrvtScene::GrvtScene() :
 		Sky(),
-		Name(), 
+		Name(),
 		Camera(nullptr),
+		RendererPtr(nullptr),
 		Actors(), 
 		PointLights(), 
 		DirectionalLight(nullptr) {}
@@ -79,7 +80,7 @@ namespace Grvt
 	}
 
 
-	/*DirLight* GrvtScene::AddNewDirectionalLight(const LightCreationInfo& Info)
+	DirLight* GrvtScene::AddNewDirectionalLight(const LightCreationInfo& Info)
 	{
 		if (DirectionalLight)
 		{
@@ -88,78 +89,25 @@ namespace Grvt
 
 		DirectionalLight = new DirLight();
 		DirectionalLight->Alloc(Info);
-
-		if (Info.Shadows)
-		{
-			// Set up shadow map for directional lighting.
-			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = DirectionalLight->DepthMap.DepthAttachment;
-
-			// This currently has no purpose.
-			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
-
-			BaseAPI::FramebufferBuildData FBuild;
-			BaseAPI::TextureBuildData TBuild;
-
-			TBuild.Type = GL_FLOAT;
-			TBuild.Format = GL_DEPTH_COMPONENT;
-			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
-			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER});
-			TBuild.BorderColour[0] = 1.0f;
-			TBuild.BorderColour[1] = 1.0f;
-			TBuild.BorderColour[2] = 1.0f;
-			TBuild.BorderColour[3] = 1.0f;
-
-			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
-			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&DirectionalLight->DepthMap.Handle, FBuild);
-		}
+		DirectionalLight->RenderTargetIdx = RendererPtr->NewDepthMap(false);
 
 		return DirectionalLight;
-	}*/
+	}
 
 	
-	/*PointLight* GrvtScene::AddNewPointLight(const LightCreationInfo& Info)
+	PointLight* GrvtScene::AddNewPointLight(const LightCreationInfo& Info)
 	{
 		if (PointLights.Length() == MAX_POINT_LIGHTS)
 		{
 			return nullptr;
 		}
 		
-		PointLight* LightPtr = PointLights.Insert(new PointLight());
-		LightPtr->Alloc(Info);
+		PointLight* Pointlight = PointLights.Insert(new PointLight());
+		Pointlight->Alloc(Info);
+		Pointlight->RenderTargetIdx = RendererPtr->NewDepthMap();
 
-		if (Info.Shadows)
-		{
-			Gfl::Pair<uint32, ObjHandle>& DepthAttachment = LightPtr->DepthMap.DepthAttachment;
-			DepthAttachment.Key = RenderTarget_AttachPoint_Depth;
-			
-			BaseAPI::FramebufferBuildData FBuild;
-			BaseAPI::TextureBuildData TBuild;
-
-			LightPtr->DepthMap.Width  = 1024;
-			LightPtr->DepthMap.Height = 1024;
-
-			TBuild.Target = GL_TEXTURE_CUBE_MAP;
-			TBuild.Type = GL_FLOAT;
-			TBuild.Format = GL_DEPTH_COMPONENT;
-			TBuild.InternalFormat = GL_DEPTH_COMPONENT;
-			TBuild.Parameters.Push({GL_TEXTURE_MAG_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_MIN_FILTER, GL_NEAREST});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE});
-			TBuild.Parameters.Push({GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE});
-
-			FBuild.Width  = LightPtr->DepthMap.Width;
-			FBuild.Height = LightPtr->DepthMap.Height;
-			FBuild.Attachments.Push(BaseAPI::TextureAttachment(&DepthAttachment.Value, GL_DEPTH_ATTACHMENT, TBuild));
-
-			Middleware::GetBuildQueue()->QueueFramebufferForBuild(&LightPtr->DepthMap.Handle, FBuild);
-		}
-
-		return LightPtr;
-	}*/
+		return Pointlight;
+	}
 
 
 	GrvtActor* GrvtScene::GetActor(const Gfl::String& Name)
@@ -208,37 +156,22 @@ namespace Grvt
 		return true;
 	}
 
-	// TODO(Afiq):
-	// Delete Framebuffer when we're deleting the light source.
-	/*bool GrvtScene::DeleteDirLight()
+
+	bool GrvtScene::DeleteDirLight()
 	{
 		if (!DirectionalLight)
 			return false;
 
-		RenderTarget& Framebuffer = DirectionalLight->DepthMap;
-
-		if (Framebuffer.DepthAttachment.Value.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-
-		if (Framebuffer.DepthStencilAttachment.Value.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthStencilAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-
-		for (Gfl::Pair<uint32, ObjHandle>& ColourAttachment : Framebuffer.ColourAttachments)
-		{
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(ColourAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-		}
-
-		if (Framebuffer.Handle.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.Handle), Middleware::GrvtGfx_Type_Framebuffer);
+		RendererPtr->DeleteRenderTarget(DirectionalLight->RenderTargetIdx);
 
 		delete DirectionalLight;
 		DirectionalLight = nullptr;
 
 		return true;
-	}*/
+	}
 
 
-	/*bool GrvtScene::DeletePointLight(PointLight** PointLight)
+	bool GrvtScene::DeletePointLight(PointLight** PointLight)
 	{
 		size_t Index = PointLights.Find(*PointLight);
 
@@ -247,31 +180,17 @@ namespace Grvt
 			return false;
 		}
 
-		RenderTarget& Framebuffer = (*PointLight)->DepthMap;
-
-		if (Framebuffer.DepthAttachment.Value.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-
-		if (Framebuffer.DepthStencilAttachment.Value.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.DepthStencilAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-
-		for (Gfl::Pair<uint32, ObjHandle>& ColourAttachment : Framebuffer.ColourAttachments)
-		{
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(ColourAttachment.Value), Middleware::GrvtGfx_Type_Texture);
-		}
-
-		if (Framebuffer.Handle.Id)
-			Middleware::GetBuildQueue()->QueueHandleForDelete(Gfl::Move(Framebuffer.Handle), Middleware::GrvtGfx_Type_Framebuffer);
+		RendererPtr->DeleteRenderTarget((*PointLight)->RenderTargetIdx);
 
 		delete PointLights[Index];
-		PointLights[Index] = nullptr;
 
 		PointLight = nullptr;
+		PointLights[Index] = nullptr;
 
 		PointLights.PopAt(Index);
 
 		return true;
-	}*/
+	}
 
 
 	void GrvtScene::Alloc(const SceneCreationInfo& Info)
@@ -279,6 +198,8 @@ namespace Grvt
 		Name = Info.Name;
 		Actors.Reserve(Info.ActorReserves);
 		PointLights.Reserve(Info.PointLightReserves);
+
+		RendererPtr = Info.RendererPtr;
 	}
 
 
@@ -305,12 +226,17 @@ namespace Grvt
 	}
 
 
-	/*void GrvtScene::DeleteAllPointLights()
+	void GrvtScene::DeleteAllPointLights()
 	{
 		PointLight* Temp = nullptr;
 
+		/**
+		* Force the cache to take data from this line.
+		*/
 		if (PointLights.Length())
+		{
 			Temp = PointLights[0];
+		}
 
 		for (size_t i = PointLights.Length() - 1; PointLights.Length(); i--)
 		{
@@ -319,14 +245,14 @@ namespace Grvt
 		}
 
 		PointLights.Empty();
-	}*/
+	}
 
 
-	/*void GrvtScene::DeleteAllLights()
+	void GrvtScene::DeleteAllLights()
 	{
 		DeleteDirLight();
 		DeleteAllPointLights();
-	}*/
+	}
 
 
 	void GrvtScene::AddSkyBox(GrvtMaterial* MaterialPtr, bool Render)
@@ -363,14 +289,13 @@ namespace Grvt
 		{
 			return;
 		}
-		/*
+		
 		if (DirectionalLight)
 		{
 			if (DirectionalLight->Enable)
 			{
 				DirectionalLight->Compute(Buffer.DirectionalLight);
-
-				Buffer.DepthMap = &DirectionalLight->DepthMap;
+				Buffer.DepthMapIndex = DirectionalLight->RenderTargetIdx;
 
 				glm::mat4 Projection = glm::ortho(-30.0f, 30.0f, -30.0f, 30.0f, DirectionalLight->ShadowNear, DirectionalLight->ShadowFar);
 
@@ -391,10 +316,9 @@ namespace Grvt
 			if (!LightPtr->Enable)
 				continue;
 
-			glm::mat4& PointLight = Buffer.PointLights.Insert(glm::mat4(0.0f));
-			LightPtr->Compute(PointLight);
-
-			Buffer.OmniDepthMaps.Push(&LightPtr->DepthMap);
+			glm::mat4& Pointlight = Buffer.PointLights.Insert(glm::mat4(0.0f));
+			LightPtr->Compute(Pointlight);
+			Buffer.OmniDepthMapIndices.Push(LightPtr->RenderTargetIdx);
 			
 			glm::mat4 Projection = glm::perspective(glm::radians(90.0f), 1024.0f / 1024.0f, LightPtr->ShadowNear, LightPtr->ShadowFar);
 
@@ -404,7 +328,7 @@ namespace Grvt
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
 			Buffer.PointLightSpaceTransforms.emplace_back(Projection * glm::lookAt(LightPtr->Position, LightPtr->Position + glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f)));
-		}*/
+		}
 		
 		// Pass in the final projection and view matrix.
 		Buffer.Projection = Camera->GetCameraProjection();
@@ -449,6 +373,8 @@ namespace Grvt
 			Command.Material = &Actor.Material;
 			Command.Sort	 = Actor.Sort;
 
+			Command.HasShadow = Actor.Shadow;
+
 			glm::mat3 TrInvModel = glm::transpose(glm::inverse(Model));
 
 			// Set the model matrix in here.
@@ -475,9 +401,6 @@ namespace Grvt
 				Node.Handle = &Mesh.Vao;
 				Node.Size = Mesh.Size;
 				Node.Mode = Actor.Mode;
-
-				// This step is no longer necessary since we always default the amount to 1.
-				//Node.Amount = 1;
 
 				if (Mesh.Ebo.Id)
 				{

@@ -66,17 +66,17 @@ namespace Grvt
 	*/
 	struct LightSource
 	{
-		RenderTarget*	DepthMap;
-		glm::vec3		Orientation;
-		glm::vec3		Position;
-		glm::vec3		Colour;
-		LightType		Type;
-		float32			Brightness;
-		float32			Bias;
-		float32			ShadowNear;
-		float32			ShadowFar;
-		bool			Enable;
-		bool			Shadows;
+		glm::vec3	Orientation;
+		glm::vec3	Position;
+		glm::vec3	Colour;
+		LightType	Type;
+		size_t		RenderTargetIdx;
+		float32		Brightness;
+		float32		Bias;
+		float32		ShadowNear;
+		float32		ShadowFar;
+		bool		Enable;
+		bool		Shadows;
 
 		ENGINE_API LightSource();
 		ENGINE_API virtual ~LightSource();

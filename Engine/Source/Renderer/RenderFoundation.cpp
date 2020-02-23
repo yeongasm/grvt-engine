@@ -68,7 +68,7 @@ namespace Grvt
 
 
 	RenderCommand::RenderCommand() :
-		Nodes(), Instances(), Transform(1.0f), State(), Material(nullptr), Sort(false) {}
+		Nodes(), Instances(), Transform(1.0f), State(), Material(nullptr), Sort(false), HasShadow(true) {}
 
 
 	RenderCommand::RenderCommand(const RenderCommand& Other) {
@@ -88,6 +88,7 @@ namespace Grvt
 			State		= Other.State;
 			Material	= Other.Material;
 			Sort		= Other.Sort;
+			HasShadow	= Other.HasShadow;
 		}
 
 		return *this;
@@ -111,6 +112,7 @@ namespace Grvt
 			State		= Gfl::Move(Other.State);
 			Material	= Gfl::Move(Other.Material);
 			Sort		= Gfl::Move(Other.Sort);
+			HasShadow	= Gfl::Move(Other.HasShadow);
 
 			new (&Other) RenderCommand();
 		}
@@ -172,10 +174,8 @@ namespace Grvt
 		View(0.0f),
 		DirectionalLight(0.0f),
 		DirLightSpaceTransform(0.0f),
-		DepthMap(nullptr),
 		PointLights(),
 		PointLightSpaceTransforms(),
-		OmniDepthMaps(),
 		RenderCommands(), 
 		InstancedCommands(),
 		ShadowCommands(),
@@ -205,11 +205,9 @@ namespace Grvt
 
 			DirectionalLight    = Other.DirectionalLight;
 			DirLightSpaceTransform = Other.DirLightSpaceTransform;
-			DepthMap			= Other.DepthMap;
 
 			PointLights			= Other.PointLights;
 			PointLightSpaceTransforms = Other.PointLightSpaceTransforms;
-			OmniDepthMaps		= Other.OmniDepthMaps;
 
 			RenderCommands		= Other.RenderCommands;
 			InstancedCommands	= Other.InstancedCommands;
@@ -241,11 +239,9 @@ namespace Grvt
 			
 			DirectionalLight	= Gfl::Move(Other.DirectionalLight);
 			DirLightSpaceTransform = Gfl::Move(Other.DirLightSpaceTransform);
-			DepthMap = Gfl::Move(DepthMap);
 
 			PointLights			= Gfl::Move(Other.PointLights);
 			PointLightSpaceTransforms = Gfl::Move(Other.PointLightSpaceTransforms);
-			OmniDepthMaps		= Gfl::Move(Other.OmniDepthMaps);
 
 			RenderCommands		= Gfl::Move(Other.RenderCommands);
 			InstancedCommands	= Gfl::Move(Other.InstancedCommands);
@@ -265,9 +261,6 @@ namespace Grvt
 	void CommandBuffer::Init()
 	{
 		PointLights.Reserve(64);
-		//PointLightSpaceTransforms.Reserve(64);
-		OmniDepthMaps.Reserve(64);
-
 		RenderCommands.Reserve(64);
 		InstancedCommands.Reserve(64);
 		ShadowCommands.Reserve(64);
@@ -281,11 +274,9 @@ namespace Grvt
 
 		DirectionalLight = glm::mat4(0.0f);
 		DirLightSpaceTransform = glm::mat4(0.0f);
-		DepthMap = nullptr;
 
 		PointLights.Release();
 		PointLightSpaceTransforms.clear();
-		OmniDepthMaps.Release();
 
 		RenderCommands.Release();
 		InstancedCommands.Release();
@@ -299,11 +290,9 @@ namespace Grvt
 	{
 		DirectionalLight = glm::mat4(0.0f);
 		DirLightSpaceTransform = glm::mat4(0.0f);
-		DepthMap = nullptr;
 
 		PointLights.Empty();
 		PointLightSpaceTransforms.clear();
-		OmniDepthMaps.Empty();
 
 		RenderCommands.Empty();
 		InstancedCommands.Empty();

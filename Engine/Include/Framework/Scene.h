@@ -20,6 +20,7 @@ namespace Grvt
 	struct SceneCreationInfo
 	{
 		Gfl::String		Name;
+		GrvtRenderer*	RendererPtr = nullptr;
 		size_t			ActorReserves		= 32;
 		size_t			PointLightReserves	= 128;
 	};
@@ -55,9 +56,10 @@ namespace Grvt
 
 	private:
 
-		friend class	ResourceManager;
-		friend class	GrvtRenderer;
-		friend ENGINE_API void	ExecuteEngine();
+		friend class ResourceManager;
+		friend class GrvtRenderer;
+
+		GrvtRenderer* RendererPtr;
 
 	public:
 
@@ -71,8 +73,6 @@ namespace Grvt
 		void	Alloc(const SceneCreationInfo& Info);
 		void	Free();
 
-		void	CreateSceneCommandBuffer(CommandBuffer& Buffer);
-
 	public:
 
 		GrvtScene();
@@ -84,6 +84,13 @@ namespace Grvt
 		GrvtScene(GrvtScene&& Other)					= delete;
 		GrvtScene& operator= (GrvtScene&& Other)		= delete;
 
+
+		/**
+		* Creates a command buffer from this scene.
+		*/
+		void CreateSceneCommandBuffer(CommandBuffer& Buffer);
+
+
 		/**
 		* Adds a new actor into the scene.
 		*/
@@ -92,12 +99,12 @@ namespace Grvt
 		/**
 		* Adds a new directional light into the scene.
 		*/
-		//ENGINE_API DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
+		ENGINE_API DirLight*	AddNewDirectionalLight	(const LightCreationInfo& Info);
 		
 		/**
 		* Adds a new point light into the scene.
 		*/
-		//ENGINE_API PointLight* AddNewPointLight		(const LightCreationInfo& Info);
+		ENGINE_API PointLight* AddNewPointLight		(const LightCreationInfo& Info);
 
 		/**
 		* Retrieves an actor with the specified identifier from the scene.
@@ -119,12 +126,12 @@ namespace Grvt
 		/**
 		* Deletes a directional light by reference from the scene.
 		*/
-		//ENGINE_API bool		DeleteDirLight			();
+		ENGINE_API bool		DeleteDirLight			();
 
 		/**
 		* Deletes a point light by reference from the scene.
 		*/
-		//ENGINE_API bool		DeletePointLight		(PointLight** PointLight);
+		ENGINE_API bool		DeletePointLight		(PointLight** PointLight);
 
 		/**
 		* Clears all actors from the scene.
@@ -136,13 +143,13 @@ namespace Grvt
 		* Clears all point lights from the scene.
 		* Does not release memory that was once allocated for it.
 		*/
-		//ENGINE_API void		DeleteAllPointLights	();
+		ENGINE_API void		DeleteAllPointLights	();
 
 		/**
 		* Clears all lights from the scene.
 		* Does not release memory that was once allocated for them.
 		*/
-		//ENGINE_API void		DeleteAllLights			();
+		ENGINE_API void		DeleteAllLights			();
 
 		/**
 		* Adds a sky box into the level.

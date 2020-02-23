@@ -24,6 +24,8 @@ namespace Grvt
 	class GrvtRenderer
 	{
 	private:
+		
+		using CustomRenderTargets = std::unordered_map<size_t, RenderTarget>;
 
 		friend class	GrvtEngine;
 		friend struct	CommandBuffer;
@@ -31,6 +33,8 @@ namespace Grvt
 		friend class	PostProcessing;
 
 		friend ENGINE_API void ExecuteEngine();
+
+		CustomRenderTargets RenderTargets;
 
 		Gfl::Array<size_t> UnsortedCommands;
 		Gfl::Array<size_t> UnsortedInstancedCommands;
@@ -55,21 +59,25 @@ namespace Grvt
 
 		GfxHandle		ProjectionViewUBO;
 
+		size_t RtIdCount;
+
 		void SortCommand(const Gfl::Array<RenderCommand>& Commands, Gfl::Array<size_t>& SortedCommands);
 
+		void RenderPushedCommand(const RenderCommand& Command, bool UpdateState);
 		void RenderMesh(RenderNode& Node);
 		void RenderMesh(GrvtMesh& Mesh);
 
 		void UpdateMaterial(GrvtMaterial* Material);
 
-		void RenderPushedCommand(const RenderCommand& Command, bool UpdateState);
+		void DeleteFramebuffer(RenderTarget& Framebuffer);
+		void DeleteFramebufferInstant(RenderTarget& Framebuffer);
 
 	public:
 
-		uint32			PosX;
-		uint32			PosY;
-		uint32			Width;
-		uint32			Height;
+		uint32 PosX;
+		uint32 PosY;
+		uint32 Width;
+		uint32 Height;
 
 		GrvtRenderer();
 		~GrvtRenderer();
@@ -78,6 +86,9 @@ namespace Grvt
 		void Shutdown();
 
 		void Render();
+
+		size_t	NewDepthMap(bool Cubemap = true);
+		bool	DeleteRenderTarget(size_t RenderTargetIndex);
 	};
 
 }

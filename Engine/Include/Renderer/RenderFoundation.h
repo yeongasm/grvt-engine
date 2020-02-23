@@ -56,6 +56,7 @@ namespace Grvt
 		RenderState				State;
 		GrvtMaterial*			Material;
 		bool					Sort;
+		bool					HasShadow;
 
 		RenderCommand();
 		~RenderCommand();
@@ -70,13 +71,14 @@ namespace Grvt
 	};
 
 
-	enum RenderTargetAttachPoints : uint32
+	enum RenderTargetAttachPoint : uint32
 	{
 		RenderTarget_AttachPoint_None			= 0x00,
 		RenderTarget_AttachPoint_Depth			= 0x01,
 		RenderTarget_AttachPoint_DepthStencil	= 0x02,
-		RenderTarget_AttachPoint_Colour			= 0x03
+		RenderTarget_AttachPoint_Colour			= 0x03,
 	};
+
 
 	/**
 	* RenderTarget data structure.
@@ -112,20 +114,22 @@ namespace Grvt
 		glm::mat4 Projection;
 		glm::mat4 View;
 
-		glm::mat4		DirectionalLight;
-		glm::mat4		DirLightSpaceTransform;
-		RenderTarget*	DepthMap;
+		glm::mat4 DirectionalLight;
+		glm::mat4 DirLightSpaceTransform;
 
-		Gfl::Array<glm::mat4>		PointLights;
-		std::deque<glm::mat4>		PointLightSpaceTransforms;
-		Gfl::Array<RenderTarget*>	OmniDepthMaps;
+		Gfl::Array<glm::mat4>	PointLights;
+		std::deque<glm::mat4>	PointLightSpaceTransforms;
+		Gfl::Array<size_t>		OmniDepthMapIndices;
 
 		Gfl::Array<RenderCommand>	RenderCommands;
 		Gfl::Array<RenderCommand>	InstancedCommands;
 		Gfl::Array<RenderCommand>	ShadowCommands;
 
-		RenderCommand				SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
+		RenderCommand SkyBox;				// Skyboxes will be rendered last. Where it stands in a deferred pipeline? Probably last as well...
 		
+		size_t DepthMapIndex;
+
+		bool HasSkyBox;
 		bool IsEmpty;
 
 		ENGINE_API CommandBuffer();

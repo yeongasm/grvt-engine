@@ -789,6 +789,20 @@ namespace Gfl
 		}
 
 
+		bool operator< (const BasicHashString& Rhs) const
+		{
+			return Hash < Rhs.Hash;
+		}
+
+
+		bool operator< (const BasicString<Type>& Rhs) const
+		{
+			BasicHashString<Type> Temp = Rhs;
+			
+			return Hash < Temp.Hash;
+		}
+
+
 		/**
 		* Clears all data and the hash from the string and releases it from memory.
 		*/

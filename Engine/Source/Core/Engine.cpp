@@ -5,7 +5,7 @@
 #include "Renderer/Renderer.h"
 
 
-extern Grvt::GrvtScene*		g_ActiveScene	= nullptr;
+extern Grvt::GrvtScene*		g_ActiveScene;
 extern Grvt::GrvtEngine*	g_Engine		= nullptr;
 
 
@@ -189,6 +189,10 @@ namespace Grvt
 		Module.DllTempFile	= "DemoReload.dll";
 
 		Module.LoadModuleDll(true);
+		
+		// NOTE(Afiq):
+		// Not too sure about this implementation.
+		GraphicsCtx->GlInterface.Tick();
 	}
 
 

@@ -40,9 +40,12 @@ namespace Grvt
 
 	enum GfxVarType : uint32
 	{
-		Gfx_Type_None		= 0x00,
+		Gfx_Type_None		= GL_NONE,
 		Gfx_Type_Boolean	= GL_BOOL,
+		Gfx_Type_UByte		= GL_UNSIGNED_BYTE,
+		Gfx_Type_UInteger	= GL_UNSIGNED_INT,
 		Gfx_Type_Integer	= GL_INT,
+		Gfx_Type_HalfFloat	= GL_HALF_FLOAT,
 		Gfx_Type_Float		= GL_FLOAT,
 		Gfx_Type_Double		= GL_DOUBLE,
 		Gfx_Type_Sampler1D	= GL_SAMPLER_1D,
@@ -61,6 +64,97 @@ namespace Grvt
 		Gfx_Type_Mat3d		= GL_DOUBLE_MAT3,
 		Gfx_Type_Mat4f		= GL_FLOAT_MAT4,
 		Gfx_Type_Mat4d		= GL_DOUBLE_MAT4
+	};
+
+	enum GfxTexType : uint32
+	{
+		Gfx_Texture_1D = GL_TEXTURE_1D,
+		Gfx_Texture_2D = GL_TEXTURE_2D,
+		Gfx_Texture_3D = GL_TEXTURE_3D,
+		Gfx_Texture_CubeMap = GL_TEXTURE_CUBE_MAP
+	};
+
+	enum GfxTexParam : uint32
+	{
+		Gfx_TexParam_MinFilter = GL_TEXTURE_MIN_FILTER,
+		Gfx_TexParam_MagFilter = GL_TEXTURE_MAG_FILTER,
+		Gfx_TexParam_WrapS = GL_TEXTURE_WRAP_S,
+		Gfx_TexParam_WrapT = GL_TEXTURE_WRAP_T,
+		Gfx_TexParam_WrapR = GL_TEXTURE_WRAP_R
+	};
+
+	enum GfxCompareFuncs : uint32
+	{
+		Gfx_CmpFunc_Lequal	= GL_LEQUAL,
+		Gfx_CmpFunc_Gequal	= GL_GEQUAL,
+		Gfx_CmpFunc_Less	= GL_LESS,
+		Gfx_CmpFunc_Greater = GL_GREATER,
+		Gfx_CmpFunc_Equal	= GL_EQUAL,
+		Gfx_CmpFunc_NotEqual = GL_NOTEQUAL,
+		Gfx_CmpFunc_Always	= GL_ALWAYS,
+		Gfx_CmpFunc_Never	= GL_NEVER
+	};
+
+	enum GfxWrapFunc : uint32
+	{
+		Gfx_Wrap_Repeat			= GL_REPEAT,
+		Gfx_Wrap_MirroredRepeat = GL_MIRRORED_REPEAT,
+		Gfx_Wrap_ClampToEdge	= GL_CLAMP_TO_EDGE,
+		Gfx_Wrap_ClampToBorder	= GL_CLAMP_TO_BORDER,
+		Gfx_Wrap_MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE
+	};
+
+	enum GfxMipFunc : uint32
+	{
+		Gfx_Mip_Nearest = GL_NEAREST,
+		Gfx_Mip_Linear	= GL_LINEAR,
+		Gfx_Mip_NearestMipMapNearest	= GL_NEAREST_MIPMAP_NEAREST,
+		Gfx_Mip_NearestMipMapLinear		= GL_NEAREST_MIPMAP_LINEAR,
+		Gfx_Mip_LinearMipMapNearest		= GL_LINEAR_MIPMAP_NEAREST,
+		Gfx_Mip_LinearMipMapLinear		= GL_LINEAR_MIPMAP_LINEAR
+	};
+
+	enum GfxAttachment : uint32
+	{
+		Gfx_Attachment_DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT,
+		Gfx_Attachment_Depth		= GL_DEPTH_ATTACHMENT,
+		Gfx_Attachment_Colour0		= GL_COLOR_ATTACHMENT0,
+		Gfx_Attachment_Colour1		= GL_COLOR_ATTACHMENT1,
+		Gfx_Attachment_Colour2		= GL_COLOR_ATTACHMENT2,
+		Gfx_Attachment_Colour3		= GL_COLOR_ATTACHMENT3,
+		Gfx_Attachment_Colour4		= GL_COLOR_ATTACHMENT4,
+		Gfx_Attachment_Colour5		= GL_COLOR_ATTACHMENT5,
+		Gfx_Attachment_Colour6		= GL_COLOR_ATTACHMENT6,
+		Gfx_Attachment_Colour7		= GL_COLOR_ATTACHMENT7,
+		Gfx_Attachment_Colour8		= GL_COLOR_ATTACHMENT8,
+		Gfx_Attachment_Colour9		= GL_COLOR_ATTACHMENT9,
+		Gfx_Attachment_Colour10		= GL_COLOR_ATTACHMENT10,
+		Gfx_Attachment_Colour11		= GL_COLOR_ATTACHMENT11,
+		Gfx_Attachment_Colour12		= GL_COLOR_ATTACHMENT12,
+		Gfx_Attachment_Colour13		= GL_COLOR_ATTACHMENT13,
+		Gfx_Attachment_Colour14		= GL_COLOR_ATTACHMENT14,
+		Gfx_Attachment_Colour15		= GL_COLOR_ATTACHMENT15,
+		Gfx_Attachment_Colour16		= GL_COLOR_ATTACHMENT16,
+		Gfx_Attachment_Colour17		= GL_COLOR_ATTACHMENT17,
+		Gfx_Attachment_Colour18		= GL_COLOR_ATTACHMENT18,
+		Gfx_Attachment_Colour19		= GL_COLOR_ATTACHMENT19,
+		Gfx_Attachment_Colour20		= GL_COLOR_ATTACHMENT20,
+		Gfx_Attachment_Colour21		= GL_COLOR_ATTACHMENT21,
+		Gfx_Attachment_Colour22		= GL_COLOR_ATTACHMENT22,
+		Gfx_Attachment_Colour23		= GL_COLOR_ATTACHMENT23,
+		Gfx_Attachment_Colour24		= GL_COLOR_ATTACHMENT24,
+	};
+
+	enum GfxFormats : uint32
+	{
+		Gfx_Format_Red	= GL_RED,
+		Gfx_Format_Rg	= GL_RG,
+		Gfx_Format_Rgb	= GL_RGB,
+		Gfx_Format_Rgba = GL_RGBA,
+		Gfx_Format_Depth = GL_DEPTH_COMPONENT,
+		Gfx_Format_DepthStencil = GL_DEPTH_STENCIL,
+		Gfx_Format_Rgb16F	= GL_RGB16F,
+		Gfx_Format_Rgba16F	= GL_RGBA16F
 	};
 
 	struct VertexAttr
