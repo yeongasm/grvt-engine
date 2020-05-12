@@ -1,5 +1,7 @@
 <h1>Gravity Render Engine v2.0</h1>
 
+<h2>This Project is currently on hold!</h2>
+
 <p>Gravity is a hobby render engine that is being developed with the idea of learning graphics programming and engine development written entirely in C++ ... and a little bit of C. The engine is currently in heavy development and architecture will change over time.
 <br><br>Gravity's development philosophy revolves around modularity and every feature written into the engine has been given ample amounts of consideration and thinking before finalising the API's design and structure. You will also note that Gravity tries to avoid C++'s std library whenever possible if you're looking inside of it's codebase. This was done simply to maximise learning experience as I try to recreate important basic data structures (Array, String and etc ...) and fine tune them to be as performant as the standard's.<br><br>The current end-game goal for Gravity is to implement Physically Based Rendering (PBR) into Gravity's renderer.</p>
 <br/>
@@ -59,6 +61,8 @@ No external build process tools were used for this project. Hence simply follow 
 
 <br/>
 <img src="Devlog/Pictures/Annotation 2019-08-13 000820.png" alt="img"/>
+<img src="Devlog/Pictures/Choppy_Bloom_Implementation2.png" alt="img"/>
+<img src="Devlog/Pictures/Multiple_Point_Shadows_Pre_Bloom.gif" alt="img"/>
 
 <br/>
 <h2>External Dependencies</h2>
